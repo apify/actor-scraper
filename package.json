@@ -1,0 +1,50 @@
+{
+  "name": "act-crawler",
+  "version": "0.0.1",
+  "description": "Web crawler running at Apify platform.",
+  "main": "main.js",
+  "scripts": {
+    "local": "npm run build && APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js",
+    "build": "babel src --out-dir build",
+    "test": "npm run build && mocha --timeout 5000 --compilers js:babel-core/register --recursive",
+    "clean": "rm -rf build && rm -rf docs",
+    "lint": "eslint src test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "@TODO"
+  },
+  "dependencies": {
+    "apify": "^0.4.32",
+    "babel-polyfill": "^6.26.0",
+    "bluebird": "^3.5.1",
+    "jquery": "^3.2.1",
+    "puppeteer": "^0.12.0",
+    "underscore": "^1.8.3",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.6.5",
+    "babel-core": "^6.1.21",
+    "babel-eslint": "^7.2.2",
+    "babel-preset-import-export": "^1.0.2",
+    "chai": "^3.4.1",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-promise": "^3.4.2",
+    "eslint-plugin-react": "^6.10.3",
+    "mocha": "^3.2.0",
+    "sinon": "^2.2.0"
+  },
+  "keywords": [
+    "crawler",
+    "apify",
+    "act",
+    "scraper"
+  ],
+  "author": "Marek Trunkát",
+  "license": "ALv2"
+}

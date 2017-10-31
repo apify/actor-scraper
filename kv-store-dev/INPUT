@@ -1,0 +1,24 @@
+{
+    "startUrls": [
+        {
+            "key": "example",
+            "value": "http://example.com/"
+        },
+        {
+            "key": "eatrocks",
+            "value": "http://eatrocks.cz"
+        },
+        {
+            "key": "eatrocks",
+            "value": "http://eatrocks.cz/umelci"
+        },
+        {
+            "key": "eatrocks",
+            "value": "http://eatrocks.cz/kontakt"
+        }
+    ],
+    "maxParallelRequests": 2,
+    "injectJQuery": true,
+    "pageFunction": "function (context) {\n return context.jQuery('title').text();\n}"
+}
+
