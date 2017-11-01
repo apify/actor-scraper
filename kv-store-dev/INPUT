@@ -17,8 +17,12 @@
             "value": "http://eatrocks.cz/kontakt"
         }
     ],
-    "maxParallelRequests": 2,
+    "maxParallelRequests": 1,
     "injectJQuery": true,
-    "pageFunction": "function (context) {\n return context.jQuery('title').text();\n}"
+    "injectUnderscoreJs": true,
+    "pageFunction": "function (context) { return { title: context.jQuery('title').text(), range: context.underscoreJs.range(1, 10) } }",
+    "pageFunctionFinishLater": "function (context) { context.willFinishLater(); setTimeout(() => context.finish({ foo: 'bar' }), 5000);  }",
+    "clickableElementsSelector": "a",
+    "interceptRequest": ""
 }
 
