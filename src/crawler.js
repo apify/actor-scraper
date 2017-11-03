@@ -1,5 +1,6 @@
 import Apify from 'apify';
-import { logDebug } from './utils';
+import EventEmitter from 'events';
+import { logDebug, logError } from './utils';
 import * as utils from './puppeteer_utils';
 
 export const CRAWLER_OPTIONS = [
@@ -13,34 +14,23 @@ export const CRAWLER_OPTIONS = [
 
 const PUPPETEER_CONFIG = {
     dumpio: true,
+    slowMo: 500,
 };
 
-const processRequest = async (page, request, opts) => {
-    const promises = [];
-    const context = {
-        request,
-        customData: opts.customData,
-    };
-    const waitForBodyAndClickClickablesPromise = utils
-        .waitForBody(page)
-        .then(() => utils.clickClickables(page, opts.clickableElementsSelector, opts.interceptRequest));
-
-    promises.push(waitForBodyAndClickClickablesPromise);
-    promises.push(utils.injectContext(page, context));
-
-    if (opts.injectJQuery) promises.push(utils.injectJQueryScript(page));
-    if (opts.injectUnderscoreJs) promises.push(utils.injectUnderscoreScript(page));
-
-    await Promise.all(promises);
-
-    return utils.executePageFunction(page, opts.pageFunction);
+const REQUEST_DEFAULTS = {
+    label: '',
 };
 
 // @TODO validate properties
-export default class Crawler {
+export default class Crawler extends EventEmitter {
     constructor(opts) {
+        super();
         this.opts = opts;
         this.browser = null;
+    }
+
+    _emitRequest(request) {
+        this.emit('request', Object.assign({}, REQUEST_DEFAULTS, request));
     }
 
     async initialize() {
@@ -54,15 +44,18 @@ export default class Crawler {
     async crawl(request) {
         const page = await this.browser.newPage();
 
-        page.on('console', (message) => {
-            logDebug(`Console [${message.type}]: ${message.text}`);
-        });
+        page.on('console', message => logDebug(`Console [${message.type}]: ${message.text}`));
+        page.on('error', error => logError('Page error', error));
+        page.on('frameattached', () => logDebug('Event: frameattached'));
+        page.on('framedetached', () => logDebug('Event: framedetached'));
+        page.on('framenavigated', () => logDebug('Event: framenavigated'));
+        page.on('load', () => logDebug('Event: load'));
 
         // We need to catch errors here in order to close opened page in
         // a case of an error and then we can rethrow it.
         try {
             await page.goto(request.url);
-            const result = await processRequest(page, request, this.opts);
+            const result = await this._processRequest(page, request);
             await page.close();
 
             return result;
@@ -70,5 +63,31 @@ export default class Crawler {
             await page.close();
             throw err;
         }
+    }
+
+    async _processRequest(page, request) {
+        const promises = [];
+        const contextVars = {
+            request,
+            customData: this.opts.customData,
+        };
+        const contextMethods = {
+            enqueuePage: newRequest => this._emitRequest(newRequest),
+        };
+
+        const waitForBodyAndClickClickablesPromise = utils
+            .waitForBody(page);
+            // .then(() => utils.clickClickables(page, request, this.opts.clickableElementsSelector, this.opts.interceptRequest));
+
+        promises.push(waitForBodyAndClickClickablesPromise);
+        promises.push(utils.injectContext(page, contextVars));
+        promises.push(utils.exposeMethods(page, contextMethods));
+
+        if (this.opts.injectJQuery) promises.push(utils.injectJQueryScript(page));
+        if (this.opts.injectUnderscoreJs) promises.push(utils.injectUnderscoreScript(page));
+
+        await Promise.all(promises);
+
+        return utils.executePageFunction(page, this.opts);
     }
 }

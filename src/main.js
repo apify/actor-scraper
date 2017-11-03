@@ -20,6 +20,10 @@ Apify.main(async () => {
         .map(item => newRequest({ label: item.key, url: item.value }))
         .forEach(request => requestManager.addNewRequest(request));
 
+    crawler.on('request', (request) => {
+        requestManager.addNewRequest(newRequest(request));
+    });
+
     const promiseProducer = () => {
         const request = requestManager.fetchNextRequest();
 
@@ -39,7 +43,7 @@ Apify.main(async () => {
                 delete runningRequests[request.id];
             }
 
-            resolve();
+            setTimeout(resolve, 3000); // @TODO randomWaitBetweenRequests
         });
     };
 
