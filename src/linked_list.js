@@ -128,5 +128,13 @@ export default class LinkedList {
 
         return head.data;
     }
+
+    /**
+     * Returns the first item from the list. The function
+     * returns the item object or null if the list is empty.
+     */
+    getFirst() {
+        return this.head;
+    }
 }
 

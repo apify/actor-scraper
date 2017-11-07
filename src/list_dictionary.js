@@ -113,4 +113,21 @@ export default class ListDictionary {
             this.dictionary = {};
         }
     }
+
+    forEach(func) {
+        let current = this.linkedList.getFirst();
+
+        while (current) {
+            func(current.data);
+            current = current.next;
+        }
+    }
+
+    map() {
+        const result = [];
+
+        this.forEach(item => result.push(item));
+
+        return result;
+    }
 }

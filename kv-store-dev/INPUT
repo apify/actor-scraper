@@ -1,8 +1,8 @@
 {
     "startUrls": [
         {
-            "key": "example",
-            "value": "http://writingexercises.co.uk/random-images.php"
+            "key": "",
+            "value": "https://news.ycombinator.com"
         }
     ],
     "startUrls2": [
@@ -19,12 +19,22 @@
             "value": "http://eatrocks.cz/kontakt"
         }
     ],
+    "crawlPurls3": [],
+    "crawlPurls": [
+        {
+            "key": "something",
+            "value": "https://news.ycombinator.com/news?p=[\\d+]"
+        }
+    ],
     "maxParallelRequests": 1,
     "injectJQuery": true,
     "injectUnderscoreJs": true,
-    "pageFunction": "function (context) { console.log('Hi from pageFunction!'); context.enqueuePage({ url: 'http://eatrocks.cz' }); return { title: context.jQuery('title').text(), range: context.underscoreJs.range(1, 10) } }",
+    "pageFunction": "/* Get all submissions from the first 5 pages\n*/\nfunction pageFunction(context) {\n    context.enqueuePage({ url: 'http://example.com' });   var $ = context.jQuery;    \n    var result = [];    \n    $(\".athing\").each( function() {\n        var comments = $(this).next(\"tr\").find(\"a:eq(2)\").text();\n        if (comments === \"discuss\") { comments = \"0\"; }\n        else { comments = comments.replace(/ comments| comment/,\"\"); }\n        result.push({\n            rank : $(this).find(\".rank\").text(),\n            title : $(this).find(\".title:eq(1) a:eq(0)\").text(),\n            link : $(this).find(\".title:eq(1) a:eq(0)\").attr(\"href\"),\n            score : $(this).next(\"tr\").find(\".score\").text().replace(/ points| point/,\"\"),\n            author : $(this).next(\"tr\").find(\"a:eq(0)\").text(),\n            time : $(this).next(\"tr\").find(\"a:eq(1)\").text(),\n            comments : comments\n        });\n    });        \n    return result;\n}",
+    "pageFunction2": "function (context) { console.log('Hi from pageFunction!'); context.enqueuePage({ url: 'http://eatrocks.cz/kontakt' }); return { title: context.jQuery('title').text(), range: context.underscoreJs.range(1, 10) } }",
     "pageFunctionFinishLater": "function (context) { context.willFinishLater(); setTimeout(() => context.finish({ foo: 'bar' }), 5000);  }",
     "clickableElementsSelector": "a",
-    "interceptRequest": ""
+    "interceptRequest2": "",
+    "interceptRequest3": "function(ctx, req) { console.log('Hello from intercept'); console.log(req); req.type = 'LINK_CLICKED'; req.willLoad = true; return req; }",
+    "maxCrawlingDepth": 5
 }
 

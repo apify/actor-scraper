@@ -57,8 +57,35 @@ export const exposeMethods = async (page, functions) => {
     return Promise.all(promises);
 };
 
-export const executePageFunction = async (page, opts) => {
-    return page.evaluate((passedOpts) => {
+export const decorateEnqueuePage = async (page, interceptRequestStr) => {
+    return page.evaluate((passedInterceptRequestStr) => {
+        console.log('Decorating context.enqueuePage()');
+
+        if (!passedInterceptRequestStr) passedInterceptRequestStr = 'function (ctx, req) { return req; }';
+
+        const interceptRequest = eval(`(${passedInterceptRequestStr})`);  // eslint-disable-line no-eval
+        const context = window.APIFY_CONTEXT;
+        const originalEnqueuePage = context.enqueuePage;
+
+        if (typeof interceptRequest !== 'function') throw new Error('InterceptRequest must be a function string!');
+
+        window.APIFY_CONTEXT.enqueuePage = async (requestOpts, clickedElement = null) => {
+            const newRequest = await context.newRequest(requestOpts);
+            const interceptRequestContext = {
+                request: context.request,
+                jQuery: context.jQuery,
+                underscoreJs: context.underscoreJs,
+                clickedElement,
+            };
+            const interceptedRequest = interceptRequest(interceptRequestContext, newRequest);
+
+            await originalEnqueuePage(interceptedRequest);
+        };
+    }, interceptRequestStr);
+};
+
+export const executePageFunction = async (page, crawlerConfig) => {
+    return page.evaluate((passedCrawlerConfig) => {
         console.log('Running page function');
 
         const context = window.APIFY_CONTEXT;
@@ -74,42 +101,30 @@ export const executePageFunction = async (page, opts) => {
 
         context.finish = data => willFinishLaterResolve(data);
 
-        console.log(JSON.stringify(context.underscoreJs.keys(context)));
-        console.log(typeof context.enqueuePage);
-
-        const pageFunctionEvaled = eval(`(${passedOpts.pageFunction})`); // eslint-disable-line no-eval
+        const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
         const result = pageFunctionEvaled(context);
 
         return willFinishLaterPromise || result;
-    }, opts);
+    }, crawlerConfig);
 };
 
-export const clickClickables = async (/* page, request, clickableElementsSelector, interceptRequest */) => {
-    console.log('CLICKING ELEMENTS');
+export const clickClickables = async (page, clickableElementsSelector) => {
+    console.log('Clicking elements');
 
-    // await page.setRequestInterceptionEnabled(true);
-    /* page.on('request', (interceptedRequest) => {
-        //console.log('request');
-        //console.log(interceptedRequest);
+    return page.evaluate((passedClickableElementsSelector) => {
+        const { enqueuePage, REQUEST_TYPES } = window.APIFY_CONTEXT;
 
-        //interceptedRequest.abort();
+        document
+            .querySelectorAll(passedClickableElementsSelector)
+            .forEach((el) => {
+                const url = el.href;
 
-        console.log(interceptedRequest.url);
+                if (!url) return;
 
-        if (interceptedRequest.url !== request.url) {
-            console.log('changing url');
-            interceptedRequest.url = request.url;
-        }
-
-        interceptedRequest.continue();
-    });
-
-    const waitPromise = page.waitForNavigation();
-    const clickPromise = page.click('a');
-
-    console.log(await waitPromise);
-
-    await clickPromise; */
+                enqueuePage({
+                    url,
+                    type: REQUEST_TYPES.LINK_CLICKED,
+                });
+            });
+    }, clickableElementsSelector);
 };
-
-// document.querySelectorAll
