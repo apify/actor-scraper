@@ -48,10 +48,6 @@ export default class Crawler extends EventEmitter {
 
         page.on('console', message => logDebug(`Console [${message.type}]: ${message.text}`));
         page.on('error', error => logError('Page error', error));
-        page.on('frameattached', () => logDebug('Event: frameattached'));
-        page.on('framedetached', () => logDebug('Event: framedetached'));
-        page.on('framenavigated', () => logDebug('Event: framenavigated'));
-        page.on('load', () => logDebug('Event: load'));
 
         // Save stats about all the responses (html file + assets).
         // First response is main html page followed with assets or iframes.
