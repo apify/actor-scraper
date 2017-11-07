@@ -35,6 +35,14 @@ export default class Crawler extends EventEmitter {
         return new Request(this.crawlerConfig, request);
     }
 
+    async _emitSnapshot(page, request) {
+        this.emit('snapshot', {
+            url: request.url,
+            html: await page.$eval('html', el => el.outerHTML),
+            screenshot: await page.screenshot(),
+        });
+    }
+
     async initialize() {
         this.browser = await Apify.launchPuppeteer(PUPPETEER_CONFIG);
     }
@@ -77,6 +85,8 @@ export default class Crawler extends EventEmitter {
     }
 
     async _processRequest(page, request) {
+        const beforeEndPromises = [];
+
         request.loadingStartedAt = new Date();
         request.loadedUrl = page.url();
 
@@ -89,6 +99,9 @@ export default class Crawler extends EventEmitter {
         const contextMethods = {
             enqueuePage: newRequest => this._emitRequest(request, newRequest),
             newRequest: requestOpts => this._newRequest(Object.assign({}, requestOpts, { referrer: request })),
+            saveSnapshot: () => {
+                beforeEndPromises.push(this._emitSnapshot(page, request));
+            },
         };
         const waitForBodyPromise = utils
             .waitForBody(page)
@@ -111,5 +124,7 @@ export default class Crawler extends EventEmitter {
         request.pageFunctionStartedAt = new Date();
         request.pageFunctionResult = await utils.executePageFunction(page, this.crawlerConfig);
         request.pageFunctionFinishedAt = new Date();
+
+        await Promise.all(beforeEndPromises);
     }
 }

@@ -46,6 +46,14 @@ Apify.main(async () => {
         requestManager.addNewRequest(request);
     });
 
+    // This event is trigered by context.saveSnapshot().
+    crawler.on('snapshot', ({ url, html, screenshot }) => {
+        const filename = url.replace(/\W+/g, '-');
+
+        Apify.setValue(`snapshot-${filename}.html`, html, { contentType: 'text/html' });
+        Apify.setValue(`snapshot-${filename}.jpg`, screenshot, { contentType: 'image/png' });
+    });
+
     const promiseProducer = () => {
         const request = requestManager.fetchNextRequest();
 
