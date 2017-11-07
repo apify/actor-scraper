@@ -1,4 +1,4 @@
-FROM apify/actor-node-basic
+FROM apify/actor-node-puppeteer
 
 ENV NODE_ENV=production
 
