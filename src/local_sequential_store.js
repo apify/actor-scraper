@@ -1,0 +1,44 @@
+import StatefulClass from './stateful_class';
+import { logDebug } from './utils';
+
+const DEFAULT_MAX_PAGES_PER_FILE = 1;
+const DEFAULT_STATE = {
+    currentFileNum: 1,
+    buffer: [],
+    currentSeqNum: 1,
+};
+
+export const STATE_KEY = 'STATE-local-sequential-store.json';
+
+export default class LocalSequentialStore extends StatefulClass {
+    constructor(state = DEFAULT_STATE, { maxPagesPerFile = DEFAULT_MAX_PAGES_PER_FILE }) {
+        super('LocalSequentialStore', STATE_KEY);
+
+        this.state = state;
+        this.maxPagesPerFile = maxPagesPerFile;
+    }
+
+    put(record) {
+        record.outputSeqNum = this.state.currentSeqNum;
+
+        this.state.currentSeqNum ++;
+        this.state.buffer.push(record);
+
+        if (this.state.buffer.length >= this.maxPagesPerFile) this._outputFile();
+    }
+
+    _outputFile() {
+        const key = `RESULTS-${this.state.currentFileNum}.json`;
+
+        logDebug(`SequentialStore: outputting file ${key}`);
+
+        this.emit('value', { key, body: this.state.buffer });
+        this.state.currentFileNum ++;
+        this.state.buffer = [];
+    }
+
+    destroy() {
+        if (this.state.buffer.length) this._outputFile();
+        super.destroy();
+    }
+}
