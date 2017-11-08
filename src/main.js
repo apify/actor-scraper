@@ -23,7 +23,7 @@ const fetchInput = async () => {
 
     if (!input.crawlerId) return input;
 
-    const crawler = await Apify.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId });
+    const crawler = await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId });
 
     return Object.assign({}, input, crawler);
 };
