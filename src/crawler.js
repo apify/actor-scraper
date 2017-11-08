@@ -110,11 +110,7 @@ export default class Crawler extends EventEmitter {
             skipOutput: () => {
                 request.skipOutput = true;
             },
-            pick: (obj, keys) => keys.reduce((result, key) => {
-                if (obj[key] !== undefined) result[key] = obj[key];
-
-                return result;
-            }, {}),
+            skipLinks: () => console.log('WARNING: skip links are not implemented yet.'),
         };
         const waitForBodyPromise = utils
             .waitForBody(page)
