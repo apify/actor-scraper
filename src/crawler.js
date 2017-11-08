@@ -1,4 +1,5 @@
 import Apify from 'apify';
+import _ from 'underscore';
 import EventEmitter from 'events';
 import { logDebug, logError } from './utils';
 import * as utils from './puppeteer_utils';
@@ -23,12 +24,15 @@ export default class Crawler extends EventEmitter {
     }
 
     _emitRequest(originalRequest, newRequest) {
-        const linking = {
+        _.mapObject(ENQUEUED_REQUEST_DEFAULTS, (val, key) => {
+            if (!newRequest[key]) newRequest[key] = val;
+        });
+        _.extend(newRequest, {
             referrer: originalRequest,
             depth: originalRequest.depth + 1,
-        };
+        });
 
-        this.emit('request', Object.assign({}, ENQUEUED_REQUEST_DEFAULTS, linking, newRequest));
+        this.emit('request', newRequest);
     }
 
     _newRequest(request) {
@@ -97,10 +101,18 @@ export default class Crawler extends EventEmitter {
             REQUEST_TYPES,
         };
         const contextMethods = {
-            enqueuePage: newRequest => this._emitRequest(request, newRequest),
+            enqueuePage: (newRequest) => {
+                // @TODO: TEMP hack because the requests comming from context.enqueuePage are not real requests.
+                if (!(newRequest instanceof Request)) newRequest = this._newRequest(newRequest);
+
+                this._emitRequest(request, newRequest);
+            },
             newRequest: requestOpts => this._newRequest(Object.assign({}, requestOpts, { referrer: request })),
             saveSnapshot: () => {
                 beforeEndPromises.push(this._emitSnapshot(page, request));
+            },
+            skipOutput: () => {
+                request.skipOutput = true;
             },
         };
         const waitForBodyPromise = utils

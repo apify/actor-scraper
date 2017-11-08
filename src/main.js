@@ -1,35 +1,77 @@
 import Apify from 'apify';
 import _ from 'underscore';
-import { logError, logDebug } from './utils';
-import LocalRequestManager from './local_request_manager';
+import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './utils';
 import AutoscaledPool from './autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 import Crawler from './crawler';
 import PseudoUrl from './pseudo_url';
+import LocalPageQueue, { STATE_KEY as PAGE_QUEUE_STATE_KEY } from './local_page_queue';
+import LocalSequentialStore, { STATE_KEY as SEQ_STORE_STATE_KEY } from './local_sequential_store';
 
+const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
 const runningRequests = {};
 
-Apify.main(async () => {
-    const input = await Apify.getValue('INPUT');
-    const requestManager = new LocalRequestManager(input);
-    const crawler = new Crawler(input);
-    const newRequest = data => new Request(input, data);
+const createSeqStore = async (input) => {
+    const state = await getValueOrUndefined(SEQ_STORE_STATE_KEY);
+    const sequentialStore = new LocalSequentialStore(state, input);
 
+    return sequentialStore;
+};
+
+const createPageQueue = async (input) => {
+    const state = await getValueOrUndefined(PAGE_QUEUE_STATE_KEY);
+    const pageQueue = new LocalPageQueue(state, input);
+
+    return pageQueue;
+};
+
+const createCrawler = async (input) => {
+    const crawler = new Crawler(input);
     await crawler.initialize();
 
-    // Parse PUrls.
+    return crawler;
+};
+
+const parsePurls = (input) => {
     input.crawlPurls.forEach((purl) => {
         purl.parsedPurl = new PseudoUrl(purl.value);
     });
+};
 
-    // Enqueue start urls.
+const enqueueStartUrls = (input, pageQueue) => {
     input.startUrls
-        .map(item => newRequest({
-            label: item.key,
-            url: item.value,
-            type: REQUEST_TYPES.START_URL,
-        }))
-        .forEach(request => requestManager.addNewRequest(request));
+        .map((item) => {
+            const opts = {
+                label: item.key,
+                url: item.value,
+                type: REQUEST_TYPES.START_URL,
+            };
+
+            return new Request(input, opts);
+        })
+        .forEach((request) => {
+            pageQueue.enqueue(request);
+        });
+};
+
+Apify.main(async () => {
+    const input = await Apify.getValue('INPUT');
+
+    _.extend(input, {
+        actId: APIFY_ACT_ID,
+        runId: APIFY_ACT_RUN_ID,
+    });
+
+    const sequentialStore = await createSeqStore(input);
+    const pageQueue = await createPageQueue(input);
+    const crawler = await createCrawler(input);
+
+    sequentialStore.on('value', ({ key, body }) => setValue(key, body));
+    pageQueue.on('value', ({ key, body }) => setValue(key, body));
+    pageQueue.on('handled', request => sequentialStore.put(request.toJSON()));
+
+    parsePurls(input);
+    enqueueStartUrls(input, pageQueue);
 
     // This event is trigered by context.enqueuePage().
     crawler.on('request', (request) => {
@@ -43,19 +85,19 @@ Apify.main(async () => {
             return;
         }
 
-        requestManager.addNewRequest(request);
+        pageQueue.enqueue(request);
     });
 
     // This event is trigered by context.saveSnapshot().
     crawler.on('snapshot', ({ url, html, screenshot }) => {
         const filename = url.replace(/\W+/g, '-');
 
-        Apify.setValue(`snapshot-${filename}.html`, html, { contentType: 'text/html' });
-        Apify.setValue(`snapshot-${filename}.jpg`, screenshot, { contentType: 'image/png' });
+        setValue(`SNAPSHOT-${filename}.html`, html, { contentType: 'text/html' });
+        setValue(`SNAPSHOT-${filename}.jpg`, screenshot, { contentType: 'image/png' });
     });
 
     const promiseProducer = () => {
-        const request = requestManager.fetchNextRequest();
+        const request = pageQueue.fetchNext();
 
         if (!request || runningRequests[request.id]) return;
 
@@ -64,14 +106,16 @@ Apify.main(async () => {
 
             try {
                 await crawler.crawl(request);
-                requestManager.markRequestHandled(request);
+                pageQueue.dequeue(request);
                 delete runningRequests[request.id];
             } catch (err) {
+                request.retryCount ++;
                 logError(`Request failed (${request})`, err);
                 delete runningRequests[request.id];
             }
 
-            setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
+            resolve();
+            // setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
         });
     };
 
@@ -82,13 +126,7 @@ Apify.main(async () => {
     });
     await pool.start();
     await crawler.destroy();
-
-    // Output result.
-    const resultsArray = requestManager
-        .handledRequests
-        .map(request => request.toJSON());
-
-    await Apify.setValue('OUTPUT', resultsArray);
-
-    console.log(resultsArray.map(row => _.omit(row, 'pageFunctionResult')));
+    sequentialStore.destroy();
+    pageQueue.destroy();
+    await waitForPendingSetValues();
 });

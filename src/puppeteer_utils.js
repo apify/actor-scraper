@@ -38,19 +38,21 @@ export const waitForBody = async page => page.waitFor('body');
 
 const getExposedMethodName = name => `APIFY_FUNCTION_${name}`;
 
-export const exposeMethods = async (page, functions) => {
-    const promises = chain(functions)
-        .mapObject((func, name) => {
-            const exposedName = getExposedMethodName(name);
+export const exposeMethod = async (page, method, name) => {
+    const exposedName = getExposedMethodName(name);
 
-            return page
-                .exposeFunction(exposedName, func)
-                .then(() => page.evaluate((passedExposedName, passedName) => {
-                    console.log(`Exposing window.${passedExposedName}() as context.${passedName}()`);
-                    window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
-                    window.APIFY_CONTEXT[passedName] = window[passedExposedName];
-                }, exposedName, name));
-        })
+    return page
+        .exposeFunction(exposedName, method)
+        .then(() => page.evaluate((passedExposedName, passedName) => {
+            console.log(`Exposing window.${passedExposedName}() as context.${passedName}()`);
+            window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
+            window.APIFY_CONTEXT[passedName] = window[passedExposedName];
+        }, exposedName, name));
+};
+
+export const exposeMethods = async (page, methods) => {
+    const promises = chain(methods)
+        .mapObject((method, name) => exposeMethod(page, method, name))
         .toArray()
         .value();
 
@@ -69,7 +71,7 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
 
         if (typeof interceptRequest !== 'function') throw new Error('InterceptRequest must be a function string!');
 
-        window.APIFY_CONTEXT.enqueuePage = async (requestOpts, clickedElement = null) => {
+        context.enqueuePage = async (requestOpts, clickedElement = null) => {
             const newRequest = await context.newRequest(requestOpts);
             const interceptRequestContext = {
                 request: context.request,
@@ -121,10 +123,7 @@ export const clickClickables = async (page, clickableElementsSelector) => {
 
                 if (!url) return;
 
-                enqueuePage({
-                    url,
-                    type: REQUEST_TYPES.LINK_CLICKED,
-                });
+                enqueuePage({ url, type: REQUEST_TYPES.LINK_CLICKED });
             });
     }, clickableElementsSelector);
 };

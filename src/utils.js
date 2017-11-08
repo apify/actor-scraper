@@ -1,4 +1,6 @@
 import _ from 'underscore';
+import Apify from 'apify';
+import uuidv4 from 'uuid/v4';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
@@ -112,4 +114,32 @@ export const normalizeUrl = (url, keepFragment) => {
          }${path.trim()
          }${params.length ? `?${params.join('&').trim()}` : ''
          }${keepFragment && urlObj.fragment ? `#${urlObj.fragment.trim()}` : ''}`;
+};
+
+export const getValueOrUndefined = async (key) => {
+    const value = await Apify
+        .getValue(key)
+        .catch(() => undefined);
+
+    return value || undefined;
+};
+
+
+const pendingSetValues = {};
+
+export const setValue = async (key, body) => {
+    const uuid = uuidv4();
+    const promise = Apify
+        .setValue(key, body)
+        .then(() => {
+            delete pendingSetValues[uuid];
+        });
+
+    pendingSetValues[uuid] = promise;
+
+    return promise;
+};
+
+export const waitForPendingSetValues = async () => {
+    return Promise.all(_.values(pendingSetValues));
 };

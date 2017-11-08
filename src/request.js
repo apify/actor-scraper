@@ -16,6 +16,13 @@ export const TYPES = {
 
 const ALWAYS_LOAD_FOR_TYPES = [TYPES.SINGLE_URL, TYPES.START_URL, TYPES.USER_ENQUEUED];
 
+const REQUEST_DEFAULTS = {
+    depth: 0,
+    downloadedBytes: 0,
+    willLoad: false,
+    skipOutput: false,
+};
+
 const PROPERTIES = [
     // An auto-incremented ID
     'id',
@@ -72,15 +79,19 @@ const PROPERTIES = [
     // Indicates whether the page will be loaded by the crawler or not
     'willLoad',
 
+    // @TODO these we renamed to don't have underscore dangle:
+    // How many times page load was retried on error.
+    'retryCount',
+    // Indicates that the pageFunction requested not to save the request to JSON or database.
+    'skipOutput',
+
     // Indicates the position where the request will be placed in the crawling queue.
     // Can either be 'LAST' to put the request to the end of the queue (default behavior)
     // or 'FIRST' to put it before any other requests.
     // TODO: 'RANDOM' for random position (TODO: not yet implemented)
     // -- 'queuePosition' = 'LAST';
-    // -- additionally, there might be internal fields that are not saved to JSON or database, such as:
-    // -- _skipOutput ..... indicates that the pageFunction requested not to save the request to JSON or database
+    // additionally, there might be internal fields that are not saved to JSON or database, such as:
     // -- _crashesCount ... how many times PhantomJS crashed on this request, only used in src/worker/crawler_executor.js
-    // -- _retryCount ..... how many times page load was retried on error
     // -- _stats .......... only passed from executor to slave, contains current ActExecution.stats
 
     // If the page couldn't be loaded for any reason (e.g. on timeout), this field contains a best guess of
@@ -103,31 +114,22 @@ const PROPERTIES = [
     // -- 'contentType',
 ];
 
-const REQUEST_DEFAULTS = {
-    depth: 0,
-    downloadedBytes: 0,
-    willLoad: false,
-};
-
 // @TODO add validation for parameters.
 export default class Request {
-    constructor(crawlerConfig, opts) {
+    constructor(crawlerConfig, opts, copmuteDefaults = true) {
         this.data = {};
 
         PROPERTIES.forEach((key) => {
-            Object.defineProperty(this, key, {
-                get: () => this.data[key],
-                set: (val) => {
-                    this.data[key] = val;
-                },
-            });
-
             if (!isNullOrUndefined(opts[key])) this[key] = opts[key];
             else if (!isNullOrUndefined(REQUEST_DEFAULTS[key])) this[key] = REQUEST_DEFAULTS[key];
             else this[key] = null;
         });
 
-        this.computeStuff(crawlerConfig);
+        if (copmuteDefaults) this.computeDefaults(crawlerConfig);
+    }
+
+    static fromJSON(crawlerConfig, json) {
+        return new Request(crawlerConfig, json, false);
     }
 
     /**
@@ -135,7 +137,7 @@ export default class Request {
      * and possibly matchesSearchArea/matchesTargetPage (for backwards compatibility).
      * Must be called before interceptRequest!
      */
-    computeStuff(crawlerConfig) {
+    computeDefaults(crawlerConfig) {
         const url = this.url;
 
         // Depth is always refererrs depth + 1.
@@ -202,3 +204,14 @@ export default class Request {
         return `{${this.id}:${this.uniqueKey}}`;
     }
 }
+
+PROPERTIES.forEach((key) => {
+    Object.defineProperty(Request.prototype, key, {
+        get() {
+            return this.data[key];
+        },
+        set(val) {
+            this.data[key] = val;
+        },
+    });
+});
