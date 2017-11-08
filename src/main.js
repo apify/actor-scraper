@@ -9,7 +9,24 @@ import LocalPageQueue, { STATE_KEY as PAGE_QUEUE_STATE_KEY } from './local_page_
 import LocalSequentialStore, { STATE_KEY as SEQ_STORE_STATE_KEY } from './local_sequential_store';
 
 const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
+
+const INPUT_DEFAULTS = {
+    maxPageRetryCount: 3,
+    maxParallelRequests: 1,
+    maxPagesPerFile: 100,
+};
+
 const runningRequests = {};
+
+const fetchInput = async () => {
+    const input = await Apify.getValue('INPUT');
+
+    if (!input.crawlerId) return input;
+
+    const crawler = await Apify.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId });
+
+    return Object.assign({}, input, crawler);
+};
 
 const createSeqStore = async (input) => {
     const state = await getValueOrUndefined(SEQ_STORE_STATE_KEY);
@@ -33,6 +50,7 @@ const createCrawler = async (input) => {
 };
 
 const parsePurls = (input) => {
+    input.crawlPurls = input.crawlPurls || [];
     input.crawlPurls.forEach((purl) => {
         purl.parsedPurl = new PseudoUrl(purl.value);
     });
@@ -55,8 +73,9 @@ const enqueueStartUrls = (input, pageQueue) => {
 };
 
 Apify.main(async () => {
-    const input = await Apify.getValue('INPUT');
+    const input = await fetchInput();
 
+    _.defaults(input, INPUT_DEFAULTS);
     _.extend(input, {
         actId: APIFY_ACT_ID,
         runId: APIFY_ACT_RUN_ID,
@@ -77,11 +96,11 @@ Apify.main(async () => {
     crawler.on('request', (request) => {
         // context.enqueuePage() is not a subject of maxCrawlingDepth
         if (input.maxCrawlingDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlingDepth) {
-            logDebug(`Not qneueuing ${request.url}, max depth reached`);
+            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, max depth reached`);
             return;
         }
         if (!request.willLoad) {
-            logDebug(`Not qneueuing ${request.url}, willLoad = false`);
+            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, willLoad = false`);
             return;
         }
 
@@ -109,9 +128,16 @@ Apify.main(async () => {
                 pageQueue.dequeue(request);
                 delete runningRequests[request.id];
             } catch (err) {
-                request.retryCount ++;
+                request.errorInfo += `${err}\n`;
                 logError(`Request failed (${request})`, err);
                 delete runningRequests[request.id];
+
+                if (request.retryCount === input.maxPageRetryCount) {
+                    logDebug(`Load failed too many times, giving up (request.id: ${request.id}, retryCount: ${request.retryCount})`);
+                    pageQueue.dequeue(request);
+                } else {
+                    request.retryCount ++;
+                }
             }
 
             resolve();

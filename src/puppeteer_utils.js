@@ -5,6 +5,7 @@
  */
 import path from 'path';
 import { chain } from 'underscore';
+import { ENQUEUE_PAGE_ALLOWED_PROPERTIES } from './request';
 
 export const injectJQueryScript = async (page) => {
     const jQueryPath = path.resolve(path.join(__dirname, '../node_modules/jquery/dist/jquery.js'));
@@ -60,7 +61,7 @@ export const exposeMethods = async (page, methods) => {
 };
 
 export const decorateEnqueuePage = async (page, interceptRequestStr) => {
-    return page.evaluate((passedInterceptRequestStr) => {
+    return page.evaluate((passedInterceptRequestStr, allowedFields) => {
         console.log('Decorating context.enqueuePage()');
 
         if (!passedInterceptRequestStr) passedInterceptRequestStr = 'function (ctx, req) { return req; }';
@@ -71,8 +72,14 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
 
         if (typeof interceptRequest !== 'function') throw new Error('InterceptRequest must be a function string!');
 
+        const pick = (obj, keys) => keys.reduce((result, key) => {
+            if (obj[key] !== undefined) result[key] = obj[key];
+
+            return result;
+        }, {});
+
         context.enqueuePage = async (requestOpts, clickedElement = null) => {
-            const newRequest = await context.newRequest(requestOpts);
+            const newRequest = await context.newRequest(pick(requestOpts, allowedFields));
             const interceptRequestContext = {
                 request: context.request,
                 jQuery: context.jQuery,
@@ -83,7 +90,7 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
 
             await originalEnqueuePage(interceptedRequest);
         };
-    }, interceptRequestStr);
+    }, interceptRequestStr, ENQUEUE_PAGE_ALLOWED_PROPERTIES);
 };
 
 export const executePageFunction = async (page, crawlerConfig) => {
@@ -101,7 +108,12 @@ export const executePageFunction = async (page, crawlerConfig) => {
             });
         };
 
-        context.finish = data => willFinishLaterResolve(data);
+        context.finish = (data) => {
+            if (willFinishLaterResolve) return willFinishLaterResolve(data);
+
+            // This happens when context.willFinishLater() wasn't called.
+            willFinishLaterPromise = Promise.resolve(data);
+        };
 
         const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
         const result = pageFunctionEvaled(context);
@@ -111,9 +123,9 @@ export const executePageFunction = async (page, crawlerConfig) => {
 };
 
 export const clickClickables = async (page, clickableElementsSelector) => {
-    console.log('Clicking elements');
-
     return page.evaluate((passedClickableElementsSelector) => {
+        console.log('Clicking elements');
+
         const { enqueuePage, REQUEST_TYPES } = window.APIFY_CONTEXT;
 
         document

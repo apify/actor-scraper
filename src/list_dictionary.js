@@ -18,8 +18,8 @@ export default class ListDictionary {
     /**
      * Gets the number of item in the list.
      */
-    length() {
-        return this.linkedList.length;
+    getLength() {
+        return this.linkedList.getLength();
     }
 
     /**
@@ -37,21 +37,11 @@ export default class ListDictionary {
     }
 
     /**
-     * Gets the first page request from the queue. The function
-     * returns the Request object or null if the queue is empty.
-     */
-    getFirst() {
-        const head = this.linkedList.head;
-
-        return head ? head.data : null;
-    }
-
-    /**
      * Gets the first page request from the queue and moves it to the end of the queue.
      * The function returns the Request object or null if the queue is empty.
      */
     moveFirstToEnd() {
-        const node = this.linkedList.head;
+        const node = this.linkedList.getFirstNode();
 
         if (!node) return null;
 
@@ -59,21 +49,6 @@ export default class ListDictionary {
         this.linkedList.addNode(node);
 
         return node.data;
-    }
-
-    /**
-     * Removes the first item from the list. The function
-     * returns the item object or null if the list is empty.
-     */
-    removeFirst() {
-        const head = this.linkedList.head;
-
-        if (!head) return null;
-
-        this.linkedList.removeNode(head);
-        delete this.dictionary[head.dictKey];
-
-        return head.data;
     }
 
     /**
@@ -108,7 +83,7 @@ export default class ListDictionary {
      * Removes all items from the list.
      */
     clear() {
-        if (this.linkedList.length > 0) {
+        if (this.linkedList.getLength() > 0) {
             this.linkedList = new LinkedList();
             this.dictionary = {};
         }
@@ -119,7 +94,7 @@ export default class ListDictionary {
      */
     toArray() {
         const result = [];
-        let current = this.linkedList.getFirst();
+        let current = this.linkedList.getFirstNode();
 
         while (current) {
             result.push(current.data);

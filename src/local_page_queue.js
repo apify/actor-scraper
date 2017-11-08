@@ -1,7 +1,7 @@
 import StatefulClass from './stateful_class';
 import ListDictionary from './list_dictionary';
 import { logDebug, logInfo } from './utils';
-import Request from './request';
+import Request, { QUEUE_POSITIONS } from './request';
 
 export const STATE_KEY = 'STATE-local-page-queue.json';
 
@@ -49,7 +49,7 @@ export default class LocalPageQueue extends StatefulClass {
         const label = JSON.stringify(request.label);
         const info = `(url: ${url}, label: ${label})`;
 
-        logDebug(`PageQueue.enqueue(): request=${request}`);
+        logDebug(`PageQueue.enqueue(): ${info}`);
 
         // Check whether the requested page was already visited...
         const visitedRequest = this.handled.get(request.uniqueKey);
@@ -59,11 +59,10 @@ export default class LocalPageQueue extends StatefulClass {
         const existingRequest = this.queued.get(request.uniqueKey);
         if (existingRequest) return logDebug(`PageQueue: Page ${info} is already in the queue.`);
 
-        const queueLen = this.queued.length();
-        logInfo(`PageQueue: Adding page to queue ${info}, queue len: ${queueLen}).`);
+        logInfo(`PageQueue: Adding page to queue ${info}, queue len: ${this.queued.getLength()}).`);
 
         request.id = ++this.state.lastRequestId;
-        this.queued.add(request.uniqueKey, request);
+        this.queued.add(request.uniqueKey, request, request.queuePosition === QUEUE_POSITIONS.FIRST);
         this._updateState();
     }
 
@@ -104,8 +103,8 @@ export default class LocalPageQueue extends StatefulClass {
         this.queued.remove(request.uniqueKey);
         this.handled.add(request.uniqueKey, request);
 
-        stats.pagesInQueue = this.queued.length();
-        stats.pagesCrawled = this.handled.length();
+        stats.pagesInQueue = this.queued.getLength();
+        stats.pagesCrawled = this.handled.getLength();
         stats.pagesRetried += (request.retryCount > 0 ? 1 : 0);
 
         if (!request.skipOutput) {

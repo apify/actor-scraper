@@ -1,7 +1,6 @@
 import StatefulClass from './stateful_class';
 import { logDebug } from './utils';
 
-const DEFAULT_MAX_PAGES_PER_FILE = 1;
 const DEFAULT_STATE = {
     currentFileNum: 1,
     buffer: [],
@@ -11,7 +10,7 @@ const DEFAULT_STATE = {
 export const STATE_KEY = 'STATE-local-sequential-store.json';
 
 export default class LocalSequentialStore extends StatefulClass {
-    constructor(state = DEFAULT_STATE, { maxPagesPerFile = DEFAULT_MAX_PAGES_PER_FILE }) {
+    constructor(state = DEFAULT_STATE, { maxPagesPerFile }) {
         super('LocalSequentialStore', STATE_KEY);
 
         this.state = state;

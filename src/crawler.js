@@ -10,23 +10,19 @@ const PUPPETEER_CONFIG = {
     slowMo: 500,
 };
 
-const ENQUEUED_REQUEST_DEFAULTS = {
-    label: '',
-    type: REQUEST_TYPES.USER_ENQUEUED,
-};
-
-// @TODO validate properties
 export default class Crawler extends EventEmitter {
     constructor(crawlerConfig) {
         super();
         this.crawlerConfig = crawlerConfig;
         this.browser = null;
+        this.gotoOptions = {};
+
+        if (crawlerConfig.pageLoadTimeout) {
+            this.gotoOptions.pageLoadTimeout = pageLoadTimeout;
+        }
     }
 
     _emitRequest(originalRequest, newRequest) {
-        _.mapObject(ENQUEUED_REQUEST_DEFAULTS, (val, key) => {
-            if (!newRequest[key]) newRequest[key] = val;
-        });
         _.extend(newRequest, {
             referrer: originalRequest,
             depth: originalRequest.depth + 1,
@@ -79,7 +75,7 @@ export default class Crawler extends EventEmitter {
         // a case of an error and then we can rethrow it.
         try {
             request.requestedAt = new Date();
-            await page.goto(request.url);
+            await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
             await page.close();
         } catch (err) {
@@ -114,6 +110,11 @@ export default class Crawler extends EventEmitter {
             skipOutput: () => {
                 request.skipOutput = true;
             },
+            pick: (obj, keys) => keys.reduce((result, key) => {
+                if (obj[key] !== undefined) result[key] = obj[key];
+
+                return result;
+            }, {}),
         };
         const waitForBodyPromise = utils
             .waitForBody(page)

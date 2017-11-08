@@ -11,16 +11,36 @@ export const TYPES = {
     START_URL: 'START_URL',
     USER_ENQUEUED: 'USER_ENQUEUED',
     LINK_CLICKED: 'LINK_CLICKED',
-    SINGLE_URL: 'SINGLE_URL', // @TODO use
 };
 
-const ALWAYS_LOAD_FOR_TYPES = [TYPES.SINGLE_URL, TYPES.START_URL, TYPES.USER_ENQUEUED];
+export const QUEUE_POSITIONS = {
+    FIRST: 'FIRST',
+    LAST: 'LAST',
+};
+
+const ALWAYS_LOAD_FOR_TYPES = [TYPES.START_URL, TYPES.USER_ENQUEUED];
+
+export const ENQUEUE_PAGE_ALLOWED_PROPERTIES = [
+    'url',
+    'uniqueKey',
+    'label',
+    'method',
+    'postData',
+    'contentType',
+    'queuePosition',
+    'interceptRequestData',
+    'type', // @TODO maybe this should not be here
+];
 
 const REQUEST_DEFAULTS = {
     depth: 0,
     downloadedBytes: 0,
     willLoad: false,
     skipOutput: false,
+    queuePosition: QUEUE_POSITIONS.LAST,
+    errorInfo: '',
+    type: TYPES.USER_ENQUEUED,
+    label: '',
 };
 
 const PROPERTIES = [
@@ -78,18 +98,22 @@ const PROPERTIES = [
     'downloadedBytes',
     // Indicates whether the page will be loaded by the crawler or not
     'willLoad',
+    // Indicates the position where the request will be placed in the crawling queue.
+    // Can either be 'LAST' to put the request to the end of the queue (default behavior)
+    // or 'FIRST' to put it before any other requests.
+    'queuePosition',
+    // If the page handling failed, this field will receive the error info.
+    // do always append to this field and suffix your string with "\n".
+    // an empty string means no error!
+    'errorInfo',
 
-    // @TODO these we renamed to don't have underscore dangle:
+    // @TODO these we have renamed to be without preceiding underscore dangle:
     // How many times page load was retried on error.
     'retryCount',
     // Indicates that the pageFunction requested not to save the request to JSON or database.
     'skipOutput',
 
-    // Indicates the position where the request will be placed in the crawling queue.
-    // Can either be 'LAST' to put the request to the end of the queue (default behavior)
-    // or 'FIRST' to put it before any other requests.
-    // TODO: 'RANDOM' for random position (TODO: not yet implemented)
-    // -- 'queuePosition' = 'LAST';
+
     // additionally, there might be internal fields that are not saved to JSON or database, such as:
     // -- _crashesCount ... how many times PhantomJS crashed on this request, only used in src/worker/crawler_executor.js
     // -- _stats .......... only passed from executor to slave, contains current ActExecution.stats
@@ -100,11 +124,6 @@ const PROPERTIES = [
     // This field is used internally to retry failed page loads.
     // 'loadErrorCode'
 
-    // If the page handling failed, this field will receive the error info.
-    // do always append to this field and suffix your string with "\n".
-    // an empty string means no error!
-    // 'errorInfo'
-
     // TODO: POST requests
     // Contains "GET" or "POST"
     // -- 'method',
@@ -114,7 +133,6 @@ const PROPERTIES = [
     // -- 'contentType',
 ];
 
-// @TODO add validation for parameters.
 export default class Request {
     constructor(crawlerConfig, opts, copmuteDefaults = true) {
         this.data = {};

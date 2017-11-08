@@ -1,12 +1,11 @@
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 
-// @TODO validate all params.
-// @TODO add scaling based on empty memory
 export default class AutoscaledPool {
     constructor(options) {
         const { promiseProducer, maxConcurrency } = options;
 
+        this.resolve = null;
         this.promiseProducer = promiseProducer;
         this.maxConcurrency = maxConcurrency;
         this.runningPromises = {};
@@ -16,8 +15,9 @@ export default class AutoscaledPool {
     start() {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;
-            this.reject = reject; // @TODO
-            this._maybeRunPromise();
+
+            this._maybeRunPromise()
+                .catch(reject);
         });
     }
 
@@ -49,11 +49,6 @@ export default class AutoscaledPool {
         this._addRunningPromise(id, promise);
 
         promise
-            .then(async (data) => {
-                // await (new Promise(resolve => setTimeout(resolve, 5000))); // @TODO remove
-
-                return data;
-            })
             .then((data) => {
                 this._removeFinishedPromise(id);
                 this._maybeRunPromise();
@@ -68,5 +63,7 @@ export default class AutoscaledPool {
             });
 
         this._maybeRunPromise();
+
+        return promise;
     }
 }

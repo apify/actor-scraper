@@ -13,23 +13,18 @@ class LinkedListNode {
     }
 }
 
-/**
- * A helper function to determine whether two data objects are equal.
- * The function attempts to do so using data1's function 'equal(data)' if there is one,
- * otherwise it uses '==' operator.
- */
-const dataEqual = (data1, data2) => {
-    if (data1 === null) return data2 === null;
-    if (data1.equals) return data1.equals(data2);
-
-    return data1 === data2;
-};
-
 export default class LinkedList {
     constructor() {
         this.head = null;
         this.tail = null;
         this.length = 0;
+    }
+
+    /**
+     * Returns length of the list.
+     */
+    getLength() {
+        return this.length;
     }
 
     /**
@@ -70,43 +65,31 @@ export default class LinkedList {
     }
 
     /**
-     * Finds a first node that holds a specific data object. See 'dataEqual' function for a description
-     * how the object equality is tested. Function returns null if the data cannot be found.
-     */
-    find(data) {
-        for (let node = this.head; node !== null; node = node.next) {
-            if (dataEqual(node.data, data)) return node;
-        }
-
-        return null;
-    }
-
-    /**
      * Removes given node from the list.
      */
     removeNode(node) {
         if (!(node instanceof LinkedListNode)) throw new Error('Parameter "node" must be an instance of LinkedListNode!');
 
-        // some predecessor
+        // Some predecessor
         if (node.prev !== null) {
-            // some successor
+            // Some successor
             if (node.next !== null) {
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
                 node.prev = null;
                 node.next = null;
-            // no successor
+            // No successor
             } else {
                 this.tail = node.prev;
                 node.prev.next = null;
                 node.prev = null;
             }
-        // no predecessor, some successor
+        // No predecessor, some successor
         } else if (node.next !== null) {
             this.head = node.next;
             node.next.prev = null;
             node.next = null;
-        // no predecessor, nor successor
+        // No predecessor, nor successor
         } else {
             this.head = null;
             this.tail = null;
@@ -114,26 +97,13 @@ export default class LinkedList {
             node.prev = null;
         }
 
-        this.length--;
+        this.length --;
     }
 
     /**
-     * Removes the first item from the list. The function
-     * returns the item object or null if the list is empty.
+     * Returns the first item from the list. The function returns the item object or null if the list is empty.
      */
-    removeFirst() {
-        const head = this.head;
-        if (!head) return null;
-        this.removeNode(head);
-
-        return head.data;
-    }
-
-    /**
-     * Returns the first item from the list. The function
-     * returns the item object or null if the list is empty.
-     */
-    getFirst() {
+    getFirstNode() {
         return this.head;
     }
 }

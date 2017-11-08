@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import Apify from 'apify';
 import uuidv4 from 'uuid/v4';
+import { parseType, parsedTypeCheck } from 'type-check';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
@@ -142,4 +143,19 @@ export const setValue = async (key, body) => {
 
 export const waitForPendingSetValues = async () => {
     return Promise.all(_.values(pendingSetValues));
+};
+
+export const checkParamOrThrow = (value, name, type, message) => {
+    if (!message) message = `Parameter "${name}" of type ${type} must be provided`;
+
+    const allowedTypes = parseType(type);
+
+    const allowsBuffer = allowedTypes.filter(item => item.type === 'Buffer').length;
+    const allowsPromise = allowedTypes.filter(item => item.type === 'Promise').length;
+
+    if (allowsBuffer && Buffer.isBuffer(value)) return;
+    if (allowsPromise && typeof value.then === 'function') return;
+
+    // This will ignore Buffer type.
+    if (!parsedTypeCheck(allowedTypes, value)) throw new Error(message);
 };
