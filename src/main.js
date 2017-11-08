@@ -140,8 +140,7 @@ Apify.main(async () => {
                 }
             }
 
-            resolve();
-            // setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
+            setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
         });
     };
 
