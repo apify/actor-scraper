@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { logDebug } from './utils';
 
-const STATE_PERSIST_INTERVAL_MILLIS = 5000;
+const STATE_PERSIST_INTERVAL_MILLIS = 30000;
 
 export default class StatefulClass extends EventEmitter {
     constructor(className, stateKey) {
