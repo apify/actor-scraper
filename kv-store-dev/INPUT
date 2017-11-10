@@ -5,7 +5,7 @@
             "value": "https://news.ycombinator.com"
         }
     ],
-    "crawlPurls2": [
+    "crawlPurls": [
         {
             "key": "something",
             "value": "https://news.ycombinator.com/news?p=[\\d+]"

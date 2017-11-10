@@ -8,7 +8,7 @@ import { chain } from 'underscore';
 import { ENQUEUE_PAGE_ALLOWED_PROPERTIES } from './request';
 
 export const injectJQueryScript = async (page) => {
-    const jQueryPath = path.resolve(path.join(__dirname, '../node_modules/jquery/dist/jquery.js'));
+    const jQueryPath = path.resolve(path.join(__dirname, '../../node_modules/jquery/dist/jquery.js'));
     await page.addScriptTag({ path: jQueryPath });
     await page.evaluate(() => {
         console.log('Injecting jQuery');
@@ -18,7 +18,7 @@ export const injectJQueryScript = async (page) => {
 };
 
 export const injectUnderscoreScript = async (page) => {
-    const underscorePath = path.resolve(path.join(__dirname, '../node_modules/underscore/underscore.js'));
+    const underscorePath = path.resolve(path.join(__dirname, '../../node_modules/underscore/underscore.js'));
     await page.addScriptTag({ path: underscorePath });
     await page.evaluate(() => {
         console.log('Injecting underscore');
