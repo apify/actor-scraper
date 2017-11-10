@@ -31,7 +31,7 @@ export default class LocalSequentialStore extends StatefulClass {
 
         logDebug(`SequentialStore: outputting file ${key}`);
 
-        this.emit('value', { key, body: this.state.buffer });
+        this._emitValue({ key, body: this.state.buffer });
         this.state.currentFileNum ++;
         this.state.buffer = [];
     }

@@ -4,7 +4,8 @@
   "description": "Web crawler running at Apify platform.",
   "main": "main.js",
   "scripts": {
-    "local": "npm run build && APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js",
+    "local-crawler": "npm run build && ACT_TYPE=CRAWLER APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js",
+    "local-crawl-url-list": "npm run build && ACT_TYPE=CRAWL_URL_LIST APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js",
     "build": "babel src --out-dir build",
     "test": "npm run build && mocha --timeout 5000 --compilers js:babel-core/register --recursive",
     "clean": "rm -rf build && rm -rf docs",

@@ -1,3 +1,17 @@
+/**
+ * This module allows to run Promises in a pool with concurrency scaled
+ * based on available memory.
+ *
+ * Input contains:
+ * - promiseProducer which is a function that returns promise to be run
+ *   in a pool, should return null when there are no more tasks to be run
+ * - maxConcurency
+ *
+ * TODO:
+ * - implement autoscaling
+ * - fail of any promise should cause main promise to fail ????
+ */
+
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 
@@ -12,6 +26,10 @@ export default class AutoscaledPool {
         this.runningCount = 0;
     }
 
+    /**
+     * Starts the pool.
+     * Returns promise that resolves when whole pool gets finished.
+     */
     start() {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;

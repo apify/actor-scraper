@@ -5,9 +5,13 @@ import { logDebug, logError } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
+export const EVENT_REQUEST = 'request';
+export const EVENT_SNAPSHOT = 'request';
+
 const PUPPETEER_CONFIG = {
     dumpio: true,
     slowMo: 500,
+    headless: true,
 };
 
 export default class Crawler extends EventEmitter {
@@ -22,36 +26,57 @@ export default class Crawler extends EventEmitter {
         }
     }
 
+    /**
+     * Emits new request as event to be enqueued.
+     */
     _emitRequest(originalRequest, newRequest) {
         _.extend(newRequest, {
             referrer: originalRequest,
             depth: originalRequest.depth + 1,
         });
 
-        this.emit('request', newRequest);
+        this.emit(EVENT_REQUEST, newRequest);
     }
 
+    /**
+     * Creates new request instance from given configuration.
+     */
     _newRequest(request) {
         return new Request(this.crawlerConfig, request);
     }
 
+    /**
+     * Emits snapshot event.
+     */
     async _emitSnapshot(page, request) {
-        this.emit('snapshot', {
+        this.emit(EVENT_SNAPSHOT, {
             url: request.url,
             html: await page.$eval('html', el => el.outerHTML),
             screenshot: await page.screenshot(),
         });
     }
 
+    /**
+     * Initializes puppeteer - starts the browser.
+     */
     async initialize() {
         this.browser = await Apify.launchPuppeteer(PUPPETEER_CONFIG);
     }
 
+    /**
+     * Kills all the resources - browser.
+     */
     async destroy() {
         await this.browser.close();
     }
 
+    /**
+     * Performs the given request.
+     * It's wrapper for this._processRequest doing try/catch, loggint of console messages, errors, etc.
+     */
     async crawl(request) {
+        if (!this.browser) throw new Error('Crawler was not initialized!');
+
         const page = await this.browser.newPage();
 
         page.on('console', message => logDebug(`Console [${message.type}]: ${message.text}`));
@@ -84,6 +109,13 @@ export default class Crawler extends EventEmitter {
         }
     }
 
+    /**
+     * Processes given request:
+     * - exposes crawler methods (enqueuePage, ...) to the browser
+     * - exposes context variables
+     * - clicks elements
+     * - runs pageFunction
+     */
     async _processRequest(page, request) {
         const beforeEndPromises = [];
 

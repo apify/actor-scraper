@@ -1,12 +1,13 @@
 import Apify from 'apify';
 import _ from 'underscore';
-import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './utils';
-import AutoscaledPool from './autoscaled_pool';
-import Request, { TYPES as REQUEST_TYPES } from './request';
-import Crawler from './crawler';
-import PseudoUrl from './pseudo_url';
-import LocalPageQueue, { STATE_KEY as PAGE_QUEUE_STATE_KEY } from './local_page_queue';
-import LocalSequentialStore, { STATE_KEY as SEQ_STORE_STATE_KEY } from './local_sequential_store';
+import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
+import AutoscaledPool from './modules/autoscaled_pool';
+import Request, { TYPES as REQUEST_TYPES } from './modules/request';
+import Crawler, { EVENT_SNAPSHOT, EVENT_REQUEST } from './modules/crawler';
+import { EVENT_VALUE } from './modules/stateful_class';
+import PseudoUrl from './modules/pseudo_url';
+import LocalPageQueue, { STATE_KEY as PAGE_QUEUE_STATE_KEY } from './modules/local_page_queue';
+import LocalSequentialStore, { STATE_KEY as SEQ_STORE_STATE_KEY } from './modules/local_sequential_store';
 
 const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
 
@@ -72,7 +73,7 @@ const enqueueStartUrls = (input, pageQueue) => {
         });
 };
 
-Apify.main(async () => {
+const main = async () => {
     const input = await fetchInput();
 
     _.defaults(input, INPUT_DEFAULTS);
@@ -85,15 +86,15 @@ Apify.main(async () => {
     const pageQueue = await createPageQueue(input);
     const crawler = await createCrawler(input);
 
-    sequentialStore.on('value', ({ key, body }) => setValue(key, body));
-    pageQueue.on('value', ({ key, body }) => setValue(key, body));
+    sequentialStore.on(EVENT_VALUE, ({ key, body }) => setValue(key, body));
+    pageQueue.on(EVENT_VALUE, ({ key, body }) => setValue(key, body));
     pageQueue.on('handled', request => sequentialStore.put(request.toJSON()));
 
     parsePurls(input);
     enqueueStartUrls(input, pageQueue);
 
     // This event is trigered by context.enqueuePage().
-    crawler.on('request', (request) => {
+    crawler.on(EVENT_REQUEST, (request) => {
         // context.enqueuePage() is not a subject of maxCrawlingDepth
         if (input.maxCrawlingDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlingDepth) {
             logDebug(`Not qneueuing ${request.url}, type = ${request.type}, max depth reached`);
@@ -108,7 +109,7 @@ Apify.main(async () => {
     });
 
     // This event is trigered by context.saveSnapshot().
-    crawler.on('snapshot', ({ url, html, screenshot }) => {
+    crawler.on(EVENT_SNAPSHOT, ({ url, html, screenshot }) => {
         const filename = url.replace(/\W+/g, '-');
 
         setValue(`SNAPSHOT-${filename}.html`, html, { contentType: 'text/html' });
@@ -154,4 +155,6 @@ Apify.main(async () => {
     sequentialStore.destroy();
     pageQueue.destroy();
     await waitForPendingSetValues();
-});
+};
+
+export default main;
