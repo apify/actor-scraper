@@ -2,11 +2,12 @@ import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import { logDebug, logError } from './utils';
+import Promise from 'bluebird';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
 export const EVENT_REQUEST = 'request';
-export const EVENT_SNAPSHOT = 'request';
+export const EVENT_SNAPSHOT = 'snapshot';
 
 const PUPPETEER_CONFIG = {
     dumpio: true,

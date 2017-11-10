@@ -14,6 +14,7 @@
 
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
+import { logDebug } from './utils';
 
 export default class AutoscaledPool {
     constructor(options) {
@@ -74,6 +75,7 @@ export default class AutoscaledPool {
                 return data;
             })
             .catch((err) => {
+                logDebug('Promise failed', logDebug);
                 this._removeFinishedPromise(id);
                 this._maybeRunPromise();
 

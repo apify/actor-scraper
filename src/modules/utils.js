@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import Apify from 'apify';
 import uuidv4 from 'uuid/v4';
+import Promise from 'bluebird';
 import { parseType, parsedTypeCheck } from 'type-check';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
@@ -16,21 +17,21 @@ export const isNullOrUndefined = val => _.isNull(val) || _.isUndefined(val);
  */
 export const parseUrl = (str) => {
     if (typeof (str) !== 'string') { return {}; }
-    let o = {
-            strictMode: false,
-            key: ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'fragment'],
-            q: {
-                name: 'queryKey',
-                parser: /(?:^|&)([^&=]*)=?([^&]*)/g,
-            },
-            parser: {
-                strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-                loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/,
-            },
+    const o = {
+        strictMode: false,
+        key: ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'fragment'],
+        q: {
+            name: 'queryKey',
+            parser: /(?:^|&)([^&=]*)=?([^&]*)/g,
         },
-        m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str),
-        uri = {},
-        i = o.key.length;
+        parser: {
+            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+            loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/,
+        },
+    };
+    const m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(str);
+    const uri = {};
+    let i = o.key.length;
 
     while (i--) uri[o.key[i]] = m[i] || '';
 
@@ -126,12 +127,21 @@ export const getValueOrUndefined = async (key) => {
 };
 
 
+/**
+ * These functions are wrapper to Apify.setValue() and keeping array of pending
+ * promises.
+ */
 const pendingSetValues = {};
 
-export const setValue = async (key, body) => {
+export const setValue = async ({ key, body, contentType }) => {
     const uuid = uuidv4();
+    const opts = contentType ? { contentType } : undefined;
+
+    if (contentType) opts.contentType = contentType;
+
     const promise = Apify
-        .setValue(key, body)
+        .setValue(key, body, opts)
+        .catch(err => logError('Cannot set value', err))
         .then(() => {
             delete pendingSetValues[uuid];
         });
@@ -145,6 +155,9 @@ export const waitForPendingSetValues = async () => {
     return Promise.all(_.values(pendingSetValues));
 };
 
+/**
+ * Wrapper to typeCheck() displaying meaningful message.
+ */
 export const checkParamOrThrow = (value, name, type, message) => {
     if (!message) message = `Parameter "${name}" of type ${type} must be provided`;
 

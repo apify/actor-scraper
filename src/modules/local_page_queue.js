@@ -44,6 +44,10 @@ export default class LocalPageQueue extends StatefulClass {
         this.state.handled = this.handled.toArray().map(request => request.toJSON());
     }
 
+    getQueueLength() {
+        return this.stats.pagesInQueue;
+    }
+
     enqueue(request) {
         const url = request.url;
         const label = JSON.stringify(request.label);
