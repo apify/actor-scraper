@@ -142,6 +142,7 @@ Apify.main(async () => {
         let request = pageQueue.fetchNext();
 
         // Otherwise try to fetch and enqueue new request from urlList.
+        // TODO: use this first and then when its empty take urls from PageQueue
         if ((!request || runningRequests[request.id]) && urlList) {
             request = urlList.fetchNext();
 
@@ -195,6 +196,6 @@ Apify.main(async () => {
     await crawler.destroy();
     sequentialStore.destroy();
     pageQueue.destroy();
-    urlList.destroy();
+    if (urlList) urlList.destroy();
     await waitForPendingSetValues();
 });
