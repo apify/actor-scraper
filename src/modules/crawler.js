@@ -80,7 +80,6 @@ export default class Crawler extends EventEmitter {
 
         const page = await this.browser.newPage();
 
-        page.on('console', message => logDebug(`Console [${message.type}]: ${message.text}`));
         page.on('error', error => logError('Page error', error));
 
         // Save stats about all the responses (html file + assets).

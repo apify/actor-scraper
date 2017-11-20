@@ -48,7 +48,27 @@ export const exposeMethod = async (page, method, name) => {
         .then(() => page.evaluate((passedExposedName, passedName) => {
             console.log(`Exposing window.${passedExposedName}() as context.${passedName}()`);
             window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
-            window.APIFY_CONTEXT[passedName] = window[passedExposedName];
+
+            const context = window.APIFY_CONTEXT;
+
+            window.APIFY_CONTEXT.pendingPromises = window.APIFY_CONTEXT.pendingPromises || {};
+            window.APIFY_CONTEXT[passedName] = (...args) => {
+                const promise = window[passedExposedName](...args);
+                const id = Math.random();
+
+                window.APIFY_CONTEXT.pendingPromises[id] = promise;
+
+                promise
+                    .then(() => {
+                        delete context.pendingPromises[id];
+                    })
+                    .catch((err) => {
+                        delete context.pendingPromises[id];
+                        throw err;
+                    });
+
+                return promise;
+            };
         }, exposedName, name));
 };
 
@@ -124,7 +144,9 @@ export const executePageFunction = async (page, crawlerConfig) => {
 
         console.log('Page function done');
 
-        return willFinishLaterPromise || result;
+        return Promise
+            .all(Object.values(context.pendingPromises)) // Pending calls to exposed methods like enqueuePage() ...
+            .then(() => willFinishLaterPromise || result);
     }, crawlerConfig);
 };
 
