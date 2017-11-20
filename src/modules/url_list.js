@@ -16,19 +16,25 @@ export default class UrlList extends StatefulClass {
         this.crawlerConfig = crawlerConfig;
         this.state = state;
         this.state.url = crawlerConfig.urlList;
+        this.state.urlListRegex = crawlerConfig.urlListRegex;
         this.urls = null;
     }
 
     async initialize() {
         const str = await request(this.state.url);
 
-        this.urls = str
-            .trim()
-            .split('\n')
-            .map(line => line.trim())
-            .filter(line => line);
+        if (this.state.urlListRegex) {
+            this.urls = str.match(this.state.urlListRegex);
+        } else {
+            this.urls = str
+                .trim()
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line);
+        }
 
         logDebug(`UrlList: ${this.urls.length} urls fetched`);
+        logDebug(`UrlList: sample of fetched urls (1.-5.) ${JSON.stringify(this.urls.slice(0, 5))}`);
     }
 
     fetchNext() {

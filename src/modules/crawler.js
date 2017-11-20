@@ -1,8 +1,8 @@
 import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
-import { logDebug, logError } from './utils';
 import Promise from 'bluebird';
+import { logError } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
