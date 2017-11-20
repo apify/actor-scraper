@@ -122,6 +122,8 @@ export const executePageFunction = async (page, crawlerConfig) => {
         const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
         const result = pageFunctionEvaled(context);
 
+        console.log('Page function done');
+
         return willFinishLaterPromise || result;
     }, crawlerConfig);
 };
