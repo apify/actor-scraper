@@ -127,6 +127,8 @@ export const clickClickables = async (page, clickableElementsSelector) => {
     return page.evaluate((passedClickableElementsSelector) => {
         console.log('Clicking elements');
 
+        if (!passedClickableElementsSelector) return;
+
         const { enqueuePage, REQUEST_TYPES } = window.APIFY_CONTEXT;
 
         document
