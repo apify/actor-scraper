@@ -29,6 +29,7 @@ export const injectUnderscoreScript = async (page) => {
 
 export const injectContext = async (page, contextVars) => {
     return page.evaluate((passedVars) => {
+        console.log(window.location.href);
         console.log('Injecting context');
         window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
         Object.assign(window.APIFY_CONTEXT, passedVars);
