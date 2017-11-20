@@ -138,15 +138,18 @@ Apify.main(async () => {
     let runningCount = 0;
     const runningRequests = {};
     const promiseProducer = (recursionDepth = 0) => {
-        // Try to fetch from pageQueue.
-        let request = pageQueue.fetchNext();
+        let request;
 
-        // Otherwise try to fetch and enqueue new request from urlList.
-        // TODO: use this first and then when its empty take urls from PageQueue
-        if ((!request || runningRequests[request.id]) && urlList) {
+        // Try to fetch request from url list first.
+        if (urlList) {
             request = urlList.fetchNext();
 
             if (request) pageQueue.enqueue(request);
+        }
+
+        // If no one is find then try to fetch it from pageQueue.
+        if (!request || runningRequests[request.id]) {
+            request = pageQueue.fetchNext();
         }
 
         // We are done.
