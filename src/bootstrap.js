@@ -114,8 +114,8 @@ Apify.main(async () => {
 
     // This event is trigered by context.enqueuePage().
     crawler.on(EVENT_REQUEST, (request) => {
-        // context.enqueuePage() is not a subject of maxCrawlingDepth
-        if (input.maxCrawlingDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlingDepth) {
+        // context.enqueuePage() is not a subject of maxCrawlDepth
+        if (input.maxCrawlDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlDepth) {
             logDebug(`Not qneueuing ${request.url}, type = ${request.type}, max depth reached`);
             return;
         }
