@@ -21,6 +21,8 @@ import { logDebug } from './utils';
 const MEM_CHECK_INTERVAL_MILLIS = 1000;
 const MIN_FREE_MEMORY_PERC = 0.2;
 const SCALE_UP_INTERVAL = 10;
+const WAITFOR_MEMORY_MILLIS = 1000;
+const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 
 // const sum = arr => arr.reduce((total, current) => total + current, 0);
 // const avg = arr => sum(arr) / arr.length;
@@ -39,7 +41,7 @@ export default class AutoscaledPool {
         this.runningCount = 0;
 
         this.freeMemSnapshots = [];
-        this.initialMemTaken = os.totalmem() - os.freemem();
+        this.initialMemTaken = null;
 
         let iteration = 0;
         this.memCheckInterval = setInterval(() => {
@@ -55,10 +57,11 @@ export default class AutoscaledPool {
      */
     start() {
         return new Promise((resolve, reject) => {
-            this.resolve = resolve;
-
-            this._maybeRunPromise()
-                .catch(reject);
+            setTimeout(() => {
+                this.initialMemTaken = os.totalmem() - os.freemem();
+                this.resolve = resolve;
+                this._maybeRunPromise().catch(reject);
+            }, WAITFOR_MEMORY_MILLIS);
         });
     }
 
@@ -94,7 +97,10 @@ export default class AutoscaledPool {
             const maxMemTaken = totalMem - minFreeMemory - this.initialMemTaken;
             const memPerInstancePerc = (maxMemTaken / totalMem) / this.concurrency;
             const hasSpaceForInstances = (minFreeMemoryPerc - MIN_FREE_MEMORY_PERC) / memPerInstancePerc;
-            const hasSpaceForInstancesFloored = Math.floor(hasSpaceForInstances);
+            const hasSpaceForInstancesFloored = Math.min(
+                Math.floor(hasSpaceForInstances),
+                Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
+            );
 
             console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
             console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}`);
