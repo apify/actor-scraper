@@ -19,7 +19,7 @@ import os from 'os';
 import { logDebug } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 1000;
-const MIN_FREE_MEMORY_PERC = 0.1;
+const MIN_FREE_MEMORY_PERC = 0.2;
 const SCALE_UP_INTERVAL = 10;
 
 // const sum = arr => arr.reduce((total, current) => total + current, 0);
@@ -103,7 +103,7 @@ export default class AutoscaledPool {
             console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
 
             if (hasSpaceForInstancesFloored > 0) {
-                this.concurrency += hasSpaceForInstancesFloored;
+                this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
                 logDebug(`AutoscaledPool: scaling up to ${this.concurrency}`);
             }
         }
