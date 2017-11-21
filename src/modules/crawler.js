@@ -111,13 +111,13 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        let maxValue = 0;
-        let maxIndex = 0;
+        let maxValue = null;
+        let maxIndex = null;
 
         logDebug(`Crawler: browser usage ${this.requestsTotal.join(', ')}`);
 
         this.requestsTotal.forEach((value, index) => {
-            if (value <= maxValue) return;
+            if (maxValue !== null && (value <= maxValue || value >= this.crawlerConfig.maxCrawledPagesPerSlave)) return;
 
             maxValue = value;
             maxIndex = index;
