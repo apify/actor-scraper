@@ -3,8 +3,8 @@ import { logDebug } from './utils';
 
 const DEFAULT_STATE = {
     currentFileNum: 1,
-    buffer: [],
     currentSeqNum: 1,
+    buffer: [],
 };
 
 export const STATE_KEY = 'STATE-local-sequential-store.json';

@@ -16,15 +16,15 @@ export default class UrlList extends StatefulClass {
         this.crawlerConfig = crawlerConfig;
         this.state = state;
         this.state.url = crawlerConfig.urlList;
-        this.state.urlListRegex = crawlerConfig.urlListRegex;
+        this.state.urlListRegExp = crawlerConfig.urlListRegExp;
         this.urls = null;
     }
 
     async initialize() {
         const str = await request(this.state.url);
 
-        if (this.state.urlListRegex) {
-            this.urls = str.match(this.state.urlListRegex);
+        if (this.state.urlListRegExp) {
+            this.urls = str.match(new RegExp(this.state.urlListRegExp, 'g'));
         } else {
             this.urls = str
                 .trim()

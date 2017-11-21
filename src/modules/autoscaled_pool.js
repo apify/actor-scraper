@@ -14,7 +14,18 @@
 
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
+import os from 'os';
+
 import { logDebug } from './utils';
+
+const MEM_CHECK_INTERVAL_MILLIS = 1000;
+const MIN_FREE_MEMORY_PERC = 0.01;
+const SCALE_UP_INTERVAL = 10;
+
+// const sum = arr => arr.reduce((total, current) => total + current, 0);
+// const avg = arr => sum(arr) / arr.length;
+
+const humanReadable = bytes => Math.round(bytes / 1024 / 1024);
 
 export default class AutoscaledPool {
     constructor(options) {
@@ -23,8 +34,19 @@ export default class AutoscaledPool {
         this.resolve = null;
         this.promiseProducer = promiseProducer;
         this.maxConcurrency = maxConcurrency;
+        this.concurrency = 1;
         this.runningPromises = {};
         this.runningCount = 0;
+
+        this.freeMemSnapshots = [];
+        this.initialMemTaken = os.totalmem() - os.freemem();
+
+        let iteration = 0;
+        this.memCheckInterval = setInterval(() => {
+            this._autoscale(iteration === SCALE_UP_INTERVAL);
+            iteration++;
+            if (iteration > SCALE_UP_INTERVAL) iteration = 0;
+        }, MEM_CHECK_INTERVAL_MILLIS);
     }
 
     /**
@@ -50,8 +72,44 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
+    _autoscale(maybeScaleUp) {
+        const freeMem = os.freemem();
+        const totalMem = os.totalmem();
+
+        this.freeMemSnapshots = this.freeMemSnapshots.concat(freeMem).slice(-SCALE_UP_INTERVAL);
+
+        logDebug(`AutoscaledPool: ${this.concurrency} ${humanReadable(freeMem)} ${humanReadable(totalMem)} ${freeMem / totalMem}`);
+
+        // Go down.
+        if (freeMem / totalMem < MIN_FREE_MEMORY_PERC) {
+            if (this.concurrency > 1) {
+                this.concurrency --;
+                logDebug(`AutoscaledPool: scaling down to ${this.concurrency}`);
+            }
+
+        // Maybe go up every N intervals.
+        } else if (maybeScaleUp && this.concurrency < this.maxConcurrency) {
+            const minFreeMemory = Math.min(...this.freeMemSnapshots);
+            const minFreeMemoryPerc = minFreeMemory / totalMem;
+            const maxMemTaken = totalMem - minFreeMemory - this.initialMemTaken;
+            const memPerInstancePerc = (maxMemTaken / totalMem) / this.concurrency;
+            const hasEnoughMemory = minFreeMemoryPerc / os.totalmem() > MIN_FREE_MEMORY_PERC + memPerInstancePerc;
+
+            console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
+            console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}`);
+            console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
+            console.log(`memPerInstancePerc: ${memPerInstancePerc}`);
+            console.log(`hasEnoughMemory: ${hasEnoughMemory}`);
+
+            if (hasEnoughMemory) {
+                this.concurrency ++;
+                logDebug(`AutoscaledPool: scaling up to ${this.concurrency}`);
+            }
+        }
+    }
+
     _maybeRunPromise() {
-        if (this.runningCount >= this.maxConcurrency) return;
+        if (this.runningCount >= this.concurrency) return;
 
         const promise = this.promiseProducer();
 

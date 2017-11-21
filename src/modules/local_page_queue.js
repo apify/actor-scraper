@@ -6,8 +6,6 @@ import Request, { QUEUE_POSITIONS } from './request';
 export const STATE_KEY = 'STATE-local-page-queue.json';
 
 const DEFAULT_STATE = {
-    queued: [],
-    handled: [],
     lastRequestId: 0,
     stats: {
         pagesInQueue: 0,
@@ -15,6 +13,8 @@ const DEFAULT_STATE = {
         pagesOutputted: 0,
         pagesRetried: 0,
     },
+    queued: [],
+    handled: [],
 };
 
 export default class LocalPageQueue extends StatefulClass {
