@@ -22,8 +22,8 @@ export default class Crawler extends EventEmitter {
         this.browser = null;
         this.gotoOptions = {};
         this.browsers = [];
-        this.requestsInProgress = [];
-        this.requestsTotal = [];
+        this.requestsInProgress = _.times(crawlerConfig.browserInstanceCount, () => 0);
+        this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
         if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
