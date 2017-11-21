@@ -114,6 +114,8 @@ export default class Crawler extends EventEmitter {
         let maxValue = 0;
         let maxIndex = 0;
 
+        logDebug(`Crawler: browser usage ${this.requestsTotal.join(', ')}`);
+
         this.requestsTotal.forEach((value, index) => {
             if (value <= maxValue) return;
 
