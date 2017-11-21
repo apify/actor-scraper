@@ -111,13 +111,14 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        let maxValue = null;
-        let maxIndex = null;
+        let maxValue = -1000;
+        let maxIndex = 0;
 
-        logDebug(`Crawler: browser usage ${this.requestsTotal.join(', ')}`);
+        logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
+        logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
         this.requestsTotal.forEach((value, index) => {
-            if (maxValue !== null && (value <= maxValue || value >= this.crawlerConfig.maxCrawledPagesPerSlave)) return;
+            if (value <= maxValue || value >= this.crawlerConfig.maxCrawledPagesPerSlave) return;
 
             maxValue = value;
             maxIndex = index;
@@ -179,6 +180,7 @@ export default class Crawler extends EventEmitter {
         if (relaunchBrowser) {
             logDebug(`Crawler: relaunching browser id ${browserId}`);
             this.browsers[browserId] = this._launchPuppeteer();
+            this.requestsTotal[browserId] = 0;
         }
 
         return closePromise;
