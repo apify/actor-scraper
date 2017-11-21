@@ -77,7 +77,7 @@ export default class Crawler extends EventEmitter {
             if (this.customProxiesPosition >= customProxies.length) this.customProxiesPosition = 0;
         }
 
-        return Apify.launchPuppeteer(PUPPETEER_CONFIG);
+        return Apify.launchPuppeteer(config);
     }
 
     /**
