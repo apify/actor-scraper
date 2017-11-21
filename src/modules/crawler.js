@@ -2,7 +2,7 @@ import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import { logError } from './utils';
+import { logError, logDebug } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
@@ -71,6 +71,8 @@ export default class Crawler extends EventEmitter {
      * Initializes puppeteer - starts the browser.
      */
     async initialize() {
+        logDebug(`Crawler: initializing ${this.instanceCount} browsers`);
+
         this.browsers = _
             .range(0, this.instanceCount)
             .map(() => this._launchPuppeteer());
@@ -160,6 +162,7 @@ export default class Crawler extends EventEmitter {
                              && this.requestsTotal === this.crawlerConfig.maxCrawledPagesPerSlave;
 
         if (relaunchBrowser) {
+            logDebug(`Crawler: relaunching browser id ${browserId}`);
             this.browsers[browserId] = this._launchPuppeteer();
         }
 
