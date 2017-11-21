@@ -19,7 +19,7 @@ import os from 'os';
 import { logDebug } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 1000;
-const MIN_FREE_MEMORY_PERC = 0.01;
+const MIN_FREE_MEMORY_PERC = 0.1;
 const SCALE_UP_INTERVAL = 10;
 
 // const sum = arr => arr.reduce((total, current) => total + current, 0);
@@ -93,16 +93,17 @@ export default class AutoscaledPool {
             const minFreeMemoryPerc = minFreeMemory / totalMem;
             const maxMemTaken = totalMem - minFreeMemory - this.initialMemTaken;
             const memPerInstancePerc = (maxMemTaken / totalMem) / this.concurrency;
-            const hasEnoughMemory = minFreeMemoryPerc / os.totalmem() > MIN_FREE_MEMORY_PERC + memPerInstancePerc;
+            const hasSpaceForInstances = (minFreeMemoryPerc - MIN_FREE_MEMORY_PERC) / memPerInstancePerc;
+            const hasSpaceForInstancesFloored = Math.floor(hasSpaceForInstances);
 
             console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
             console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}`);
             console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
             console.log(`memPerInstancePerc: ${memPerInstancePerc}`);
-            console.log(`hasEnoughMemory: ${hasEnoughMemory}`);
+            console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
 
-            if (hasEnoughMemory) {
-                this.concurrency ++;
+            if (hasSpaceForInstancesFloored > 0) {
+                this.concurrency += hasSpaceForInstancesFloored;
                 logDebug(`AutoscaledPool: scaling up to ${this.concurrency}`);
             }
         }
