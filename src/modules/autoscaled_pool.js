@@ -78,8 +78,6 @@ export default class AutoscaledPool {
 
         this.freeMemSnapshots = this.freeMemSnapshots.concat(freeMem).slice(-SCALE_UP_INTERVAL);
 
-        logDebug(`AutoscaledPool: ${this.concurrency} ${humanReadable(freeMem)} ${humanReadable(totalMem)} ${freeMem / totalMem}`);
-
         // Go down.
         if (freeMem / totalMem < MIN_FREE_MEMORY_PERC) {
             if (this.concurrency > 1) {
@@ -99,6 +97,8 @@ export default class AutoscaledPool {
                 Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
             );
 
+            console.log(`freeMem: ${humanReadable(freeMem)}`);
+            console.log(`totalMem: ${humanReadable(totalMem)}`);
             console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
             console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}`);
             console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
