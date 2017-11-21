@@ -45,11 +45,11 @@ export default class LocalPageQueue extends StatefulClass {
     }
 
     getQueueLength() {
-        return this.stats.pagesInQueue;
+        return this.state.stats.pagesInQueue;
     }
 
     getPageCount() {
-        return this.stats.pagesInQueue + this.stats.pagesCrawled;
+        return this.state.stats.pagesInQueue + this.state.stats.pagesCrawled;
     }
 
     enqueue(request) {
@@ -72,7 +72,7 @@ export default class LocalPageQueue extends StatefulClass {
         request.id = ++this.state.lastRequestId;
         this.queued.add(request.uniqueKey, request, request.queuePosition === QUEUE_POSITIONS.FIRST);
         this._updateState();
-        this.stats.pagesInQueue = this.queued.getLength();
+        this.state.stats.pagesInQueue = this.queued.getLength();
     }
 
     fetchNext() {
