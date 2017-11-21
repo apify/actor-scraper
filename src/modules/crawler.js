@@ -21,10 +21,13 @@ export default class Crawler extends EventEmitter {
         this.crawlerConfig = crawlerConfig;
         this.browser = null;
         this.gotoOptions = {};
-        this.instanceCount = Math.min(crawlerConfig.maxCrawledPagesPerSlave, crawlerConfig.maxParallelRequests);
         this.browsers = [];
         this.requestsInProgress = [];
         this.requestsTotal = [];
+
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
+            throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
+        }
 
         if (crawlerConfig.pageLoadTimeout) {
             this.gotoOptions.pageLoadTimeout = pageLoadTimeout;
@@ -71,10 +74,10 @@ export default class Crawler extends EventEmitter {
      * Initializes puppeteer - starts the browser.
      */
     async initialize() {
-        logDebug(`Crawler: initializing ${this.instanceCount} browsers`);
+        logDebug(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
 
         this.browsers = _
-            .range(0, this.instanceCount)
+            .range(0, this.crawlerConfig.browserInstanceCount)
             .map(() => this._launchPuppeteer());
 
 
