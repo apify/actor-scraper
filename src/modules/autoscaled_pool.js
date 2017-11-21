@@ -18,9 +18,9 @@ import os from 'os';
 
 import { logDebug } from './utils';
 
-const MEM_CHECK_INTERVAL_MILLIS = 1000;
+const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.2;
-const SCALE_UP_INTERVAL = 10;
+const SCALE_UP_INTERVAL = 100;
 const WAITFOR_MEMORY_MILLIS = 1000;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 
