@@ -141,7 +141,7 @@ Apify.main(async () => {
         let request;
 
         // Try to fetch request from url list first.
-        if (urlList) {
+        if (urlList && (!input.maxCrawledPages || pageQueue.getPageCount() < input.maxCrawledPages)) {
             request = urlList.fetchNext();
 
             if (request) pageQueue.enqueue(request);
