@@ -24,6 +24,7 @@ export default class Crawler extends EventEmitter {
         this.browsers = [];
         this.requestsInProgress = [];
         this.requestsTotal = [];
+        this.customProxiesPosition = 0;
 
         if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
@@ -65,7 +66,16 @@ export default class Crawler extends EventEmitter {
     }
 
     async _launchPuppeteer() {
-        // this.crawlerConfig.customProxies(); // TODO
+        const config = Object.assign({}, PUPPETEER_CONFIG);
+        const customProxies = this.crawlerConfig.customProxies;
+
+        if (customProxies && customProxies.length) {
+            config.proxyUrl = customProxies[this.customProxiesPosition];
+
+            this.customProxiesPosition ++;
+
+            if (this.customProxiesPosition >= customProxies.length) this.customProxiesPosition = 0;
+        }
 
         return Apify.launchPuppeteer(PUPPETEER_CONFIG);
     }
