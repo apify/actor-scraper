@@ -24,9 +24,6 @@ const SCALE_UP_INTERVAL = 100;
 const WAITFOR_MEMORY_MILLIS = 1000;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 
-// const sum = arr => arr.reduce((total, current) => total + current, 0);
-// const avg = arr => sum(arr) / arr.length;
-
 const humanReadable = bytes => Math.round(bytes / 1024 / 1024);
 
 export default class AutoscaledPool {

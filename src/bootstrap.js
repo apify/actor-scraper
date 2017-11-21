@@ -18,7 +18,7 @@ process.on('unhandledRejection', err => console.log(err));
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
     maxParallelRequests: 1,
-    maxPagesPerFile: 100,
+    maxPagesPerFile: 1000,
     startUrls: [],
 };
 
