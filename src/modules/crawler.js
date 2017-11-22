@@ -115,16 +115,21 @@ export default class Crawler extends EventEmitter {
         logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
         logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
-        this.browserPosition ++;
         const pos = this.browserPosition;
         const maxCrawledPagesPerSlave = maxCrawledPagesPerSlave;
+
+        this.browserPosition ++;
+
+        if (this.browserPosition >= this.browsers.length) {
+            this.browserPosition = 0;
+        }
 
         if (this.requestsTotal[pos] === maxCrawledPagesPerSlave && this.requestsInProgress[pos] === 0) {
             logDebug(`Crawler: relaunching browser id ${pos}`);
             this.browsers[pos] = this._launchPuppeteer();
             this.requestsTotal[pos] = 0;
 
-            return this.pos;
+            return pos;
         }
 
         if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
