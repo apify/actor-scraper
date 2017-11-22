@@ -127,6 +127,7 @@ export default class Crawler extends EventEmitter {
         // Browser requested too many pages.
         if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
             // There is no pending request so relaunch browser.
+            // TODO: we don't need to be relaunching browser when there are no customProxies!
             if (this.requestsInProgress[pos] === 0) {
                 logDebug(`Crawler: relaunching browser id ${pos}`);
                 this.browsers[pos] = this.browsers[pos]
