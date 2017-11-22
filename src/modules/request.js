@@ -43,7 +43,7 @@ const REQUEST_DEFAULTS = {
     label: '',
 };
 
-const PROPERTIES = [
+export const PROPERTIES = [
     // An auto-incremented ID
     'id',
     // Indicates the label specified in startUrls or crawlPurls config settings where URL/PURL corresponds
