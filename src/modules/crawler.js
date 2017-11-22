@@ -164,28 +164,28 @@ export default class Crawler extends EventEmitter {
         this.requestsInProgress[browserId] ++;
         this.requestsTotal[browserId] ++;
 
-        const browser = await this.browsers[browserId];
-        const page = await browser.newPage();
-
-        page.on('error', error => logError('Page error', error));
-
-        // Save stats about all the responses (html file + assets).
-        // First response is main html page followed with assets or iframes.
-        let isFirstResponse = true;
-        page.on('response', async (response) => {
-            if (isFirstResponse) {
-                request.responseStatus = response.status;
-                request.responseHeaders = response.headers;
-                isFirstResponse = false;
-            }
-
-            const buffer = await response.buffer();
-            request.downloadedBytes += buffer.length;
-        });
-
         // We need to catch errors here in order to close opened page in
         // a case of an error and then we can rethrow it.
         try {
+            const browser = await this.browsers[browserId];
+            const page = await browser.newPage();
+
+            page.on('error', error => logError('Page error', error));
+
+            // Save stats about all the responses (html file + assets).
+            // First response is main html page followed with assets or iframes.
+            let isFirstResponse = true;
+            page.on('response', async (response) => {
+                if (isFirstResponse) {
+                    request.responseStatus = response.status;
+                    request.responseHeaders = response.headers;
+                    isFirstResponse = false;
+                }
+
+                const buffer = await response.buffer();
+                request.downloadedBytes += buffer.length;
+            });
+
             request.requestedAt = new Date();
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);

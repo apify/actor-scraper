@@ -13,10 +13,7 @@
     ],
     "maxParallelRequests": 10,
     "injectJQuery": true,
-    "injectUnderscoreJs": true,
-    "pageFunction": "/* Get all submissions from the first 5 pages\n*/\nfunction pageFunction(context) {\n context.enqueuePage({ url: 'http://example.com' }); return context.jQuery('title').text(); \n}",
+    "pageFunction": "function pageFunction(context) { return context.jQuery('title').text(); }",
     "clickableElementsSelector": "a",
-    "maxCrawlingDepth": 3,
-    "pageFunction2": "function (context) { context.enqueuePage({ url: 'http://example.com', interceptRequestData: { xxx: 'yyy' }}); context.finish({ foo: 'bar', interceptRequestData: context.request.interceptRequestData }); }",
-    "urlList": "http://dev:develop@dev.trunkat.eu/tmp/urllist-small.txt"
+    "maxCrawlDepth": 5
 }

@@ -2,7 +2,7 @@
 
 [Apify **act**](https://www.apify.com/docs/actor) compatible with [Apify **crawler**](https://www.apify.com/docs/crawler) - same input  ⟹ same output.
 
-**WARNING:** this is early version and may contain some bugs and may not be fully compatible.
+**WARNING:** this is an early version and may contain some bugs and may not be fully compatible with crawler product.
 
 ## Usage
 
@@ -28,9 +28,11 @@ There are two ways how to use this act:
   }
   ```
 
-  ​
+This acts persists it's state in key-value store during the run and finally stores the results in files `RESULTS-1.json`, `RESULTS-2.json`, `RESULTS-3.json`,  … .
 
 ## Input attributes
+
+#### Crawler compatible attributes
 
 Act supports following crawler configuration attributes (for documentation see https://www.apify.com/docs/crawler#home):
 
@@ -51,10 +53,11 @@ Act supports following crawler configuration attributes (for documentation see h
 | maxCrawledPages           | `Number`                         |         |          |                                          |
 | maxOutputPages            | `Number`                         |         |          |                                          |
 | considerUrlFragment       | `Boolean`                        | `false` |          |                                          |
+| maxCrawlDepth             | `Number`                         |         |          |                                          |
 
 
 
-Additionally it adds also:
+#### Additional attributes
 
 | Attribute            | Type     | Default | Required | Description                              |
 | -------------------- | -------- | ------- | -------- | ---------------------------------------- |
@@ -66,3 +69,11 @@ Additionally it adds also:
 
 
 
+## Local usage
+
+To run act locally you must have [**NodeJS**](https://nodejs.org/en/) installed:
+
+* Clone this repository: `git clone https://github.com/Apifier/act-crawler.git`
+* Install dependencies: `npm install`
+* Configure input in `/kv-store-dev/INPUT`
+* Run it: `npm run local` 
