@@ -1,7 +1,8 @@
+import _ from 'underscore';
 import StatefulClass from './stateful_class';
 import ListDictionary from './list_dictionary';
 import { logDebug, logInfo } from './utils';
-import Request, { QUEUE_POSITIONS } from './request';
+import Request, { QUEUE_POSITIONS, PROPERTIES as REQUEST_PROPERTIES } from './request';
 
 export const STATE_KEY = 'STATE-local-page-queue.json';
 
@@ -15,6 +16,15 @@ const DEFAULT_STATE = {
     },
     queued: [],
     handled: [],
+};
+
+// TODO: This is temporary ugly solution before we finish the remote PageQueue
+// to save some resources when keeping queue in instance memory.
+const UNNEEDED_REQUEST_PROPERTIES = _.without(REQUEST_PROPERTIES, 'id', 'uniqueKey', 'url');
+const cleanProperties = (request) => {
+    UNNEEDED_REQUEST_PROPERTIES.forEach((key) => {
+        delete request.data[key];
+    });
 };
 
 export default class LocalPageQueue extends StatefulClass {
@@ -35,6 +45,11 @@ export default class LocalPageQueue extends StatefulClass {
         });
         this.state.handled.forEach((json) => {
             const request = Request.fromJSON(crawlerConfig, json);
+
+            // TODO: This is temporary ugly solution before we finish the remote PageQueue
+            // to save some resources when keeping queue in instance memory.
+            cleanProperties(request);
+
             this.handled.add(request.uniqueKey, request);
         });
     }
@@ -110,6 +125,9 @@ export default class LocalPageQueue extends StatefulClass {
         }
 
         this.queued.remove(request.uniqueKey);
+        // TODO: This is temporary ugly solution before we finish the remote PageQueue
+        // to save some resources when keeping queue in instance memory.
+        cleanProperties(request);
         this.handled.add(request.uniqueKey, request);
 
         stats.pagesInQueue = this.queued.getLength();
