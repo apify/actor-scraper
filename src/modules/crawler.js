@@ -137,15 +137,18 @@ export default class Crawler extends EventEmitter {
 
             // TODO: do this better - this exceedes maxCrawledPagesPerSlave for browser ID 1!
             // We should launch new browser in this case instead of using the 1st one!
-            if (Math.min(...this.requestsTotal) === maxCrawledPagesPerSlave && Math.min(this.requestsInProgress) > 0) {
+            if (Math.min(...this.requestsTotal) >= maxCrawledPagesPerSlave && Math.min(this.requestsInProgress) > 0) {
+                logDebug('Crawler: selection browser 0, cannot restart any browser');
                 return 0;
             }
 
             // There are pending requests so use some other browser.
+            logDebug('Crawler: recursion');
             return this._getAvailableBrowserId();
         }
 
         // Browser is good to go ...
+        logDebug('Crawler: browser is good to go');
         return pos;
     }
 
