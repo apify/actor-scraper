@@ -111,7 +111,7 @@ export default class Crawler extends EventEmitter {
     /**
      * Returns ID of browser that can perform given request.
      */
-    _getAvailableBrowserId() {
+    _getAvailableBrowserId(recursion = 0) {
         logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
         logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
@@ -124,18 +124,28 @@ export default class Crawler extends EventEmitter {
             this.browserPosition = 0;
         }
 
-        if (this.requestsTotal[pos] === maxCrawledPagesPerSlave && this.requestsInProgress[pos] === 0) {
-            logDebug(`Crawler: relaunching browser id ${pos}`);
-            this.browsers[pos] = this._launchPuppeteer();
-            this.requestsTotal[pos] = 0;
-
+        // TODO: do this better - this exceedes maxCrawledPagesPerSlave for browser ID 1
+        // We should launch new browser in this case instead of using the 1st one!
+        if (recursion === this.browsers.length) {
             return pos;
         }
 
+        // Browser requested too many pages.
         if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
-            return this._getAvailableBrowserId();
+            // There is no pending request so relaunch browser.
+            if (this.requestsInProgress[pos] === 0) {
+                logDebug(`Crawler: relaunching browser id ${pos}`);
+                this.browsers[pos] = this.browsers[pos].close().then(() => this._launchPuppeteer());
+                this.requestsTotal[pos] = 0;
+
+                return pos;
+            }
+
+            // There are pending requests so use some other browser.
+            return this._getAvailableBrowserId(recursion++);
         }
 
+        // Browser is good to go ...
         return pos;
     }
 
