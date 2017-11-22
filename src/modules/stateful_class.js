@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { logDebug } from './utils';
 
-const STATE_PERSIST_INTERVAL_MILLIS = 15000;
+const STATE_PERSIST_INTERVAL_MILLIS = 60000;
 
 export const EVENT_VALUE = 'value';
 
