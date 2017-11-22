@@ -116,7 +116,7 @@ export default class Crawler extends EventEmitter {
         logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
         const pos = this.browserPosition;
-        const maxCrawledPagesPerSlave = maxCrawledPagesPerSlave;
+        const maxCrawledPagesPerSlave = this.maxCrawledPagesPerSlave;
 
         this.browserPosition ++;
 
