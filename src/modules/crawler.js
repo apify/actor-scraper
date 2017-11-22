@@ -129,7 +129,9 @@ export default class Crawler extends EventEmitter {
             // There is no pending request so relaunch browser.
             if (this.requestsInProgress[pos] === 0) {
                 logDebug(`Crawler: relaunching browser id ${pos}`);
-                this.browsers[pos] = this.browsers[pos].close().then(() => this._launchPuppeteer());
+                this.browsers[pos] = this.browsers[pos]
+                    .then(browser => browser.close())
+                    .then(() => this._launchPuppeteer());
                 this.requestsTotal[pos] = 0;
 
                 return pos;
