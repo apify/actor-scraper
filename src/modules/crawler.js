@@ -161,6 +161,7 @@ export default class Crawler extends EventEmitter {
      */
     async crawl(request) {
         const browserId = this._getAvailableBrowserId();
+        let page;
 
         this.requestsInProgress[browserId] ++;
         this.requestsTotal[browserId] ++;
@@ -169,7 +170,7 @@ export default class Crawler extends EventEmitter {
         // a case of an error and then we can rethrow it.
         try {
             const browser = await this.browsers[browserId];
-            const page = await browser.newPage();
+            page = await browser.newPage();
 
             page.on('error', error => logError('Page error', error));
 
