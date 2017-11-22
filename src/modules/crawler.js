@@ -124,10 +124,6 @@ export default class Crawler extends EventEmitter {
             this.browserPosition = 0;
         }
 
-        // TODO: do this better - this exceedes maxCrawledPagesPerSlave for browser ID 1
-        // We should launch new browser in this case instead of using the 1st one!
-        if (Math.min(...this.requestsTotal) === maxCrawledPagesPerSlave) return 0;
-
         // Browser requested too many pages.
         if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
             // There is no pending request so relaunch browser.
@@ -137,6 +133,12 @@ export default class Crawler extends EventEmitter {
                 this.requestsTotal[pos] = 0;
 
                 return pos;
+            }
+
+            // TODO: do this better - this exceedes maxCrawledPagesPerSlave for browser ID 1!
+            // We should launch new browser in this case instead of using the 1st one!
+            if (Math.min(...this.requestsTotal) === maxCrawledPagesPerSlave && Math.min(this.requestsInProgress) > 0) {
+                return 0;
             }
 
             // There are pending requests so use some other browser.
