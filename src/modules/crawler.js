@@ -22,6 +22,7 @@ export default class Crawler extends EventEmitter {
         this.browser = null;
         this.gotoOptions = {};
         this.browsers = [];
+        this.browserPosition = 0;
         this.requestsInProgress = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
@@ -111,20 +112,26 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        let maxValue = -1000;
-        let maxIndex = 0;
-
         logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
         logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
-        this.requestsTotal.forEach((value, index) => {
-            if (value <= maxValue || value >= this.crawlerConfig.maxCrawledPagesPerSlave) return;
+        this.browserPosition ++;
+        const pos = this.browserPosition;
+        const maxCrawledPagesPerSlave = maxCrawledPagesPerSlave;
 
-            maxValue = value;
-            maxIndex = index;
-        });
+        if (this.requestsTotal[pos] === maxCrawledPagesPerSlave && this.requestsInProgress[pos] === 0) {
+            logDebug(`Crawler: relaunching browser id ${pos}`);
+            this.browsers[pos] = this._launchPuppeteer();
+            this.requestsTotal[pos] = 0;
 
-        return maxIndex;
+            return this.pos;
+        }
+
+        if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
+            return this._getAvailableBrowserId();
+        }
+
+        return pos;
     }
 
     /**
@@ -162,28 +169,13 @@ export default class Crawler extends EventEmitter {
             request.requestedAt = new Date();
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
-            await this._finishPage(page, browserId);
+            await page.close();
+            this.requestsInProgress[browserId] --;
         } catch (err) {
-            await this._finishPage(page, browserId);
+            await page.close();
+            this.requestsInProgress[browserId] --;
             throw err;
         }
-    }
-
-    async _finishPage(page, browserId) {
-        const closePromise = page.close();
-
-        this.requestsInProgress[browserId] --;
-
-        const relaunchBrowser = this.requestsInProgress[browserId] === 0
-                             && this.requestsTotal === this.crawlerConfig.maxCrawledPagesPerSlave;
-
-        if (relaunchBrowser) {
-            logDebug(`Crawler: relaunching browser id ${browserId}`);
-            this.browsers[browserId] = this._launchPuppeteer();
-            this.requestsTotal[browserId] = 0;
-        }
-
-        return closePromise;
     }
 
     /**
