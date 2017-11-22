@@ -112,8 +112,8 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId(recursion = 0) {
-        logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
-        logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
+        logDebug(`Crawler: (${recursion}) browser requests total       ${this.requestsTotal.join(', ')}`);
+        logDebug(`Crawler: (${recursion}) browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
         const pos = this.browserPosition;
         const maxCrawledPagesPerSlave = this.crawlerConfig.maxCrawledPagesPerSlave;
@@ -126,9 +126,7 @@ export default class Crawler extends EventEmitter {
 
         // TODO: do this better - this exceedes maxCrawledPagesPerSlave for browser ID 1
         // We should launch new browser in this case instead of using the 1st one!
-        if (recursion === this.browsers.length) {
-            return pos;
-        }
+        if (Math.min(...this.requestsTotal) === maxCrawledPagesPerSlave) return 0;
 
         // Browser requested too many pages.
         if (this.requestsTotal[pos] >= maxCrawledPagesPerSlave) {
