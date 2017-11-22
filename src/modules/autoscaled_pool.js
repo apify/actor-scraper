@@ -24,7 +24,7 @@ const SCALE_UP_INTERVAL = 100;
 const WAITFOR_MEMORY_MILLIS = 1000;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 
-const humanReadable = bytes => Math.round(bytes / 1024 / 1024);
+const humanReadable = bytes => `${Math.round(bytes / 1024 / 1024)} MB`;
 
 export default class AutoscaledPool {
     constructor(options) {
@@ -100,9 +100,9 @@ export default class AutoscaledPool {
             console.log(`freeMem: ${humanReadable(freeMem)}`);
             console.log(`totalMem: ${humanReadable(totalMem)}`);
             console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
-            console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}`);
+            console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}%`);
             console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
-            console.log(`memPerInstancePerc: ${memPerInstancePerc}`);
+            console.log(`memPerInstancePerc: ${memPerInstancePerc}%`);
             console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
 
             if (hasSpaceForInstancesFloored > 0) {
