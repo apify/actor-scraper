@@ -109,7 +109,7 @@ Apify.main(async () => {
     const crawler = await createCrawler(input);
     const urlList = await maybeCreateUrlList(input);
 
-    pageQueue.on('handled', request => sequentialStore.put(request.toJSON()));
+    pageQueue.on('handled', record => sequentialStore.put(record));
 
     parsePurls(input);
     enqueueStartUrls(input, pageQueue);

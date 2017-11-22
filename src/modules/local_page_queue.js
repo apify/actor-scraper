@@ -124,6 +124,11 @@ export default class LocalPageQueue extends StatefulClass {
             throw new Error(`There already is a handled request with same uniqueKey ("${request.uniqueKey}"").`);
         }
 
+        if (!request.skipOutput) {
+            stats.pagesOutputted ++;
+            this.emit('handled', request.toJSON());
+        }
+
         this.queued.remove(request.uniqueKey);
         // TODO: This is temporary ugly solution before we finish the remote PageQueue
         // to save some resources when keeping queue in instance memory.
@@ -133,11 +138,6 @@ export default class LocalPageQueue extends StatefulClass {
         stats.pagesInQueue = this.queued.getLength();
         stats.pagesCrawled = this.handled.getLength();
         stats.pagesRetried += (request.retryCount > 0 ? 1 : 0);
-
-        if (!request.skipOutput) {
-            stats.pagesOutputted ++;
-            this.emit('handled', request);
-        }
 
         this._updateState();
     }
