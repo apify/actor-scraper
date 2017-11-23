@@ -15,7 +15,7 @@
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
 import os from 'os';
-
+import childProcess from 'child_process';
 import { logDebug } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
@@ -104,6 +104,15 @@ export default class AutoscaledPool {
             console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
             console.log(`memPerInstancePerc: ${memPerInstancePerc}%`);
             console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
+
+            childProcess.exec('ps -Ao rss', (err, data) => {
+                if (err) console.log(err);
+
+                const used = data.split('\n').map(line => parseInt(line) || 0).reduce((sum, val) => sum + val, 0);
+
+                console.log(data);
+                console.log(`Used memory: ${used}    ${humanReadable(used)}`);
+            });
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
