@@ -108,7 +108,11 @@ export default class AutoscaledPool {
             childProcess.exec('ps -Ao rss', (err, data) => {
                 if (err) console.log(err);
 
-                const used = data.split('\n').map(line => parseInt(line) || 0).reduce((sum, val) => sum + val, 0);
+                const used = data
+                    .split('\n')
+                    .map(line => line.trim().replace(',', '.'))
+                    .map(line => parseFloat(line) || 0)
+                    .reduce((sum, val) => sum + (val * 1024), 0);
 
                 console.log(data);
                 console.log(`Used memory: ${used}    ${humanReadable(used)}`);
