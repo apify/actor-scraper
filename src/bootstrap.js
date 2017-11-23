@@ -15,12 +15,6 @@ const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
 
 process.on('unhandledRejection', err => console.log(err));
 
-
-const child_process = require('child_process');
-setInterval(
-    () => console.log(child_process.execSync('ps -o pid,comm,rss -A').toString())
-, 10000);
-
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
     maxParallelRequests: 1,
@@ -37,7 +31,18 @@ const fetchInput = async () => {
 
     const crawler = await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId });
 
-    return Object.assign({}, input, crawler);
+    return Object.assign({}, crawler, input);
+};
+
+const parseInput = (input) => {
+    input.crawlPurls = input.crawlPurls || [];
+    input.crawlPurls.forEach((purl) => {
+        purl.parsedPurl = new PseudoUrl(purl.value);
+    });
+
+    if (input.customProxies && _.isString(input.customProxies)) {
+        input.customProxies = input.customProxies.split('\n');
+    }
 };
 
 const createSeqStore = async (input) => {
@@ -78,13 +83,6 @@ const maybeCreateUrlList = async (input) => {
     return urlList;
 };
 
-const parsePurls = (input) => {
-    input.crawlPurls = input.crawlPurls || [];
-    input.crawlPurls.forEach((purl) => {
-        purl.parsedPurl = new PseudoUrl(purl.value);
-    });
-};
-
 const enqueueStartUrls = (input, pageQueue) => {
     input.startUrls
         .map((item) => {
@@ -109,6 +107,7 @@ Apify.main(async () => {
         actId: APIFY_ACT_ID,
         runId: APIFY_ACT_RUN_ID,
     });
+    parseInput(input);
 
     const sequentialStore = await createSeqStore(input);
     const pageQueue = await createPageQueue(input);
@@ -117,7 +116,6 @@ Apify.main(async () => {
 
     pageQueue.on('handled', record => sequentialStore.put(record));
 
-    parsePurls(input);
     enqueueStartUrls(input, pageQueue);
 
     // This event is trigered by context.enqueuePage().
