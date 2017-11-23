@@ -68,7 +68,7 @@ export default class Crawler extends EventEmitter {
 
     async _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
-        const customProxies = this.crawlerConfig.customProxies;
+        const { customProxies, userAgent } = this.crawlerConfig;
 
         if (customProxies && customProxies.length) {
             config.proxyUrl = customProxies[this.customProxiesPosition];
@@ -76,6 +76,10 @@ export default class Crawler extends EventEmitter {
             this.customProxiesPosition ++;
 
             if (this.customProxiesPosition >= customProxies.length) this.customProxiesPosition = 0;
+        }
+
+        if (userAgent) {
+            config.userAgent = userAgent;
         }
 
         return Apify.launchPuppeteer(config);

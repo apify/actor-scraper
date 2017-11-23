@@ -66,7 +66,8 @@ Act supports following crawler configuration attributes (for documentation see h
 | crawlerId            | `String` |         |          | ID of a crawler to fetch configuration from. |
 | urlList              | `String` |         |          | Url of the file containing urls to be enqueued as `startUrls`. This file must either contain one url per line or `urlListRegExp` configuration attribute must be provided. |
 | urlListRegExp        | `String` |         |          | RegExp to match array of urls from `urlList` file ^.<br /><br />This RegExp is used this way against the file and must return array of url strings: `contentOfFile.match(new RegExp(urlListRegExp, 'g'));`<br /><br />For example `(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w-.,@?^=%&:/~+#-]*[\\w@?^=%&;/~+#-])?` to simply match any http/https urls. |
-
+| userAgent            | `String`   |         |          | User agent to be used in browser |
+| customProxies        | `[String]` |         |          | Array of proxies to be used for browsing. |
 
 
 ## Local usage
