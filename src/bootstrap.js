@@ -15,6 +15,12 @@ const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
 
 process.on('unhandledRejection', err => console.log(err));
 
+
+const child_process = require('child_process');
+setInterval(
+    () => console.log(child_process.execSync('ps -o pid,comm,rss -A').toString())
+, 10000);
+
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
     maxParallelRequests: 1,
