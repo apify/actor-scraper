@@ -114,8 +114,12 @@ export default class AutoscaledPool {
                     .map(line => parseFloat(line) || 0)
                     .reduce((sum, val) => sum + (val * 1024), 0);
 
-                console.log(data);
                 console.log(`Used memory: ${used}    ${humanReadable(used)}`);
+            });
+            childProcess.exec('ps -Ao pid,comm,rss', (err, data) => {
+                if (err) console.log(err);
+
+                console.log(data);
             });
 
             if (hasSpaceForInstancesFloored > 0) {
