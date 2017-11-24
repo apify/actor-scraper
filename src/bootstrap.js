@@ -149,11 +149,11 @@ Apify.main(async () => {
     crawler.on(EVENT_REQUEST, (request) => {
         // context.enqueuePage() is not a subject of maxCrawlDepth
         if (input.maxCrawlDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlDepth) {
-            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, max depth reached`);
+            logDebug(`Not enqueuing ${request.url}, type = ${request.type}, max depth reached`);
             return;
         }
         if (!request.willLoad) {
-            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, willLoad = false`);
+            logDebug(`Not enqueuing ${request.url}, type = ${request.type}, willLoad = false`);
             return;
         }
 
