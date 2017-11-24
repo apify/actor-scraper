@@ -18,6 +18,7 @@
     "apify": "^0.4.36",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.1",
+    "event-loop-stats": "^1.0.0",
     "jquery": "^3.2.1",
     "puppeteer": "^0.12.0",
     "request": "^2.83.0",

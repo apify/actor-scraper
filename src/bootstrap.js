@@ -2,6 +2,7 @@ import Apify from 'apify';
 import _ from 'underscore';
 import Promise from 'bluebird';
 import { readFile } from 'fs';
+import eventLoopStats from 'event-loop-stats';
 import os from 'os';
 import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
@@ -100,6 +101,8 @@ const enqueueStartUrls = (input, pageQueue) => {
             pageQueue.enqueue(request);
         });
 };
+
+setInterval(() => logDebug(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 5000);
 
 const readFilePromised = Promise.promisify(readFile);
 Apify.getMemoryInfo = async () => {
