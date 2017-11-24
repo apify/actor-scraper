@@ -21,6 +21,7 @@ const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.2;
 const SCALE_UP_INTERVAL = 100;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
+const MAX_CONCURRENCY_STEP = 10;
 
 const humanReadable = bytes => `${Math.round(bytes / 1024 / 1024)} MB`;
 
@@ -91,6 +92,7 @@ export default class AutoscaledPool {
             const hasSpaceForInstancesFloored = Math.min(
                 Math.floor(hasSpaceForInstances),
                 Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
+                MAX_CONCURRENCY_STEP,
             );
 
             console.log(`freeMem: ${humanReadable(freeMem)}`);
