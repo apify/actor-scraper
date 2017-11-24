@@ -1,6 +1,8 @@
 import Apify from 'apify';
 import _ from 'underscore';
 import Promise from 'bluebird';
+import { readFile } from 'fs';
+import os from 'os';
 import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './modules/request';
@@ -96,6 +98,28 @@ const enqueueStartUrls = (input, pageQueue) => {
         })
         .forEach((request) => {
             pageQueue.enqueue(request);
+        });
+};
+
+const readFilePromised = Promise.promisify(readFile);
+Apify.getMemoryInfo = async () => {
+    if (process.env.APIFY_MEMORY_MBYTES) {
+        const freeBytes = os.freemem();
+        const totalBytes = os.totalmem();
+
+        return Promise.resolve({ totalBytes, freeBytes, usedBytes: totalBytes - freeBytes });
+    }
+
+    return Promise
+        .all([
+            readFilePromised('/sys/fs/cgroup/memory/memory.limit_in_bytes'),
+            readFilePromised('/sys/fs/cgroup/memory/memory.usage_in_bytes'),
+        ])
+        .then(([totalBytesStr, usedBytesStr]) => {
+            const totalBytes = parseInt(totalBytesStr);
+            const usedBytes = parseInt(usedBytesStr);
+
+            return { totalBytes, freeBytes: totalBytes - usedBytes, usedBytes };
         });
 };
 

@@ -12,10 +12,9 @@
  * - fail of any promise should cause main promise to fail ????
  */
 
+import Apify from 'apify';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
-import os from 'os';
-import childProcess from 'child_process';
 import { logDebug } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
@@ -67,9 +66,10 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
-    _autoscale(maybeScaleUp) {
-        const freeMem = os.freemem();
-        const totalMem = os.totalmem();
+    async _autoscale(maybeScaleUp) {
+        const mem = await Apify.getMemoryInfo();
+        const freeMem = mem.freeBytes;
+        const totalMem = mem.totalBytes;
 
         this.freeMemSnapshots = this.freeMemSnapshots.concat(freeMem).slice(-SCALE_UP_INTERVAL);
 
@@ -99,49 +99,6 @@ export default class AutoscaledPool {
             console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
             console.log(`memPerInstancePerc: ${memPerInstancePerc}%`);
             console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
-
-            childProcess.exec('ps -Ao rss', (err, data) => {
-                if (err) console.log(err);
-
-                const used = data
-                    .split('\n')
-                    .map(line => line.trim().replace(',', '.'))
-                    .map(line => parseFloat(line) || 0)
-                    .reduce((sum, val) => sum + (val * 1024), 0);
-
-                console.log(`Used memory rss: ${used}    ${humanReadable(used)}`);
-            });
-            childProcess.exec('ps -Ao size', (err, data) => {
-                if (err) console.log(err);
-
-                const used = data
-                    .split('\n')
-                    .map(line => line.trim().replace(',', '.'))
-                    .map(line => parseFloat(line) || 0)
-                    .reduce((sum, val) => sum + (val * 1024), 0);
-
-                console.log(`Used memory size: ${used}    ${humanReadable(used)}`);
-            });
-            childProcess.exec('ps -Ao pid,comm,rss,size,%mem', (err, data) => {
-                if (err) console.log(err);
-
-                console.log(data);
-            });
-            childProcess.exec('cat /sys/fs/cgroup/memory/memory.limit_in_bytes', (err, data) => {
-                if (err) console.log(err);
-
-                console.log(`memory.limit_in_bytes ${data} ${humanReadable(data)}`);
-            });
-            childProcess.exec('cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes', (err, data) => {
-                if (err) console.log(err);
-
-                console.log(`memory.max_usage_in_bytes ${data} ${humanReadable(data)}`);
-            });
-            childProcess.exec('cat /sys/fs/cgroup/memory/memory.usage_in_bytes', (err, data) => {
-                if (err) console.log(err);
-
-                console.log(`memory.usage_in_bytes ${data} ${humanReadable(data)}`);
-            });
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
