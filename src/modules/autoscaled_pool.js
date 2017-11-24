@@ -127,6 +127,21 @@ export default class AutoscaledPool {
 
                 console.log(data);
             });
+            childProcess.exec('cat /sys/fs/cgroup/memory/memory.limit_in_bytes', (err, data) => {
+                if (err) console.log(err);
+
+                console.log(`memory.limit_in_bytes ${data} ${humanReadable(data)}`);
+            });
+            childProcess.exec('cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes', (err, data) => {
+                if (err) console.log(err);
+
+                console.log(`memory.max_usage_in_bytes ${data} ${humanReadable(data)}`);
+            });
+            childProcess.exec('cat /sys/fs/cgroup/memory/memory.usage_in_bytes', (err, data) => {
+                if (err) console.log(err);
+
+                console.log(`memory.usage_in_bytes ${data} ${humanReadable(data)}`);
+            });
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
