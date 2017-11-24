@@ -38,6 +38,7 @@ export default class AutoscaledPool {
         this.freeMemSnapshots = [];
 
         let iteration = 0;
+        // TODO: clear interval
         this.memCheckInterval = setInterval(() => {
             this._autoscale(iteration === SCALE_UP_INTERVAL);
             iteration++;
@@ -102,7 +103,7 @@ export default class AutoscaledPool {
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
-                logDebug(`AutoscaledPool: scaling up to ${this.concurrency}`);
+                logDebug(`AutoscaledPool: scaling up by ${hasSpaceForInstancesFloored} to ${this.concurrency}`);
             }
         }
     }
