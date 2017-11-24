@@ -32,7 +32,7 @@ export default class Crawler extends EventEmitter {
         }
 
         if (crawlerConfig.pageLoadTimeout) {
-            this.gotoOptions.pageLoadTimeout = crawlerConfig.pageLoadTimeout;
+            this.gotoOptions.timeout = crawlerConfig.pageLoadTimeout;
         }
     }
 
