@@ -103,7 +103,7 @@ const enqueueStartUrls = (input, pageQueue) => {
 
 const readFilePromised = Promise.promisify(readFile);
 Apify.getMemoryInfo = async () => {
-    if (process.env.APIFY_MEMORY_MBYTES) {
+    if (!process.env.APIFY_MEMORY_MBYTES) {
         const freeBytes = os.freemem();
         const totalBytes = os.totalmem();
 
