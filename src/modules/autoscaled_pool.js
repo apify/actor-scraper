@@ -20,6 +20,7 @@ import { logDebug } from './utils';
 const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.2;
 const SCALE_UP_INTERVAL = 100;
+const SCALE_DOWN_INTERVAL = 10;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 const MAX_CONCURRENCY_STEP = 10;
 
@@ -35,13 +36,12 @@ export default class AutoscaledPool {
         this.concurrency = 1;
         this.runningPromises = {};
         this.runningCount = 0;
-
-        this.freeMemSnapshots = [];
+        this.freeBytesSnapshots = [];
 
         let iteration = 0;
         // TODO: clear interval
         this.memCheckInterval = setInterval(() => {
-            this._autoscale(iteration === SCALE_UP_INTERVAL);
+            this._autoscale(iteration % SCALE_DOWN_INTERVAL === 0, iteration === SCALE_UP_INTERVAL);
             iteration++;
             if (iteration > SCALE_UP_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
@@ -68,15 +68,13 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
-    async _autoscale(maybeScaleUp) {
-        const mem = await Apify.getMemoryInfo();
-        const freeMem = mem.freeBytes;
-        const totalMem = mem.totalBytes;
+    async _autoscale(maybeScaleDown, maybeScaleUp) {
+        const { freeBytes, totalBytes } = await Apify.getMemoryInfo();
 
-        this.freeMemSnapshots = this.freeMemSnapshots.concat(freeMem).slice(-SCALE_UP_INTERVAL);
+        this.freeBytesSnapshots = this.freeBytesSnapshots.concat(freeBytes).slice(-SCALE_UP_INTERVAL);
 
         // Go down.
-        if (freeMem / totalMem < MIN_FREE_MEMORY_PERC) {
+        if (maybeScaleDown && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
             if (this.concurrency > 1) {
                 this.concurrency --;
                 logDebug(`AutoscaledPool: scaling down to ${this.concurrency}`);
@@ -84,23 +82,23 @@ export default class AutoscaledPool {
 
         // Maybe go up every N intervals.
         } else if (maybeScaleUp && this.concurrency < this.maxConcurrency) {
-            const minFreeMemory = Math.min(...this.freeMemSnapshots);
-            const minFreeMemoryPerc = minFreeMemory / totalMem;
-            const maxMemTaken = totalMem - minFreeMemory;
-            const memPerInstancePerc = (maxMemTaken / totalMem) / this.concurrency;
-            const hasSpaceForInstances = (minFreeMemoryPerc - MIN_FREE_MEMORY_PERC) / memPerInstancePerc;
+            const minFreeBytes = Math.min(...this.freeBytesSnapshots);
+            const minFreePerc = minFreeBytes / totalBytes;
+            const maxTakenBytes = totalBytes - minFreeBytes;
+            const perInstancePerc = (maxTakenBytes / totalBytes) / this.concurrency;
+            const hasSpaceForInstances = (minFreePerc - MIN_FREE_MEMORY_PERC) / perInstancePerc;
             const hasSpaceForInstancesFloored = Math.min(
                 Math.floor(hasSpaceForInstances),
                 Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
                 MAX_CONCURRENCY_STEP,
             );
 
-            console.log(`freeMem: ${humanReadable(freeMem)}`);
-            console.log(`totalMem: ${humanReadable(totalMem)}`);
-            console.log(`minFreeMemory: ${humanReadable(minFreeMemory)}`);
-            console.log(`minFreeMemoryPerc: ${minFreeMemoryPerc}%`);
-            console.log(`maxMemTaken: ${humanReadable(maxMemTaken)}`);
-            console.log(`memPerInstancePerc: ${memPerInstancePerc}%`);
+            console.log(`freeBytes: ${humanReadable(freeBytes)}`);
+            console.log(`totalBytes: ${humanReadable(totalBytes)}`);
+            console.log(`minFreeBytes: ${humanReadable(minFreeBytes)}`);
+            console.log(`minFreePerc: ${minFreePerc}%`);
+            console.log(`maxTakenBytes: ${humanReadable(maxTakenBytes)}`);
+            console.log(`perInstancePerc: ${perInstancePerc}%`);
             console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
 
             if (hasSpaceForInstancesFloored > 0) {
