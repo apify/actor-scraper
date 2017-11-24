@@ -109,9 +109,20 @@ export default class AutoscaledPool {
                     .map(line => parseFloat(line) || 0)
                     .reduce((sum, val) => sum + (val * 1024), 0);
 
-                console.log(`Used memory: ${used}    ${humanReadable(used)}`);
+                console.log(`Used memory rss: ${used}    ${humanReadable(used)}`);
             });
-            childProcess.exec('ps -Ao pid,comm,rss', (err, data) => {
+            childProcess.exec('ps -Ao size', (err, data) => {
+                if (err) console.log(err);
+
+                const used = data
+                    .split('\n')
+                    .map(line => line.trim().replace(',', '.'))
+                    .map(line => parseFloat(line) || 0)
+                    .reduce((sum, val) => sum + (val * 1024), 0);
+
+                console.log(`Used memory size: ${used}    ${humanReadable(used)}`);
+            });
+            childProcess.exec('ps -Ao pid,comm,rss,size', (err, data) => {
                 if (err) console.log(err);
 
                 console.log(data);
