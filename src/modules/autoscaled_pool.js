@@ -93,13 +93,14 @@ export default class AutoscaledPool {
                 MAX_CONCURRENCY_STEP,
             );
 
-            console.log(`freeBytes: ${humanReadable(freeBytes)}`);
-            console.log(`totalBytes: ${humanReadable(totalBytes)}`);
-            console.log(`minFreeBytes: ${humanReadable(minFreeBytes)}`);
-            console.log(`minFreePerc: ${minFreePerc}%`);
-            console.log(`maxTakenBytes: ${humanReadable(maxTakenBytes)}`);
-            console.log(`perInstancePerc: ${perInstancePerc}%`);
-            console.log(`hasSpaceForInstances: ${hasSpaceForInstances}`);
+            logDebug(`Memory stats:
+    freeBytes: ${humanReadable(freeBytes)}
+    totalBytes: ${humanReadable(totalBytes)}
+    minFreeBytes: ${humanReadable(minFreeBytes)}
+    minFreePerc: ${minFreePerc}%
+    maxTakenBytes: ${humanReadable(maxTakenBytes)}
+    perInstancePerc: ${perInstancePerc}%
+    hasSpaceForInstances: ${hasSpaceForInstances}`);
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
