@@ -122,7 +122,7 @@ export default class AutoscaledPool {
 
                 console.log(`Used memory size: ${used}    ${humanReadable(used)}`);
             });
-            childProcess.exec('ps -Ao pid,comm,rss,size', (err, data) => {
+            childProcess.exec('ps -Ao pid,comm,rss,size,%mem', (err, data) => {
                 if (err) console.log(err);
 
                 console.log(data);
