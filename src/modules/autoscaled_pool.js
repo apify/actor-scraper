@@ -112,7 +112,7 @@ export default class AutoscaledPool {
                     .split('\n')
                     .map(line => line.trim().replace(',', '.'))
                     .map(line => parseFloat(line) || 0)
-                    .reduce((sum, val) => sum + (val / 1024), 0);
+                    .reduce((sum, val) => sum + (val * 1024), 0);
 
                 console.log(`Used memory: ${used}    ${humanReadable(used)}`);
             });
