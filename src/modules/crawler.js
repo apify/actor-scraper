@@ -198,7 +198,7 @@ export default class Crawler extends EventEmitter {
             await page.close();
             this.requestsInProgress[browserId] --;
         } catch (err) {
-            await page.close();
+            if (page) await page.close();
             this.requestsInProgress[browserId] --;
             throw err;
         }
