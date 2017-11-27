@@ -12,7 +12,6 @@ export const EVENT_SNAPSHOT = 'snapshot';
 const PUPPETEER_CONFIG = {
     dumpio: true,
     slowMo: 500,
-    headless: true,
 };
 
 export default class Crawler extends EventEmitter {
@@ -27,7 +26,7 @@ export default class Crawler extends EventEmitter {
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave >= crawlerConfig.maxParallelRequests) {
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
         }
 
@@ -193,6 +192,9 @@ export default class Crawler extends EventEmitter {
             });
 
             request.requestedAt = new Date();
+            if (this.crawlerConfig.cookies.length) {
+                await page.setCookie(...this.crawlerConfig.cookies);
+            }
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
             await page.close();
@@ -247,6 +249,7 @@ export default class Crawler extends EventEmitter {
 
         promises.push(waitForBodyPromise);
         promises.push(utils.waitForBody(page));
+        promises.push(utils.infiniteScroll(page, this.crawlerConfig.maxInfiniteScrollHeight));
         promises.push(utils.injectContext(page, contextVars));
         promises.push(utils.exposeMethods(page, contextMethods));
 

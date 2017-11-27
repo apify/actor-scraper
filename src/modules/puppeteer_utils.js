@@ -169,3 +169,35 @@ export const clickClickables = async (page, clickableElementsSelector) => {
             });
     }, clickableElementsSelector);
 };
+
+export const infiniteScroll = async (page, maxHeight) => {
+    const scrollToEndOfPage = page => page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const getPageHeight = page => page.evaluate(() => document.body.scrollHeight);
+    const defaultScrollDelay = 5000;
+    const pageStats = {
+        height: await getPageHeight(page),
+        requestsCount: 0,
+    };
+
+    // Catch when page emit request and increase couter
+    page.on('request', () => pageStats.requestsCount++);
+
+    console.log(`Starting infinite scroll: maxHeight=${maxHeight}`);
+
+    while (pageStats.height < maxHeight) {
+        const loopRequestsAtStart = pageStats.requestsCount;
+        console.log(`Starting infinite scroll loop requests: ${loopRequestsAtStart}, pageHeight: ${pageStats.height}.`);
+
+        await scrollToEndOfPage(page);
+
+        await new Promise(resolve => setTimeout(resolve, defaultScrollDelay));
+
+        pageStats.height = await getPageHeight(page);
+
+        if (loopRequestsAtStart === pageStats.requestsCount) {
+            // No more async ajax call, we can shout down infinite scroll loop
+            break;
+        }
+    }
+    console.log('Infinite scroll ends.');
+};
