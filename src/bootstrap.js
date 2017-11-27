@@ -22,7 +22,7 @@ const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
     maxParallelRequests: 1,
     maxCrawledPagesPerSlave: 50,
-    maxPagesPerFile: 1000,
+    maxPagesPerFile: 5000,
     browserInstanceCount: 10,
     startUrls: [],
 };

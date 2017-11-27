@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import { logDebug } from './utils';
+import { logInfo } from './utils';
 
 const STATE_PERSIST_INTERVAL_MILLIS = 300000;
 
@@ -20,7 +20,7 @@ export default class StatefulClass extends EventEmitter {
     }
 
     _emitState(state) {
-        logDebug(`${this.className}: persisting state`);
+        logInfo(`${this.className}: persisting state`);
 
         this._emitValue({
             key: this.stateKey,
@@ -41,6 +41,6 @@ export default class StatefulClass extends EventEmitter {
     destroy() {
         this._clearPersistInterval();
         if (this.statePersisted) this._emitState(null);
-        logDebug(`${this.className}: destroyed`);
+        logInfo(`${this.className}: destroyed`);
     }
 }

@@ -109,9 +109,6 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
             };
             const interceptedRequest = interceptRequest(interceptRequestContext, newRequest);
 
-            console.log('Intercepted request:');
-            console.log(JSON.stringify(interceptedRequest));
-
             await originalEnqueuePage(interceptedRequest);
         };
     }, interceptRequestStr, ENQUEUE_PAGE_ALLOWED_PROPERTIES);

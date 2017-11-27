@@ -82,7 +82,7 @@ export default class LocalPageQueue extends StatefulClass {
         const existingRequest = this.queued.get(request.uniqueKey);
         if (existingRequest) return logDebug(`PageQueue: Page ${info} is already in the queue.`);
 
-        logInfo(`PageQueue: Adding page to queue ${info}, queue len: ${this.queued.getLength()}).`);
+        logDebug(`PageQueue: Adding page to queue ${info}, queue len: ${this.queued.getLength()}).`);
 
         request.id = ++this.state.lastRequestId;
         this.queued.add(request.uniqueKey, request, request.queuePosition === QUEUE_POSITIONS.FIRST);
@@ -95,9 +95,9 @@ export default class LocalPageQueue extends StatefulClass {
         let request = null;
 
         if (this.maxCrawledPages && this.maxCrawledPages <= pagesCrawled) {
-            logDebug(`PageQueue: ${pagesCrawled} pages crawled, reaching the 'maxCrawledPages' limit from the configuration.`);
+            logInfo(`PageQueue: ${pagesCrawled} pages crawled, reaching the 'maxCrawledPages' limit from the configuration.`);
         } else if (this.maxOutputPages && this.maxOutputPages <= pagesOutputted) {
-            logDebug(`PageQueue: ${pagesOutputted} pages outputted, reaching the 'maxOutputPages' limit from the configuration.`);
+            logInfo(`PageQueue: ${pagesOutputted} pages outputted, reaching the 'maxOutputPages' limit from the configuration.`);
         } else {
             request = this.queued.moveFirstToEnd();
             const message = request ? 'A request was fetched successfully' : 'No more pages in the queue to crawl.';

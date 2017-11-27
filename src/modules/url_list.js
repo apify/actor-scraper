@@ -1,6 +1,6 @@
 import request from 'request-promise';
 import StatefulClass from './stateful_class';
-import { logDebug } from './utils';
+import { logDebug, logInfo } from './utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
 const DEFAULT_STATE = {
@@ -33,15 +33,15 @@ export default class UrlList extends StatefulClass {
                 .filter(line => line);
         }
 
-        logDebug(`UrlList: ${this.urls.length} urls fetched`);
-        logDebug(`UrlList: sample of fetched urls (1.-5.) ${JSON.stringify(this.urls.slice(0, 5))}`);
+        logInfo(`UrlList: ${this.urls.length} urls fetched`);
+        logInfo(`UrlList: sample of fetched urls (1.-5.) ${JSON.stringify(this.urls.slice(0, 5))}`);
     }
 
     fetchNext() {
         logDebug('UrlList: fetching next url');
 
         if (this.state.position >= this.urls.length) {
-            logDebug('UrlList: all urls fetched');
+            logInfo('UrlList: all urls fetched');
             return;
         }
 

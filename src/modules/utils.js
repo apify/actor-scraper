@@ -6,8 +6,10 @@ import { parseType, parsedTypeCheck } from 'type-check';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
-export const logDebug = message => log(message, 'DEBUG');
 export const logError = (message, error) => log(`${message} ${error}`, 'ERROR');
+export const logDebug = process.env.SKIP_DEBUG_LOG
+    ? () => {}
+    : message => log(message, 'DEBUG');
 
 export const isNullOrUndefined = val => _.isNull(val) || _.isUndefined(val);
 

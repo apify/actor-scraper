@@ -2,7 +2,7 @@ import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import { logError, logDebug } from './utils';
+import { logError, logDebug, logInfo } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
@@ -27,7 +27,7 @@ export default class Crawler extends EventEmitter {
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave >= crawlerConfig.maxParallelRequests) {
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave <= crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
         }
 
@@ -68,7 +68,7 @@ export default class Crawler extends EventEmitter {
 
     async _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
-        const { customProxies, userAgent } = this.crawlerConfig;
+        const { customProxies, userAgent, dumpio } = this.crawlerConfig;
 
         if (customProxies && customProxies.length) {
             config.proxyUrl = customProxies[this.customProxiesPosition];
@@ -78,9 +78,8 @@ export default class Crawler extends EventEmitter {
             if (this.customProxiesPosition >= customProxies.length) this.customProxiesPosition = 0;
         }
 
-        if (userAgent) {
-            config.userAgent = userAgent;
-        }
+        if (userAgent) config.userAgent = userAgent;
+        if (dumpio !== undefined) config.dumpio = dumpio;
 
         return Apify.launchPuppeteer(config);
     }
@@ -89,7 +88,7 @@ export default class Crawler extends EventEmitter {
      * Initializes puppeteer - starts the browser.
      */
     async initialize() {
-        logDebug(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
+        logInfo(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
 
         this.browsers = _
             .range(0, this.crawlerConfig.browserInstanceCount)
@@ -116,8 +115,8 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
-        logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
+        logInfo(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
+        logInfo(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
 
         const pos = this.browserPosition;
         const maxCrawledPagesPerSlave = this.crawlerConfig.maxCrawledPagesPerSlave;
