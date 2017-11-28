@@ -170,34 +170,61 @@ export const clickClickables = async (page, clickableElementsSelector) => {
     }, clickableElementsSelector);
 };
 
+/**
+ * Scroll to down page until infinite scroll ends or reaches maxHeight
+ * @param page - instance of crawled page
+ * @param maxHeight - max height of document to scroll
+ * @return {Promise.<void>}
+ */
 export const infiniteScroll = async (page, maxHeight) => {
-    const scrollToEndOfPage = page => page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    const getPageHeight = page => page.evaluate(() => document.body.scrollHeight);
-    const defaultScrollDelay = 5000;
-    const pageStats = {
-        height: await getPageHeight(page),
-        requestsCount: 0,
+    const maybeResourceTypesInfiniteScroll = ['xhr', 'fetch', 'websocket', 'other'];
+    const scrollTo = (page, xpos, ypos) => page.evaluate((x, y) => window.scrollTo(x, y), xpos, ypos);
+    const getPageScrollInfo = page => page.evaluate(() => {
+        return {
+            scrollHeight: document.body.scrollHeight,
+            scrollTop: document.documentElement.scrollTop,
+            clientHeight: document.documentElement.clientHeight,
+        };
+    });
+    const sleepPromised = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const defaultScrollDelay = 500;
+
+    // Catch and count all pages request for resources
+    const resourcesStats = {
+        requested: 0,
+        finished: 0,
+        failed: 0,
+        //forgotten: 0, TODO: Implement something like forgotten requests like in phantomJS crawler
     };
+    let scrollInfo = await getPageScrollInfo(page);
+    page.on('request', (msg) => {
+        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) resourcesStats.requested++;
+    });
+    page.on('requestfailed', (msg) => {
+        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) resourcesStats.failed++;
+    });
+    page.on('requestfinished', (msg) => {
+        if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) resourcesStats.finished++;
+    });
 
-    // Catch when page emit request and increase couter
-    page.on('request', () => pageStats.requestsCount++);
+    console.log(`Infinite scroll started (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight}).`);
 
-    console.log(`Starting infinite scroll: maxHeight=${maxHeight}`);
+    while (true) {
+        scrollInfo = await getPageScrollInfo(page);
+        console.log(`Infinite scroll stats (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight}).`);
 
-    while (pageStats.height < maxHeight) {
-        const loopRequestsAtStart = pageStats.requestsCount;
-        console.log(`Starting infinite scroll loop requests: ${loopRequestsAtStart}, pageHeight: ${pageStats.height}.`);
-
-        await scrollToEndOfPage(page);
-
-        await new Promise(resolve => setTimeout(resolve, defaultScrollDelay));
-
-        pageStats.height = await getPageHeight(page);
-
-        if (loopRequestsAtStart === pageStats.requestsCount) {
-            // No more async ajax call, we can shout down infinite scroll loop
-            break;
+        const pendingRequests = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed);
+        if (pendingRequests === 0) {
+            // If the page is scrolled to the very bottom or beyond maximum height, we are done
+            if (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight)) break;
+            // Otherwise we try to scroll down
+            await scrollTo(page, 0, scrollInfo.scrollHeight);
         }
+
+        await sleepPromised(defaultScrollDelay);
     }
-    console.log('Infinite scroll ends.');
+    // Scroll back up, otherwise the screenshot of the browser would only show the bottom of the page
+    await scrollTo(0, 0);
+
+    console.log(`Infinite scroll finished (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight} resourcesStats=${JSON.stringify(resourcesStats)})`);
 };
