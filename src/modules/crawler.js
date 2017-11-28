@@ -26,7 +26,7 @@ export default class Crawler extends EventEmitter {
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave >= crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
         }
 
