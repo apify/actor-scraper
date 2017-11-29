@@ -224,7 +224,7 @@ export const infiniteScroll = async (page, maxHeight) => {
         await sleepPromised(defaultScrollDelay);
     }
     // Scroll back up, otherwise the screenshot of the browser would only show the bottom of the page
-    await scrollTo(0, 0);
+    await scrollTo(page, 0, 0);
 
     console.log(`Infinite scroll finished (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight} resourcesStats=${JSON.stringify(resourcesStats)})`);
 };
