@@ -12,7 +12,6 @@ export const EVENT_SNAPSHOT = 'snapshot';
 const PUPPETEER_CONFIG = {
     dumpio: true,
     slowMo: 500,
-    headless: true,
 };
 
 export default class Crawler extends EventEmitter {
