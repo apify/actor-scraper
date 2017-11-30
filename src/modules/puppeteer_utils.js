@@ -6,6 +6,7 @@
 import path from 'path';
 import { chain } from 'underscore';
 import { ENQUEUE_PAGE_ALLOWED_PROPERTIES } from './request';
+import { logInfo, logDebug, logError } from './utils';
 
 export const injectJQueryScript = async (page) => {
     const jQueryPath = path.resolve(path.join(__dirname, '../../node_modules/jquery/dist/jquery.js'));
@@ -171,6 +172,22 @@ export const clickClickables = async (page, clickableElementsSelector) => {
 };
 
 /**
+ * Method scrolls page to xpos, ypos.
+ */
+export const scrollTo = (page, xpos, ypos) => page.evaluate((x, y) => window.scrollTo(x, y), xpos, ypos);
+
+/**
+ * Method returns info about page scroll
+ */
+export const getPageScrollInfo = page => page.evaluate(() => {
+    return {
+        scrollHeight: document.documentElement.scrollHeight,
+        scrollTop: document.documentElement.scrollTop,
+        clientHeight: document.documentElement.clientHeight,
+    };
+});
+
+/**
  * Scroll to down page until infinite scroll ends or reaches maxHeight
  * @param page - instance of crawled page
  * @param maxHeight - max height of document to scroll
@@ -178,15 +195,13 @@ export const clickClickables = async (page, clickableElementsSelector) => {
  */
 export const infiniteScroll = async (page, maxHeight) => {
     const maybeResourceTypesInfiniteScroll = ['xhr', 'fetch', 'websocket', 'other'];
-    const scrollTo = (page, xpos, ypos) => page.evaluate((x, y) => window.scrollTo(x, y), xpos, ypos);
-    const getPageScrollInfo = page => page.evaluate(() => {
-        return {
-            scrollHeight: document.body.scrollHeight,
-            scrollTop: document.documentElement.scrollTop,
-            clientHeight: document.documentElement.clientHeight,
-        };
-    });
     const sleepPromised = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const stringifyScrollInfo = (scrollInfo) => {
+        return `scrollTop=${scrollInfo.scrollTop}, ` +
+            `clientHeight=${scrollInfo.clientHeight}, ` +
+            `scrollHeight=${scrollInfo.scrollHeight}, ` +
+            `maxHeight=${maxHeight}`;
+    };
     const defaultScrollDelay = 500;
 
     // Catch and count all pages request for resources
@@ -196,7 +211,6 @@ export const infiniteScroll = async (page, maxHeight) => {
         failed: 0,
         //forgotten: 0, TODO: Implement something like forgotten requests like in phantomJS crawler
     };
-    let scrollInfo = await getPageScrollInfo(page);
     page.on('request', (msg) => {
         if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) resourcesStats.requested++;
     });
@@ -207,24 +221,29 @@ export const infiniteScroll = async (page, maxHeight) => {
         if (maybeResourceTypesInfiniteScroll.includes(msg.resourceType)) resourcesStats.finished++;
     });
 
-    console.log(`Infinite scroll started (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight}).`);
+    try {
+        let scrollInfo = await getPageScrollInfo(page);
+        logInfo(`Infinite scroll started (${stringifyScrollInfo(scrollInfo)}).`);
 
-    while (true) {
-        scrollInfo = await getPageScrollInfo(page);
-        console.log(`Infinite scroll stats (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight}).`);
+        while (true) {
+            scrollInfo = await getPageScrollInfo(page);
+            logDebug(`Infinite scroll stats (${stringifyScrollInfo(scrollInfo)}).`);
 
-        const pendingRequests = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed);
-        if (pendingRequests === 0) {
-            // If the page is scrolled to the very bottom or beyond maximum height, we are done
-            if (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight)) break;
-            // Otherwise we try to scroll down
-            await scrollTo(page, 0, scrollInfo.scrollHeight);
+            const pendingRequests = resourcesStats.requested - (resourcesStats.finished + resourcesStats.failed);
+            if (pendingRequests === 0) {
+                // If the page is scrolled to the very bottom or beyond maximum height, we are done
+                if (scrollInfo.scrollTop + scrollInfo.clientHeight >= Math.min(scrollInfo.scrollHeight, maxHeight)) break;
+                // Otherwise we try to scroll down
+                await scrollTo(page, 0, scrollInfo.scrollHeight);
+            }
+
+            await sleepPromised(defaultScrollDelay);
         }
+        // Scroll back up, otherwise the screenshot of the browser would only show the bottom of the page
+        await scrollTo(page, 0, 0);
 
-        await sleepPromised(defaultScrollDelay);
+        logInfo(`Infinite scroll finished (${stringifyScrollInfo(scrollInfo)} resourcesStats=${JSON.stringify(resourcesStats)})`);
+    } catch (err) {
+        logError('An exception thrown in infiniteScroll()', err);
     }
-    // Scroll back up, otherwise the screenshot of the browser would only show the bottom of the page
-    await scrollTo(page, 0, 0);
-
-    console.log(`Infinite scroll finished (scrollTop=${scrollInfo.scrollTop}, clientHeight=${scrollInfo.clientHeight}, scrollHeight=${scrollInfo.scrollHeight}, maxHeight=${maxHeight} resourcesStats=${JSON.stringify(resourcesStats)})`);
 };
