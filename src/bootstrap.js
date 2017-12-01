@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import { readFile } from 'fs';
 import eventLoopStats from 'event-loop-stats';
 import os from 'os';
-import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
+import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './modules/request';
 import Crawler, { EVENT_SNAPSHOT, EVENT_REQUEST } from './modules/crawler';
