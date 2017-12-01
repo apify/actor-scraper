@@ -104,7 +104,7 @@ const enqueueStartUrls = (input, pageQueue) => {
         });
 };
 
-setInterval(() => logDebug(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 5000);
+setInterval(() => logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 30000);
 
 const readFilePromised = Promise.promisify(readFile);
 Apify.getMemoryInfo = async () => {
