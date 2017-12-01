@@ -15,7 +15,7 @@
 import Apify from 'apify';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
-import { logDebug } from './utils';
+import { logDebug, logInfo } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.05;
@@ -73,7 +73,7 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
-    async _autoscale(maybeScaleDown, maybeScaleUp, logInfo) {
+    async _autoscale(maybeScaleDown, maybeScaleUp, shouldLogInfo) {
         const { freeBytes, totalBytes } = await Apify.getMemoryInfo();
 
         this.freeBytesSnapshots = this.freeBytesSnapshots.concat(freeBytes).slice(-SCALE_UP_INTERVAL);
@@ -98,7 +98,7 @@ export default class AutoscaledPool {
                 MAX_CONCURRENCY_STEP,
             );
 
-            if (logInfo) {
+            if (shouldLogInfo) {
                 logInfo(`Memory stats:
     freeBytes: ${humanReadable(freeBytes)}
     totalBytes: ${humanReadable(totalBytes)}
