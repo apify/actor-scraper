@@ -180,7 +180,11 @@ export default class Crawler extends EventEmitter {
             const browser = await this.browsers[browserId];
             page = await browser.newPage();
 
-            page.on('error', error => logError('Page error', error));
+            page.on('error', (error) => {
+                logError('Page crashled', error);
+                page.close();
+                page = null;
+            });
             if (this.crawlerConfig.dumpio) page.on('console', message => logDebug(`Chrome console: ${message.text}`));
 
             // Save stats about all the responses (html file + assets).

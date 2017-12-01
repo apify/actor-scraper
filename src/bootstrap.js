@@ -16,7 +16,7 @@ import UrlList, { STATE_KEY as URL_LIST_STATE_KEY } from './modules/url_list';
 
 const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
 
-process.on('unhandledRejection', err => console.log(err));
+process.on('unhandledRejection', err => logError('Unhanled promise rejection', err));
 
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
