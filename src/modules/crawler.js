@@ -138,9 +138,8 @@ export default class Crawler extends EventEmitter {
             // TODO: we don't need to be relaunching browser when there are no customProxies!
             if (this.requestsInProgress[pos] === 0) {
                 logDebug(`Crawler: relaunching browser id ${pos}`);
-                this.browsers[pos] = this.browsers[pos]
-                    .then(browser => browser.close())
-                    .then(() => this._launchPuppeteer());
+                this.browsers[pos].then(browser => browser.close());
+                this.browsers[pos] = this._launchPuppeteer();
                 this.requestsTotal[pos] = 0;
 
                 return pos;
