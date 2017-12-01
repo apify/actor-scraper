@@ -2,7 +2,7 @@ import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import { logError, logDebug, logInfo } from './utils';
+import { logError, logDebug, logInfo, sum } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
@@ -10,9 +10,11 @@ export const EVENT_REQUEST = 'request';
 export const EVENT_SNAPSHOT = 'snapshot';
 
 const PUPPETEER_CONFIG = {
-    dumpio: true,
-    slowMo: 500,
+    dumpio: false,
+    slowMo: 0,
 };
+
+const LOG_INTERVAL_MILLIS = 10000;
 
 export default class Crawler extends EventEmitter {
     constructor(crawlerConfig) {
@@ -26,13 +28,18 @@ export default class Crawler extends EventEmitter {
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave <= crawlerConfig.maxParallelRequests) {
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
         }
 
         if (crawlerConfig.pageLoadTimeout) {
             this.gotoOptions.timeout = crawlerConfig.pageLoadTimeout;
         }
+
+        this.logInterval = setInterval(() => {
+            logInfo(`Crawler: browser requests total       (${sum(this.requestsTotal)}) ${this.requestsTotal.join(', ')}`);
+            logInfo(`Crawler: browser requests in progress (${sum(this.requestsInProgress)}) ${this.requestsInProgress.join(', ')}`);
+        }, LOG_INTERVAL_MILLIS);
     }
 
     /**
@@ -107,6 +114,8 @@ export default class Crawler extends EventEmitter {
                 return browserPromise.then(browser => browser.close());
             });
 
+        clearInterval(this.logInterval);
+
         return Promise.all(promises);
     }
 
@@ -114,9 +123,6 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        logInfo(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
-        logInfo(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
-
         const pos = this.browserPosition;
         const maxCrawledPagesPerSlave = this.crawlerConfig.maxCrawledPagesPerSlave;
 
@@ -175,6 +181,7 @@ export default class Crawler extends EventEmitter {
             page = await browser.newPage();
 
             page.on('error', error => logError('Page error', error));
+            if (this.crawlerConfig.dumpio) page.on('console', message => logDebug(`Chrome console: ${message.text}`));
 
             // Save stats about all the responses (html file + assets).
             // First response is main html page followed with assets or iframes.

@@ -25,6 +25,8 @@ const INPUT_DEFAULTS = {
     maxPagesPerFile: 5000,
     browserInstanceCount: 10,
     startUrls: [],
+    pageFunctionTimeout: 60000,
+    dumpio: true,
 };
 
 const fetchInput = async () => {
@@ -219,7 +221,7 @@ Apify.main(async () => {
                 }
             }
 
-            setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
+            setTimeout(resolve, 500); // @TODO randomWaitBetweenRequests
         });
     };
 

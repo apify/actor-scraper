@@ -13,6 +13,8 @@ export const logDebug = process.env.SKIP_DEBUG_LOG
 
 export const isNullOrUndefined = val => _.isNull(val) || _.isUndefined(val);
 
+export const sum = arr => arr.reduce((total, current) => total + current, 0);
+
 /**
  * Parses an URL and returns an object with its components.
  * Code inspired by http://blog.stevenlevithan.com/archives/parseuri

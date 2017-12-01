@@ -119,14 +119,23 @@ export const executePageFunction = async (page, crawlerConfig) => {
         console.log('Running page function');
 
         const context = window.APIFY_CONTEXT;
+        const startedAt = new Date();
 
         let willFinishLaterPromise;
         let willFinishLaterResolve;
+        let willFinishLaterReject;
+        let pageFunctionTimeout;
 
         context.willFinishLater = () => {
-            willFinishLaterPromise = new Promise((resolve) => {
+            willFinishLaterPromise = new Promise((resolve, reject) => {
                 willFinishLaterResolve = resolve;
+                willFinishLaterReject = reject;
             });
+
+            const remainsMillis = passedCrawlerConfig.pageFunctionTimeout - (new Date() - startedAt);
+            pageFunctionTimeout = setTimeout(() => {
+                willFinishLaterReject(new Error('PageFunction timeouted'));
+            }, remainsMillis);
         };
 
         context.finish = (data) => {
@@ -136,14 +145,22 @@ export const executePageFunction = async (page, crawlerConfig) => {
             willFinishLaterPromise = Promise.resolve(data);
         };
 
-        const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
-        const result = pageFunctionEvaled(context);
+        try {
+            const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
+            const pageFunctionResult = pageFunctionEvaled(context);
 
-        console.log('Page function done');
+            return Promise
+                .all(Object.values(context.pendingPromises)) // Pending calls to exposed methods like enqueuePage() ...
+                .then(() => willFinishLaterPromise || Promise.resolve(pageFunctionResult))
+                .then((result) => {
+                    clearTimeout(pageFunctionTimeout);
+                    console.log('Page function done');
 
-        return Promise
-            .all(Object.values(context.pendingPromises)) // Pending calls to exposed methods like enqueuePage() ...
-            .then(() => willFinishLaterPromise || result);
+                    return result;
+                });
+        } catch (err) {
+            return Promise.reject(err);
+        }
     }, crawlerConfig);
 };
 
