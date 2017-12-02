@@ -36,7 +36,7 @@ export const injectContext = async (page, contextVars) => {
     }, contextVars);
 };
 
-export const waitForBody = async page => page.waitFor('body');
+export const waitForBody = async page => page.waitFor('body', { timeout: 10000 }); // @TODO put this timeout into configuration
 
 const getExposedMethodName = name => `APIFY_FUNCTION_${name}`;
 
