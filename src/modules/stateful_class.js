@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { logInfo } from './utils';
 
-const STATE_PERSIST_INTERVAL_MILLIS = 300000;
+const STATE_PERSIST_INTERVAL_MILLIS = 5000;
 
 export const EVENT_VALUE = 'value';
 
@@ -19,19 +19,23 @@ export default class StatefulClass extends EventEmitter {
         this.emit(EVENT_VALUE, value);
     }
 
-    _emitState(state) {
+    _emitState() {
         logInfo(`${this.className}: persisting state`);
+
+        if (this._updateState) {
+            this._updateState();
+        }
 
         this._emitValue({
             key: this.stateKey,
-            body: state,
+            body: this.state,
         });
 
         this.statePersisted = true;
     }
 
     _setPersistInterval() {
-        this.persistInterval = setInterval(() => this._emitState(this.state), STATE_PERSIST_INTERVAL_MILLIS);
+        this.persistInterval = setInterval(() => this._emitState(), STATE_PERSIST_INTERVAL_MILLIS);
     }
 
     _clearPersistInterval() {

@@ -86,7 +86,6 @@ export default class LocalPageQueue extends StatefulClass {
 
         request.id = ++this.state.lastRequestId;
         this.queued.add(request.uniqueKey, request, request.queuePosition === QUEUE_POSITIONS.FIRST);
-        this._updateState();
         this.state.stats.pagesInQueue = this.queued.getLength();
     }
 
@@ -103,8 +102,6 @@ export default class LocalPageQueue extends StatefulClass {
             const message = request ? 'A request was fetched successfully' : 'No more pages in the queue to crawl.';
             logDebug(`PageQueue: ${message}`);
         }
-
-        this._updateState();
 
         return request;
     }
@@ -138,8 +135,6 @@ export default class LocalPageQueue extends StatefulClass {
         stats.pagesInQueue = this.queued.getLength();
         stats.pagesCrawled = this.handled.getLength();
         stats.pagesRetried += (request.retryCount > 0 ? 1 : 0);
-
-        this._updateState();
     }
 
     destroy() {
