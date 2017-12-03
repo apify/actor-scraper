@@ -175,7 +175,7 @@ export default class Crawler extends EventEmitter {
     async crawl(request) {
         const browserId = this._getAvailableBrowserId();
         let page;
-        let timeout;
+        // let timeout;
 
         this.requestsInProgress[browserId] ++;
         this.requestsTotal[browserId] ++;
@@ -187,7 +187,7 @@ export default class Crawler extends EventEmitter {
             page = await browser.newPage();
 
             // Tryting to force some timeout.
-            timeout = setTimeout(() => page.close(), 30000);
+            // timeout = setTimeout(() => page.close(), 30000);
 
             page.on('error', (error) => {
                 logError('Page crashled', error);
@@ -214,11 +214,11 @@ export default class Crawler extends EventEmitter {
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
             this.requestsInProgress[browserId] --;
-            clearTimeout(timeout);
+            // clearTimeout(timeout);
             await page.close();
         } catch (err) {
             this.requestsInProgress[browserId] --;
-            clearTimeout(timeout);
+            // clearTimeout(timeout);
             if (page) await page.close();
             throw err;
         }
