@@ -213,13 +213,13 @@ export default class Crawler extends EventEmitter {
             request.requestedAt = new Date();
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
-            this.requestsInProgress[browserId] --;
             // clearTimeout(timeout);
             await page.close();
-        } catch (err) {
             this.requestsInProgress[browserId] --;
+        } catch (err) {
             // clearTimeout(timeout);
             if (page) await page.close();
+            this.requestsInProgress[browserId] --;
             throw err;
         }
     }

@@ -172,7 +172,7 @@ Apify.main(async () => {
 
     let runningCount = 0;
     const runningRequests = {};
-    const promiseProducer = (recursionDepth = 0) => {
+    const promiseProducer = () => {
         let request;
 
         // Try to fetch request from url list first.
@@ -184,18 +184,15 @@ Apify.main(async () => {
 
         // If no one is find then try to fetch it from pageQueue.
         if (!request || runningRequests[request.id]) {
-            request = pageQueue.fetchNext();
-        }
+            for (let i = 0; i <= runningCount; i++) {
+                request = pageQueue.fetchNext();
 
-        // We are done.
-        if (!request) return;
+                // We are done.
+                if (!request) return;
 
-        // If it's running already then try another one.
-        // TODO: We should do this without recursion.
-        if (runningRequests[request.id]) {
-            if (recursionDepth > runningCount) return;
-
-            return promiseProducer(recursionDepth + 1);
+                // If request is not running then use it.
+                if (!runningRequests[request.id]) break;
+            }
         }
 
         return new Promise(async (resolve) => {
