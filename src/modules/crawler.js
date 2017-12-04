@@ -211,6 +211,10 @@ export default class Crawler extends EventEmitter {
             });
 
             request.requestedAt = new Date();
+            // If initial cookies were set use them to all page
+            if (this.crawlerConfig.cookies && this.crawlerConfig.cookies.length) {
+                await page.setCookie(...this.crawlerConfig.cookies);
+            }
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
             // clearTimeout(timeout);
@@ -270,6 +274,7 @@ export default class Crawler extends EventEmitter {
         promises.push(utils.injectContext(page, contextVars));
         promises.push(utils.exposeMethods(page, contextMethods));
 
+        if (this.crawlerConfig.maxInfiniteScrollHeight) promises.push(utils.infiniteScroll(page, this.crawlerConfig.maxInfiniteScrollHeight));
         if (this.crawlerConfig.injectJQuery) promises.push(utils.injectJQueryScript(page));
         if (this.crawlerConfig.injectUnderscoreJs) promises.push(utils.injectUnderscoreScript(page));
 

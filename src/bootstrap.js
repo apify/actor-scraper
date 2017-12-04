@@ -14,7 +14,7 @@ import LocalPageQueue, { STATE_KEY as PAGE_QUEUE_STATE_KEY } from './modules/loc
 import LocalSequentialStore, { STATE_KEY as SEQ_STORE_STATE_KEY } from './modules/local_sequential_store';
 import UrlList, { STATE_KEY as URL_LIST_STATE_KEY } from './modules/url_list';
 
-const { APIFY_ACT_ID, APIFY_ACT_RUN_ID } = process.env;
+const { APIFY_ACT_ID, APIFY_ACT_RUN_ID, NODE_ENV } = process.env;
 
 process.on('unhandledRejection', err => logError('Unhanled promise rejection', err));
 
@@ -22,8 +22,8 @@ const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
     maxParallelRequests: 1,
     maxCrawledPagesPerSlave: 50,
-    maxPagesPerFile: 5000,
-    browserInstanceCount: 10,
+    maxPagesPerFile: 1000,
+    browserInstanceCount: (NODE_ENV === 'production') ? 10 : 1,
     startUrls: [],
     pageFunctionTimeout: 60000,
     dumpio: true,

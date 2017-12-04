@@ -54,6 +54,8 @@ Act supports following crawler configuration attributes (for documentation see h
 | maxOutputPages            | `Number`                         |         |          |                                          |
 | considerUrlFragment       | `Boolean`                        | `false` |          |                                          |
 | maxCrawlDepth             | `Number`                         |         |          |                                          |
+| maxInfiniteScrollHeight   | `Number`                         |         |          |                                          |
+| cookies                   | `[Object]`                       |         |          | Currently used for all requests          |
 | pageFunctionTimeout       | `Number`                         | 60000   |          |                                          |
 
 #### Additional attributes

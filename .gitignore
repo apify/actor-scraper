@@ -7,3 +7,5 @@ kv-store-dev/OUTPUT
 kv-store-dev/RESULTS-*
 kv-store-dev/SNAPSHOT-*
 kv-store-dev/STATE-*
+
+.idea
