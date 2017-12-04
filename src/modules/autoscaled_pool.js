@@ -15,7 +15,7 @@
 import Apify from 'apify';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
-import { logDebug, logInfo } from './utils';
+import { logDebug, logInfo, logError } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.05;
@@ -141,7 +141,7 @@ export default class AutoscaledPool {
                 return data;
             })
             .catch((err) => {
-                logDebug('Promise failed', logDebug);
+                logError('Promise failed', err);
                 this._removeFinishedPromise(id);
                 this._maybeRunPromise();
 

@@ -6,7 +6,22 @@ import { parseType, parsedTypeCheck } from 'type-check';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
-export const logError = (message, error) => log(`${message} ${error}`, 'ERROR');
+
+let prevErrorMsg;
+let sameErrorCount = 0;
+export const logError = (message, error) => {
+    const errorMsg = `${message} ${error}`;
+
+    if (errorMsg !== prevErrorMsg) {
+        if (sameErrorCount) console.log(`... REPEATED ${sameErrorCount} times`);
+        log(errorMsg, 'ERROR');
+        console.log(error); // Print error stack.
+        prevErrorMsg = errorMsg;
+        sameErrorCount = 0;
+    } else {
+        sameErrorCount++;
+    }
+};
 export const logDebug = process.env.SKIP_DEBUG_LOG
     ? () => {}
     : message => log(message, 'DEBUG');
