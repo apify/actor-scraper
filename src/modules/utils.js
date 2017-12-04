@@ -8,18 +8,22 @@ export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
 
 let prevErrorMsg;
-let sameErrorCount = 0;
+let prevErrorRepeats = 0;
 export const logError = (message, error) => {
     const errorMsg = `${message} ${error}`;
 
     if (errorMsg !== prevErrorMsg) {
-        if (sameErrorCount) console.log(`... REPEATED ${sameErrorCount} times`);
+        if (prevErrorRepeats) console.log(`... REPEATED ${prevErrorRepeats} times`);
         log(errorMsg, 'ERROR');
-        console.log(error); // Print error stack.
+        if (
+            !errorMsg.includes('Protocol error (Network.getResponseBody)')
+            && !errorMsg.includes('Error: net::ERR_NAME_NOT_RESOLVED')) {
+            console.log(error); // Prints error stack.
+        }
         prevErrorMsg = errorMsg;
-        sameErrorCount = 0;
+        prevErrorRepeats = 0;
     } else {
-        sameErrorCount++;
+        prevErrorRepeats++;
     }
 };
 export const logDebug = process.env.SKIP_DEBUG_LOG
