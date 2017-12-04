@@ -6,10 +6,32 @@ import { parseType, parsedTypeCheck } from 'type-check';
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
-export const logDebug = message => log(message, 'DEBUG');
-export const logError = (message, error) => log(`${message} ${error}`, 'ERROR');
+
+let prevErrorMsg;
+let prevErrorRepeats = 0;
+export const logError = (message, error) => {
+    const errorMsg = `${message} ${error}`;
+
+    if (errorMsg !== prevErrorMsg) {
+        if (prevErrorRepeats) console.log(`... REPEATED ${prevErrorRepeats} times`);
+        if (errorMsg.includes('Protocol error (Network.getResponseBody)') || errorMsg.includes('Error: net::ERR_NAME_NOT_RESOLVED')) {
+            log(errorMsg, 'ERROR');
+        } else {
+            console.log(error); // Prints error stack.
+        }
+        prevErrorMsg = errorMsg;
+        prevErrorRepeats = 0;
+    } else {
+        prevErrorRepeats++;
+    }
+};
+export const logDebug = process.env.SKIP_DEBUG_LOG
+    ? () => {}
+    : message => log(message, 'DEBUG');
 
 export const isNullOrUndefined = val => _.isNull(val) || _.isUndefined(val);
+
+export const sum = arr => arr.reduce((total, current) => total + current, 0);
 
 /**
  * Parses an URL and returns an object with its components.

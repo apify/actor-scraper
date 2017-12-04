@@ -13,7 +13,8 @@
     ],
     "maxParallelRequests": 10,
     "injectJQuery": true,
-    "pageFunction": "function pageFunction(context) { return context.jQuery('title').text(); }",
+    "pageFunction": "function pageFunction(context) { context.willFinishLater(); setTimeout(() => context.finish(context.jQuery('title').text()), 500); }",
     "clickableElementsSelector": "a",
-    "maxCrawlDepth": 5
+    "maxCrawlDepth": 5,
+    "slowMo": 500
 }

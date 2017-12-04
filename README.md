@@ -56,8 +56,7 @@ Act supports following crawler configuration attributes (for documentation see h
 | maxCrawlDepth             | `Number`                         |         |          |                                          |
 | maxInfiniteScrollHeight   | `Number`                         |         |          |                                          |
 | cookies                   | `[Object]`                       |         |          | Currently used for all requests          |
-
-
+| pageFunctionTimeout       | `Number`                         | 60000   |          |                                          |
 
 #### Additional attributes
 
@@ -70,7 +69,7 @@ Act supports following crawler configuration attributes (for documentation see h
 | urlListRegExp        | `String` |         |          | RegExp to match array of urls from `urlList` file ^.<br /><br />This RegExp is used this way against the file and must return array of url strings: `contentOfFile.match(new RegExp(urlListRegExp, 'g'));`<br /><br />For example `(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w-.,@?^=%&:/~+#-]*[\\w@?^=%&;/~+#-])?` to simply match any http/https urls. |
 | userAgent            | `String`   |         |          | User agent to be used in browser |
 | customProxies        | `[String]` |         |          | Array of proxies to be used for browsing. |
-
+| dumpio               | `Boolean`  | true    |          | If `true` then Chrome console log will be piped into act run log |
 
 ## Local usage
 

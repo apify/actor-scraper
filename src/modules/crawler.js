@@ -2,7 +2,7 @@ import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import Promise from 'bluebird';
-import { logError, logDebug } from './utils';
+import { logError, logDebug, logInfo, sum } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
@@ -10,9 +10,11 @@ export const EVENT_REQUEST = 'request';
 export const EVENT_SNAPSHOT = 'snapshot';
 
 const PUPPETEER_CONFIG = {
-    dumpio: true,
-    slowMo: 500,
+    dumpio: false,
+    slowMo: 0,
 };
+
+const LOG_INTERVAL_MILLIS = 10000;
 
 export default class Crawler extends EventEmitter {
     constructor(crawlerConfig) {
@@ -26,13 +28,18 @@ export default class Crawler extends EventEmitter {
         this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
         this.customProxiesPosition = 0;
 
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave >= crawlerConfig.maxParallelRequests) {
+        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
         }
 
         if (crawlerConfig.pageLoadTimeout) {
             this.gotoOptions.timeout = crawlerConfig.pageLoadTimeout;
         }
+
+        this.logInterval = setInterval(() => {
+            logInfo(`Crawler: browser requests total       (${sum(this.requestsTotal)}) ${this.requestsTotal.join(', ')}`);
+            logInfo(`Crawler: browser requests in progress (${sum(this.requestsInProgress)}) ${this.requestsInProgress.join(', ')}`);
+        }, LOG_INTERVAL_MILLIS);
     }
 
     /**
@@ -67,7 +74,7 @@ export default class Crawler extends EventEmitter {
 
     async _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
-        const { customProxies, userAgent } = this.crawlerConfig;
+        const { customProxies, userAgent, dumpio } = this.crawlerConfig;
 
         if (customProxies && customProxies.length) {
             config.proxyUrl = customProxies[this.customProxiesPosition];
@@ -77,9 +84,8 @@ export default class Crawler extends EventEmitter {
             if (this.customProxiesPosition >= customProxies.length) this.customProxiesPosition = 0;
         }
 
-        if (userAgent) {
-            config.userAgent = userAgent;
-        }
+        if (userAgent) config.userAgent = userAgent;
+        if (dumpio !== undefined) config.dumpio = dumpio;
 
         return Apify.launchPuppeteer(config);
     }
@@ -88,7 +94,7 @@ export default class Crawler extends EventEmitter {
      * Initializes puppeteer - starts the browser.
      */
     async initialize() {
-        logDebug(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
+        logInfo(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
 
         this.browsers = _
             .range(0, this.crawlerConfig.browserInstanceCount)
@@ -108,6 +114,8 @@ export default class Crawler extends EventEmitter {
                 return browserPromise.then(browser => browser.close());
             });
 
+        clearInterval(this.logInterval);
+
         return Promise.all(promises);
     }
 
@@ -115,9 +123,6 @@ export default class Crawler extends EventEmitter {
      * Returns ID of browser that can perform given request.
      */
     _getAvailableBrowserId() {
-        logDebug(`Crawler: browser requests total       ${this.requestsTotal.join(', ')}`);
-        logDebug(`Crawler: browser requests in progress ${this.requestsInProgress.join(', ')}`);
-
         const pos = this.browserPosition;
         const maxCrawledPagesPerSlave = this.crawlerConfig.maxCrawledPagesPerSlave;
 
@@ -133,9 +138,14 @@ export default class Crawler extends EventEmitter {
             // TODO: we don't need to be relaunching browser when there are no customProxies!
             if (this.requestsInProgress[pos] === 0) {
                 logDebug(`Crawler: relaunching browser id ${pos}`);
-                this.browsers[pos] = this.browsers[pos]
+
+                // Close previous browser.
+                this.browsers[pos]
                     .then(browser => browser.close())
-                    .then(() => this._launchPuppeteer());
+                    .catch(err => logError('Error when closing the browser', err));
+
+                // Open new browser.
+                this.browsers[pos] = this._launchPuppeteer();
                 this.requestsTotal[pos] = 0;
 
                 return pos;
@@ -165,6 +175,7 @@ export default class Crawler extends EventEmitter {
     async crawl(request) {
         const browserId = this._getAvailableBrowserId();
         let page;
+        // let timeout;
 
         this.requestsInProgress[browserId] ++;
         this.requestsTotal[browserId] ++;
@@ -175,7 +186,15 @@ export default class Crawler extends EventEmitter {
             const browser = await this.browsers[browserId];
             page = await browser.newPage();
 
-            page.on('error', error => logError('Page error', error));
+            // Tryting to force some timeout.
+            // timeout = setTimeout(() => page.close(), 30000);
+
+            page.on('error', (error) => {
+                logError('Page crashled', error);
+                page.close();
+                page = null;
+            });
+            if (this.crawlerConfig.dumpio) page.on('console', message => logDebug(`Chrome console: ${message.text}`));
 
             // Save stats about all the responses (html file + assets).
             // First response is main html page followed with assets or iframes.
@@ -198,9 +217,11 @@ export default class Crawler extends EventEmitter {
             }
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
+            // clearTimeout(timeout);
             await page.close();
             this.requestsInProgress[browserId] --;
         } catch (err) {
+            // clearTimeout(timeout);
             if (page) await page.close();
             this.requestsInProgress[browserId] --;
             throw err;

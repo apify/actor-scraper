@@ -1,5 +1,5 @@
 import StatefulClass from './stateful_class';
-import { logDebug } from './utils';
+import { logInfo } from './utils';
 
 const DEFAULT_STATE = {
     currentFileNum: 1,
@@ -29,7 +29,7 @@ export default class LocalSequentialStore extends StatefulClass {
     _outputFile() {
         const key = `RESULTS-${this.state.currentFileNum}.json`;
 
-        logDebug(`SequentialStore: outputting file ${key}`);
+        logInfo(`SequentialStore: outputting file ${key}`);
 
         this._emitValue({ key, body: this.state.buffer });
         this.state.currentFileNum ++;

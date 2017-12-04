@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import { readFile } from 'fs';
 import eventLoopStats from 'event-loop-stats';
 import os from 'os';
-import { logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
+import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './modules/request';
 import Crawler, { EVENT_SNAPSHOT, EVENT_REQUEST } from './modules/crawler';
@@ -16,7 +16,7 @@ import UrlList, { STATE_KEY as URL_LIST_STATE_KEY } from './modules/url_list';
 
 const { APIFY_ACT_ID, APIFY_ACT_RUN_ID, NODE_ENV } = process.env;
 
-process.on('unhandledRejection', err => console.log(err));
+process.on('unhandledRejection', err => logError('Unhanled promise rejection', err));
 
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
@@ -25,6 +25,8 @@ const INPUT_DEFAULTS = {
     maxPagesPerFile: 1000,
     browserInstanceCount: (NODE_ENV === 'production') ? 10 : 1,
     startUrls: [],
+    pageFunctionTimeout: 60000,
+    dumpio: true,
 };
 
 const fetchInput = async () => {
@@ -102,7 +104,7 @@ const enqueueStartUrls = (input, pageQueue) => {
         });
 };
 
-setInterval(() => logDebug(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 5000);
+setInterval(() => logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 30000);
 
 const readFilePromised = Promise.promisify(readFile);
 Apify.getMemoryInfo = async () => {
@@ -149,11 +151,11 @@ Apify.main(async () => {
     crawler.on(EVENT_REQUEST, (request) => {
         // context.enqueuePage() is not a subject of maxCrawlDepth
         if (input.maxCrawlDepth && request.type !== REQUEST_TYPES.USER_ENQUEUED && request.depth > input.maxCrawlDepth) {
-            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, max depth reached`);
+            logDebug(`Not enqueuing ${request.url}, type = ${request.type}, max depth reached`);
             return;
         }
         if (!request.willLoad) {
-            logDebug(`Not qneueuing ${request.url}, type = ${request.type}, willLoad = false`);
+            logDebug(`Not enqueuing ${request.url}, type = ${request.type}, willLoad = false`);
             return;
         }
 
@@ -170,7 +172,7 @@ Apify.main(async () => {
 
     let runningCount = 0;
     const runningRequests = {};
-    const promiseProducer = (recursionDepth = 0) => {
+    const promiseProducer = () => {
         let request;
 
         // Try to fetch request from url list first.
@@ -182,18 +184,15 @@ Apify.main(async () => {
 
         // If no one is find then try to fetch it from pageQueue.
         if (!request || runningRequests[request.id]) {
-            request = pageQueue.fetchNext();
-        }
+            for (let i = 0; i <= runningCount; i++) {
+                request = pageQueue.fetchNext();
 
-        // We are done.
-        if (!request) return;
+                // We are done.
+                if (!request) return;
 
-        // If it's running already then try another one.
-        // TODO: We should do this without recursion.
-        if (runningRequests[request.id]) {
-            if (recursionDepth > runningCount) return;
-
-            return promiseProducer(recursionDepth + 1);
+                // If request is not running then use it.
+                if (!runningRequests[request.id]) break;
+            }
         }
 
         return new Promise(async (resolve) => {
@@ -219,7 +218,7 @@ Apify.main(async () => {
                 }
             }
 
-            setTimeout(resolve, 1000); // @TODO randomWaitBetweenRequests
+            setTimeout(resolve, 500); // @TODO randomWaitBetweenRequests
         });
     };
 

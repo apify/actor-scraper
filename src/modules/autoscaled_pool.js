@@ -15,12 +15,13 @@
 import Apify from 'apify';
 import uuid from 'uuid/v4';
 import Promise from 'bluebird';
-import { logDebug } from './utils';
+import { logDebug, logInfo, logError } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.05;
 const SCALE_UP_INTERVAL = 100;
 const SCALE_DOWN_INTERVAL = 10;
+const SCALE_INFO_INTERVAL = 600;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 const MAX_CONCURRENCY_STEP = 10;
 
@@ -41,9 +42,13 @@ export default class AutoscaledPool {
         let iteration = 0;
         // TODO: clear interval
         this.memCheckInterval = setInterval(() => {
-            this._autoscale(iteration % SCALE_DOWN_INTERVAL === 0, iteration === SCALE_UP_INTERVAL);
+            this._autoscale(
+                iteration % SCALE_DOWN_INTERVAL === 0,
+                iteration % SCALE_UP_INTERVAL === 0,
+                !process.env.SKIP_DEBUG_LOG || iteration === SCALE_INFO_INTERVAL,
+            );
             iteration++;
-            if (iteration > SCALE_UP_INTERVAL) iteration = 0;
+            if (iteration > SCALE_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
     }
 
@@ -68,7 +73,7 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
-    async _autoscale(maybeScaleDown, maybeScaleUp) {
+    async _autoscale(maybeScaleDown, maybeScaleUp, shouldLogInfo) {
         const { freeBytes, totalBytes } = await Apify.getMemoryInfo();
 
         this.freeBytesSnapshots = this.freeBytesSnapshots.concat(freeBytes).slice(-SCALE_UP_INTERVAL);
@@ -93,7 +98,8 @@ export default class AutoscaledPool {
                 MAX_CONCURRENCY_STEP,
             );
 
-            logDebug(`Memory stats:
+            if (shouldLogInfo) {
+                logInfo(`Memory stats:
     freeBytes: ${humanReadable(freeBytes)}
     totalBytes: ${humanReadable(totalBytes)}
     minFreeBytes: ${humanReadable(minFreeBytes)}
@@ -101,6 +107,7 @@ export default class AutoscaledPool {
     maxTakenBytes: ${humanReadable(maxTakenBytes)}
     perInstancePerc: ${perInstancePerc}%
     hasSpaceForInstances: ${hasSpaceForInstances}`);
+            }
 
             if (hasSpaceForInstancesFloored > 0) {
                 this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
@@ -134,7 +141,7 @@ export default class AutoscaledPool {
                 return data;
             })
             .catch((err) => {
-                logDebug('Promise failed', logDebug);
+                logError('Promise failed', err);
                 this._removeFinishedPromise(id);
                 this._maybeRunPromise();
 
