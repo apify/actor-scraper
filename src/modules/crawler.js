@@ -6,11 +6,13 @@ import { logError, logDebug, logInfo, sum } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
+const { NODE_ENV } = process.env;
+
 export const EVENT_REQUEST = 'request';
 export const EVENT_SNAPSHOT = 'snapshot';
 
 const PUPPETEER_CONFIG = {
-    dumpio: false,
+    dumpio: NODE_ENV !== 'production',
     slowMo: 0,
 };
 
