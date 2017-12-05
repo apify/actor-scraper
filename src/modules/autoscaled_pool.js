@@ -21,7 +21,7 @@ const MEM_CHECK_INTERVAL_MILLIS = 100;
 const MIN_FREE_MEMORY_PERC = 0.05;
 const SCALE_UP_INTERVAL = 100;
 const SCALE_DOWN_INTERVAL = 10;
-const SCALE_INFO_INTERVAL = 600;
+const MEM_INFO_INTERVAL = 600;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 const MAX_CONCURRENCY_STEP = 10;
 
@@ -45,10 +45,10 @@ export default class AutoscaledPool {
             this._autoscale(
                 iteration % SCALE_DOWN_INTERVAL === 0,
                 iteration % SCALE_UP_INTERVAL === 0,
-                !process.env.SKIP_DEBUG_LOG || iteration === SCALE_INFO_INTERVAL,
+                iteration === MEM_INFO_INTERVAL,
             );
             iteration++;
-            if (iteration > SCALE_INFO_INTERVAL) iteration = 0;
+            if (iteration > MEM_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
     }
 
@@ -73,6 +73,33 @@ export default class AutoscaledPool {
         this.runningCount--;
     }
 
+    _computeSpaceforInstances(freeBytes, totalBytes, shouldLogInfo) {
+        const minFreeBytes = Math.min(...this.freeBytesSnapshots);
+        const minFreePerc = minFreeBytes / totalBytes;
+        const maxTakenBytes = totalBytes - minFreeBytes;
+        const perInstancePerc = (maxTakenBytes / totalBytes) / this.concurrency;
+        const hasSpaceForInstances = (minFreePerc - MIN_FREE_MEMORY_PERC) / perInstancePerc;
+
+        if (shouldLogInfo) {
+            logInfo(`Memory stats:
+- concurency: ${this.concurrency}
+- runningCount: ${this.runningCount}
+- freeBytes: ${humanReadable(freeBytes)}
+- totalBytes: ${humanReadable(totalBytes)}
+- minFreeBytes: ${humanReadable(minFreeBytes)}
+- minFreePerc: ${minFreePerc}%
+- maxTakenBytes: ${humanReadable(maxTakenBytes)}
+- perInstancePerc: ${perInstancePerc}%
+- hasSpaceForInstances: ${hasSpaceForInstances}`);
+        }
+
+        return Math.min(
+            Math.floor(hasSpaceForInstances),
+            Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
+            MAX_CONCURRENCY_STEP,
+        );
+    }
+
     async _autoscale(maybeScaleDown, maybeScaleUp, shouldLogInfo) {
         const { freeBytes, totalBytes } = await Apify.getMemoryInfo();
 
@@ -87,33 +114,15 @@ export default class AutoscaledPool {
 
         // Maybe go up every N intervals.
         } else if (maybeScaleUp && this.concurrency < this.maxConcurrency) {
-            const minFreeBytes = Math.min(...this.freeBytesSnapshots);
-            const minFreePerc = minFreeBytes / totalBytes;
-            const maxTakenBytes = totalBytes - minFreeBytes;
-            const perInstancePerc = (maxTakenBytes / totalBytes) / this.concurrency;
-            const hasSpaceForInstances = (minFreePerc - MIN_FREE_MEMORY_PERC) / perInstancePerc;
-            const hasSpaceForInstancesFloored = Math.min(
-                Math.floor(hasSpaceForInstances),
-                Math.floor(this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY),
-                MAX_CONCURRENCY_STEP,
-            );
+            const hasSpaceForInstances = this._computeSpaceforInstances(freeBytes, totalBytes);
 
-            if (shouldLogInfo) {
-                logInfo(`Memory stats:
-    freeBytes: ${humanReadable(freeBytes)}
-    totalBytes: ${humanReadable(totalBytes)}
-    minFreeBytes: ${humanReadable(minFreeBytes)}
-    minFreePerc: ${minFreePerc}%
-    maxTakenBytes: ${humanReadable(maxTakenBytes)}
-    perInstancePerc: ${perInstancePerc}%
-    hasSpaceForInstances: ${hasSpaceForInstances}`);
-            }
-
-            if (hasSpaceForInstancesFloored > 0) {
-                this.concurrency = Math.min(this.concurrency + hasSpaceForInstancesFloored, this.maxConcurrency);
-                logDebug(`AutoscaledPool: scaling up by ${hasSpaceForInstancesFloored} to ${this.concurrency}`);
+            if (hasSpaceForInstances > 0) {
+                this.concurrency = Math.min(this.concurrency + hasSpaceForInstances, this.maxConcurrency);
+                logDebug(`AutoscaledPool: scaling up by ${hasSpaceForInstances} to ${this.concurrency}`);
             }
         }
+
+        if (shouldLogInfo) this._computeSpaceforInstances(freeBytes, totalBytes, true);
     }
 
     _maybeRunPromise() {
