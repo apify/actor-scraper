@@ -1,3 +1,7 @@
+/**
+ * This is local implementation of sequential store that gets persisted in key-value store.
+ */
+
 import StatefulClass from './stateful_class';
 import { logInfo } from './utils';
 

@@ -223,6 +223,7 @@ export default class Request {
     }
 }
 
+// Define getters and setters so that all the values gets saved under this.data.
 PROPERTIES.forEach((key) => {
     Object.defineProperty(Request.prototype, key, {
         get() {

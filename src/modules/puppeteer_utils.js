@@ -1,4 +1,6 @@
 /**
+ * This module contains helper puppeteer utilities.
+ *
  * IMPORTANT: because of Babel we can't import any variable that's used in page.evaluate(() => { ... });
  *            for example we can't import underscore since "_" is used in injectUnderscoreScript
  *            otherwise Babel will replace that with "_underscore2" and breaks the code.
@@ -28,6 +30,10 @@ export const injectUnderscoreScript = async (page) => {
     });
 };
 
+/**
+ * Injects given map of variables to the page as window.APIFY_CONTEXT[key].
+ * It can't inject methods only variables as actId, ... .
+ */
 export const injectContext = async (page, contextVars) => {
     return page.evaluate((passedVars) => {
         console.log(window.location.href);
@@ -37,11 +43,20 @@ export const injectContext = async (page, contextVars) => {
     }, contextVars);
 };
 
+/**
+ * Waits for body to get loaded.
+ */
 export const waitForBody = async page => page.waitFor('body', { timeout: 15000 }); // @TODO put this timeout into configuration
 
+/**
+ * Helper function that creates unique name for exposed method.
+ */
 const getExposedMethodName = name => `APIFY_FUNCTION_${name}`;
 
-export const exposeMethod = async (page, method, name) => {
+/**
+ * Exposes given method under window.APIFY_CONTEXT[name].
+ */
+const exposeMethod = async (page, method, name) => {
     const exposedName = getExposedMethodName(name);
 
     return page
@@ -52,6 +67,9 @@ export const exposeMethod = async (page, method, name) => {
 
             const context = window.APIFY_CONTEXT;
 
+            // All the exposed methods are async and return promise so we register them in
+            // window.APIFY_CONTEXT.pendingPromises and await them after page function finishes
+            // to ensure they get finished.
             window.APIFY_CONTEXT.pendingPromises = window.APIFY_CONTEXT.pendingPromises || {};
             window.APIFY_CONTEXT[passedName] = (...args) => {
                 const promise = window[passedExposedName](...args);
@@ -59,6 +77,7 @@ export const exposeMethod = async (page, method, name) => {
 
                 window.APIFY_CONTEXT.pendingPromises[id] = promise;
 
+                // If call succeedes or fails we can delete it from window.APIFY_CONTEXT.pendingPromises.
                 promise
                     .then(() => {
                         delete context.pendingPromises[id];
@@ -73,6 +92,9 @@ export const exposeMethod = async (page, method, name) => {
         }, exposedName, name));
 };
 
+/**
+ * Exposes given map of methods to the page under window.APIFY_CONTEXT[key].
+ */
 export const exposeMethods = async (page, methods) => {
     const promises = chain(methods)
         .mapObject((method, name) => exposeMethod(page, method, name))
@@ -82,6 +104,11 @@ export const exposeMethods = async (page, methods) => {
     return Promise.all(promises);
 };
 
+/**
+ * Uff this method is complicated. It decorates window.APIFY_CONTEXT.enqueuePage()
+ * with intercept request function so that the each enqueued request gets passed
+ * thru the intercept request function.
+ */
 export const decorateEnqueuePage = async (page, interceptRequestStr) => {
     return page.evaluate((passedInterceptRequestStr, allowedFields) => {
         console.log('Decorating context.enqueuePage()');
@@ -115,6 +142,9 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
     }, interceptRequestStr, ENQUEUE_PAGE_ALLOWED_PROPERTIES);
 };
 
+/**
+ * Executes page function in a context of the page.
+ */
 export const executePageFunction = async (page, crawlerConfig) => {
     return page.evaluate((passedCrawlerConfig) => {
         console.log('Running page function');
@@ -122,17 +152,26 @@ export const executePageFunction = async (page, crawlerConfig) => {
         const context = window.APIFY_CONTEXT;
         const startedAt = new Date();
 
+        // If context.willFinishLater() or context.finish() was called then
+        // we creates a promise that gets saved here and returned at the end.
+        // This way Puppeteer's evaluate() method knows that needs to wait for
+        // this promise to gets resolved.
         let willFinishLaterPromise;
         let willFinishLaterResolve;
         let willFinishLaterReject;
+
+        // If context.willFinishLater() gets called then we register timeout
+        // to ensure that this always finishes.
         let pageFunctionTimeout;
 
         context.willFinishLater = () => {
+            // Register promise.
             willFinishLaterPromise = new Promise((resolve, reject) => {
                 willFinishLaterResolve = resolve;
                 willFinishLaterReject = reject;
             });
 
+            // Create timeout.
             const remainsMillis = passedCrawlerConfig.pageFunctionTimeout - (new Date() - startedAt);
             pageFunctionTimeout = setTimeout(() => {
                 willFinishLaterReject(new Error('PageFunction timeouted'));
@@ -142,7 +181,8 @@ export const executePageFunction = async (page, crawlerConfig) => {
         context.finish = (data) => {
             if (willFinishLaterResolve) return willFinishLaterResolve(data);
 
-            // This happens when context.willFinishLater() wasn't called.
+            // This happens when context.finish() was called but context.willFinishLater() wasn't.
+            // We need to create resolved promise to return data passed to context.finish().
             willFinishLaterPromise = Promise.resolve(data);
         };
 
@@ -165,6 +205,10 @@ export const executePageFunction = async (page, crawlerConfig) => {
     }, crawlerConfig);
 };
 
+/**
+ * Searches for all links matching clickableElementsSelector selector and enqueues
+ * their target urls using exposed window.APIFY_CONTEXT.enqueuePage().
+ */
 export const clickClickables = async (page, clickableElementsSelector) => {
     return page.evaluate((passedClickableElementsSelector) => {
         console.log('Clicking elements');

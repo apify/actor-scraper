@@ -1,3 +1,21 @@
+/**
+ * This module is implementation of crawler.
+ *
+ * From outside we use only crawler.crawl(request) to process the request. Crawler opens the page
+ * and executes page function. The result and additional info gets saved into the request.
+ * If anything fails then crawler.crawl(request) throws an error and caller is responsible to
+ * log error info and add that info to the request.
+ *
+ * At the beginning it creates pool of crawlerConfig.browserInstanceCount Puppeteer browsers.
+ * It randomly switches requests between then and restarts the browsers after
+ * crawlerConfig.maxCrawledPagesPerSlave requests. This is happening in order to rotate proxy
+ * IPs.
+ *
+ * Crawler emits events:
+ * - EVENT_REQUEST on newly created request to be possibly enqueued
+ * - EVENT_SNAPSHOT with screenshot and html to be saved into key-value store.
+ */
+
 import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
@@ -93,7 +111,7 @@ export default class Crawler extends EventEmitter {
     }
 
     /**
-     * Initializes puppeteer - starts the browser.
+     * Starts the pool of puppeteer browsers.
      */
     async initialize() {
         logInfo(`Crawler: initializing ${this.crawlerConfig.browserInstanceCount} browsers`);
@@ -107,7 +125,7 @@ export default class Crawler extends EventEmitter {
     }
 
     /**
-     * Kills all the resources - browser.
+     * Kills all the resources - opened browsers and intervals.
      */
     async destroy() {
         const promises = this

@@ -1,9 +1,12 @@
+/**
+ * This module is main file of the act.
+ * Initializes all the components and closes all the resources.
+ */
+
 import Apify from 'apify';
 import _ from 'underscore';
 import Promise from 'bluebird';
-import { readFile } from 'fs';
 import eventLoopStats from 'event-loop-stats';
-import os from 'os';
 import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './modules/request';
@@ -16,6 +19,8 @@ import UrlList, { STATE_KEY as URL_LIST_STATE_KEY } from './modules/url_list';
 
 const { APIFY_ACT_ID, APIFY_ACT_RUN_ID, NODE_ENV } = process.env;
 
+// This catches and logs all unhandled rejects, there are a lot of them for example
+// if page gets closed then opened requests for all assets failes etc.
 process.on('unhandledRejection', err => logError('Unhanled promise rejection', err));
 
 const INPUT_DEFAULTS = {
@@ -29,25 +34,33 @@ const INPUT_DEFAULTS = {
     dumpio: true,
 };
 
+/**
+ * Fetches input and if there is a input.crawlerId then gets crawler configuration
+ * and meres it with the input (input has higher priority).
+ * Then merges input with defaults and parses some values.
+ */
 const fetchInput = async () => {
     const input = await Apify.getValue('INPUT');
 
-    if (!input.crawlerId) return input;
+    const crawler = input.crawlerId
+        ? await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId })
+        : {};
 
-    const crawler = await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId });
+    const mergedInput = Object.assign({}, INPUT_DEFAULTS, crawler, input, {
+        actId: APIFY_ACT_ID,
+        runId: APIFY_ACT_RUN_ID,
+    });
 
-    return Object.assign({}, crawler, input);
-};
-
-const parseInput = (input) => {
-    input.crawlPurls = input.crawlPurls || [];
-    input.crawlPurls.forEach((purl) => {
+    mergedInput.crawlPurls = mergedInput.crawlPurls || [];
+    mergedInput.crawlPurls.forEach((purl) => {
         purl.parsedPurl = new PseudoUrl(purl.value);
     });
 
-    if (input.customProxies && _.isString(input.customProxies)) {
-        input.customProxies = input.customProxies.split('\n');
+    if (mergedInput.customProxies && _.isString(mergedInput.customProxies)) {
+        mergedInput.customProxies = mergedInput.customProxies.split('\n');
     }
+
+    return mergedInput;
 };
 
 const createSeqStore = async (input) => {
@@ -104,50 +117,28 @@ const enqueueStartUrls = (input, pageQueue) => {
         });
 };
 
+// This prints statistics about event loop every 30s.
+// It's in form { ..., sum: 12000 } where sum is total time spend by event loop
+// since the last call os if it's under 30s then we are OK.
 const eventLoopInfoInterval = setInterval(() => {
     logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`);
 }, 30000);
 
-const readFilePromised = Promise.promisify(readFile);
-Apify.getMemoryInfo = async () => {
-    if (!process.env.APIFY_MEMORY_MBYTES) {
-        const freeBytes = os.freemem();
-        const totalBytes = os.totalmem();
-
-        return Promise.resolve({ totalBytes, freeBytes, usedBytes: totalBytes - freeBytes });
-    }
-
-    return Promise
-        .all([
-            readFilePromised('/sys/fs/cgroup/memory/memory.limit_in_bytes'),
-            readFilePromised('/sys/fs/cgroup/memory/memory.usage_in_bytes'),
-        ])
-        .then(([totalBytesStr, usedBytesStr]) => {
-            const totalBytes = parseInt(totalBytesStr);
-            const usedBytes = parseInt(usedBytesStr);
-
-            return { totalBytes, freeBytes: totalBytes - usedBytes, usedBytes };
-        });
-};
-
+/**
+ * This is the main function that runs just once and then act gets finished.
+ */
 Apify.main(async () => {
     const input = await fetchInput();
-
-    _.defaults(input, INPUT_DEFAULTS);
-    _.extend(input, {
-        actId: APIFY_ACT_ID,
-        runId: APIFY_ACT_RUN_ID,
-    });
-    parseInput(input);
 
     const sequentialStore = await createSeqStore(input);
     const pageQueue = await createPageQueue(input);
     const crawler = await createCrawler(input);
     const urlList = await maybeCreateUrlList(input);
 
-    pageQueue.on('handled', record => sequentialStore.put(record));
-
     enqueueStartUrls(input, pageQueue);
+
+    // Saves handled (crawled) pages to sequential store.
+    pageQueue.on('handled', record => sequentialStore.put(record));
 
     // This event is trigered by context.enqueuePage().
     crawler.on(EVENT_REQUEST, (request) => {
@@ -172,16 +163,24 @@ Apify.main(async () => {
         setValue({ key: `SNAPSHOT-${filename}.jpg`, body: screenshot, contentType: 'image/png' });
     });
 
+    // Function promiseProducer is called by AutoscaledPool everytime there is a free slot in the
+    // pool to process another request. It returns promise that during the run has allocated slot
+    // in the pool. After it's resoved or rejected the AutoscaledPool calls promiseProducer() to
+    // get another promise and so on ...
+    // When promiseProducer returns null or undefined autoscaled pool waits for all promises to be
+    // finished and resolves
+    let isUrlListDone = false;
     let runningCount = 0;
     const runningRequests = {};
     const promiseProducer = () => {
         let request;
 
         // Try to fetch request from url list first.
-        if (urlList && (!input.maxCrawledPages || pageQueue.getPageCount() < input.maxCrawledPages)) {
+        if (urlList && !isUrlListDone && (!input.maxCrawledPages || pageQueue.getPageCount() < input.maxCrawledPages)) {
             request = urlList.fetchNext();
 
             if (request) pageQueue.enqueue(request);
+            else isUrlListDone = true;
         }
 
         // If no one is find then try to fetch it from pageQueue.
@@ -197,6 +196,8 @@ Apify.main(async () => {
             }
         }
 
+        // Here we process the page with crawler and if succedes then dequeue it or
+        // add error info otherwise.
         return new Promise(async (resolve) => {
             runningRequests[request.id] = request;
             runningCount++;
@@ -220,7 +221,7 @@ Apify.main(async () => {
                 }
             }
 
-            setTimeout(resolve, 500); // @TODO randomWaitBetweenRequests
+            setTimeout(resolve, 500); // @TODO implement as randomWaitBetweenRequests param with random wait as in crawler
         });
     };
 
@@ -230,11 +231,16 @@ Apify.main(async () => {
         maxConcurrency: input.maxParallelRequests,
     });
     await pool.start();
+
+    // Cleanup resources - intervals, etc ...
     await crawler.destroy();
     sequentialStore.destroy();
     pageQueue.destroy();
     pool.destroy();
     if (urlList) urlList.destroy();
-    await waitForPendingSetValues();
     clearInterval(eventLoopInfoInterval);
+
+    // Apify.setValue() is called asynchronously on events so we need to await all the pending
+    // requests.
+    await waitForPendingSetValues();
 });

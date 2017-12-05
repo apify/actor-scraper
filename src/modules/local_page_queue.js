@@ -1,8 +1,14 @@
+/**
+ * This is local implementation of page-queue that gets persisted in key-value store.
+ */
+
 import _ from 'underscore';
 import StatefulClass from './stateful_class';
 import ListDictionary from './list_dictionary';
 import { logDebug, logInfo } from './utils';
 import Request, { QUEUE_POSITIONS, PROPERTIES as REQUEST_PROPERTIES } from './request';
+
+const { NODE_ENV } = process.env;
 
 export const STATE_KEY = 'STATE-local-page-queue.json';
 
@@ -138,6 +144,6 @@ export default class LocalPageQueue extends StatefulClass {
     }
 
     destroy() {
-        super.destroy(true);
+        super.destroy(NODE_ENV === 'production');
     }
 }

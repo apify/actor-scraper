@@ -1,3 +1,8 @@
+/**
+ * This is an abstract function with persistent state (this.state) that gets saved into
+ * key-value store every STATE_PERSIST_INTERVAL_MILLIS.
+ */
+
 import EventEmitter from 'events';
 import { logInfo } from './utils';
 

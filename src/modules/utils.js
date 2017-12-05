@@ -1,3 +1,7 @@
+/**
+ * This module contains mix of helper functions.
+ */
+
 import _ from 'underscore';
 import Apify from 'apify';
 import uuidv4 from 'uuid/v4';
@@ -9,6 +13,10 @@ const SET_VALUE_MAX_REPEATS = 10;
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
 
+/**
+ * Because there are tents of duplicite error messaages we remember the last one and print `... REPEATED XXX times`
+ * for duplicite errors to logError() calls;
+ */
 let prevErrorMsg;
 let prevErrorRepeats = 0;
 export const logError = (message, error) => {

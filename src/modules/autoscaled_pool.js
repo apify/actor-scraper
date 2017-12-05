@@ -8,8 +8,7 @@
  * - maxConcurency
  *
  * TODO:
- * - implement autoscaling
- * - fail of any promise should cause main promise to fail ????
+ * - decide if fail of any promise should result whole pool to fail.
  */
 
 import Apify from 'apify';
@@ -40,13 +39,9 @@ export default class AutoscaledPool {
         this.freeBytesSnapshots = [];
 
         let iteration = 0;
-        // TODO: clear interval
+
         this.memCheckInterval = setInterval(() => {
-            this._autoscale(
-                iteration % SCALE_DOWN_INTERVAL === 0,
-                iteration % SCALE_UP_INTERVAL === 0,
-                iteration === MEM_INFO_INTERVAL,
-            );
+            this._autoscale(true);
             iteration++;
             if (iteration > MEM_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
@@ -63,16 +58,12 @@ export default class AutoscaledPool {
         });
     }
 
-    _addRunningPromise(id, promise) {
-        this.runningPromises[id] = promise;
-        this.runningCount++;
-    }
-
-    _removeFinishedPromise(id) {
-        delete this.runningPromises[id];
-        this.runningCount--;
-    }
-
+    /**
+     * Gets memory info and computes how much we can scale pool to don't exceede the
+     * maximal memory.
+     *
+     * If shouldLogInfo = true then also logs info about memory usage.
+     */
     _computeSpaceforInstances(freeBytes, totalBytes, shouldLogInfo) {
         const minFreeBytes = Math.min(...this.freeBytesSnapshots);
         const minFreePerc = minFreeBytes / totalBytes;
@@ -100,20 +91,45 @@ export default class AutoscaledPool {
         );
     }
 
-    async _autoscale(maybeScaleDown, maybeScaleUp, shouldLogInfo) {
+    /**
+     * Registers running promise.
+     */
+    _addRunningPromise(id, promise) {
+        this.runningPromises[id] = promise;
+        this.runningCount++;
+    }
+
+    /**
+     * Removes finished promise.
+     */
+    _removeFinishedPromise(id) {
+        delete this.runningPromises[id];
+        this.runningCount--;
+    }
+
+    /**
+     * Gets called every MEM_CHECK_INTERVAL_MILLIS and saves number of free bytes in this.freeBytesSnapshots.
+     *
+     * Every:
+     * - SCALE_DOWN_INTERVAL-th call checks memory and possibly scales DOWN by 1.
+     * - SCALE_UP_INTERVAL-th call checks memory and possibly scales UP by not more than this.maxConcurrency / MIN_STEPS_TO_MAXIMIZE_CONCURENCY.
+     * - MEM_INFO_INTERVAL-th call logs statistics about memory.
+     */
+    async _autoscale(iteration) {
         const { freeBytes, totalBytes } = await Apify.getMemoryInfo();
 
         this.freeBytesSnapshots = this.freeBytesSnapshots.concat(freeBytes).slice(-SCALE_UP_INTERVAL);
 
-        // Go down.
-        if (maybeScaleDown && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
+        // Maybe scale down.
+        if (iteration % SCALE_DOWN_INTERVAL && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
             if (this.concurrency > 1) {
                 this.concurrency --;
                 logDebug(`AutoscaledPool: scaling down to ${this.concurrency}`);
             }
+        }
 
-        // Maybe go up every N intervals.
-        } else if (maybeScaleUp && this.concurrency < this.maxConcurrency) {
+        // Maybe scale up.
+        if (iteration % SCALE_UP_INTERVAL && this.concurrency < this.maxConcurrency) {
             const hasSpaceForInstances = this._computeSpaceforInstances(freeBytes, totalBytes);
 
             if (hasSpaceForInstances > 0) {
@@ -122,9 +138,16 @@ export default class AutoscaledPool {
             }
         }
 
-        if (shouldLogInfo) this._computeSpaceforInstances(freeBytes, totalBytes, true);
+        // Print info about memory
+        if (iteration === MEM_INFO_INTERVAL) {
+            this._computeSpaceforInstances(freeBytes, totalBytes, true);
+        }
     }
 
+    /**
+     * If this.runningCount < this.concurrency then gets new promise from this.promiseProducer() and adds it to the pool.
+     * If this.promiseProducer() returns null and nothing is running then finishes pool.
+     */
     _maybeRunPromise() {
         if (this.runningCount >= this.concurrency) return;
 

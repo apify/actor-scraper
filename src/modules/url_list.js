@@ -1,3 +1,13 @@
+/**
+ * This class is implementation of list of urls that gets requested from url
+ * defined by crawlerConfig.urlList.
+ *
+ * If crawlerConfig.urlListRegExp to match urls is not defined then file gets
+ * splited by new-line character assuming that one line contains one url.
+ *
+ * Position in the list is persisted in key-value store.
+ */
+
 import request from 'request-promise';
 import StatefulClass from './stateful_class';
 import { logDebug, logInfo } from './utils';
