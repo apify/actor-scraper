@@ -161,4 +161,8 @@ export default class AutoscaledPool {
 
         return promise;
     }
+
+    destroy() {
+        clearInterval(this.memCheckInterval);
+    }
 }

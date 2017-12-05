@@ -104,7 +104,9 @@ const enqueueStartUrls = (input, pageQueue) => {
         });
 };
 
-setInterval(() => logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`), 30000);
+const eventLoopInfoInterval = setInterval(() => {
+    logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`);
+}, 30000);
 
 const readFilePromised = Promise.promisify(readFile);
 Apify.getMemoryInfo = async () => {
@@ -231,6 +233,8 @@ Apify.main(async () => {
     await crawler.destroy();
     sequentialStore.destroy();
     pageQueue.destroy();
+    pool.destroy();
     if (urlList) urlList.destroy();
     await waitForPendingSetValues();
+    clearInterval(eventLoopInfoInterval);
 });
