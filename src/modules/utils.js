@@ -8,6 +8,7 @@ import uuidv4 from 'uuid/v4';
 import Promise from 'bluebird';
 import { parseType, parsedTypeCheck } from 'type-check';
 
+const { NODE_ENV } = process.env;
 const SET_VALUE_MAX_REPEATS = 10;
 
 export const log = (message, level) => console.log(`${level}:  ${message}`);
@@ -35,7 +36,7 @@ export const logError = (message, error) => {
         prevErrorRepeats++;
     }
 };
-export const logDebug = process.env.SKIP_DEBUG_LOG
+export const logDebug = NODE_ENV === 'production'
     ? () => {}
     : message => log(message, 'DEBUG');
 
