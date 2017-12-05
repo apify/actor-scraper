@@ -4,6 +4,8 @@ import uuidv4 from 'uuid/v4';
 import Promise from 'bluebird';
 import { parseType, parsedTypeCheck } from 'type-check';
 
+const SET_VALUE_MAX_REPEATS = 10;
+
 export const log = (message, level) => console.log(`${level}:  ${message}`);
 export const logInfo = message => log(message, 'INFO');
 
@@ -155,7 +157,7 @@ export const getValueOrUndefined = async (key) => {
  */
 const pendingSetValues = {};
 
-export const setValue = async ({ key, body, contentType }) => {
+export const setValue = async ({ key, body, contentType, recursion = 0 }) => {
     const uuid = uuidv4();
     const opts = contentType ? { contentType } : undefined;
 
@@ -163,9 +165,17 @@ export const setValue = async ({ key, body, contentType }) => {
 
     const promise = Apify
         .setValue(key, body, opts)
-        .catch(err => logError('Cannot set value', err))
         .then(() => {
             delete pendingSetValues[uuid];
+        })
+        .catch((err) => {
+            if (recursion > SET_VALUE_MAX_REPEATS) {
+                logError(`Cannot set value in iteration ${recursion}, giving up`, err);
+                return;
+            }
+
+            logError(`Cannot set value in iteration ${recursion}, trying once again`, err);
+            setTimeout(() => setValue({ key, body, contentType, recursion: recursion + 1 }), 12000);
         });
 
     pendingSetValues[uuid] = promise;
