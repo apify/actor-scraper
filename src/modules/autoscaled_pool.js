@@ -38,7 +38,7 @@ export default class AutoscaledPool {
         this.runningCount = 0;
         this.freeBytesSnapshots = [];
 
-        let iteration = 0;
+        let iteration = 1;
 
         this.memCheckInterval = setInterval(() => {
             this._autoscale(iteration);
@@ -121,7 +121,7 @@ export default class AutoscaledPool {
         this.freeBytesSnapshots = this.freeBytesSnapshots.concat(freeBytes).slice(-SCALE_UP_INTERVAL);
 
         // Maybe scale down.
-        if (iteration % SCALE_DOWN_INTERVAL && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
+        if (iteration % SCALE_DOWN_INTERVAL === 0 && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
             if (this.concurrency > 1) {
                 this.concurrency --;
                 logDebug(`AutoscaledPool: scaling down to ${this.concurrency}`);
@@ -129,7 +129,7 @@ export default class AutoscaledPool {
         }
 
         // Maybe scale up.
-        if (iteration % SCALE_UP_INTERVAL && this.concurrency < this.maxConcurrency) {
+        if (iteration % SCALE_UP_INTERVAL === 0 && this.concurrency < this.maxConcurrency) {
             const hasSpaceForInstances = this._computeSpaceforInstances(freeBytes, totalBytes);
 
             if (hasSpaceForInstances > 0) {
