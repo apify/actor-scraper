@@ -163,6 +163,8 @@ export const setValue = async ({ key, body, contentType, recursion = 0 }) => {
 
     if (contentType) opts.contentType = contentType;
 
+    logInfo(`Saving value ${key}`);
+
     const promise = Apify
         .setValue(key, body, opts)
         .then(() => {
@@ -170,11 +172,11 @@ export const setValue = async ({ key, body, contentType, recursion = 0 }) => {
         })
         .catch((err) => {
             if (recursion > SET_VALUE_MAX_REPEATS) {
-                logError(`Cannot set value in iteration ${recursion}, giving up`, err);
+                logError(`Cannot set value ${key} in iteration ${recursion}, giving up`, err);
                 return;
             }
 
-            logError(`Cannot set value in iteration ${recursion}, trying once again`, err);
+            logError(`Cannot set value ${key} in iteration ${recursion}, trying once again`, err);
             setTimeout(() => setValue({ key, body, contentType, recursion: recursion + 1 }), 12000);
         });
 
