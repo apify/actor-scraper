@@ -20,7 +20,7 @@ const DEFAULT_STATE = {
 
 // TODO: This is temporary ugly solution before we finish the remote PageQueue
 // to save some resources when keeping queue in instance memory.
-const UNNEEDED_REQUEST_PROPERTIES = _.without(REQUEST_PROPERTIES, 'id', 'uniqueKey', 'url');
+const UNNEEDED_REQUEST_PROPERTIES = _.without(REQUEST_PROPERTIES, 'id', 'uniqueKey', 'url', 'errorInfo');
 const cleanProperties = (request) => {
     UNNEEDED_REQUEST_PROPERTIES.forEach((key) => {
         delete request.data[key];
@@ -138,6 +138,6 @@ export default class LocalPageQueue extends StatefulClass {
     }
 
     destroy() {
-        super.destroy();
+        super.destroy(true);
     }
 }
