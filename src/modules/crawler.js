@@ -118,7 +118,9 @@ export default class Crawler extends EventEmitter {
 
         clearInterval(this.logInterval);
 
-        return Promise.all(promises);
+        return Promise
+            .all(promises)
+            .catch(err => logError('Crawler: cannot close the browsers', err));
     }
 
     /**
@@ -144,7 +146,7 @@ export default class Crawler extends EventEmitter {
                 // Close previous browser.
                 this.browsers[pos]
                     .then(browser => browser.close())
-                    .catch(err => logError('Error when closing the browser', err));
+                    .catch(err => logError('Crawler: error when closing the browser', err));
 
                 // Open new browser.
                 this.browsers[pos] = this._launchPuppeteer();
@@ -187,12 +189,8 @@ export default class Crawler extends EventEmitter {
         try {
             const browser = await this.browsers[browserId];
             page = await browser.newPage();
-
-            // Tryting to force some timeout.
-            // timeout = setTimeout(() => page.close(), 30000);
-
             page.on('error', (error) => {
-                logError('Page crashled', error);
+                logError('Crawler: page crashled', error);
                 page.close();
                 page = null;
             });
@@ -219,12 +217,14 @@ export default class Crawler extends EventEmitter {
             }
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
-            // clearTimeout(timeout);
             await page.close();
             this.requestsInProgress[browserId] --;
         } catch (err) {
-            // clearTimeout(timeout);
-            if (page) await page.close();
+            try {
+                if (page) await page.close();
+            } catch (pageCloseErr) {
+                logError('Crawler: cannot close the page', pageCloseErr);
+            }
             this.requestsInProgress[browserId] --;
             throw err;
         }
