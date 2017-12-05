@@ -41,7 +41,7 @@ export default class AutoscaledPool {
         let iteration = 0;
 
         this.memCheckInterval = setInterval(() => {
-            this._autoscale(true);
+            this._autoscale(iteration);
             iteration++;
             if (iteration > MEM_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
