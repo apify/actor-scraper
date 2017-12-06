@@ -38,6 +38,7 @@ export default class AutoscaledPool {
         this.runningPromises = {};
         this.runningCount = 0;
         this.freeBytesSnapshots = [];
+        this.maybeRunInterval = null;
 
         let iteration = 1;
 
@@ -46,8 +47,6 @@ export default class AutoscaledPool {
             iteration++;
             if (iteration > MEM_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
-
-        this.maybeRunInterval = setTimeout(() => this._maybeRunPromise(), MAYBE_RUN_INTERVAL_MILLIS);
     }
 
     /**
@@ -58,6 +57,7 @@ export default class AutoscaledPool {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;
             this._maybeRunPromise().catch(reject);
+            this.maybeRunInterval = setInterval(() => this._maybeRunPromise(), MAYBE_RUN_INTERVAL_MILLIS);
         });
     }
 
