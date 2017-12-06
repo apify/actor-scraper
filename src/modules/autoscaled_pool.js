@@ -57,6 +57,10 @@ export default class AutoscaledPool {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;
             this._maybeRunPromise().catch(reject);
+
+            // This is here because if we scale down to lets say 1. Then after each promise is finished
+            // this._maybeRunPromise() doesn't trigger another one. So if that 1 instance stucks it results
+            // in whole act to stuck and even after scaling up it never triggers another promise.
             this.maybeRunInterval = setInterval(() => this._maybeRunPromise(), MAYBE_RUN_INTERVAL_MILLIS);
         });
     }
