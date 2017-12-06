@@ -23,6 +23,7 @@ const SCALE_DOWN_INTERVAL = 10;
 const MEM_INFO_INTERVAL = 600;
 const MIN_STEPS_TO_MAXIMIZE_CONCURENCY = 10;
 const MAX_CONCURRENCY_STEP = 10;
+const MAYBE_RUN_INTERVAL_MILLIS = MEM_CHECK_INTERVAL_MILLIS * SCALE_UP_INTERVAL * 2;
 
 const humanReadable = bytes => `${Math.round(bytes / 1024 / 1024)} MB`;
 
@@ -45,6 +46,8 @@ export default class AutoscaledPool {
             iteration++;
             if (iteration > MEM_INFO_INTERVAL) iteration = 0;
         }, MEM_CHECK_INTERVAL_MILLIS);
+
+        this.maybeRunInterval = setTimeout(() => this._maybeRunPromise(), MAYBE_RUN_INTERVAL_MILLIS);
     }
 
     /**
@@ -187,5 +190,6 @@ export default class AutoscaledPool {
 
     destroy() {
         clearInterval(this.memCheckInterval);
+        clearInterval(this.maybeRunInterval);
     }
 }
