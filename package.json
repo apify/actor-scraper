@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "apify": "^0.4.36",
+    "apify-client": "^0.1.59",
     "babel-polyfill": "^6.26.0",
     "bluebird": "^3.5.1",
     "event-loop-stats": "^1.0.0",
