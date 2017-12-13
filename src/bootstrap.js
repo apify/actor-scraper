@@ -46,10 +46,10 @@ const fetchInput = async () => {
         ? await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId })
         : {};
 
-    // NOTE: In crawler settings can be some values null, replace them with default values
+    // NOTE: In old crawler settings can be some values null, replace them with default values
     if (crawler._id) {
         Object.keys(INPUT_DEFAULTS).forEach((key) => {
-            crawler[key] = crawler[key] || INPUT_DEFAULTS[key];
+            if (crawler[key] === null) crawler[key] = INPUT_DEFAULTS[key];
         });
     }
 
