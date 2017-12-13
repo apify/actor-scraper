@@ -60,6 +60,8 @@ const fetchInput = async () => {
         mergedInput.customProxies = mergedInput.customProxies.split('\n');
     }
 
+    console.log(JSON.stringify(mergedInput, null, 2));
+
     return mergedInput;
 };
 
