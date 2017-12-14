@@ -6,6 +6,8 @@
 import Apify from 'apify';
 import _ from 'underscore';
 import Promise from 'bluebird';
+import path from 'path';
+import childProcess from 'child_process';
 import eventLoopStats from 'event-loop-stats';
 import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
@@ -126,6 +128,15 @@ const eventLoopInfoInterval = setInterval(() => {
     logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`);
 }, 30000);
 
+// This prints memory usage of all processes every 30s.
+const memoryInfoInterval = setInterval(() => {
+    const cmd = path.join(__dirname, '..', 'get_memory_usage.sh');
+    childProcess.exec(cmd, (err, stdOut, stdErr) => {
+        if (err || stdErr) logError('Cannot get memory', err || stdErr);
+        logInfo(`Memory: ${stdOut}`);
+    });
+}, 300 * 1000);
+
 /**
  * This is the main function that runs just once and then act gets finished.
  */
@@ -241,6 +252,7 @@ Apify.main(async () => {
     pool.destroy();
     if (urlList) urlList.destroy();
     clearInterval(eventLoopInfoInterval);
+    clearInterval(memoryInfoInterval);
 
     // Apify.setValue() is called asynchronously on events so we need to await all the pending
     // requests.
