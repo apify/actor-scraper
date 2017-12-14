@@ -131,7 +131,9 @@ const eventLoopInfoInterval = setInterval(() => {
 // This prints memory usage of all processes every 30s.
 const memoryInfoInterval = setInterval(() => {
     const cmd = path.join(__dirname, '..', 'get_memory_usage.sh');
-    childProcess.exec(cmd, (err, stdOut, stdErr) => {
+    const opts = { maxBuffer: 10 * 1024 * 1024 };
+
+    childProcess.exec(cmd, opts, (err, stdOut, stdErr) => {
         if (err || stdErr) logError('Cannot get memory', err || stdErr);
         logInfo(`Memory: ${stdOut}`);
     });
