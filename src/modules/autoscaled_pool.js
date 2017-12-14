@@ -17,7 +17,7 @@ import Promise from 'bluebird';
 import { logDebug, logInfo, logError } from './utils';
 
 const MEM_CHECK_INTERVAL_MILLIS = 100;
-const MIN_FREE_MEMORY_PERC = 0.05;
+const MIN_FREE_MEMORY_PERC = 0.075;
 const SCALE_UP_INTERVAL = 100;
 const SCALE_DOWN_INTERVAL = 10;
 const MEM_INFO_INTERVAL = 600;
