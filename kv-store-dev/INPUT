@@ -16,5 +16,6 @@
     "pageFunction": "function pageFunction(context) { context.willFinishLater(); setTimeout(() => context.finish(context.jQuery('title').text()), 500); }",
     "clickableElementsSelector": "a",
     "maxCrawlDepth": 5,
-    "slowMo": 500
+    "slowMo": 500,
+    "disableWebSecurity": true
 }

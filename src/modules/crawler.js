@@ -32,6 +32,7 @@ export const EVENT_SNAPSHOT = 'snapshot';
 const PUPPETEER_CONFIG = {
     dumpio: NODE_ENV !== 'production',
     slowMo: 0,
+    args: [],
 };
 
 const LOG_INTERVAL_MILLIS = 10000;
@@ -94,7 +95,7 @@ export default class Crawler extends EventEmitter {
 
     async _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
-        const { customProxies, userAgent, dumpio } = this.crawlerConfig;
+        const { customProxies, userAgent, dumpio, disableWebSecurity } = this.crawlerConfig;
 
         if (customProxies && customProxies.length) {
             config.proxyUrl = customProxies[this.customProxiesPosition];
@@ -106,6 +107,7 @@ export default class Crawler extends EventEmitter {
 
         if (userAgent) config.userAgent = userAgent;
         if (dumpio !== undefined) config.dumpio = dumpio;
+        if (disableWebSecurity) config.args.push('--disable-web-security');
 
         return Apify.launchPuppeteer(config);
     }
