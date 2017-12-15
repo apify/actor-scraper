@@ -199,7 +199,7 @@ export default class Crawler extends EventEmitter {
     async crawl(request) {
         const browserId = this._getAvailableBrowserId();
         let page;
-        // let timeout;
+        let timeout;
 
         this.requestsInProgress[browserId] ++;
         this.requestsTotal[browserId] ++;
@@ -215,6 +215,13 @@ export default class Crawler extends EventEmitter {
                 page = null;
             });
             if (this.crawlerConfig.dumpio) page.on('console', message => logDebug(`Chrome console: ${message.text}`));
+
+            // Creating timeout to be sure that page don't stuck - set to 10 minutes
+            timeout = setTimeout(() => {
+                const border = '------------------------\n------------------------\n------------------------';
+                logInfo(`${border}\nKilling a page that is running tooooo loooong\n${border}`);
+                page.close();
+            }, 10 * 60 * 1000);
 
             // Save stats about all the responses (html file + assets).
             // First response is main html page followed with assets or iframes.
@@ -237,9 +244,11 @@ export default class Crawler extends EventEmitter {
             }
             await page.goto(request.url, this.gotoOptions);
             await this._processRequest(page, request);
+            clearTimeout(timeout);
             await page.close();
             this.requestsInProgress[browserId] --;
         } catch (err) {
+            clearTimeout(timeout);
             try {
                 if (page) await page.close();
             } catch (pageCloseErr) {
