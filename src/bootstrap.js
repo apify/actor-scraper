@@ -224,7 +224,7 @@ Apify.main(async () => {
                 delete runningRequests[request.id];
                 runningCount--;
             } catch (err) {
-                request.errorInfo += `${err}\n`;
+                request.errorInfo += `${input.fullStackTrace ? err.stack : err} |\n`;
                 logError(`Request failed (${request})`, err);
                 delete runningRequests[request.id];
                 runningCount--;
