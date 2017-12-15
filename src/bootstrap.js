@@ -262,3 +262,7 @@ Apify.main(async () => {
     // requests.
     await waitForPendingSetValues();
 });
+
+// @TODO: remove
+// TMP test - trying to kill process every 1,5h
+setTimeout(() => process.exit(1), 2 * 60 * 60 * 1000);
