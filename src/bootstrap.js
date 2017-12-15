@@ -27,6 +27,7 @@ process.on('unhandledRejection', err => logError('Unhanled promise rejection', e
 
 const INPUT_DEFAULTS = {
     maxPageRetryCount: 3,
+    minParallelRequests: 1,
     maxParallelRequests: 1,
     maxCrawledPagesPerSlave: 50,
     maxPagesPerFile: 1000,
@@ -244,6 +245,7 @@ Apify.main(async () => {
     const pool = new AutoscaledPool({
         promiseProducer,
         maxConcurrency: input.maxParallelRequests,
+        minConcurrency: input.minParallelRequests,
     });
     await pool.start();
 

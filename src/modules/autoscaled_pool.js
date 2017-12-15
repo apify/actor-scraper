@@ -29,12 +29,13 @@ const humanReadable = bytes => `${Math.round(bytes / 1024 / 1024)} MB`;
 
 export default class AutoscaledPool {
     constructor(options) {
-        const { promiseProducer, maxConcurrency } = options;
+        const { promiseProducer, maxConcurrency, minConcurrency } = options;
 
         this.resolve = null;
         this.promiseProducer = promiseProducer;
         this.maxConcurrency = maxConcurrency;
-        this.concurrency = 1;
+        this.minConcurrency = minConcurrency;
+        this.concurrency = minConcurrency;
         this.runningPromises = {};
         this.runningCount = 0;
         this.freeBytesSnapshots = [];
@@ -129,7 +130,7 @@ export default class AutoscaledPool {
 
         // Maybe scale down.
         if (iteration % SCALE_DOWN_INTERVAL === 0 && freeBytes / totalBytes < MIN_FREE_MEMORY_PERC) {
-            if (this.concurrency > 1) {
+            if (this.concurrency > this.minConcurrency) {
                 this.concurrency --;
                 logDebug(`AutoscaledPool: scaling down to ${this.concurrency}`);
             }
