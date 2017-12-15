@@ -34,7 +34,7 @@ export default class AutoscaledPool {
         this.resolve = null;
         this.promiseProducer = promiseProducer;
         this.maxConcurrency = maxConcurrency;
-        this.minConcurrency = minConcurrency;
+        this.minConcurrency = Math.min(minConcurrency, maxConcurrency);
         this.concurrency = minConcurrency;
         this.runningPromises = {};
         this.runningCount = 0;
