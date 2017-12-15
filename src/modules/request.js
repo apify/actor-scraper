@@ -38,7 +38,7 @@ const REQUEST_DEFAULTS = {
     willLoad: false,
     skipOutput: false,
     queuePosition: QUEUE_POSITIONS.LAST,
-    errorInfo: '',
+    errorInfo: [],
     type: TYPES.USER_ENQUEUED,
     label: '',
 };
