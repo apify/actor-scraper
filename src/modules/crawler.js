@@ -107,7 +107,10 @@ export default class Crawler extends EventEmitter {
 
         if (userAgent) config.userAgent = userAgent;
         if (dumpio !== undefined) config.dumpio = dumpio;
-        if (disableWebSecurity) config.args.push('--disable-web-security');
+        if (disableWebSecurity) {
+            config.ignoreHTTPSErrors = true;
+            config.args.push('--disable-web-security');
+        }
 
         return Apify.launchPuppeteer(config);
     }
