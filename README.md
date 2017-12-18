@@ -15,6 +15,7 @@ There are two ways how to use this act:
     "startUrls": [{ "key": "", "value": "https://news.ycombinator.com" }],
     "maxParallelRequests": 10,
     "pageFunction": "function() { return context.jQuery('title').text(); }",
+    "injectJQuery": true,
     "clickableElementsSelector": "a"
   }
   ```
