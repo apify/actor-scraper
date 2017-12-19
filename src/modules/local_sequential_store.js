@@ -45,7 +45,7 @@ export default class LocalSequentialStore extends StatefulClass {
             const transformResults = (pageFunctionResult, url) => {
                 let pageResults = []
                 if(Array.isArray(pageFunctionResult)){
-                    pageResults = pageFunctionResult.map((pfResult, index)=>{
+                    pageResults = pageFunctionResult.map(pfResult=>{
                         if(typeof pfResult === 'object') return Object.assign(pfResult, {url})
                         else return {result: pfResult, url}
                     })
