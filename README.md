@@ -2,7 +2,9 @@
 
 [Apify **act**](https://www.apify.com/docs/actor) compatible with [Apify **crawler**](https://www.apify.com/docs/crawler) - same input  ⟹ same output.
 
-**WARNING:** this is an early version and may contain some bugs and may not be fully compatible with crawler product.
+**WARNING:** this is an early version and **may contain some bugs** and may not be fully compatible with crawler product.
+
+**WARNING 2:** It's also **unstable** and every version may contain **breaking changes**.
 
 ## Usage
 

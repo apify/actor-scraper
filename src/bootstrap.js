@@ -9,7 +9,7 @@ import Promise from 'bluebird';
 import path from 'path';
 import childProcess from 'child_process';
 import eventLoopStats from 'event-loop-stats';
-import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues } from './modules/utils';
+import { logInfo, logError, logDebug, getValueOrUndefined, setValue, waitForPendingSetValues, deleteNullProperties } from './modules/utils';
 import AutoscaledPool from './modules/autoscaled_pool';
 import Request, { TYPES as REQUEST_TYPES } from './modules/request';
 import Crawler, { EVENT_SNAPSHOT, EVENT_REQUEST } from './modules/crawler';
@@ -50,13 +50,10 @@ const fetchInput = async () => {
         : {};
 
     // NOTE: In old crawler settings can be some values null, replace them with default values
-    if (crawler._id) {
-        Object.keys(INPUT_DEFAULTS).forEach((key) => {
-            if (crawler[key] === null) crawler[key] = INPUT_DEFAULTS[key];
-        });
-    }
+    deleteNullProperties(crawler);
+    deleteNullProperties(input);
 
-    const mergedInput = Object.assign({}, INPUT_DEFAULTS, crawler, input, {
+    const mergedInput = _.defaults(input, crawler, INPUT_DEFAULTS, {
         actId: APIFY_ACT_ID,
         runId: APIFY_ACT_RUN_ID,
     });

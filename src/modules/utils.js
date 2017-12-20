@@ -215,3 +215,9 @@ export const checkParamOrThrow = (value, name, type, message) => {
     // This will ignore Buffer type.
     if (!parsedTypeCheck(allowedTypes, value)) throw new Error(message);
 };
+
+export const deleteNullProperties = (obj) => {
+    _.mapObject(obj, (val, key) => {
+        if (val === null) delete obj[key];
+    });
+};
