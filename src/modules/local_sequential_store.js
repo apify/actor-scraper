@@ -14,11 +14,12 @@ const DEFAULT_STATE = {
 export const STATE_KEY = 'STATE-local-sequential-store.json';
 
 export default class LocalSequentialStore extends StatefulClass {
-    constructor(state = DEFAULT_STATE, { maxPagesPerFile }) {
+    constructor(state = DEFAULT_STATE, { maxPagesPerFile, saveSimplifiedResults }) {
         super('LocalSequentialStore', STATE_KEY);
 
         this.state = state;
         this.maxPagesPerFile = maxPagesPerFile;
+        this.saveSimplifiedResults = saveSimplifiedResults
     }
 
     put(record) {
@@ -36,6 +37,38 @@ export default class LocalSequentialStore extends StatefulClass {
         logInfo(`SequentialStore: outputting file ${key}`);
 
         this._emitValue({ key, body: this.state.buffer });
+        
+        if(this.saveSimplifiedResults){
+            const simplifiedKey = `RESULTS-SIMPLIFIED-${this.state.currentFileNum}.json`;
+            logInfo(`SequentialStore: outputting file ${simplifiedKey}`);
+
+            const transformResults = (pageFunctionResult, url) => {
+                let pageResults = []
+                if(Array.isArray(pageFunctionResult)){
+                    pageResults = pageFunctionResult.map(pfResult=>{
+                        if(typeof pfResult === 'object' && !Array.isArray(pfResult)) return Object.assign(pfResult, {url})
+                        else return {value: pfResult, url}
+                    })
+                }
+                else if(typeof pageFunctionResult === 'object' && !Array.isArray(pageFunctionResult)){     
+                    pageResults.push(Object.assign(pageFunctionResult, {url}))
+                }
+                else{
+                    pageResults.push({value: pageFunctionResult, url})
+                }
+                return pageResults
+            }
+
+            const simplifiedResults = this.state.buffer.reduce((acc, result)=>{          
+                return acc.concat(transformResults(result.pageFunctionResult, result.loadedUrl))
+            },[])
+
+            this._emitValue({ 
+                simplifiedKey,
+                body: simplifiedResults
+            });
+        }
+
         this.state.currentFileNum ++;
         this.state.buffer = [];
     }
