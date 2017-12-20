@@ -19,13 +19,13 @@ export default class LocalSequentialStore extends StatefulClass {
 
         this.state = state;
         this.maxPagesPerFile = maxPagesPerFile;
-        this.saveSimplifiedResults = saveSimplifiedResults
+        this.saveSimplifiedResults = saveSimplifiedResults;
     }
 
     put(record) {
         record.outputSeqNum = this.state.currentSeqNum;
 
-        this.state.currentSeqNum ++;
+        this.state.currentSeqNum++;
         this.state.buffer.push(record);
 
         if (this.state.buffer.length >= this.maxPagesPerFile) this._outputFile();
@@ -37,39 +37,37 @@ export default class LocalSequentialStore extends StatefulClass {
         logInfo(`SequentialStore: outputting file ${key}`);
 
         this._emitValue({ key, body: this.state.buffer });
-        
-        if(this.saveSimplifiedResults){
+
+        if (this.saveSimplifiedResults) {
             const simplifiedKey = `RESULTS-SIMPLIFIED-${this.state.currentFileNum}.json`;
             logInfo(`SequentialStore: outputting file ${simplifiedKey}`);
 
             const transformResults = (pageFunctionResult, url) => {
-                let pageResults = []
-                if(Array.isArray(pageFunctionResult)){
-                    pageResults = pageFunctionResult.map(pfResult=>{
-                        if(typeof pfResult === 'object' && !Array.isArray(pfResult)) return Object.assign(pfResult, {url})
-                        else return {value: pfResult, url}
-                    })
+                let pageResults = [];
+                if (Array.isArray(pageFunctionResult)) {
+                    pageResults = pageFunctionResult.map((pfResult) => {
+                        if (typeof pfResult === 'object' && !Array.isArray(pfResult)) return Object.assign(pfResult, { url });
+                        return { value: pfResult, url };
+                    });
+                } else if (typeof pageFunctionResult === 'object' && !Array.isArray(pageFunctionResult)) {
+                    pageResults.push(Object.assign(pageFunctionResult, { url }));
+                } else {
+                    pageResults.push({ value: pageFunctionResult, url });
                 }
-                else if(typeof pageFunctionResult === 'object' && !Array.isArray(pageFunctionResult)){     
-                    pageResults.push(Object.assign(pageFunctionResult, {url}))
-                }
-                else{
-                    pageResults.push({value: pageFunctionResult, url})
-                }
-                return pageResults
-            }
+                return pageResults;
+            };
 
-            const simplifiedResults = this.state.buffer.reduce((acc, result)=>{          
-                return acc.concat(transformResults(result.pageFunctionResult, result.loadedUrl))
-            },[])
+            const simplifiedResults = this.state.buffer.reduce((acc, result) => {
+                return acc.concat(transformResults(result.pageFunctionResult, result.loadedUrl));
+            }, []);
 
-            this._emitValue({ 
+            this._emitValue({
                 simplifiedKey,
-                body: simplifiedResults
+                body: simplifiedResults,
             });
         }
 
-        this.state.currentFileNum ++;
+        this.state.currentFileNum++;
         this.state.buffer = [];
     }
 

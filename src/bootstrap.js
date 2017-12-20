@@ -35,7 +35,7 @@ const INPUT_DEFAULTS = {
     startUrls: [],
     pageFunctionTimeout: 60000,
     dumpio: true,
-    saveSimplifiedResults: false
+    saveSimplifiedResults: false,
 };
 
 /**
