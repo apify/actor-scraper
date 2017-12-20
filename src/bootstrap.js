@@ -49,6 +49,13 @@ const fetchInput = async () => {
         ? await Apify.client.crawlers.getCrawlerSettings({ crawlerId: input.crawlerId })
         : {};
 
+    // NOTE: In old crawler settings can be some values null, replace them with default values
+    if (crawler._id) {
+        Object.keys(INPUT_DEFAULTS).forEach((key) => {
+            if (crawler[key] === null) crawler[key] = INPUT_DEFAULTS[key];
+        });
+    }
+
     const mergedInput = Object.assign({}, INPUT_DEFAULTS, crawler, input, {
         actId: APIFY_ACT_ID,
         runId: APIFY_ACT_RUN_ID,
