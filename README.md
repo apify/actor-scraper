@@ -64,16 +64,18 @@ Act supports following crawler configuration attributes (for documentation see h
 
 #### Additional attributes
 
-| Attribute            | Type     | Default | Required | Description                              |
-| -------------------- | -------- | ------- | -------- | ---------------------------------------- |
-| maxPagesPerFile      | `Number` | `1000`  | yes      | Number of outputed pages saved into 1 results file. |
-| browserInstanceCount | `Number` | `10`    | yes      | Number of browser instances to be used in the pool. |
-| crawlerId            | `String` |         |          | ID of a crawler to fetch configuration from. |
-| urlList              | `String` |         |          | Url of the file containing urls to be enqueued as `startUrls`. This file must either contain one url per line or `urlListRegExp` configuration attribute must be provided. |
-| urlListRegExp        | `String` |         |          | RegExp to match array of urls from `urlList` file ^.<br /><br />This RegExp is used this way against the file and must return array of url strings: `contentOfFile.match(new RegExp(urlListRegExp, 'g'));`<br /><br />For example `(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w-.,@?^=%&:/~+#-]*[\\w@?^=%&;/~+#-])?` to simply match any http/https urls. |
-| userAgent            | `String`   |         |          | User agent to be used in browser |
-| customProxies        | `[String]` |         |          | Array of proxies to be used for browsing. |
-| dumpio               | `Boolean`  | true    |          | If `true` then Chrome console log will be piped into act run log |
+| Attribute             | Type     | Default | Required | Description                              |
+| ----------------------| -------- | ------- | -------- | ---------------------------------------- |
+| maxPagesPerFile       | `Number` | `1000`  | yes      | Number of outputed pages saved into 1 results file. |
+| browserInstanceCount  | `Number` | `10`    | yes      | Number of browser instances to be used in the pool. |
+| crawlerId             | `String` |         |          | ID of a crawler to fetch configuration from. |
+| urlList               | `String` |         |          | Url of the file containing urls to be enqueued as `startUrls`. This file must either contain one url per line or `urlListRegExp` configuration attribute must be provided. |
+| urlListRegExp         | `String` |         |          | RegExp to match array of urls from `urlList` file ^.<br /><br />This RegExp is used this way against the file and must return array of url strings: `contentOfFile.match(new RegExp(urlListRegExp, 'g'));`<br /><br />For example `(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w-.,@?^=%&:/~+#-]*[\\w@?^=%&;/~+#-])?` to simply match any http/https urls. |
+| userAgent             | `String`   |         |          | User agent to be used in browser |
+| customProxies         | `[String]` |         |          | Array of proxies to be used for browsing. |
+| dumpio                | `Boolean`  | true    |          | If `true` then Chrome console log will be piped into act run log. |
+| saveSimplifiedResults | `Boolean`  | false   |          | If `true` then also simplified version of results will be outputted. |
+| fullStackTrace        | `Boolean`  | false   |          | If `true` then `request.errorInfo` and act log will contain full stack trace of each error. |
 
 ## Local usage
 

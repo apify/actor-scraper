@@ -24,16 +24,14 @@ export default class StatefulClass extends EventEmitter {
         this.emit(EVENT_VALUE, value);
     }
 
-    _emitState() {
+    _emitState(deleteState) {
         logInfo(`${this.className}: persisting state`);
 
-        if (this._updateState) {
-            this._updateState();
-        }
+        if (this._updateState) this._updateState();
 
         this._emitValue({
             key: this.stateKey,
-            body: this.state,
+            body: deleteState ? null : this.state,
         });
 
         this.statePersisted = true;
@@ -49,8 +47,7 @@ export default class StatefulClass extends EventEmitter {
 
     destroy(keepState) {
         this._clearPersistInterval();
-        if (this.statePersisted && !keepState) this.state = null;
-        this._emitState();
+        this._emitState(!keepState);
         logInfo(`${this.className}: destroyed`);
     }
 }

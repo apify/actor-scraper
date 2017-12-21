@@ -35,6 +35,7 @@ const INPUT_DEFAULTS = {
     startUrls: [],
     pageFunctionTimeout: 60000,
     dumpio: true,
+    saveSimplifiedResults: false,
 };
 
 /**
@@ -203,7 +204,7 @@ Apify.main(async () => {
             else isUrlListDone = true;
         }
 
-        // If no one is find then try to fetch it from pageQueue.
+        // If no one is find or request is running then try to fetch it from pageQueue.
         if (!request || runningRequests[request.id]) {
             for (let i = 0; i <= runningCount; i++) {
                 request = pageQueue.fetchNext();
@@ -214,6 +215,8 @@ Apify.main(async () => {
                 // If request is not running then use it.
                 if (!runningRequests[request.id]) break;
             }
+
+            if (runningRequests[request.id]) return;
         }
 
         // Here we process the page with crawler and if succedes then dequeue it or
