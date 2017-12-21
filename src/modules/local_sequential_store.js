@@ -2,6 +2,7 @@
  * This is local implementation of sequential store that gets persisted in key-value store.
  */
 
+import _ from 'underscore';
 import StatefulClass from './stateful_class';
 import { logInfo } from './utils';
 
@@ -12,6 +13,20 @@ const DEFAULT_STATE = {
 };
 
 export const STATE_KEY = 'STATE-local-sequential-store.json';
+
+const simplifyResult = ({ pageFunctionResult, url }) => {
+    if (_.isArray(pageFunctionResult)) {
+        return pageFunctionResult.map((row) => {
+            if (_.isObject(row) && !_.isArray(row)) return Object.assign(row, { url });
+            return { value: row, url };
+        });
+    } else if (_.isObject(pageFunctionResult)) {
+        return [Object.assign(pageFunctionResult, { url })];
+    }
+
+    // It's a scalar value some we must wrap it in object to be able to add url.
+    return [{ value: pageFunctionResult, url }];
+};
 
 export default class LocalSequentialStore extends StatefulClass {
     constructor(state = DEFAULT_STATE, { maxPagesPerFile, saveSimplifiedResults }) {
@@ -33,36 +48,19 @@ export default class LocalSequentialStore extends StatefulClass {
 
     _outputFile() {
         const key = `RESULTS-${this.state.currentFileNum}.json`;
-
         logInfo(`SequentialStore: outputting file ${key}`);
-
         this._emitValue({ key, body: this.state.buffer });
 
         if (this.saveSimplifiedResults) {
             const simplifiedKey = `RESULTS-SIMPLIFIED-${this.state.currentFileNum}.json`;
+            const simplifiedResults = this.state.buffer
+                .filter(request => request.pageFunctionResult)
+                .map(simplifyResult)
+                .reduce((acc, result) => acc.concat(result));
+
             logInfo(`SequentialStore: outputting file ${simplifiedKey}`);
-
-            const transformResults = (pageFunctionResult, url) => {
-                let pageResults = [];
-                if (Array.isArray(pageFunctionResult)) {
-                    pageResults = pageFunctionResult.map((pfResult) => {
-                        if (typeof pfResult === 'object' && !Array.isArray(pfResult)) return Object.assign(pfResult, { url });
-                        return { value: pfResult, url };
-                    });
-                } else if (typeof pageFunctionResult === 'object' && !Array.isArray(pageFunctionResult)) {
-                    pageResults.push(Object.assign(pageFunctionResult, { url }));
-                } else {
-                    pageResults.push({ value: pageFunctionResult, url });
-                }
-                return pageResults;
-            };
-
-            const simplifiedResults = this.state.buffer.reduce((acc, result) => {
-                return acc.concat(transformResults(result.pageFunctionResult, result.loadedUrl));
-            }, []);
-
             this._emitValue({
-                simplifiedKey,
+                key: simplifiedKey,
                 body: simplifiedResults,
             });
         }

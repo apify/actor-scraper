@@ -11,11 +11,13 @@
             "value": "https://news.ycombinator.com/news?p=[\\d+]"
         }
     ],
-    "maxParallelRequests": 10,
+    "maxParallelRequests": 1,
     "injectJQuery": true,
-    "pageFunction": "function pageFunction(context) { context.willFinishLater(); setTimeout(() => context.finish(context.jQuery('title').text()), 500); }",
+    "pageFunction": "function pageFunction(context) { context.willFinishLater(); setTimeout(() => context.finish([{ a: context.jQuery('title').text(), foo: 'bar' }, 'aaa']), 500); }",
     "clickableElementsSelector": "a",
     "maxCrawlDepth": 5,
     "slowMo": 500,
-    "disableWebSecurity": true
+    "disableWebSecurity": true,
+    "saveSimplifiedResults": true,
+    "fullStackTrace": true
 }
