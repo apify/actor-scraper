@@ -6,7 +6,7 @@
 import EventEmitter from 'events';
 import { logInfo } from './utils';
 
-const STATE_PERSIST_INTERVAL_MILLIS = 60 * 1000;
+const STATE_PERSIST_INTERVAL_MILLIS = 180 * 1000;
 
 export const EVENT_VALUE = 'value';
 
