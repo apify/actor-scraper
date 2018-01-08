@@ -68,7 +68,7 @@ const fetchInput = async () => {
         mergedInput.customProxies = mergedInput.customProxies.split('\n');
     }
 
-    console.log(JSON.stringify(mergedInput, null, 2));
+    logInfo(`Merged input: ${JSON.stringify(mergedInput, null, 2)}`);
 
     return mergedInput;
 };
@@ -129,7 +129,7 @@ const enqueueStartUrls = (input, pageQueue) => {
 // since the last call os if it's under 30s then we are OK.
 const eventLoopInfoInterval = setInterval(() => {
     logInfo(`Event loop stats: ${JSON.stringify(eventLoopStats.sense())}`);
-}, 30000);
+}, 30 * 1000);
 
 // This prints memory usage of all processes every 30s.
 const memoryInfoInterval = setInterval(() => {
@@ -140,7 +140,7 @@ const memoryInfoInterval = setInterval(() => {
         if (err || stdErr) logError('Cannot get memory', err || stdErr);
         logInfo(`Memory: ${stdOut}`);
     });
-}, 300 * 1000);
+}, 30 * 1000);
 
 /**
  * This is the main function that runs just once and then act gets finished.
@@ -156,7 +156,7 @@ Apify.main(async () => {
     enqueueStartUrls(input, pageQueue);
 
     // Saves handled (crawled) pages to sequential store.
-    pageQueue.on('handled', record => sequentialStore.put(record));
+    pageQueue.on('handled', request => sequentialStore.put(request));
 
     // This event is trigered by context.enqueuePage().
     crawler.on(EVENT_REQUEST, (request) => {
@@ -267,6 +267,6 @@ Apify.main(async () => {
     await waitForPendingSetValues();
 });
 
-// @TODO: remove
+// @TODO: remove - this is attempt to test memory leak
 // TMP test - trying to kill process every 1,5h
 setTimeout(() => process.exit(1), 2 * 60 * 60 * 1000);

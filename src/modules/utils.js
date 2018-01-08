@@ -179,6 +179,7 @@ export const setValue = async ({ key, body, contentType, recursion = 0 }) => {
         .then(() => {
             delete pendingSetValues[uuid];
         })
+        // TODO: this might be removed as we added backoff for network errors ...
         .catch((err) => {
             if (recursion > SET_VALUE_MAX_REPEATS) {
                 logError(`Cannot set value ${key} in iteration ${recursion}, giving up`, err);
@@ -186,7 +187,7 @@ export const setValue = async ({ key, body, contentType, recursion = 0 }) => {
             }
 
             logError(`Cannot set value ${key} in iteration ${recursion}, trying once again`, err);
-            setTimeout(() => setValue({ key, body, contentType, recursion: recursion + 1 }), 12000);
+            setTimeout(() => setValue({ key, body, contentType, recursion: recursion + 1 }), 15 * 1000);
         });
 
     pendingSetValues[uuid] = promise;
