@@ -92,10 +92,7 @@ const createPageQueue = async (input) => {
 };
 
 const createCrawler = async (input) => {
-    const crawler = new Crawler(input);
-    await crawler.initialize();
-
-    return crawler;
+    return new Crawler(input);
 };
 
 const maybeCreateUrlList = async (input) => {
