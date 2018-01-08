@@ -85,10 +85,11 @@ export default class Crawler extends EventEmitter {
 
     _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
-        const { userAgent, dumpio, disableWebSecurity } = this.crawlerConfig;
+        const { userAgent, dumpio, disableWebSecurity, proxyUrl } = this.crawlerConfig;
 
         if (userAgent) config.userAgent = userAgent;
         if (dumpio !== undefined) config.dumpio = dumpio;
+        if (proxyUrl) config.proxyUrl = proxyUrl;
         if (disableWebSecurity) {
             config.ignoreHTTPSErrors = true;
             config.args.push('--disable-web-security');
