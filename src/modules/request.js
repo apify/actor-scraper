@@ -139,7 +139,7 @@ export default class Request {
 
         PROPERTIES.forEach((key) => {
             if (!isNullOrUndefined(opts[key])) this[key] = opts[key];
-            else if (!isNullOrUndefined(REQUEST_DEFAULTS[key])) this[key] = REQUEST_DEFAULTS[key];
+            else if (!isNullOrUndefined(REQUEST_DEFAULTS[key])) this[key] = _.clone(REQUEST_DEFAULTS[key]);
             else this[key] = null;
         });
 
