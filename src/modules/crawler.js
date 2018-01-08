@@ -85,12 +85,12 @@ export default class Crawler extends EventEmitter {
     /**
      * Emits snapshot event.
      */
-    async _emitSnapshot(page, request) {
-        this.emit(EVENT_SNAPSHOT, {
-            url: request.url,
-            html: await page.$eval('html', el => el.outerHTML),
-            screenshot: await page.screenshot(),
-        });
+    async _emitSnapshot(page, request, opts = { html: true, screenshot: true }) {
+        const html = opts.html ? await page.$eval('html', el => el.outerHTML) : null;
+        const screenshot = opts.screenshot ? await page.screenshot() : null;
+        const requestId = requestId;
+
+        this.emit(EVENT_SNAPSHOT, { requestId, html, screenshot });
     }
 
     async _launchPuppeteer() {
@@ -289,8 +289,8 @@ export default class Crawler extends EventEmitter {
                 this._emitRequest(request, newRequest);
             },
             newRequest: requestOpts => this._newRequest(Object.assign({}, requestOpts, { referrer: request })),
-            saveSnapshot: () => {
-                beforeEndPromises.push(this._emitSnapshot(page, request));
+            saveSnapshot: (opts) => {
+                beforeEndPromises.push(this._emitSnapshot(page, request, opts));
             },
             skipOutput: () => {
                 request.skipOutput = true;

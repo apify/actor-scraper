@@ -177,11 +177,9 @@ Apify.main(async () => {
     });
 
     // This event is trigered by context.saveSnapshot().
-    crawler.on(EVENT_SNAPSHOT, ({ url, html, screenshot }) => {
-        const filename = url.replace(/\W+/g, '-');
-
-        setValue({ key: `SNAPSHOT-${filename}.html`, body: html, contentType: 'text/html' });
-        setValue({ key: `SNAPSHOT-${filename}.jpg`, body: screenshot, contentType: 'image/png' });
+    crawler.on(EVENT_SNAPSHOT, ({ requestId, html, screenshot }) => {
+        if (html) setValue({ key: `SNAPSHOT-${requestId}.html`, body: html, contentType: 'text/html' });
+        if (screenshot) setValue({ key: `SNAPSHOT-${requestId}.jpg`, body: screenshot, contentType: 'image/png' });
     });
 
     // Function promiseProducer is called by AutoscaledPool everytime there is a free slot in the
