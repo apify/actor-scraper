@@ -39,14 +39,10 @@ export default class Crawler extends EventEmitter {
     constructor(crawlerConfig) {
         super();
         this.crawlerConfig = crawlerConfig;
-        this.browser = null;
         this.gotoOptions = {};
-        this.browsers = [];
-        this.browserPosition = 0;
-        this.requestsInProgress = _.times(crawlerConfig.browserInstanceCount, () => 0);
-        this.requestsTotal = _.times(crawlerConfig.browserInstanceCount, () => 0);
-        this.customProxiesPosition = 0;
-        this.puppeteerPromise = this._launchPuppeteer();
+        this.puppeteerPromise = null;
+
+        this._launchPuppeteer();
 
         if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
             throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
@@ -87,7 +83,7 @@ export default class Crawler extends EventEmitter {
         this.emit(EVENT_SNAPSHOT, { requestId, html, screenshot });
     }
 
-    async _launchPuppeteer() {
+    _launchPuppeteer() {
         const config = Object.assign({}, PUPPETEER_CONFIG);
         const { userAgent, dumpio, disableWebSecurity } = this.crawlerConfig;
 
@@ -98,7 +94,16 @@ export default class Crawler extends EventEmitter {
             config.args.push('--disable-web-security');
         }
 
-        return Apify.launchPuppeteer(config);
+        this.puppeteerPromise = Apify
+            .launchPuppeteer(config)
+            .then((browser) => {
+                browser.on('disconnected', () => {
+                    logError('Puppeteer sent "disconnect" event. Crashed???');
+                    this._launchPuppeteer();
+                });
+
+                return browser;
+            });
     }
 
     /**
