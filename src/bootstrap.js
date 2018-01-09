@@ -266,5 +266,5 @@ Apify.main(async () => {
 });
 
 // @TODO: remove - this is attempt to test memory leak
-// TMP test - trying to kill process every 1,5h
-setTimeout(() => process.exit(1), 2 * 60 * 60 * 1000);
+// TMP test - trying to kill process every 2h
+// setTimeout(() => process.exit(1), 2 * 60 * 60 * 1000);
