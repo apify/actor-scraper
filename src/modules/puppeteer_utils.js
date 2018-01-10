@@ -5,14 +5,26 @@
  *            for example we can't import underscore since "_" is used in injectUnderscoreScript
  *            otherwise Babel will replace that with "_underscore2" and breaks the code.
  */
+import fs from 'fs';
 import path from 'path';
 import { chain } from 'underscore';
 import { ENQUEUE_PAGE_ALLOWED_PROPERTIES } from './request';
 import { logInfo, logDebug, logError } from './utils';
 
+export const injectFile = async (page, filePath) => {
+    const contents = await new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) return reject(err);
+            resolve(data);
+        });
+    });
+
+    return page.evaluate(contents);
+};
+
 export const injectJQueryScript = async (page) => {
     const jQueryPath = path.resolve(path.join(__dirname, '../../node_modules/jquery/dist/jquery.js'));
-    await page.addScriptTag({ path: jQueryPath });
+    await injectFile(page, jQueryPath);
     await page.evaluate(() => {
         console.log('Injecting jQuery');
         window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
@@ -22,7 +34,7 @@ export const injectJQueryScript = async (page) => {
 
 export const injectUnderscoreScript = async (page) => {
     const underscorePath = path.resolve(path.join(__dirname, '../../node_modules/underscore/underscore.js'));
-    await page.addScriptTag({ path: underscorePath });
+    await injectFile(page, underscorePath);
     await page.evaluate(() => {
         console.log('Injecting underscore');
         window.APIFY_CONTEXT = window.APIFY_CONTEXT || {};
@@ -110,16 +122,17 @@ export const exposeMethods = async (page, methods) => {
  * thru the intercept request function.
  */
 export const decorateEnqueuePage = async (page, interceptRequestStr) => {
-    return page.evaluate((passedInterceptRequestStr, allowedFields) => {
+    if (!interceptRequestStr) interceptRequestStr = 'function (ctx, req) { return req; }';
+
+    await page.evaluate(`window.APIFY_INTERCEPT_REQUEST = ${interceptRequestStr};`);
+
+    return page.evaluate((allowedFields) => {
         console.log('Decorating context.enqueuePage()');
 
-        if (!passedInterceptRequestStr) passedInterceptRequestStr = 'function (ctx, req) { return req; }';
-
-        const interceptRequest = eval(`(${passedInterceptRequestStr})`);  // eslint-disable-line no-eval
         const context = window.APIFY_CONTEXT;
         const originalEnqueuePage = context.enqueuePage;
 
-        if (typeof interceptRequest !== 'function') throw new Error('InterceptRequest must be a function string!');
+        if (typeof window.APIFY_INTERCEPT_REQUEST !== 'function') throw new Error('InterceptRequest must be a function!');
 
         const pick = (obj, keys) => keys.reduce((result, key) => {
             if (obj[key] !== undefined) result[key] = obj[key];
@@ -135,17 +148,19 @@ export const decorateEnqueuePage = async (page, interceptRequestStr) => {
                 underscoreJs: context.underscoreJs,
                 clickedElement,
             };
-            const interceptedRequest = interceptRequest(interceptRequestContext, newRequest);
+            const interceptedRequest = window.APIFY_INTERCEPT_REQUEST(interceptRequestContext, newRequest);
 
             await originalEnqueuePage(interceptedRequest);
         };
-    }, interceptRequestStr, ENQUEUE_PAGE_ALLOWED_PROPERTIES);
+    }, ENQUEUE_PAGE_ALLOWED_PROPERTIES);
 };
 
 /**
  * Executes page function in a context of the page.
  */
 export const executePageFunction = async (page, crawlerConfig) => {
+    await page.evaluate(`window.APIFY_PAGE_FUNCTION = ${crawlerConfig.pageFunction};`);
+
     return page.evaluate((passedCrawlerConfig) => {
         console.log('Running page function');
 
@@ -187,8 +202,9 @@ export const executePageFunction = async (page, crawlerConfig) => {
         };
 
         try {
-            const pageFunctionEvaled = eval(`(${passedCrawlerConfig.pageFunction})`); // eslint-disable-line no-eval
-            const pageFunctionResult = pageFunctionEvaled(context);
+            if (typeof window.APIFY_PAGE_FUNCTION !== 'function') throw new Error('PageFunction must be a function!');
+
+            const pageFunctionResult = window.APIFY_PAGE_FUNCTION(context);
 
             return Promise
                 .all(Object.values(context.pendingPromises)) // Pending calls to exposed methods like enqueuePage() ...
