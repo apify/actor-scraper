@@ -90,6 +90,8 @@ export default class PuppeteerPool {
     }
 
     _killBrowser(browser) {
+        logInfo(`PuppeteerPool: killing browser ${browser.id}`);
+
         delete this.retiredBrowsers[browser.id];
 
         browser
@@ -99,6 +101,8 @@ export default class PuppeteerPool {
     }
 
     async _killRetiredBrowsers() {
+        logInfo(`PuppeteerPool: retired browsers count: ${_.values(this.retiredBrowsers).length}`);
+
         _.mapObject(this.retiredBrowsers, (browser) => {
             if (Date.now() - browser.lastNewPage > KILL_BROWSER_AFTER_MILLIS) return this._killBrowser(browser);
 
