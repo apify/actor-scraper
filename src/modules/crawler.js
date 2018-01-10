@@ -6,17 +6,11 @@
  * If anything fails then crawler.crawl(request) throws an error and caller is responsible to
  * log error info and add that info to the request.
  *
- * At the beginning it creates pool of crawlerConfig.browserInstanceCount Puppeteer browsers.
- * It randomly switches requests between then and restarts the browsers after
- * crawlerConfig.maxCrawledPagesPerSlave requests. This is happening in order to rotate proxy
- * IPs.
- *
  * Crawler emits events:
  * - EVENT_REQUEST on newly created request to be possibly enqueued
  * - EVENT_SNAPSHOT with screenshot and html to be saved into key-value store.
  */
 
-import Apify from 'apify';
 import _ from 'underscore';
 import EventEmitter from 'events';
 import Promise from 'bluebird';
@@ -24,29 +18,15 @@ import { logError, logDebug, logInfo } from './utils';
 import * as utils from './puppeteer_utils';
 import Request, { TYPES as REQUEST_TYPES } from './request';
 
-const { NODE_ENV } = process.env;
-
 export const EVENT_REQUEST = 'request';
 export const EVENT_SNAPSHOT = 'snapshot';
 
-const PUPPETEER_CONFIG = {
-    dumpio: NODE_ENV !== 'production',
-    slowMo: 0,
-    args: [],
-};
-
 export default class Crawler extends EventEmitter {
-    constructor(crawlerConfig) {
+    constructor(crawlerConfig, puppeteerPool) {
         super();
         this.crawlerConfig = crawlerConfig;
         this.gotoOptions = {};
-        this.puppeteerPromise = null;
-
-        this._launchPuppeteer();
-
-        if (crawlerConfig.browserInstanceCount * crawlerConfig.maxCrawledPagesPerSlave < crawlerConfig.maxParallelRequests) {
-            throw new Error('"browserInstanceCount * maxCrawledPagesPerSlave" must be higher than "maxParallelRequests"!!!!');
-        }
+        this.puppeteerPool = puppeteerPool;
 
         if (crawlerConfig.pageLoadTimeout) {
             this.gotoOptions.timeout = crawlerConfig.pageLoadTimeout;
@@ -83,39 +63,11 @@ export default class Crawler extends EventEmitter {
         this.emit(EVENT_SNAPSHOT, { requestId, html, screenshot });
     }
 
-    _launchPuppeteer() {
-        const config = Object.assign({}, PUPPETEER_CONFIG);
-        const { userAgent, dumpio, disableWebSecurity, proxyUrl } = this.crawlerConfig;
-
-        if (userAgent) config.userAgent = userAgent;
-        if (dumpio !== undefined) config.dumpio = dumpio;
-        if (proxyUrl) config.proxyUrl = proxyUrl;
-        if (disableWebSecurity) {
-            config.ignoreHTTPSErrors = true;
-            config.args.push('--disable-web-security');
-        }
-
-        this.puppeteerPromise = Apify
-            .launchPuppeteer(config)
-            .then((browser) => {
-                browser.on('disconnected', () => {
-                    logError('Puppeteer sent "disconnect" event. Crashed???');
-                    this._launchPuppeteer();
-                });
-
-                return browser;
-            });
-    }
-
     /**
      * Kills all the resources - opened browsers and intervals.
      */
     async destroy() {
         clearInterval(this.logInterval);
-
-        return this.puppeteerPromise
-            .then(puppeteer => puppeteer.close())
-            .catch(err => logError('Crawler: cannot close the browser', err));
     }
 
     /**
@@ -129,8 +81,7 @@ export default class Crawler extends EventEmitter {
         // We need to catch errors here in order to close opened page in
         // a case of an error and then we can rethrow it.
         try {
-            const browser = await this.puppeteerPromise;
-            page = await browser.newPage();
+            page = await this.puppeteerPool.newPage();
             page.on('error', (error) => {
                 logError('Crawler: page crashled', error);
                 page.close();

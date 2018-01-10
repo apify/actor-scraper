@@ -45,7 +45,7 @@ export default class StatefulClass extends EventEmitter {
         clearInterval(this.persistInterval);
     }
 
-    destroy(keepState) {
+    async destroy(keepState) {
         this._clearPersistInterval();
         this._emitState(!keepState);
         logInfo(`${this.className}: destroyed`);
