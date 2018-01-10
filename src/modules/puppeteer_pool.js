@@ -18,7 +18,7 @@
 
 import _ from 'underscore';
 import Apify from 'apify';
-import { logError } from './utils'; // logDebug, logInfo
+import { logError, logInfo } from './utils'; // logDebug, logInfo
 
 export const EVENT_REQUEST = 'request';
 export const EVENT_SNAPSHOT = 'snapshot';
