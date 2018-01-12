@@ -69,7 +69,7 @@ const fetchInput = async () => {
         mergedInput.customProxies = mergedInput.customProxies.split('\n');
     }
 
-    logInfo(`Merged input: ${JSON.stringify(mergedInput, null, 2)}`);
+    logInfo(`Merged input: ${JSON.stringify(_.omit(mergedInput, 'urlListArr'), null, 2)}`);
 
     return mergedInput;
 };
