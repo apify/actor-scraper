@@ -27,10 +27,12 @@ export default class UrlList extends StatefulClass {
         this.state = state;
         this.state.url = crawlerConfig.urlList;
         this.state.urlListRegExp = crawlerConfig.urlListRegExp;
-        this.urls = null;
+        this.urls = crawlerConfig.urlListArr;
     }
 
     async initialize() {
+        if (!this.state.url) return;
+
         const str = await request(this.state.url);
 
         if (this.state.urlListRegExp) {

@@ -93,7 +93,7 @@ const createPageQueue = async (input) => {
 };
 
 const maybeCreateUrlList = async (input) => {
-    if (!input.urlList) return;
+    if (!input.urlList && !input.urlListArr) return;
 
     const state = await getValueOrUndefined(URL_LIST_STATE_KEY);
     const urlList = new UrlList(state, input);
