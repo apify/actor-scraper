@@ -56,9 +56,9 @@ export default class Crawler extends EventEmitter {
      * Emits snapshot event.
      */
     async _emitSnapshot(page, request, opts = { html: true, screenshot: true }) {
-        const { fullPage, quality } = opts;
+        const { fullPage, quality, type } = opts;
         const html = opts.html ? await page.$eval('html', el => el.outerHTML) : null;
-        const screenshot = opts.screenshot ? await page.screenshot({ quality, fullPage }) : null;
+        const screenshot = opts.screenshot ? await page.screenshot({ quality, fullPage, type }) : null;
         const requestId = request.id;
 
         this.emit(EVENT_SNAPSHOT, { requestId, html, screenshot });
