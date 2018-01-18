@@ -56,7 +56,7 @@ export default class LocalSequentialStore extends StatefulClass {
             const simplifiedResults = this.state.buffer
                 .filter(request => request.pageFunctionResult)
                 .map(simplifyResult)
-                .reduce((acc, result) => acc.concat(result));
+                .reduce((acc, result) => acc.concat(result),[]);
 
             logInfo(`SequentialStore: outputting file ${simplifiedKey}`);
             this._emitValue({
