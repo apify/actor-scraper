@@ -81,7 +81,7 @@ Act supports following crawler configuration attributes (for documentation see h
 
 To run act locally you must have [**NodeJS**](https://nodejs.org/en/) installed:
 
-* Clone this repository: `git clone https://github.com/Apifier/act-crawler.git`
+* Clone this repository: `git clone https://github.com/apifytech/act-crawler.git`
 * Install dependencies: `npm install`
 * Configure input in `/kv-store-dev/INPUT`
 * Run it: `npm run local` 
