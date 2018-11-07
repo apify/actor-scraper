@@ -1,0 +1,10 @@
+{
+  "name": "crawler",
+  "version": {
+    "versionNumber": "0.1",
+    "buildTag": "latest",
+    "envVars": [],
+    "sourceType": "TARBALL"
+  },
+  "actId": "mnmkng/crawler"
+}

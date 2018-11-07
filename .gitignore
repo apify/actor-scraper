@@ -1,11 +1,5 @@
-*.log
-node_modules
-yarn.lock
-build
-
-kv-store-dev/OUTPUT
-kv-store-dev/RESULTS-*
-kv-store-dev/SNAPSHOT-*
-kv-store-dev/STATE-*
-
 .idea
+apify_storage
+node_modules
+.nyc_output
+coverage

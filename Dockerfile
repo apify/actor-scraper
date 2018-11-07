@@ -1,11 +1,15 @@
-FROM apify/actor-node-puppeteer
+FROM apify/actor-node-chrome
 
 ENV NODE_ENV=production
 
 COPY . ./
 
-RUN npm install --quiet --dev
-RUN npm list
-RUN npm run build
-
-CMD [ "node", "main.js" ]
+# Install default dependencies, print versions of everything
+RUN npm --quiet set progress=false \
+ && npm install --only=prod --no-optional \
+ && echo "Installed NPM packages:" \
+ && npm list \
+ && echo "Node.js version:" \
+ && node --version \
+ && echo "NPM version:" \
+ && npm --versionjs

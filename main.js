@@ -1,1 +1,1 @@
-require('./build/bootstrap');
+require('./src/actor');
