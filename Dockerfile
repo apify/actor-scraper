@@ -1,7 +1,5 @@
 FROM apify/actor-node-chrome
 
-ENV NODE_ENV=production
-
 COPY . ./
 
 # Install default dependencies, print versions of everything
@@ -12,4 +10,4 @@ RUN npm --quiet set progress=false \
  && echo "Node.js version:" \
  && node --version \
  && echo "NPM version:" \
- && npm --versionjs
+ && npm --version
