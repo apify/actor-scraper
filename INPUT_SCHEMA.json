@@ -1,0 +1,112 @@
+{
+    "title": "Crawler Input",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "startUrls": {
+            "title": "Start URLs",
+            "type": "array",
+            "description": "URLs to start with",
+            "prefill": [
+                { "url": "http://example.com" },
+                { "url": "http://example.com/some-path" }
+            ],
+            "editor": "requestListSources"
+        },
+        "useRequestQueue": {
+            "title": "Use request queue",
+            "type": "boolean",
+            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs and Link selector.",
+            "default": false
+        },
+        "pseudoUrls": {
+            "title": "Pseudo-URLs",
+            "type": "array",
+            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the crawler where to find links.",
+            "editor": "pseudoUrls"
+        },
+        "linkSelector": {
+            "title": "Link selector",
+            "type": "string",
+            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from '<a href=...> tags, you would enter 'a'.",
+            "editor": "textfield",
+            "prefill": "a"
+        },
+        "pageFunction": {
+            "title": "Page function",
+            "type": "string",
+            "description": "Function executed for each request",
+            "prefill": "async ({ $, request }) => {\n    const title = $('title').text();\n    console.log(`Title of ${request.url}: ${title}`);\n    return { title };\n}",
+            "editor": "javascript"
+        },
+        "proxyConfiguration": {
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
+            "prefill": { "useApifyProxy": false },
+            "default": {},
+            "editor": "proxy"
+        },
+        "debugLog": {
+            "title": "Debug log",
+            "type": "boolean",
+            "description": "Debug messages will be included in the log. Use `context.log.debug('message')` to log your own debug messages.",
+            "default": false,
+            "groupCaption": "Options",
+            "groupDescription": "Crawler settings"
+        },
+        "ignoreSslErrors": {
+            "title": "Ignore SSL errors?",
+            "type": "boolean",
+            "description": "Crawler will ignore SSL certificate errors.",
+            "default": false
+        },
+        "maxRequestRetries": {
+            "title": "Max request retries",
+            "type": "integer",
+            "description": "Maximum number of times the request for the page will be retried in case of an error. Setting it to 0 means that the request will be attempted once and will not be retried if it fails.",
+            "minimum": 0,
+            "default": 3,
+            "unit": "retries"
+        },
+        "maxPagesPerCrawl": {
+            "title": "Max pages per crawl",
+            "type": "integer",
+            "description": "Maximum number of pages that the crawler will open. 0 means unlimited.",
+            "minimum": 0,
+            "unit": "pages"
+        },
+        "maxResultsPerCrawl": {
+          "title": "Max result records",
+          "type": "integer",
+          "description": "Maximum number of results that will be saved to dataset. The crawler will terminate afterwards. 0 means unlimited.",
+          "minimum": 0,
+          "default": 0,
+          "unit": "results"
+        },
+        "maxCrawlingDepth": {
+          "title": "Max crawling depth",
+          "type": "integer",
+          "description": "Defines how many links away from the StartURLs will the crawler descend. 0 means unlimited.",
+          "minimum": 0,
+          "default": 0
+        },
+        "pageLoadTimeoutSecs": {
+            "title": "Page load timeout",
+            "type": "integer",
+            "description": "Maximum time the crawler will allow a web page to load in seconds.",
+            "minimum": 1,
+            "default": 20,
+            "maximum": 360,
+            "unit": "secs"
+        },
+        "customData": {
+            "title": "Custom data",
+            "type": "object",
+            "description": "This object will be available on pageFunction's context as customData.",
+            "default": {},
+            "editor": "json"
+        }
+    },
+    "required": ["startUrls", "pageFunction", "maxPagesPerCrawl"]
+}
