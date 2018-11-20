@@ -45,6 +45,8 @@ module.exports = (apifyNamespace) => {
                 this.input = crawlerSetup.rawInput;
                 this.env = Object.assign({}, crawlerSetup.env);
                 this.customData = crawlerSetup.customData;
+                if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
+                if (this[setup].injectUnderscore) this.underscoreJs = global._.noConflict();
 
                 // Proxied Node functionality
                 this.globalStore = createProxy(browserHandles.globalStore);

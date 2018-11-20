@@ -55,7 +55,7 @@
             "groupCaption": "Options",
             "groupDescription": "Crawler settings"
         },
-        "injectJquery": {
+        "injectJQuery": {
             "title": "Inject jQuery",
             "type": "boolean",
             "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
@@ -80,7 +80,7 @@
             "default": false
         },
         "ignoreSslErrors": {
-            "title": "Ignore SSL errors?",
+            "title": "Ignore SSL errors",
             "type": "boolean",
             "description": "Crawler will ignore SSL certificate errors.",
             "default": false

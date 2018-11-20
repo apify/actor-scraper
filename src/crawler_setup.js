@@ -22,7 +22,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
- * @property {boolean} injectJquery
+ * @property {boolean} injectJQuery
  * @property {boolean} injectUnderscore
  * @property {boolean} downloadMedia
  * @property {boolean} downloadCSS
@@ -168,7 +168,7 @@ class CrawlerSetup {
         const response = await page.goto(request.url, { timeout: this.input.pageLoadTimeoutSecs * 1000 });
 
         // Inject selected libraries
-        if (this.input.injectJquery) await puppeteer.injectJQuery(page);
+        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
         if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
 
         // Attach function handles to the page to enable use of Node.js APIs from Browser context.
@@ -237,7 +237,10 @@ class CrawlerSetup {
 
         // Setup Context and pass the configuration down to Browser.
         const contextOptions = {
-            crawlerSetup: Object.assign(_.pick(this, ['rawInput', 'env']), _.pick(this.input, ['customData', 'useRequestQueue'])),
+            crawlerSetup: Object.assign(
+                _.pick(this, ['rawInput', 'env']),
+                _.pick(this.input, ['customData', 'useRequestQueue', 'injectJQuery', 'injectUnderscore']),
+            ),
             browserHandles: this.pageContexts.get(page).browserHandles,
         };
 
