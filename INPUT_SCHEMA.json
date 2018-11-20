@@ -127,7 +127,7 @@
             "type": "integer",
             "description": "Maximum time the crawler will allow a web page to load in seconds.",
             "minimum": 1,
-            "default": 20,
+            "default": 60,
             "maximum": 360,
             "unit": "secs"
         },
@@ -136,7 +136,7 @@
             "type": "integer",
             "description": "Maximum time the crawler will wait for the page function to execute in seconds.",
             "minimum": 1,
-            "default": 20,
+            "default": 60,
             "maximum": 360,
             "unit": "secs"
         },

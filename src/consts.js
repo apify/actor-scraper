@@ -32,4 +32,4 @@ exports.PAGE_FUNCTION_FILENAME = 'page_function.js';
  * so the user has time to browse the DevTools console.
  * @type {number}
  */
-exports.DEVTOOLS_PAGE_TIMEOUT_SECS = 3600;
+exports.DEVTOOLS_TIMEOUT_SECS = 3600;

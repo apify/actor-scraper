@@ -2,7 +2,7 @@
 const Apify = require('apify');
 const _ = require('underscore');
 const tools = require('./tools');
-const { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_PAGE_TIMEOUT_SECS } = require('./consts');
+const { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS } = require('./consts');
 const GlobalStore = require('./global_store');
 const attachContext = require('./context.browser');
 const attachNodeProxy = require('./node_proxy.browser');
@@ -84,6 +84,9 @@ class CrawlerSetup {
         if (this.input.downloadMedia) ['font', 'image', 'media'].forEach(m => this.blockedResources.delete(m));
         if (this.input.downloadCSS) this.blockedResources.delete('stylesheet');
 
+        // Start Chromium with Debugger any time the page function includes the keyword.
+        this.devtools = this.input.pageFunction.includes('debugger;');
+
         // Initialize async operations.
         this.crawler = null;
         this.requestList = null;
@@ -118,14 +121,11 @@ class CrawlerSetup {
     async createCrawler() {
         await this.initPromise;
 
-        const devtools = this.input.pageFunction.includes('debugger;');
-        const handlePageTimeoutSecs = devtools ? DEVTOOLS_PAGE_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs;
-
         const options = {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
-            handlePageTimeoutSecs,
+            handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
@@ -140,7 +140,7 @@ class CrawlerSetup {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
-                devtools,
+                devtools: this.devtools,
             },
         };
 
@@ -170,7 +170,9 @@ class CrawlerSetup {
         if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
 
         // Invoke navigation.
-        const response = await page.goto(request.url, { timeout: this.input.pageLoadTimeoutSecs * 1000 });
+        const response = await page.goto(request.url, {
+            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+        });
 
         // Inject selected libraries
         if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
