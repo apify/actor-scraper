@@ -57,7 +57,7 @@
             "groupDescription": "Crawler settings"
         },
         "browserLog": {
-            "title": "Debug log",
+            "title": "Browser log",
             "type": "boolean",
             "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
             "default": false
