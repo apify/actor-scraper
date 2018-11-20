@@ -287,3 +287,15 @@ exports.createWillFinishLaterWrapper = () => {
     };
     return wrapper;
 };
+
+/**
+ * Add label to request for backwards compatibility with
+ * Crawler code.
+ *
+ * @param request
+ */
+exports.copyLabelToRequest = (request) => {
+    if (request.userData && request.userData.label) {
+        request.label = request.userData.label;
+    }
+};

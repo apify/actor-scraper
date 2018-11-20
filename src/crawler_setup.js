@@ -235,6 +235,9 @@ class CrawlerSetup {
         const aborted = await this._handleMaxResultsPerCrawl();
         if (aborted) return;
 
+        // Backwards compatibility hack to support Crawler codebase.
+        tools.copyLabelToRequest(request);
+
         // Setup Context and pass the configuration down to Browser.
         const contextOptions = {
             crawlerSetup: Object.assign(

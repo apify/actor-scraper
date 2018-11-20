@@ -75,11 +75,22 @@ module.exports = (apifyNamespace) => {
                 this[state].willFinishLater = true;
             }
 
-            enqueuePage(newRequest) {
+            enqueuePage(request) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
-                return this.requestQueue.addRequest(newRequest);
+                // Backwards compatibility hack to support Crawler codebase.
+                if (request.label) {
+                    if (request.userData && !request.userData.label) {
+                        request.userData.label = request.label;
+                    }
+                    if (!request.userData) {
+                        request.userData = {
+                            label: request.label,
+                        };
+                    }
+                }
+                return this.requestQueue.addRequest(request);
             }
         }
 
