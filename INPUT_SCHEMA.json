@@ -142,7 +142,7 @@
         },
         "customData": {
             "title": "Custom data",
-            "type": ["object", "string"],
+            "type": "object",
             "description": "This object will be available on pageFunction's context as customData.",
             "default": {},
             "editor": "json"
