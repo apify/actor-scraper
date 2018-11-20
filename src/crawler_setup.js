@@ -1,9 +1,8 @@
 /* eslint-disable class-methods-use-this */
-const path = require('path');
 const Apify = require('apify');
 const _ = require('underscore');
 const tools = require('./tools');
-const { META_KEY, DEFAULT_VIEWPORT } = require('./consts');
+const { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_PAGE_TIMEOUT_SECS } = require('./consts');
 const GlobalStore = require('./global_store');
 const attachContext = require('./context.browser');
 const attachNodeProxy = require('./node_proxy.browser');
@@ -22,6 +21,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
+ * @property {boolean} browserLog
  * @property {boolean} injectJQuery
  * @property {boolean} injectUnderscore
  * @property {boolean} downloadMedia
@@ -44,16 +44,19 @@ const { utils: { log, puppeteer } } = Apify;
  */
 class CrawlerSetup {
     constructor(input, environment) {
-        // Validate INPUT if not running on Apify Cloud Platform.
-        if (!Apify.isAtHome()) tools.checkInputOrThrow(input);
-
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
+
+        // Attempt to load page function from disk if not present on input.
+        tools.maybeLoadPageFunctionFromDisk(input);
+
+        // Validate INPUT if not running on Apify Cloud Platform.
+        if (!Apify.isAtHome()) tools.checkInputOrThrow(input);
 
         /**
          * @type {Input}
          */
-        this.input = JSON.parse(this.rawInput);
+        this.input = input;
         this.env = Object.assign({}, environment);
 
         // Validations
@@ -115,11 +118,14 @@ class CrawlerSetup {
     async createCrawler() {
         await this.initPromise;
 
+        const devtools = this.input.pageFunction.includes('debugger;');
+        const handlePageTimeoutSecs = devtools ? DEVTOOLS_PAGE_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs;
+
         const options = {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
-            handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
+            handlePageTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
@@ -134,6 +140,7 @@ class CrawlerSetup {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
+                devtools,
             },
         };
 
@@ -149,20 +156,18 @@ class CrawlerSetup {
         };
         this.pageContexts.set(page, pageContext);
 
-        const blockResources = !!this.blockedResources.size;
-
         // Enables legacy willFinishLater by injecting a finish function
         // into the Browser context.
         pageContext.asyncWrapper = tools.createWillFinishLaterWrapper();
 
         // Attach a console listener to get all logs as soon as possible.
-        tools.dumpConsole(page, { logResourceLoadErrors: !blockResources });
+        if (this.input.browserLog) tools.dumpConsole(page);
 
         // Hide WebDriver before navigation
         await puppeteer.hideWebDriver(page);
 
         // Prevent download of stylesheets and media, unless selected otherwise
-        if (blockResources) await puppeteer.blockResources(page, Array.from(this.blockedResources));
+        if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
 
         // Invoke navigation.
         const response = await page.goto(request.url, { timeout: this.input.pageLoadTimeoutSecs * 1000 });
@@ -245,6 +250,9 @@ class CrawlerSetup {
                 _.pick(this.input, ['customData', 'useRequestQueue', 'injectJQuery', 'injectUnderscore']),
             ),
             browserHandles: this.pageContexts.get(page).browserHandles,
+            pageFunctionArguments: {
+                request,
+            },
         };
 
         /**
@@ -288,7 +296,7 @@ class CrawlerSetup {
 
     async _handleWillFinishLater(page, state) {
         if (!state.willFinishLater) return;
-        const { asyncWrapper } = this.pageContexts(page);
+        const { asyncWrapper } = this.pageContexts.get(page);
         if (asyncWrapper.finished) return;
         log.debug('Waiting for context.finish() to be called!');
         await asyncWrapper.createFinishPromise();

@@ -23,7 +23,8 @@
             "title": "Pseudo-URLs",
             "type": "array",
             "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the crawler where to find links.",
-            "editor": "pseudoUrls"
+            "editor": "pseudoUrls",
+            "default": []
         },
         "linkSelector": {
             "title": "Link selector",
@@ -54,6 +55,12 @@
             "default": false,
             "groupCaption": "Options",
             "groupDescription": "Crawler settings"
+        },
+        "browserLog": {
+            "title": "Debug log",
+            "type": "boolean",
+            "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
+            "default": false
         },
         "injectJQuery": {
             "title": "Inject jQuery",
@@ -135,7 +142,7 @@
         },
         "customData": {
             "title": "Custom data",
-            "type": "object",
+            "type": ["object", "string"],
             "description": "This object will be available on pageFunction's context as customData.",
             "default": {},
             "editor": "json"

@@ -51,7 +51,7 @@ module.exports = (apifyNamespace) => {
                 // Proxied Node functionality
                 this.globalStore = createProxy(browserHandles.globalStore);
                 this.log = createProxy(browserHandles.log);
-                this.finish = browserHandles.finish;
+                this.finish = (...args) => global[browserHandles.finish](...args);
                 this.requestList = createProxy(browserHandles.requestList);
                 this.dataset = createProxy(browserHandles.dataset);
                 this.keyValueStore = createProxy(browserHandles.keyValueStore);

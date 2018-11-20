@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const crypto = require('crypto');
 const { promisify, inspect } = require('util');
 
@@ -5,7 +7,7 @@ const Apify = require('apify');
 const _ = require('underscore');
 const Ajv = require('ajv');
 
-const { META_KEY, RESOURCE_LOAD_ERROR_MESSAGE } = require('./consts');
+const { META_KEY, RESOURCE_LOAD_ERROR_MESSAGE, PAGE_FUNCTION_FILENAME } = require('./consts');
 const schema = require('../INPUT_SCHEMA.json');
 
 const { utils: { log, puppeteer } } = Apify;
@@ -184,16 +186,17 @@ exports.createBrowserHandlesForObject = async (page, instance, methods) => {
  * Chromium messages, usually internal errors, occuring in page.
  * @param {Page} page
  * @param {Object} [options]
- * @param {boolean} [options.logResourceLoadErrors]
- *   Chromium produces errors with a specific error message resource
- *   loading is prevented. Since we block resources by default,
- *   we remove this message from logs. If the user chooses to
- *   download all resources, message will be re-enabled.
+ * @param {boolean} [options.logErrors=false]
+ *   Prevents Browser context errors from being logged by default,
+ *   since there are usually a lot of errors produced by scraping
+ *   due to blocking resources, running headless, etc.
  */
 exports.dumpConsole = (page, options = {}) => {
     page.on('console', async (msg) => {
-        // Ignore messages about blocked resources.
-        if (msg.text() === RESOURCE_LOAD_ERROR_MESSAGE && !options.logResourceLoadErrors) return;
+        if (msg.type() === 'error' && !options.logErrors) return;
+
+        // Do not ever log "Failed to load resource" errors, because they flood the log.
+        if (msg.text() === RESOURCE_LOAD_ERROR_MESSAGE) return;
 
         // Check for JSHandle tags in .text(), since .args() will
         // always include JSHandles, even for strings.
@@ -297,5 +300,22 @@ exports.createWillFinishLaterWrapper = () => {
 exports.copyLabelToRequest = (request) => {
     if (request.userData && request.userData.label) {
         request.label = request.userData.label;
+    }
+};
+
+/**
+ * Attempts to load Page Function from disk if it's not available
+ * on INPUT.
+ *
+ * @param {Input} input
+ */
+exports.maybeLoadPageFunctionFromDisk = (input) => {
+    if (input.pageFunction) return;
+    const pageFunctionPath = path.join(__dirname, PAGE_FUNCTION_FILENAME);
+    log.debug(`Loading Page Function from disk: ${path}`);
+    try {
+        input.pageFunction = fs.readFileSync(pageFunctionPath, 'utf8');
+    } catch (err) {
+        log.debug('Page Function load from disk failed.');
     }
 };
