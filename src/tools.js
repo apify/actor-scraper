@@ -5,7 +5,7 @@ const Apify = require('apify');
 const _ = require('underscore');
 const Ajv = require('ajv');
 
-const { META_KEY } = require('./consts');
+const { META_KEY, RESOURCE_LOAD_ERROR_MESSAGE } = require('./consts');
 const schema = require('../INPUT_SCHEMA.json');
 
 const { utils: { log, puppeteer } } = Apify;
@@ -17,7 +17,7 @@ exports.requestToRpOpts = (request) => {
     return opts;
 };
 
-exports.wrapPageFunction = (namespace, pageFunctionString) => {
+exports.wrapPageFunction = (pageFunctionString, namespace) => {
     return `window['${namespace}'].pageFunction = ${pageFunctionString}`;
 };
 
@@ -122,6 +122,19 @@ exports.createDatasetPayload = (request, pageFunctionResult, isError = false) =>
 };
 
 const randomBytes = promisify(crypto.randomBytes);
+
+/**
+ * Creates a 12 byte random hash encoded as base64
+ * to be used as identifier.
+ *
+ * @return {Promise<string>}
+ */
+exports.createRandomHash = async () => {
+    return (await randomBytes(12))
+        .toString('base64')
+        .replace(/[+/=]/g, 'x') // Remove invalid chars.
+        .replace(/^\d/, 'a'); // Ensure first char is not a digit.
+};
 /**
  * Attaches the provided function to the Browser context
  * by exposing it via page.exposeFunction. Returns a string
@@ -129,14 +142,11 @@ const randomBytes = promisify(crypto.randomBytes);
  * the browser context.
  *
  * @param {Page} page
- * @param {Function}func
+ * @param {Function} func
  * @returns {string}
  */
 exports.createBrowserHandle = async (page, func) => {
-    const handle = (await randomBytes(12))
-        .toString('base64')
-        .replace(/[+/=]/g, 'x') // Remove invalid chars.
-        .replace(/^\d/, 'a'); // Ensure first char is not a digit.
+    const handle = await exports.createRandomHash();
     await page.exposeFunction(handle, func);
     return handle;
 };
@@ -173,9 +183,18 @@ exports.createBrowserHandlesForObject = async (page, instance, methods) => {
  * to prevent cluttering the STDOUT with unnecessary
  * Chromium messages, usually internal errors, occuring in page.
  * @param {Page} page
+ * @param {Object} [options]
+ * @param {boolean} [options.logResourceLoadErrors]
+ *   Chromium produces errors with a specific error message resource
+ *   loading is prevented. Since we block resources by default,
+ *   we remove this message from logs. If the user chooses to
+ *   download all resources, message will be re-enabled.
  */
-exports.dumpConsole = (page) => {
+exports.dumpConsole = (page, options = {}) => {
     page.on('console', async (msg) => {
+        // Ignore messages about blocked resources.
+        if (msg.text() === RESOURCE_LOAD_ERROR_MESSAGE && !options.logResourceLoadErrors) return;
+
         // Check for JSHandle tags in .text(), since .args() will
         // always include JSHandles, even for strings.
         const hasJSHandles = msg.text().includes('JSHandle@');
@@ -238,4 +257,33 @@ exports.addDepthMetadataToPurls = (pseudoUrls, parentRequest) => {
                 : Object.assign(purlObj.userData, { [META_KEY]: depthMeta });
         return purlObj;
     });
+};
+
+/**
+ * Helper that throws after timeout secs with the error message.
+ * @param {number} timeoutSecs
+ * @param {string} errorMessage
+ * @return {Promise}
+ */
+exports.createTimeoutPromise = async (timeoutSecs, errorMessage) => {
+    await new Promise(res => setTimeout(res, timeoutSecs * 1000));
+    throw new Error(errorMessage);
+};
+
+/**
+ * Enables the use of legacy willFinishLater by resolving a Promise
+ * from within the browser context using the provided finish function.
+ * @return {{finish: (function(): void), finished: boolean, resolve: (function(): void), createFinishPromise: (function(): Promise)}}
+ */
+exports.createWillFinishLaterWrapper = () => {
+    const wrapper = {
+        finished: false,
+        finish: () => {
+            log.debug('context.finish() was called!');
+            wrapper.resolve();
+        },
+        resolve: () => { wrapper.finished = true; },
+        createFinishPromise: () => new Promise((res) => { wrapper.resolve = res; }),
+    };
+    return wrapper;
 };

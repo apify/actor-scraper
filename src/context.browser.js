@@ -1,83 +1,97 @@
-(function (global) {
-    const setup = Symbol('crawler-setup');
-    const state = Symbol('request-state');
+/**
+ * Node.js side command for Browser side code.
+ * @param apifyNamespace
+ */
+module.exports = (apifyNamespace) => {
+    (function (global, namespace) {
+        const setup = Symbol('crawler-setup');
+        const state = Symbol('request-state');
 
-    /**
-     * Context represents everything that is available to the user
-     * via Page Function. A class is used instead of a simple object
-     * to avoid having to create new instances of functions with each
-     * request.
-     *
-     * Some properties need to be accessible to the Context,
-     * but should not be exposed to the user thus they are hidden
-     * using a Symbol to prevent the user from easily accessing
-     * and manipulating them.
-     *
-     * @param {Object} options
-     * @param {Object} options.crawlerSetup
-     * @param {Object} options.browserHandles
-     * @param {Object} options.pageFunctionArguments
-     */
-    class Context {
-        constructor(options) {
-            const {
-                crawlerSetup,
-                browserHandles,
-                pageFunctionArguments = {},
-            } = options;
+        /**
+         * Context represents everything that is available to the user
+         * via Page Function. A class is used instead of a simple object
+         * to avoid having to create new instances of functions with each
+         * request.
+         *
+         * Some properties need to be accessible to the Context,
+         * but should not be exposed to the user thus they are hidden
+         * using a Symbol to prevent the user from easily accessing
+         * and manipulating them.
+         *
+         * @param {Object} options
+         * @param {Object} options.crawlerSetup
+         * @param {Object} options.browserHandles
+         * @param {Object} [options.pageFunctionArguments]
+         */
+        class Context {
+            constructor(options) {
+                const {
+                    crawlerSetup,
+                    browserHandles,
+                    pageFunctionArguments = {},
+                } = options;
 
-            const createProxy = global.Apify.createNodeProxy;
+                const createProxy = global[namespace].createNodeProxy;
 
-            // Private
-            this[setup] = crawlerSetup;
-            this[state] = {
-                skipLinks: false,
-                skipOutput: false,
-            };
+                // Private
+                this[setup] = crawlerSetup;
+                this[state] = {
+                    skipLinks: false,
+                    skipOutput: false,
+                    willFinishLater: false,
+                };
 
-            // Public
-            this.input = crawlerSetup.rawInput;
-            this.env = Object.assign({}, crawlerSetup.env);
-            this.customData = crawlerSetup.customData;
+                // Public
+                this.input = crawlerSetup.rawInput;
+                this.env = Object.assign({}, crawlerSetup.env);
+                this.customData = crawlerSetup.customData;
 
-            // Proxied Node functionality
-            this.log = createProxy(browserHandles.log);
-            this.requestList = createProxy(browserHandles.requestList);
-            this.dataset = createProxy(browserHandles.dataset);
-            this.keyValueStore = createProxy(browserHandles.keyValueStore);
-            if (browserHandles.requestQueue) this.requestQueue = createProxy(browserHandles.requestQueue);
+                // Proxied Node functionality
+                this.globalStore = createProxy(browserHandles.globalStore);
+                this.log = createProxy(browserHandles.log);
+                this.finish = browserHandles.finish;
+                this.requestList = createProxy(browserHandles.requestList);
+                this.dataset = createProxy(browserHandles.dataset);
+                this.keyValueStore = createProxy(browserHandles.keyValueStore);
+                if (browserHandles.requestQueue) this.requestQueue = createProxy(browserHandles.requestQueue);
 
-            Object.assign(this, pageFunctionArguments);
-        }
-
-        skipLinks() {
-            this.log.debug('Skipping links.');
-            this[state].skipLinks = true;
-        }
-
-        skipOutput() {
-            this.log.debug('Skipping output.');
-            this[state].skipOutput = true;
-        }
-
-        enqueuePage(newRequest) {
-            if (!this[setup].useRequestQueue) {
-                throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
+                Object.assign(this, pageFunctionArguments);
             }
-            return this.requestQueue.addRequest(newRequest);
-        }
-    }
 
-    /**
-     * Exposed factory.
-     * @param {Object} options
-     * @returns {Context}
-     */
-    global.Apify.createContext = (options) => {
-        const context = new Context(options);
-        return {
-            context,
-            state: context[state],
+            skipLinks() {
+                this.log.debug('Skipping links.');
+                this[state].skipLinks = true;
+            }
+
+            skipOutput() {
+                this.log.debug('Skipping output.');
+                this[state].skipOutput = true;
+            }
+
+            willFinishLater() {
+                this.log.debug('Marking page function as asynchronous. Crawler will wait for context.finish() function to be called.');
+                this[state].willFinishLater = true;
+            }
+
+            enqueuePage(newRequest) {
+                if (!this[setup].useRequestQueue) {
+                    throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
+                }
+                return this.requestQueue.addRequest(newRequest);
+            }
+        }
+
+        /**
+         * Exposed factory.
+         * @param {Object} options
+         * @returns {Context}
+         */
+        global[namespace].createContext = (options) => {
+            const context = new Context(options);
+            return {
+                context,
+                state: context[state],
+            };
         };
-    };
-}(window));
+    }(window, apifyNamespace));
+};

@@ -3,7 +3,10 @@ const path = require('path');
 const Apify = require('apify');
 const _ = require('underscore');
 const tools = require('./tools');
-const { META_KEY } = require('./consts');
+const { META_KEY, DEFAULT_VIEWPORT } = require('./consts');
+const GlobalStore = require('./global_store');
+const attachContext = require('./context.browser');
+const attachNodeProxy = require('./node_proxy.browser');
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -19,6 +22,10 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
+ * @property {boolean} injectJquery
+ * @property {boolean} injectUnderscore
+ * @property {boolean} downloadMedia
+ * @property {boolean} downloadCSS
  * @property {boolean} ignoreSslErrors
  * @property {number} maxRequestRetries
  * @property {number} maxPagesPerCrawl
@@ -27,6 +34,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} minConcurrency
  * @property {number} maxConcurrency
  * @property {number} pageLoadTimeoutSecs
+ * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
  */
 
@@ -64,6 +72,14 @@ class CrawlerSetup {
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
+
+        // Used to store data that persist navigations
+        this.globalStore = new GlobalStore();
+
+        // Excluded resources
+        this.blockedResources = new Set(['font', 'image', 'media', 'stylesheet']);
+        if (this.input.downloadMedia) ['font', 'image', 'media'].forEach(m => this.blockedResources.delete(m));
+        if (this.input.downloadCSS) this.blockedResources.delete('stylesheet');
 
         // Initialize async operations.
         this.crawler = null;
@@ -103,7 +119,7 @@ class CrawlerSetup {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
-            // handlePageTimeoutSecs: use default,
+            handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             // maxRequestRetries: use default,
@@ -117,7 +133,7 @@ class CrawlerSetup {
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
-                args: ['--enable-resource-load-scheduler=false'],
+                defaultViewport: DEFAULT_VIEWPORT,
             },
         };
 
@@ -127,37 +143,60 @@ class CrawlerSetup {
     }
 
     async _gotoFunction({ request, page }) {
-        // Attach a console listener to get all logs as soon as possible.
-        tools.dumpConsole(page);
-
-        // Create a new page context.
-        const pageContext = {};
+        // Create a new page context with a new random key for Apify namespace.
+        const pageContext = {
+            apifyNamespace: await tools.createRandomHash(),
+        };
         this.pageContexts.set(page, pageContext);
+
+        const blockResources = !!this.blockedResources.size;
+
+        // Enables legacy willFinishLater by injecting a finish function
+        // into the Browser context.
+        pageContext.asyncWrapper = tools.createWillFinishLaterWrapper();
+
+        // Attach a console listener to get all logs as soon as possible.
+        tools.dumpConsole(page, { logResourceLoadErrors: !blockResources });
+
+        // Hide WebDriver before navigation
+        await puppeteer.hideWebDriver(page);
+
+        // Prevent download of stylesheets and media, unless selected otherwise
+        if (blockResources) await puppeteer.blockResources(page, Array.from(this.blockedResources));
 
         // Invoke navigation.
         const response = await page.goto(request.url, { timeout: this.input.pageLoadTimeoutSecs * 1000 });
 
-        // Add Apify namespace to Browser context
-        const browserNamespace = 'Apify'; // TODO make this random
-        await page.evaluate((namespace) => { window[namespace] = {}; }, browserNamespace);
+        // Inject selected libraries
+        if (this.input.injectJquery) await puppeteer.injectJQuery(page);
+        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
 
-        // Attach function handles to the page (they survive navigation).
+        // Attach function handles to the page to enable use of Node.js APIs from Browser context.
         pageContext.browserHandles = {
-            log: await tools.createBrowserHandlesForObject(page, log, ['info', 'debug']),
+            globalStore: await tools.createBrowserHandlesForObject(page, this.globalStore, ['get', 'set', 'size']),
+            log: await tools.createBrowserHandlesForObject(page, log, ['info', 'debug', 'warning', 'error']),
+            finish: await tools.createBrowserHandle(page, pageContext.asyncWrapper.finish),
             requestList: await tools.createBrowserHandlesForObject(page, this.requestList, ['getState', 'isEmpty', 'isFinished']),
             dataset: await tools.createBrowserHandlesForObject(page, this.dataset, ['pushData']),
             keyValueStore: await tools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue']),
         };
         if (this.requestQueue) {
-            pageContext.browserHandles.requestQueue = await tools.createBrowserHandlesForObject(page, this.requestQueue, ['isEmpty', 'isFinished']);
+            pageContext.browserHandles.requestQueue = await tools.createBrowserHandlesForObject(
+                page,
+                this.requestQueue,
+                ['isEmpty', 'isFinished', 'addRequest'],
+            );
         }
+
+        // Add Apify namespace to Browser context
+        await page.evaluate((namespace) => { window[namespace] = {}; }, pageContext.apifyNamespace);
 
         // Inject Context class into the Browser, to be able to
         // construct a context instance later.
-        await puppeteer.injectFile(page, path.join(__dirname, 'context.browser.js'));
-        await puppeteer.injectFile(page, path.join(__dirname, 'node_proxy.browser.js'));
+        await page.evaluate(attachContext, pageContext.apifyNamespace);
+        await page.evaluate(attachNodeProxy, pageContext.apifyNamespace);
 
-        await page.evaluate(tools.wrapPageFunction(browserNamespace, this.input.pageFunction));
+        await page.evaluate(tools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace));
         return response;
     }
 
@@ -183,6 +222,8 @@ class CrawlerSetup {
      * @returns {Function}
      */
     async _handlePageFunction({ request, response, page, puppeteerPool }) {
+        const pageContext = this.pageContexts.get(page);
+
         /**
          * PRE-PROCESSING
          */
@@ -203,21 +244,25 @@ class CrawlerSetup {
         /**
          * USER FUNCTION INVOCATION
          */
-        const { pageFunctionResult, state } = await page.evaluate(async (ctxOpts) => {
+        const namespace = pageContext.apifyNamespace;
+        const { pageFunctionResult, state } = await page.evaluate(async (ctxOpts, namespc) => {
             /* eslint-disable no-shadow */
-            const { context, state } = window.Apify.createContext(ctxOpts);
-            const pageFunctionResult = await window.Apify.pageFunction(context);
+            const { context, state } = window[namespc].createContext(ctxOpts);
+            const pageFunctionResult = await window[namespc].pageFunction(context);
             return {
                 pageFunctionResult,
                 state,
             };
-        }, contextOptions);
+        }, contextOptions, namespace);
 
         /**
          * POST-PROCESSING
          */
+        // Make sure the system waits for the page function to finish
+        // if the user invoked willFinishLater.
+        await this._handleWillFinishLater(page, state);
 
-        // Enqueue more links if Pseudo URLs and a clickable selector are available,
+        // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
         await this._handleLinks(page, state, request);
@@ -233,6 +278,14 @@ class CrawlerSetup {
         log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
         await this.crawler.abort();
         return true;
+    }
+
+    async _handleWillFinishLater(page, state) {
+        if (!state.willFinishLater) return;
+        const { asyncWrapper } = this.pageContexts(page);
+        if (asyncWrapper.finished) return;
+        log.debug('Waiting for context.finish() to be called!');
+        await asyncWrapper.createFinishPromise();
     }
 
     async _handleLinks(page, state, request) {

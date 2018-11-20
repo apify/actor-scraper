@@ -9,7 +9,7 @@
             "description": "URLs to start with",
             "prefill": [
                 { "url": "http://example.com" },
-                { "url": "http://example.com/some-path" }
+                { "url": "http://iana.org" }
             ],
             "editor": "requestListSources"
         },
@@ -36,7 +36,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async ({ $, request }) => {\n    const title = $('title').text();\n    console.log(`Title of ${request.url}: ${title}`);\n    return { title };\n}",
+            "prefill": "async (context) => {\n    const title = document.querySelector('title').textContent;\n    context.log.info(`FROM NODE: ${title}`);\n    console.log('FROM BROWSER:', { title });\n    return { title };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
@@ -54,6 +54,30 @@
             "default": false,
             "groupCaption": "Options",
             "groupDescription": "Crawler settings"
+        },
+        "injectJquery": {
+            "title": "Inject jQuery",
+            "type": "boolean",
+            "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
+            "default": false
+        },
+        "injectUnderscore": {
+            "title": "Inject Underscore",
+            "type": "boolean",
+            "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
+            "default": false
+        },
+        "downloadMedia": {
+            "title": "Download media",
+            "type": "boolean",
+            "description": "Crawler will skip downloading media such as images, fonts, videos and sounds. This helps to speed up the crawl, but may break certain websites.",
+            "default": false
+        },
+        "downloadCss": {
+            "title": "Download CSS",
+            "type": "boolean",
+            "description": "Crawler will skip downloading CSS stylesheets. This helps to speed up the crawl, but may break certain websites.",
+            "default": false
         },
         "ignoreSslErrors": {
             "title": "Ignore SSL errors?",
@@ -95,6 +119,15 @@
             "title": "Page load timeout",
             "type": "integer",
             "description": "Maximum time the crawler will allow a web page to load in seconds.",
+            "minimum": 1,
+            "default": 20,
+            "maximum": 360,
+            "unit": "secs"
+        },
+        "pageFunctionTimeoutSecs": {
+            "title": "Page function timeout",
+            "type": "integer",
+            "description": "Maximum time the crawler will wait for the page function to execute in seconds.",
             "minimum": 1,
             "default": 20,
             "maximum": 360,

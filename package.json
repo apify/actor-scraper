@@ -11,6 +11,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/puppeteer": "^1.10.0",
+    "@types/underscore": "^1.8.9",
     "chai": "^4.2.0",
     "eslint": "^5.8.0",
     "eslint-config-airbnb": "^17.1.0",
