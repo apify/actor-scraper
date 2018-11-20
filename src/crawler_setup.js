@@ -122,7 +122,7 @@ class CrawlerSetup {
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
-            // maxRequestRetries: use default,
+            maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             // maxOpenPagesPerInstance: use default,
             // retireInstanceAfterRequestCount: use default,
