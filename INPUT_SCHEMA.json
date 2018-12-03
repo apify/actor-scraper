@@ -24,7 +24,10 @@
             "type": "array",
             "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the crawler where to find links.",
             "editor": "pseudoUrls",
-            "default": []
+            "default": [],
+            "prefill": {
+                "purl": "https://www.iana.org/[((?!\\.pdf$).)*]"
+            }
         },
         "linkSelector": {
             "title": "Link selector",

@@ -136,7 +136,7 @@ describe('Tools using Puppeteer:', () => {
         });
 
         it('should work', async () => {
-            const page = await browser.newPage();
+            let page = await browser.newPage();
 
             const debug = sinon.spy(log, 'debug');
             const info = sinon.spy(log, 'info');
@@ -159,6 +159,16 @@ describe('Tools using Puppeteer:', () => {
             expect(debug.withArgs('debug').calledOnce).to.be.eql(true);
             expect(info.withArgs('info').calledThrice).to.be.eql(true);
             expect(warning.withArgs('warning').calledOnce).to.be.eql(true);
+            expect(error.withArgs('error').called).to.be.eql(false);
+
+            page = await browser.newPage();
+            tools.dumpConsole(page, { logErrors: true });
+            await page.evaluate(async () => {
+                /* eslint-disable no-console */
+                console.error('error');
+                await new Promise(r => setTimeout(r, 10));
+            });
+
             expect(error.withArgs('error').calledOnce).to.be.eql(true);
 
             await browser.close();
@@ -177,52 +187,6 @@ describe('Tools - Other:', () => {
             expect(meta.depth).to.be.eql(0);
             expect(meta.parentRequestId).to.be.eql(null);
             expect(meta.childRequestIds).to.be.eql({});
-        });
-    });
-
-    describe('tools.addDepthMetadataToPurls()', () => {
-        it('should work', () => {
-            const request = new Apify.Request({ url: 'https://www.example.com', id: 'some-id' });
-            tools.ensureMetaData(request);
-
-            const emptyPurls = [
-                { purl: 'https://www.example.com/one' },
-                { purl: 'https://www.example.com/two' },
-                { purl: 'https://www.example.com/three' },
-            ];
-            const emptyJSON = JSON.stringify(emptyPurls);
-
-            const withDepth = tools.addDepthMetadataToPurls(emptyPurls, request);
-            withDepth.forEach((purl) => {
-                expect(purl.userData[META_KEY]).to.be.an('object');
-                const meta = purl.userData[META_KEY];
-                expect(meta.depth).to.be.eql(1);
-                expect(meta.parentRequestId).to.be.eql('some-id');
-                expect(meta.childRequestIds).to.be.eql({});
-            });
-
-            const purlsWithData = [
-                { purl: 'https://www.example.com/one', userData: { one: 1 } },
-                { purl: 'https://www.example.com/two', userData: { two: 2 } },
-                { purl: 'https://www.example.com/three' },
-            ];
-            const dataJSON = JSON.stringify(purlsWithData);
-
-            const withData = tools.addDepthMetadataToPurls(purlsWithData, request);
-            withDepth.forEach((purl) => {
-                expect(purl.userData[META_KEY]).to.be.an('object');
-                expect(purl.userData[META_KEY]).to.be.an('object');
-                const meta = purl.userData[META_KEY];
-                expect(meta.depth).to.be.eql(1);
-                expect(meta.parentRequestId).to.be.eql('some-id');
-                expect(meta.childRequestIds).to.be.eql({});
-            });
-            expect(withData[0].userData.one).to.be.eql(1);
-            expect(withData[1].userData.two).to.be.eql(2);
-
-            // Check that original objects were not modified.
-            expect(emptyJSON).to.be.eql(JSON.stringify(emptyPurls));
-            expect(dataJSON).to.be.eql(JSON.stringify(purlsWithData));
         });
     });
 });

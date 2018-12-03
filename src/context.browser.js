@@ -21,14 +21,14 @@ module.exports = (apifyNamespace) => {
          * @param {Object} options
          * @param {Object} options.crawlerSetup
          * @param {Object} options.browserHandles
-         * @param {Object} [options.pageFunctionArguments]
+         * @param {Object} options.pageFunctionArguments
          */
         class Context {
             constructor(options) {
                 const {
                     crawlerSetup,
                     browserHandles,
-                    pageFunctionArguments = {},
+                    pageFunctionArguments,
                 } = options;
 
                 const createProxy = global[namespace].createNodeProxy;
@@ -45,19 +45,25 @@ module.exports = (apifyNamespace) => {
                 this.input = crawlerSetup.rawInput;
                 this.env = Object.assign({}, crawlerSetup.env);
                 this.customData = crawlerSetup.customData;
+                this.request = pageFunctionArguments.request;
+                this.response = pageFunctionArguments.response;
                 if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
                 if (this[setup].injectUnderscore) this.underscoreJs = global._.noConflict();
 
                 // Proxied Node functionality
+                this.finish = (...args) => global[browserHandles.finish](...args);
+                this.saveSnapshot = () => global[browserHandles.saveSnapshot]();
                 this.globalStore = createProxy(browserHandles.globalStore);
                 this.log = createProxy(browserHandles.log);
-                this.finish = (...args) => global[browserHandles.finish](...args);
                 this.requestList = createProxy(browserHandles.requestList);
                 this.dataset = createProxy(browserHandles.dataset);
                 this.keyValueStore = createProxy(browserHandles.keyValueStore);
                 if (browserHandles.requestQueue) this.requestQueue = createProxy(browserHandles.requestQueue);
 
-                Object.assign(this, pageFunctionArguments);
+                this.request.doNotRetry = (message) => {
+                    this.noRetry = true;
+                    if (message) throw new Error(message);
+                };
             }
 
             skipLinks() {
@@ -75,20 +81,9 @@ module.exports = (apifyNamespace) => {
                 this[state].willFinishLater = true;
             }
 
-            enqueuePage(request) {
+            async enqueuePage(request) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
-                }
-                // Backwards compatibility hack to support Crawler codebase.
-                if (request.label) {
-                    if (request.userData && !request.userData.label) {
-                        request.userData.label = request.label;
-                    }
-                    if (!request.userData) {
-                        request.userData = {
-                            label: request.label,
-                        };
-                    }
                 }
                 return this.requestQueue.addRequest(request);
             }

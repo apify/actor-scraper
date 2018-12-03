@@ -20,6 +20,10 @@ class GlobalStore {
     size() {
         return Object.keys(this.store).length;
     }
+
+    list() {
+        return Object.keys(this.store);
+    }
 }
 
 module.exports = GlobalStore;

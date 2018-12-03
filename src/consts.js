@@ -3,7 +3,7 @@
  * such as crawling depth are stored on the Request object.
  * @type {string}
  */
-exports.META_KEY = '_crawler-run-metadata_';
+exports.META_KEY = '__crawler-run-metadata';
 
 /**
  * The default resolution to be used by the browser instances.
@@ -33,3 +33,16 @@ exports.PAGE_FUNCTION_FILENAME = 'page_function.js';
  * @type {number}
  */
 exports.DEVTOOLS_TIMEOUT_SECS = 3600;
+
+/**
+ * Represents the keys under which saveSnapshot() will
+ * persist to key value store and the throttling timeout.
+ * @type {{KEYS: Object, TIMEOUT_SECS: number}}
+ */
+exports.SNAPSHOT = {
+    KEYS: {
+        HTML: 'SNAPSHOT-HTML',
+        SCREENSHOT: 'SNAPSHOT-SCREENSHOT',
+    },
+    TIMEOUT_SECS: 2,
+};
