@@ -59,11 +59,6 @@ module.exports = (apifyNamespace) => {
                 this.dataset = createProxy(browserHandles.dataset);
                 this.keyValueStore = createProxy(browserHandles.keyValueStore);
                 if (browserHandles.requestQueue) this.requestQueue = createProxy(browserHandles.requestQueue);
-
-                this.request.doNotRetry = (message) => {
-                    this.noRetry = true;
-                    if (message) throw new Error(message);
-                };
             }
 
             skipLinks() {

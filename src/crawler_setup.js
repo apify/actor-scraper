@@ -266,6 +266,14 @@ class CrawlerSetup {
         const namespace = pageContext.apifyNamespace;
         const { pageFunctionResult, state, requestFromBrowser } = await page.evaluate(async (ctxOpts, namespc) => {
             /* eslint-disable no-shadow */
+
+            // Functions are not converted so we need to add this one
+            // and remove it later (because of App Request schema).
+            ctxOpts.pageFunctionArguments.request.doNotRetry = (message) => {
+                ctxOpts.pageFunctionArguments.request.noRetry = true;
+                if (message) throw new Error(message);
+            };
+
             const { context, state } = window[namespc].createContext(ctxOpts);
             const pageFunctionResult = await window[namespc].pageFunction(context);
             return {
@@ -275,16 +283,17 @@ class CrawlerSetup {
             };
         }, contextOptions, namespace);
 
-        // Merge requestFromBrowser into request to preserve modifications that
-        // may have been made in browser context.
-        Object.assign(request, requestFromBrowser);
-
         /**
          * POST-PROCESSING
          */
         // Make sure the system waits for the page function to finish
         // if the user invoked willFinishLater.
         const result = await this._handleWillFinishLater({ page, state, request, pageFunctionResult });
+
+        // Merge requestFromBrowser into request to preserve modifications that
+        // may have been made in browser context.
+        delete requestFromBrowser.doNotRetry;
+        Object.assign(request, requestFromBrowser);
 
         // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
