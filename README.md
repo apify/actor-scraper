@@ -4,7 +4,12 @@
 
 - [How it works](#how-it-works)
 - [Input](#input)
-  * [Page function](#page-function)
+- [Page function](#page-function)
+  * [`context`](#context)
+    + [Data structures:](#data-structures)
+    + [Functions:](#functions)
+    + [Class instances:](#class-instances)
+      - [Global Store](#global-store)
 - [Output](#output)
   * [Dataset](#dataset)
 
