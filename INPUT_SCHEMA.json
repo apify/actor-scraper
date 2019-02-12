@@ -153,5 +153,5 @@
             "editor": "json"
         }
     },
-    "required": ["startUrls", "pageFunction", "maxPagesPerCrawl"]
+    "required": ["startUrls", "pageFunction"]
 }
