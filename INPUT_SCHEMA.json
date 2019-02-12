@@ -34,7 +34,7 @@
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from '<a href=...> tags, you would enter 'a'.",
+            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from '&lt;div class="my-class" href=...&gt;' tags, you would enter 'div.my-class'.",
             "editor": "textfield",
             "prefill": "a"
         },
