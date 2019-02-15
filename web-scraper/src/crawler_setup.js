@@ -1,11 +1,14 @@
-/* eslint-disable class-methods-use-this */
 const Apify = require('apify');
 const _ = require('underscore');
-const tools = require('./tools');
-const { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS } = require('./consts');
-const GlobalStore = require('./global_store');
-const attachContext = require('./context.browser');
-const attachNodeProxy = require('./node_proxy.browser');
+const {
+    tools,
+    browserTools,
+    GlobalStore,
+    browser: { attachContext, attachNodeProxy },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
+} = require('@apify/scraper-tools');
+
+const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -43,6 +46,7 @@ const { utils: { log, puppeteer } } = Apify;
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
+    /* eslint-disable class-methods-use-this */
     constructor(input, environment) {
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
@@ -51,7 +55,7 @@ class CrawlerSetup {
         tools.maybeLoadPageFunctionFromDisk(input);
 
         // Validate INPUT if not running on Apify Cloud Platform.
-        if (!Apify.isAtHome()) tools.checkInputOrThrow(input);
+        if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
 
         /**
          * @type {Input}
@@ -98,8 +102,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = new Apify.RequestList({ sources: this.input.startUrls });
-        await this.requestList.initialize();
+        this.requestList = await Apify.openRequestList('WEB-SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -158,10 +161,10 @@ class CrawlerSetup {
 
         // Enables legacy willFinishLater by injecting a finish function
         // into the Browser context.
-        pageContext.asyncWrapper = tools.createWillFinishLaterWrapper();
+        pageContext.asyncWrapper = browserTools.createWillFinishLaterWrapper();
 
         // Attach a console listener to get all logs as soon as possible.
-        if (this.input.browserLog) tools.dumpConsole(page);
+        if (this.input.browserLog) browserTools.dumpConsole(page);
 
         // Hide WebDriver before navigation
         await puppeteer.hideWebDriver(page);
@@ -180,16 +183,16 @@ class CrawlerSetup {
 
         // Attach function handles to the page to enable use of Node.js APIs from Browser context.
         pageContext.browserHandles = {
-            finish: await tools.createBrowserHandle(page, pageContext.asyncWrapper.finish),
-            saveSnapshot: await tools.createBrowserHandle(page, () => tools.saveSnapshot(page)),
-            globalStore: await tools.createBrowserHandlesForObject(page, this.globalStore, ['get', 'set', 'size', 'list']),
-            log: await tools.createBrowserHandlesForObject(page, log, ['info', 'debug', 'warning', 'error']),
-            requestList: await tools.createBrowserHandlesForObject(page, this.requestList, ['getState', 'isEmpty', 'isFinished']),
-            dataset: await tools.createBrowserHandlesForObject(page, this.dataset, ['pushData']),
-            keyValueStore: await tools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue']),
+            finish: await browserTools.createBrowserHandle(page, pageContext.asyncWrapper.finish),
+            saveSnapshot: await browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot(page)),
+            globalStore: await browserTools.createBrowserHandlesForObject(page, this.globalStore, ['get', 'set', 'size', 'list']),
+            log: await browserTools.createBrowserHandlesForObject(page, log, ['info', 'debug', 'warning', 'error']),
+            requestList: await browserTools.createBrowserHandlesForObject(page, this.requestList, ['getState', 'isEmpty', 'isFinished']),
+            dataset: await browserTools.createBrowserHandlesForObject(page, this.dataset, ['pushData']),
+            keyValueStore: await browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue']),
         };
         if (this.requestQueue) {
-            pageContext.browserHandles.requestQueue = await tools.createBrowserHandlesForObject(
+            pageContext.browserHandles.requestQueue = await browserTools.createBrowserHandlesForObject(
                 page,
                 this.requestQueue,
                 ['isEmpty', 'isFinished', 'addRequest'],
@@ -204,7 +207,7 @@ class CrawlerSetup {
         await page.evaluate(attachContext, pageContext.apifyNamespace);
         await page.evaluate(attachNodeProxy, pageContext.apifyNamespace);
 
-        await page.evaluate(tools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace));
+        await page.evaluate(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace));
         return response;
     }
 
@@ -333,7 +336,15 @@ class CrawlerSetup {
             return;
         }
         const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
-        if (canEnqueue) await tools.enqueueLinks(page, this.input.linkSelector, this.input.pseudoUrls, this.requestQueue, request);
+        if (canEnqueue) {
+            await browserTools.enqueueLinks({
+                page,
+                linkSelector: this.input.linkSelector,
+                pseudoUrls: this.input.pseudoUrls,
+                requestQueue: this.requestQueue,
+                parentRequest: request,
+            });
+        }
     }
 
     async _handleResult(request, pageFunctionResult, isError) {

@@ -1,14 +1,16 @@
 const fs = require('fs-extra');
 const path = require('path');
-const Apify = require('apify');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const _ = require('underscore');
+const Apify = require('apify');
 
 const tools = require('../src/tools');
+const browserTools = require('../src/browser_tools');
 const { META_KEY } = require('../src/consts');
 
 const { utils: { log } } = Apify;
+
 
 const LOCAL_STORAGE_DIR = path.join(__dirname, 'tmp');
 
@@ -34,7 +36,7 @@ const PAGE_CONTENT = `
     </body>
 </html>`;
 
-describe('Tools using Puppeteer:', () => {
+describe('browserTools.', () => {
     let browser;
     before(async () => {
         fs.ensureDirSync(LOCAL_STORAGE_DIR);
@@ -47,7 +49,7 @@ describe('Tools using Puppeteer:', () => {
         await browser.close();
     });
 
-    describe('tools.enqueueLinks()', () => {
+    describe('enqueueLinks()', () => {
         it('should work', async () => {
             const page = await browser.newPage();
             await page.setContent(PAGE_CONTENT);
@@ -63,10 +65,10 @@ describe('Tools using Puppeteer:', () => {
                 return { requestId: `some-${++id}` };
             };
 
-            const request = new Apify.Request({ id: 'parent', url: 'https://www.example.com' });
-            tools.ensureMetaData(request);
+            const parentRequest = new Apify.Request({ id: 'parent', url: 'https://www.example.com' });
+            tools.ensureMetaData(parentRequest);
 
-            await tools.enqueueLinks(page, linkSelector, pseudoUrls, requestQueue, request);
+            await browserTools.enqueueLinks({ page, linkSelector, pseudoUrls, requestQueue, parentRequest });
 
             expect(requestQueue.requests).to.have.lengthOf(3);
             requestQueue.requests.forEach((r) => {
@@ -74,29 +76,29 @@ describe('Tools using Puppeteer:', () => {
                 expect(r.userData[META_KEY].parentRequestId).to.be.eql('parent');
                 expect(r.userData[META_KEY].childRequestIds).to.be.eql({});
             });
-            const children = Object.keys(request.userData[META_KEY].childRequestIds);
+            const children = Object.keys(parentRequest.userData[META_KEY].childRequestIds);
             expect(children).to.have.lengthOf(3);
             children.forEach(c => expect(/^some-[123]$/.test(c)).to.be.eql(true));
         });
     });
 
-    describe('tools.createBrowserHandle()', () => {
+    describe('createBrowserHandle()', () => {
         it('should work', async () => {
             const page = await browser.newPage();
-            const handle = await tools.createBrowserHandle(page, () => 42);
+            const handle = await browserTools.createBrowserHandle(page, () => 42);
             const result = await page.evaluate(browserHandle => window[browserHandle](), handle);
             expect(result).to.be.eql(42);
         });
     });
 
-    describe('tools.createBrowserHandlesForObject', () => {
+    describe('createBrowserHandlesForObject', () => {
         it('should work', async () => {
             const page = await browser.newPage();
 
             const instance = await Apify.openKeyValueStore();
             const methods = ['getValue', 'setValue'];
 
-            const handlesMap = await tools.createBrowserHandlesForObject(page, instance, methods);
+            const handlesMap = await browserTools.createBrowserHandlesForObject(page, instance, methods);
 
             expect(handlesMap.getValue).to.be.a('string');
             expect(handlesMap.setValue).to.be.a('string');
@@ -130,7 +132,7 @@ describe('Tools using Puppeteer:', () => {
         });
     });
 
-    describe('tools.dumpConsole()', () => {
+    describe('dumpConsole()', () => {
         afterEach(() => {
             sinon.restore();
         });
@@ -143,7 +145,7 @@ describe('Tools using Puppeteer:', () => {
             const warning = sinon.spy(log, 'warning');
             const error = sinon.spy(log, 'error');
 
-            tools.dumpConsole(page);
+            browserTools.dumpConsole(page);
             await page.evaluate(async () => {
                 /* eslint-disable no-console */
                 console.log('info');
@@ -162,7 +164,7 @@ describe('Tools using Puppeteer:', () => {
             expect(error.withArgs('error').called).to.be.eql(false);
 
             page = await browser.newPage();
-            tools.dumpConsole(page, { logErrors: true });
+            browserTools.dumpConsole(page, { logErrors: true });
             await page.evaluate(async () => {
                 /* eslint-disable no-console */
                 console.error('error');
@@ -172,21 +174,6 @@ describe('Tools using Puppeteer:', () => {
             expect(error.withArgs('error').calledOnce).to.be.eql(true);
 
             await browser.close();
-        });
-    });
-});
-
-describe('Tools - Other:', () => {
-    describe('tools.ensureMetaData()', () => {
-        it('should work', () => {
-            const request = new Apify.Request({ url: 'https://www.example.com' });
-            tools.ensureMetaData(request);
-
-            expect(request.userData[META_KEY]).to.be.an('object');
-            const meta = request.userData[META_KEY];
-            expect(meta.depth).to.be.eql(0);
-            expect(meta.parentRequestId).to.be.eql(null);
-            expect(meta.childRequestIds).to.be.eql({});
         });
     });
 });

@@ -1,5 +1,5 @@
 /**
- * Node.js side factory for Browser side code.
+ * Command to be evaluated for Browser side code injection.
  * @param apifyNamespace
  */
 module.exports = (apifyNamespace) => {

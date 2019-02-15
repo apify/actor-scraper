@@ -1,11 +1,11 @@
 {
-  "name": "actor-crawler",
+  "name": "actor-web-scraper",
   "version": "1.0.0",
-  "description": "Crawl a number of web pages using headless Chrome and Puppeteer",
+  "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "ajv": "^6.5.5",
-    "apify": "^0.9.15",
+    "apify": "^0.11.8",
+    "@apify/scraper-tools": "^0.0.1",
     "underscore": "^1.9.1"
   },
   "devDependencies": {

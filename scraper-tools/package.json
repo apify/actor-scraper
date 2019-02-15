@@ -1,0 +1,52 @@
+{
+  "name": "@apify/scraper-tools",
+  "version": "0.0.1",
+  "description": "Tools shared by Apify actor-scrapers.",
+  "main": "src/main.js",
+  "dependencies": {
+    "ajv": "^6.5.5",
+    "underscore": "^1.9.1"
+  },
+  "peerDependencies": {
+    "apify": "^0.11.8"
+  },
+  "devDependencies": {
+    "apify": "^0.11.8",
+    "@types/fs-extra": "^5.0.4",
+    "@types/puppeteer": "^1.10.0",
+    "@types/underscore": "^1.8.9",
+    "chai": "^4.2.0",
+    "eslint": "^5.8.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-react": "^7.11.1",
+    "fs-extra": "^7.0.1",
+    "markdown-toc": "^1.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "sinon": "^7.1.1"
+  },
+  "scripts": {
+    "start": "node main.js",
+    "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
+    "lint": "eslint src test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apifytech/actor-crawler"
+  },
+  "author": {
+    "name": "Apify",
+    "email": "support@apify.com",
+    "url": "https://www.apify.com"
+  },
+  "contributors": [
+    "Marek Trunkat <marek@apify.com>",
+    "Ondra Urban <ondra@apify.com>"
+  ],
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/apifytech/actor-crawler"
+}

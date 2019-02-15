@@ -12,6 +12,10 @@
       - [Global Store](#global-store)
 - [Output](#output)
   * [Dataset](#dataset)
+- [Input attributes](#input-attributes)
+    + [Crawler compatible attributes](#crawler-compatible-attributes)
+    + [Additional attributes](#additional-attributes)
+- [Local usage](#local-usage)
 
 <!-- tocstop -->
 
