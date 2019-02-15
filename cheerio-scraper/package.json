@@ -1,0 +1,48 @@
+{
+	"name": "actor-cheerio-scraper",
+	"version": "1.0.0",
+	"description": "Crawl web pages using HTTP requests and Cheerio",
+	"main": "src/main.js",
+	"dependencies": {
+		"apify": "^0.11.8",
+		"@mnmkng/scraper-tools": "^0.0.3",
+		"underscore": "^1.9.1"
+	},
+	"devDependencies": {
+		"@types/puppeteer": "^1.10.0",
+		"chai": "^4.2.0",
+		"eslint": "^5.8.0",
+		"eslint-config-airbnb": "^17.1.0",
+		"eslint-config-airbnb-base": "^13.1.0",
+		"eslint-plugin-import": "^2.14.0",
+		"eslint-plugin-jsx-a11y": "^6.1.2",
+		"eslint-plugin-promise": "^4.0.1",
+		"eslint-plugin-react": "^7.11.1",
+		"markdown-toc": "^1.2.0",
+		"mocha": "^5.2.0",
+		"nyc": "^13.1.0",
+		"sinon": "^7.1.1"
+	},
+	"scripts": {
+		"start": "node main.js",
+		"build-toc": "./node_modules/.bin/markdown-toc README.md -i",
+		"test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
+		"prepare": "npm run build-toc",
+		"lint": "eslint src test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/apifytech/actor-crawler-cheerio"
+	},
+	"author": {
+		"name": "Apify",
+		"email": "support@apify.com",
+		"url": "https://www.apify.com"
+	},
+	"contributors": [
+		"Marek Trunkat <marek@apify.com>",
+		"Ondra Urban <ondra@apify.com>"
+	],
+	"license": "Apache-2.0",
+	"homepage": "https://github.com/apifytech/actor-crawler-cheerio"
+}
