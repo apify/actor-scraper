@@ -1,56 +1,51 @@
 {
-  "name": "act-crawler",
-  "version": "0.0.1",
-  "description": "Web crawler running at Apify platform.",
-  "main": "main.js",
+  "name": "actor-crawler",
+  "version": "1.0.0",
+  "description": "Crawl a number of web pages using headless Chrome and Puppeteer",
+  "main": "src/main.js",
+  "dependencies": {
+    "ajv": "^6.5.5",
+    "apify": "^0.9.15",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
+    "@types/puppeteer": "^1.10.0",
+    "@types/underscore": "^1.8.9",
+    "chai": "^4.2.0",
+    "eslint": "^5.8.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-react": "^7.11.1",
+    "fs-extra": "^7.0.1",
+    "markdown-toc": "^1.2.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.1.0",
+    "sinon": "^7.1.1"
+  },
   "scripts": {
-    "local": "npm run build && APIFY_DEV_KEY_VALUE_STORE_DIR=./kv-store-dev/ node main.js",
-    "build": "babel src --out-dir build",
-    "test": "npm run build && mocha --timeout 5000 --compilers js:babel-core/register --recursive",
-    "clean": "rm -rf build && rm -rf docs",
+    "start": "node main.js",
+    "build-toc": "./node_modules/.bin/markdown-toc README.md -i",
+    "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
+    "prepare": "npm run build-toc",
     "lint": "eslint src test"
   },
   "repository": {
     "type": "git",
-    "url": "@TODO"
+    "url": "https://github.com/apifytech/actor-crawler"
   },
-  "dependencies": {
-    "apify": "^0.4.36",
-    "apify-client": "^0.1.59",
-    "babel-polyfill": "^6.26.0",
-    "bluebird": "^3.5.1",
-    "event-loop-stats": "^1.0.0",
-    "jquery": "^3.2.1",
-    "proxy-chain": "^0.1.12",
-    "puppeteer": "^0.13.0",
-    "request": "^2.83.0",
-    "request-promise": "^4.2.2",
-    "type-check": "^0.3.2",
-    "underscore": "^1.8.3",
-    "uuid": "^3.1.0"
+  "author": {
+    "name": "Apify",
+    "email": "support@apify.com",
+    "url": "https://www.apify.com"
   },
-  "devDependencies": {
-    "babel-cli": "^6.6.5",
-    "babel-core": "^6.1.21",
-    "babel-eslint": "^7.2.2",
-    "babel-preset-import-export": "^1.0.2",
-    "chai": "^3.4.1",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb": "^14.1.0",
-    "eslint-config-airbnb-base": "^11.1.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-promise": "^3.4.2",
-    "eslint-plugin-react": "^6.10.3",
-    "mocha": "^3.2.0",
-    "sinon": "^2.2.0"
-  },
-  "keywords": [
-    "crawler",
-    "apify",
-    "act",
-    "scraper"
+  "contributors": [
+    "Marek Trunkat <marek@apify.com>",
+    "Ondra Urban <ondra@apify.com>"
   ],
-  "author": "Marek Trunkát",
-  "license": "ALv2"
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/apifytech/actor-crawler"
 }
