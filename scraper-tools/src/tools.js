@@ -1,4 +1,5 @@
 const fs = require('fs');
+const vm = require('vm');
 const path = require('path');
 const crypto = require('crypto');
 const { promisify } = require('util');
@@ -22,7 +23,7 @@ const evalPageFunctionOrThrow = (funcString) => {
     try {
         func = vm.runInThisContext(funcString);
     } catch (err) {
-        throw new Error(`Compilation of pageFunction failed.\n${err.stack.substr(err.stack.indexOf('\n'))}`);
+        throw new Error(`Compilation of pageFunction failed.\n${err.message}\n${err.stack.substr(err.stack.indexOf('\n'))}`);
     }
 
     if (!_.isFunction(func)) throw new Error('Input parameter "pageFunction" is not a function!');

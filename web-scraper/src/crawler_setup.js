@@ -6,7 +6,7 @@ const {
     GlobalStore,
     browser: { attachContext, attachNodeProxy },
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
-} = require('@apify/scraper-tools');
+} = require('@mnmkng/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
 

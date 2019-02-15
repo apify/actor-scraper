@@ -1,10 +1,15 @@
-/* eslint-disable class-methods-use-this */
 const Apify = require('apify');
 const _ = require('underscore');
-const tools = require('./tools');
-const { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS } = require('./consts');
-const GlobalStore = require('./global_store');
-const { createContext } = require('../../scraper-tools/src/context');
+const {
+    tools,
+    browserTools,
+    createContext,
+    GlobalStore,
+    browser: { attachContext, attachNodeProxy },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
+} = require('@mnmkng/scraper-tools');
+
+const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -42,6 +47,7 @@ const { utils: { log, puppeteer } } = Apify;
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
+    /* eslint-disable class-methods-use-this */
     constructor(input, environment) {
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
@@ -50,7 +56,7 @@ class CrawlerSetup {
         tools.maybeLoadPageFunctionFromDisk(input);
 
         // Validate INPUT if not running on Apify Cloud Platform.
-        if (!Apify.isAtHome()) tools.checkInputOrThrow(input);
+        if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
 
         /**
          * @type {Input}
@@ -97,8 +103,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = new Apify.RequestList({ sources: this.input.startUrls });
-        await this.requestList.initialize();
+        this.requestList = await Apify.openRequestList('PUPPETEER-SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -149,7 +154,7 @@ class CrawlerSetup {
 
     async _gotoFunction({ request, page }) {
         // Attach a console listener to get all logs from Browser context.
-        if (this.input.browserLog) tools.dumpConsole(page);
+        if (this.input.browserLog) browserTools.dumpConsole(page);
 
         // Hide WebDriver before navigation
         await puppeteer.hideWebDriver(page);
@@ -236,7 +241,15 @@ class CrawlerSetup {
             return;
         }
         const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
-        if (canEnqueue) await tools.enqueueLinks(page, this.input.linkSelector, this.input.pseudoUrls, this.requestQueue, request);
+        if (canEnqueue) {
+            await browserTools.enqueueLinks({
+                page,
+                linkSelector: this.input.linkSelector,
+                pseudoUrls: this.input.pseudoUrls,
+                requestQueue: this.requestQueue,
+                parentRequest: request,
+            });
+        }
     }
 
     async _handleResult(request, pageFunctionResult, isError) {

@@ -175,7 +175,7 @@ const saveSnapshot = async (page) => {
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
-        log.warning('Aborting saveSnapshot(). It can only be invoked once'
+        log.warning('Aborting saveSnapshot(). It can only be invoked once '
                 + `in ${SNAPSHOT.TIMEOUT_SECS} secs to prevent database overloading.`);
         return;
     }
