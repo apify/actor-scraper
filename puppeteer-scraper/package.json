@@ -1,17 +1,14 @@
 {
-  "name": "@apify/scraper-tools",
-  "version": "0.0.1",
-  "description": "Tools shared by Apify actor-scrapers.",
+  "name": "actor-puppeteer-scraper",
+  "version": "1.0.0",
+  "description": "Crawl a number of web pages using headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "ajv": "^6.5.5",
+    "apify": "^0.11.8",
+    "@apify/scraper-tools": "^0.0.1",
     "underscore": "^1.9.1"
   },
-  "peerDependencies": {
-    "apify": "^0.11.8"
-  },
   "devDependencies": {
-    "apify": "^0.11.8",
     "@types/fs-extra": "^5.0.4",
     "@types/puppeteer": "^1.10.0",
     "@types/underscore": "^1.8.9",
@@ -31,7 +28,9 @@
   },
   "scripts": {
     "start": "node main.js",
+    "build-toc": "./node_modules/.bin/markdown-toc README.md -i",
     "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
+    "prepare": "npm run build-toc",
     "lint": "eslint src test"
   },
   "repository": {
@@ -48,9 +47,5 @@
     "Ondra Urban <ondra@apify.com>"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/apifytech/actor-crawler",
-  "files": [
-    "src",
-    "index.js"
-  ]
+  "homepage": "https://github.com/apifytech/actor-crawler"
 }

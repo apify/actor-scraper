@@ -12,6 +12,25 @@ const { utils: { log } } = Apify;
 const randomBytes = promisify(crypto.randomBytes);
 
 /**
+ * Transforms a page function string into a Function object.
+ * @param {string} funcString
+ * @return {Function}
+ */
+const evalPageFunctionOrThrow = (funcString) => {
+    let func;
+
+    try {
+        func = vm.runInThisContext(funcString);
+    } catch (err) {
+        throw new Error(`Compilation of pageFunction failed.\n${err.stack.substr(err.stack.indexOf('\n'))}`);
+    }
+
+    if (!_.isFunction(func)) throw new Error('Input parameter "pageFunction" is not a function!');
+
+    return func;
+};
+
+/**
  * Validates the INPUT using the AJV library against the schema.
  *
  * @param {Object} input
@@ -133,6 +152,7 @@ const maybeLoadPageFunctionFromDisk = (input) => {
 };
 
 module.exports = {
+    evalPageFunctionOrThrow,
     checkInputOrThrow,
     ensureMetaData,
     createDatasetPayload,
