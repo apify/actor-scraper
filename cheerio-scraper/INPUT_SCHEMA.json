@@ -8,7 +8,8 @@
             "type": "array",
             "description": "URLs to start with",
             "prefill": [
-                { "url": "https://www.iana.org/" }
+                { "url": "http://example.com" },
+                { "url": "http://iana.org" }
             ],
             "editor": "requestListSources"
         },
@@ -23,14 +24,17 @@
             "type": "array",
             "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the crawler where to find links.",
             "editor": "pseudoUrls",
+            "default": [],
             "prefill": [
-                { "purl": "https://www.iana.org[.*]" }
+                {
+                    "purl": "https://www.iana.org/[((?!\\.pdf$).)*]"
+                }
             ]
         },
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from '<a href=...> tags, you would enter 'a'.",
+            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from '&lt;div class=\"my-class\" href=...&gt;' tags, you would enter 'div.my-class'.",
             "editor": "textfield",
             "prefill": "a"
         },
@@ -79,44 +83,26 @@
             "unit": "pages"
         },
         "maxResultsPerCrawl": {
-          "title": "Max result records",
-          "type": "integer",
-          "description": "Maximum number of results that will be saved to dataset. The crawler will terminate afterwards. 0 means unlimited.",
-          "minimum": 0,
-          "default": 0,
-          "unit": "results"
+            "title": "Max result records",
+            "type": "integer",
+            "description": "Maximum number of results that will be saved to dataset. The crawler will terminate afterwards. 0 means unlimited.",
+            "minimum": 0,
+            "default": 0,
+            "unit": "results"
         },
         "maxCrawlingDepth": {
-          "title": "Max crawling depth",
-          "type": "integer",
-          "description": "Defines how many links away from the StartURLs will the crawler descend. 0 means unlimited.",
-          "minimum": 0,
-          "default": 0
-        },
-        "minConcurrency": {
-            "title": "Min parallel crawling jobs",
+            "title": "Max crawling depth",
             "type": "integer",
-            "description": "Maximum number of pages that the crawler will open.",
-            "minimum": 1,
-            "default": 5,
-            "maximum": 20,
-            "unit": "parallels"
-        },
-        "maxConcurrency": {
-            "title": "Max parallel crawling jobs",
-            "type": "integer",
-            "description": "Maximum number of pages that the crawler will open.",
-            "minimum": 1,
-            "default": 25,
-            "maximum": 250,
-            "unit": "parallels"
+            "description": "Defines how many links away from the StartURLs will the crawler descend. 0 means unlimited.",
+            "minimum": 0,
+            "default": 0
         },
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
             "description": "Maximum time the crawler will allow a web page to load in seconds.",
             "minimum": 1,
-            "default": 20,
+            "default": 60,
             "maximum": 360,
             "unit": "secs"
         },
@@ -125,7 +111,7 @@
             "type": "integer",
             "description": "Maximum time the crawler will wait for the page function to execute in seconds.",
             "minimum": 1,
-            "default": 20,
+            "default": 60,
             "maximum": 360,
             "unit": "secs"
         },
@@ -137,5 +123,5 @@
             "editor": "json"
         }
     },
-    "required": ["startUrls", "pageFunction", "maxPagesPerCrawl"]
+    "required": ["startUrls", "pageFunction"]
 }

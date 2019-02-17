@@ -3,7 +3,7 @@ const _ = require('underscore');
 const Apify = require('apify');
 
 const tools = require('./tools');
-const { META_KEY, RESOURCE_LOAD_ERROR_MESSAGE, SNAPSHOT } = require('./consts');
+const { RESOURCE_LOAD_ERROR_MESSAGE, SNAPSHOT } = require('./consts');
 
 const { utils: { log } } = Apify;
 
@@ -17,39 +17,6 @@ const { utils: { log } } = Apify;
  */
 const wrapPageFunction = (pageFunctionString, namespace) => {
     return `window['${namespace}'].pageFunction = ${pageFunctionString}`;
-};
-
-/**
- * Wraps Apify.utils.enqueueLinks with metadata-adding logic
- * to enable depth tracking in requests.
- *
- * @param {Page} options
- * @param {Page} options.page
- * @param {string} options.linkSelector
- * @param {Object[]} options.pseudoUrls
- * @param {RequestQueue} options.requestQueue
- * @param {Request} options.parentRequest
- * @return {Promise}
- */
-const enqueueLinks = async ({ page, linkSelector, pseudoUrls, requestQueue, parentRequest }) => {
-    const parentDepth = parentRequest.userData[META_KEY].depth || 0;
-    const depthMeta = {
-        depth: parentDepth + 1,
-        parentRequestId: parentRequest.id,
-        childRequestIds: {},
-    };
-    const userData = { [META_KEY]: depthMeta };
-    const queueOperationInfos = await Apify.utils.enqueueLinks({
-        page,
-        selector: linkSelector,
-        requestQueue,
-        pseudoUrls,
-        userData,
-    });
-
-    queueOperationInfos.forEach(({ requestId }) => {
-        parentRequest.userData[META_KEY].childRequestIds[requestId] = 1;
-    });
 };
 
 /**
@@ -192,7 +159,6 @@ const saveSnapshot = async (page) => {
 
 module.exports = {
     wrapPageFunction,
-    enqueueLinks,
     createBrowserHandle,
     createBrowserHandlesForObject,
     dumpConsole,

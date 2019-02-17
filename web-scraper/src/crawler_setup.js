@@ -336,15 +336,20 @@ class CrawlerSetup {
             return;
         }
         const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
-        if (canEnqueue) {
-            await browserTools.enqueueLinks({
-                page,
-                linkSelector: this.input.linkSelector,
-                pseudoUrls: this.input.pseudoUrls,
-                requestQueue: this.requestQueue,
-                parentRequest: request,
-            });
-        }
+        if (!canEnqueue) return;
+
+        await Apify.utils.enqueueLinks({
+            page,
+            linkSelector: this.input.linkSelector,
+            pseudoUrls: this.input.pseudoUrls,
+            requestQueue: this.requestQueue,
+            userData: {
+                [META_KEY]: {
+                    parentRequestId: request.id,
+                    depth: currentDepth + 1,
+                },
+            },
+        });
     }
 
     async _handleResult(request, pageFunctionResult, isError) {

@@ -1,12 +1,18 @@
-/* eslint-disable class-methods-use-this */
 const Apify = require('apify');
-const _ = require('underscore');
-const tools = require('./tools');
-const { createContext } = require('./context');
-const { META_KEY, MAX_EVENT_LOOP_OVERLOADED_RATIO } = require('./consts');
+const {
+    tools,
+    createContext,
+    GlobalStore,
+    constants: { META_KEY },
+} = require('@mnmkng/scraper-tools');
+
+const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log } } = Apify;
 
+const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
+const MIN_CONCURRENCY = 5;
+const MAX_CONCURRENCY = 100;
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -25,8 +31,6 @@ const { utils: { log } } = Apify;
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
  * @property {number} maxCrawlingDepth
- * @property {number} minConcurrency
- * @property {number} maxConcurrency
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
@@ -37,12 +41,13 @@ const { utils: { log } } = Apify;
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
+    /* eslint-disable class-methods-use-this */
     constructor(input, environment) {
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
 
         // Validate INPUT if not running on Apify Cloud Platform.
-        if (!Apify.isAtHome()) tools.checkInputOrThrow(input);
+        if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
 
         /**
          * @type {Input}
@@ -56,14 +61,19 @@ class CrawlerSetup {
                 + 'Either select the "Use Request Queue" option to enable Request Queue or '
                 + 'remove your Pseudo URLs.');
         }
+        this.input.pseudoUrls.forEach((purl) => {
+            if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
+            if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
+        });
 
         // Side effects
         if (this.input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 
         // Page Function needs to be evaluated.
         this.evaledPageFunction = tools.evalPageFunctionOrThrow(this.input.pageFunction);
-        // Pseudo URLs must be constructed first.
-        this.pseudoUrlInstances = this.input.pseudoUrls.map(item => new Apify.PseudoUrl(item.purl, _.omit(item, 'purl')));
+
+        // Used to store data that persist navigations
+        this.globalStore = new GlobalStore();
 
         // Initialize async operations.
         this.crawler = null;
@@ -76,8 +86,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = new Apify.RequestList({ sources: this.input.startUrls });
-        await this.requestList.initialize();
+        this.requestList = await Apify.openRequestList('CHEERIO-SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -112,8 +121,8 @@ class CrawlerSetup {
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             autoscaledPoolOptions: {
-                minConcurrency: this.input.minConcurrency,
-                maxConcurrency: this.input.maxConcurrency,
+                minConcurrency: MIN_CONCURRENCY,
+                maxConcurrency: MAX_CONCURRENCY,
                 systemStatusOptions: {
                     // Cheerio does a lot of sync operations, so we need to
                     // give it some time to do its job.
@@ -176,7 +185,7 @@ class CrawlerSetup {
         // Enqueue more links if Pseudo URLs and a clickable selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        await this._handleLinks(state, request, $);
+        await this._handleLinks(state, request, $, response);
 
         // Save the `pageFunction`s result to the default dataset unless
         // the `skipOutput()` context function was invoked.
@@ -191,23 +200,29 @@ class CrawlerSetup {
         return true;
     }
 
-    async _handleLinks(state, request, $) {
+    async _handleLinks(state, request, $, response) {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
             log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = !state.skipLinks && this.pseudoUrlInstances.length && this.input.linkSelector;
-        if (canEnqueue && !hasReachedMaxDepth) {
-            await tools.enqueueLinks(
-                $,
-                this.input.linkSelector,
-                this.pseudoUrlInstances,
-                this.requestQueue,
-                request,
-            );
-        }
+        const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
+        if (!canEnqueue) return;
+
+        await Apify.utils.enqueueLinks({
+            $,
+            linkSelector: this.input.linkSelector,
+            pseudoUrls: this.input.pseudoUrls,
+            requestQueue: this.requestQueue,
+            baseUrl: response.request.uri.href,
+            userData: {
+                [META_KEY]: {
+                    parentRequestId: request.id,
+                    depth: currentDepth + 1,
+                },
+            },
+        });
     }
 
     async _handleResult(request, pageFunctionResult, isError) {
