@@ -1,5 +1,5 @@
 {
-    "title": "Cheerio Crawler input",
+    "title": "Cheerio Scraper Input",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
@@ -17,7 +17,7 @@
             "title": "Use request queue",
             "type": "boolean",
             "description": "Request queue enables recursive crawling and the use of Pseudo-URLs and Link selector.",
-            "default": false
+            "default": true
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
@@ -80,6 +80,7 @@
             "type": "integer",
             "description": "Maximum number of pages that the crawler will open. 0 means unlimited.",
             "minimum": 0,
+            "default": 0,
             "unit": "pages"
         },
         "maxResultsPerCrawl": {
@@ -119,6 +120,13 @@
             "title": "Custom data",
             "type": "object",
             "description": "This object will be available on pageFunction's context as customData.",
+            "default": {},
+            "editor": "json"
+        },
+        "cookies": {
+            "title": "Cookies",
+            "type": "object",
+            "description": "The provided cookies will be pre-set to all pages the scraper opens.",
             "default": {},
             "editor": "json"
         }
