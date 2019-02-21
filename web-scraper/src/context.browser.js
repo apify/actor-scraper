@@ -5,7 +5,7 @@
 module.exports = (apifyNamespace) => {
     (function (global, namespace) {
         const setup = Symbol('crawler-setup');
-        const state = Symbol('request-state');
+        const internalState = Symbol('request-internal-state');
 
         /**
          * Context represents everything that is available to the user
@@ -35,52 +35,60 @@ module.exports = (apifyNamespace) => {
 
                 // Private
                 this[setup] = crawlerSetup;
-                this[state] = {
-                    skipLinks: false,
-                    skipOutput: false,
-                    willFinishLater: false,
+                this[internalState] = {
+                    browserHandles,
+                    requestQueue: browserHandles.requestQueue ? createProxy(browserHandles.requestQueue) : null,
+                    apify: createProxy(browserHandles.apify),
                 };
 
-                // Public
-                this.input = crawlerSetup.rawInput;
+                // Copies of Node objects
+                this.input = JSON.parse(crawlerSetup.rawInput);
                 this.env = Object.assign({}, crawlerSetup.env);
                 this.customData = crawlerSetup.customData;
-                this.request = pageFunctionArguments.request;
                 this.response = pageFunctionArguments.response;
-                if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
-                if (this[setup].injectUnderscore) this.underscoreJs = global._.noConflict();
+                this.request = pageFunctionArguments.request;
+                // Functions are not converted so we need to add this one
+                Reflect.defineProperty(this.request, 'doNotRetry', {
+                    value(message) {
+                        // this refers to request instance!
+                        this.noRetry = true;
+                        if (message) throw new Error(message);
+                    },
+                    enumerable: false,
+                });
 
-                // Proxied Node functionality
-                this.finish = (...args) => global[browserHandles.finish](...args);
-                this.saveSnapshot = () => global[browserHandles.saveSnapshot]();
+                // Proxied Node objects
                 this.globalStore = createProxy(browserHandles.globalStore);
                 this.log = createProxy(browserHandles.log);
-                this.requestList = createProxy(browserHandles.requestList);
-                this.dataset = createProxy(browserHandles.dataset);
-                this.keyValueStore = createProxy(browserHandles.keyValueStore);
-                if (browserHandles.requestQueue) this.requestQueue = createProxy(browserHandles.requestQueue);
+
+                // Browser side libraries
+                if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
+                if (this[setup].injectUnderscore) this.underscoreJs = global._.noConflict();
             }
 
-            skipLinks() {
-                this.log.debug('Skipping links.');
-                this[state].skipLinks = true;
+            async getValue(...args) {
+                return this[internalState].apify.getValue(...args);
             }
 
-            skipOutput() {
-                this.log.debug('Skipping output.');
-                this[state].skipOutput = true;
+            async setValue(...args) {
+                return this[internalState].apify.setValue(...args);
             }
 
-            willFinishLater() {
-                this.log.debug('Marking page function as asynchronous. Crawler will wait for context.finish() function to be called.');
-                this[state].willFinishLater = true;
+            async saveSnapshot() {
+                const handle = this[internalState].browserHandles.saveSnapshot;
+                return global[handle]();
             }
 
-            async enqueuePage(request) {
+            async skipLinks() {
+                const handle = this[internalState].browserHandles.skipLinks;
+                return global[handle]();
+            }
+
+            async enqueueRequest(request, options) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
-                return this.requestQueue.addRequest(request);
+                return this[internalState].requestQueue.addRequest(request, options);
             }
         }
 
@@ -90,11 +98,7 @@ module.exports = (apifyNamespace) => {
          * @returns {Context}
          */
         global[namespace].createContext = (options) => {
-            const context = new Context(options);
-            return {
-                context,
-                state: context[state],
-            };
+            return new Context(options);
         };
     }(window, apifyNamespace));
 };

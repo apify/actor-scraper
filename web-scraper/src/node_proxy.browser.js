@@ -19,8 +19,18 @@ module.exports = (apifyNamespace) => {
                 }
 
                 Object.entries(config)
-                    .forEach(([key, value]) => {
-                        this[key] = (...args) => global[value](...args);
+                    .forEach(([key, { value, type }]) => {
+                        if (type === 'METHOD') {
+                            this[key] = (...args) => global[value](...args);
+                        } else if (type === 'GETTER') {
+                            Object.defineProperty(this, key, {
+                                get: () => global[value](),
+                            });
+                        } else if (type === 'VALUE') {
+                            this[key] = value;
+                        } else {
+                            throw new Error(`Unsupported function type: ${type} for function: ${key}.`);
+                        }
                     });
             }
         }

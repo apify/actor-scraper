@@ -3,11 +3,12 @@ const _ = require('underscore');
 const {
     tools,
     browserTools,
-    GlobalStore,
-    browser: { attachContext, attachNodeProxy },
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
 } = require('@mnmkng/scraper-tools');
 
+const GlobalStore = require('./global_store');
+const attachContext = require('./context.browser');
+const attachNodeProxy = require('./node_proxy.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
@@ -48,11 +49,14 @@ const { utils: { log, puppeteer } } = Apify;
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
     constructor(input, environment) {
+        // Set log level early to prevent missed messages.
+        if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
+
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
 
         // Attempt to load page function from disk if not present on input.
-        tools.maybeLoadPageFunctionFromDisk(input);
+        tools.maybeLoadPageFunctionFromDisk(input, __dirname);
 
         // Validate INPUT if not running on Apify Cloud Platform.
         if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
@@ -73,9 +77,6 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
-
-        // Side effects
-        if (this.input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
@@ -156,15 +157,15 @@ class CrawlerSetup {
         // Create a new page context with a new random key for Apify namespace.
         const pageContext = {
             apifyNamespace: await tools.createRandomHash(),
+            skipLinks: false,
         };
         this.pageContexts.set(page, pageContext);
 
-        // Enables legacy willFinishLater by injecting a finish function
-        // into the Browser context.
-        pageContext.asyncWrapper = browserTools.createWillFinishLaterWrapper();
-
         // Attach a console listener to get all logs as soon as possible.
         if (this.input.browserLog) browserTools.dumpConsole(page);
+
+        // Add Error.prototype.toJSON unless already there.
+        await browserTools.maybeAddErrorToJson(page);
 
         // Hide WebDriver before navigation
         await puppeteer.hideWebDriver(page);
@@ -183,19 +184,25 @@ class CrawlerSetup {
 
         // Attach function handles to the page to enable use of Node.js APIs from Browser context.
         pageContext.browserHandles = {
-            finish: await browserTools.createBrowserHandle(page, pageContext.asyncWrapper.finish),
             saveSnapshot: await browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot(page)),
-            globalStore: await browserTools.createBrowserHandlesForObject(page, this.globalStore, ['get', 'set', 'size', 'list']),
-            log: await browserTools.createBrowserHandlesForObject(page, log, ['info', 'debug', 'warning', 'error']),
-            requestList: await browserTools.createBrowserHandlesForObject(page, this.requestList, ['getState', 'isEmpty', 'isFinished']),
-            dataset: await browserTools.createBrowserHandlesForObject(page, this.dataset, ['pushData']),
-            keyValueStore: await browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue']),
+            skipLinks: await browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; }),
+            globalStore: await browserTools.createBrowserHandlesForObject(
+                page,
+                this.globalStore,
+                ['size', 'clear', 'delete', 'entries', 'forEach', 'get', 'has', 'keys', 'set', 'values'],
+            ),
+            log: await browserTools.createBrowserHandlesForObject(
+                page,
+                log,
+                ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
+            ),
+            apify: await browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']),
         };
         if (this.requestQueue) {
             pageContext.browserHandles.requestQueue = await browserTools.createBrowserHandlesForObject(
                 page,
                 this.requestQueue,
-                ['isEmpty', 'isFinished', 'addRequest'],
+                ['addRequest'],
             );
         }
 
@@ -215,7 +222,7 @@ class CrawlerSetup {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
-        return this._handleResult(request, null, true);
+        return this._handleResult(request, {}, null, true);
     }
 
     /**
@@ -230,7 +237,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool }) {
         const pageContext = this.pageContexts.get(page);
 
         /**
@@ -241,7 +248,7 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl();
+        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
 
         // Setup Context and pass the configuration down to Browser.
@@ -260,82 +267,61 @@ class CrawlerSetup {
             },
         };
 
-        // Set up a promise to track a possible willFinishLater call within the pageFunction.
-        pageContext.asyncWrapper.maybeWillFinishLater();
-
         /**
          * USER FUNCTION INVOCATION
          */
         const namespace = pageContext.apifyNamespace;
-        const { pageFunctionResult, state, requestFromBrowser } = await page.evaluate(async (ctxOpts, namespc) => {
+        const output = await page.evaluate(async (ctxOpts, namespc) => {
             /* eslint-disable no-shadow */
+            const context = window[namespc].createContext(ctxOpts);
+            const output = {};
+            try {
+                output.pageFunctionResult = await window[namespc].pageFunction(context);
+            } catch (err) {
+                output.pageFunctionError = err;
+            }
+            // This needs to be added after pageFunction has run.
+            output.requestFromBrowser = context.request;
 
-            // Functions are not converted so we need to add this one
-            // and remove it later (because of App Request schema).
-            ctxOpts.pageFunctionArguments.request.doNotRetry = (message) => {
-                ctxOpts.pageFunctionArguments.request.noRetry = true;
-                if (message) throw new Error(message);
-            };
-
-            const { context, state } = window[namespc].createContext(ctxOpts);
-            const pageFunctionResult = await window[namespc].pageFunction(context);
-            return {
-                pageFunctionResult,
-                state,
-                requestFromBrowser: context.request,
-            };
+            // Stringify manually because error info seems to get lost.
+            return JSON.stringify(output);
         }, contextOptions, namespace);
 
         /**
          * POST-PROCESSING
          */
-        // Make sure the system waits for the page function to finish
-        // if the user invoked willFinishLater.
-        const result = await this._handleWillFinishLater({ page, state, request, pageFunctionResult });
-
+        const { pageFunctionResult, requestFromBrowser, pageFunctionError } = JSON.parse(output);
         // Merge requestFromBrowser into request to preserve modifications that
         // may have been made in browser context.
-        delete requestFromBrowser.doNotRetry;
         Object.assign(request, requestFromBrowser);
+
+        // Throw error from pageFunction, if any.
+        if (pageFunctionError) throw tools.createError(pageFunctionError);
 
         // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        await this._handleLinks(page, state, request);
+        if (!pageContext.skipLinks) await this._handleLinks(page, request);
 
-        // Save the `pageFunction`s result to the default dataset unless
-        // the `skipOutput()` context function was invoked.
-        if (state.skipOutput) return;
-        await this._handleResult(request, result);
+        // Save the `pageFunction`s result (or just metadata) to the default dataset.
+        await this._handleResult(request, response, pageFunctionResult);
     }
 
-    async _handleMaxResultsPerCrawl() {
-        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return;
+    async _handleMaxResultsPerCrawl(autoscaledPool) {
+        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return false;
         log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
-        await this.crawler.abort();
+        await autoscaledPool.abort();
         return true;
     }
 
-    async _handleWillFinishLater({ page, state, request, pageFunctionResult }) {
-        if (!state.willFinishLater) return pageFunctionResult;
-        const { asyncWrapper } = this.pageContexts.get(page);
-        log.debug('Waiting for context.finish() to be called!');
-        const finishResult = await asyncWrapper.promise;
-        if (pageFunctionResult != null && finishResult != null) {
-            log.warning(`Page: ${request.url}\nBoth pageFunction() and finish() returned a value. `
-                + 'Return value of the finish() function will be used as a result.');
-        }
-        return finishResult;
-    }
-
-    async _handleLinks(page, state, request) {
+    async _handleLinks(page, request) {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
             log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
+        const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
         if (!canEnqueue) return;
 
         await Apify.utils.enqueueLinks({
@@ -352,8 +338,8 @@ class CrawlerSetup {
         });
     }
 
-    async _handleResult(request, pageFunctionResult, isError) {
-        const payload = tools.createDatasetPayload(request, pageFunctionResult, isError);
+    async _handleResult(...args) {
+        const payload = tools.createDatasetPayload(...args);
         await Apify.pushData(payload);
         this.pagesOutputted++;
     }

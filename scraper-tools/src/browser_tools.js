@@ -20,6 +20,35 @@ const wrapPageFunction = (pageFunctionString, namespace) => {
 };
 
 /**
+ * Function to be executed in a browser context to add a toJSON
+ * function to Error objects. This enables them to be stringified
+ * correctly when crossing Browser-Node boundary.
+ *
+ * @param {Page} page
+ * @return {Promise}
+ */
+const maybeAddErrorToJson = async (page) => {
+    /* eslint-disable no-extend-native */
+    return page.evaluateOnNewDocument(() => {
+        if (!('toJSON' in Error.prototype)) {
+            Object.defineProperty(Error.prototype, 'toJSON', {
+                value() {
+                    const alt = {};
+
+                    Object.getOwnPropertyNames(this).forEach(function (name) {
+                        alt[name] = this[name];
+                    }, this);
+
+                    return alt;
+                },
+                configurable: true,
+                writable: true,
+            });
+        }
+    });
+};
+
+/**
  * Attaches the provided function to the Browser context
  * by exposing it via page.exposeFunction. Returns a string
  * handle to be used to reference the exposed function in
@@ -36,25 +65,60 @@ const createBrowserHandle = async (page, func) => {
 };
 
 /**
- * Exposes selected methods of an instance (of a Class or just an Object)
+ * Looks up a property descriptor for the given key in
+ * the given object and its prototype chain.
+ *
+ * @param {Object} target
+ * @param {string} key
+ * @return {Object}
+ */
+const getPropertyDescriptor = (target, key) => {
+    const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
+    if (descriptor) return descriptor;
+    const prototype = Reflect.getPrototypeOf(target);
+    if (prototype === Reflect.getPrototypeOf({})) return null;
+    return getPropertyDescriptor(prototype, key);
+};
+
+/**
+ * Exposes selected properties of an instance (of a Class or just an Object)
  * in the Browser context and returns their mapping.
  *
  * @param {Page} page
  * @param {Object} instance
- * @param {string[]} methods
+ * @param {string[]} properties
  * @return {Promise<Object>}
  */
-const createBrowserHandlesForObject = async (page, instance, methods) => {
-    const selectedMethods = _.pick(instance, methods);
-    const promises = Object
-        .entries(selectedMethods)
-        .map(async ([name, method]) => {
-            const handle = await createBrowserHandle(page, method.bind(instance));
-            return { name, handle };
+const createBrowserHandlesForObject = async (page, instance, properties) => {
+    const promises = properties
+        .map((prop) => {
+            const descriptor = getPropertyDescriptor(instance, prop);
+            if (!descriptor) {
+                throw new Error(`Cannot create a browser handle for property: ${prop} on object ${instance}. No such property descriptor.`);
+            }
+            if (descriptor.value) {
+                return {
+                    name: prop,
+                    value: descriptor.value,
+                    type: typeof descriptor.value === 'function' ? 'METHOD' : 'VALUE',
+                };
+            }
+            if (descriptor.get) {
+                return {
+                    name: prop,
+                    value: descriptor.get,
+                    type: 'GETTER',
+                };
+            }
+            throw new Error(`Cannot create a browser handle for property: ${prop} on object ${instance}. No getter or value for descriptor.`);
+        })
+        .map(async ({ name, value, type }) => {
+            if (/^METHOD|GETTER$/.test(type)) value = await createBrowserHandle(page, value.bind(instance));
+            return { name, value, type };
         });
     const props = await Promise.all(promises);
-    return props.reduce((mappings, prop) => {
-        mappings[prop.name] = prop.handle;
+    return props.reduce((mappings, { name, value, type }) => {
+        mappings[name] = { value, type };
         return mappings;
     }, {});
 };
@@ -105,27 +169,6 @@ const dumpConsole = (page, options = {}) => {
 };
 
 /**
- * Enables the use of legacy willFinishLater by resolving a Promise
- * from within the browser context using the provided finish function.
- *
- * @return {Object}
- */
-const createWillFinishLaterWrapper = () => {
-    const wrapper = {
-        promise: null,
-        finish: (result) => {
-            log.debug('context.finish() was called!');
-            wrapper.resolve(result);
-        },
-        resolve: () => { throw new Error('maybeWillFinishLater was not called.'); },
-        maybeWillFinishLater: () => {
-            wrapper.promise = new Promise((res) => { wrapper.resolve = res; });
-        },
-    };
-    return wrapper;
-};
-
-/**
  * Tracking variable for snapshot throttling.
  * @type {number}
  */
@@ -143,7 +186,7 @@ const saveSnapshot = async (page) => {
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
         log.warning('Aborting saveSnapshot(). It can only be invoked once '
-                + `in ${SNAPSHOT.TIMEOUT_SECS} secs to prevent database overloading.`);
+            + `in ${SNAPSHOT.TIMEOUT_SECS} secs to prevent database overloading.`);
         return;
     }
     lastSnapshotTimestamp = now;
@@ -159,9 +202,9 @@ const saveSnapshot = async (page) => {
 
 module.exports = {
     wrapPageFunction,
+    maybeAddErrorToJson,
     createBrowserHandle,
     createBrowserHandlesForObject,
     dumpConsole,
-    createWillFinishLaterWrapper,
     saveSnapshot,
 };

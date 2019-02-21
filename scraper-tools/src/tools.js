@@ -56,7 +56,6 @@ const ensureMetaData = ({ id, userData }) => {
         userData[META_KEY] = {
             depth: 0,
             parentRequestId: null,
-            childRequestIds: {},
         };
         return;
     }
@@ -74,11 +73,12 @@ const ensureMetaData = ({ id, userData }) => {
  * will flatten the results.
  *
  * @param {Request} request
+ * @param {Response} response
  * @param {Object|Object[]} pageFunctionResult
  * @param {Boolean} [isError]
  * @returns {Object[]}
  */
-const createDatasetPayload = (request, pageFunctionResult, isError = false) => {
+const createDatasetPayload = (request, response, pageFunctionResult, isError = false) => {
     // Null and undefined do not prevent the payload
     // from being saved to dataset. It will just contain
     // the relevant metadata.
@@ -95,9 +95,8 @@ const createDatasetPayload = (request, pageFunctionResult, isError = false) => {
     if (!Array.isArray(result)) result = [result];
     const meta = {
         '#error': isError,
-        '#debug': _.pick(request, ['url', 'method', 'retryCount', 'errorMessages']),
+        '#debug': Apify.utils.createRequestDebugInfo(request, response),
     };
-    meta['#debug'].requestId = request.id;
 
     return result.map(item => Object.assign({}, item, meta));
 };
@@ -125,31 +124,32 @@ const createRandomHash = async () => {
 const isPlainObject = item => item && typeof item === 'object' && !Array.isArray(item);
 
 /**
- * Helper that throws after timeout secs with the error message.
- * @param {number} timeoutSecs
- * @param {string} errorMessage
- * @return {Promise}
- */
-const createTimeoutPromise = async (timeoutSecs, errorMessage) => {
-    await new Promise(res => setTimeout(res, timeoutSecs * 1000));
-    throw new Error(errorMessage);
-};
-
-/**
  * Attempts to load Page Function from disk if it's not available
  * on INPUT.
  *
  * @param {Input} input
  */
-const maybeLoadPageFunctionFromDisk = (input) => {
+const maybeLoadPageFunctionFromDisk = (input, root) => {
     if (input.pageFunction) return;
-    const pageFunctionPath = path.join(__dirname, PAGE_FUNCTION_FILENAME);
+    const pageFunctionPath = path.join(root, PAGE_FUNCTION_FILENAME);
     log.debug(`Loading Page Function from disk: ${path}`);
     try {
         input.pageFunction = fs.readFileSync(pageFunctionPath, 'utf8');
     } catch (err) {
-        log.debug('Page Function load from disk failed.');
+        log.exception(err, 'Page Function load from disk failed.');
     }
+};
+
+/**
+ * Creates an error constructed using props
+ * from the provided object.
+ *
+ * @param {Object} obj
+ */
+const createError = (obj = {}) => {
+    const error = new Error(obj.message);
+    error.stack = obj.stack;
+    return error;
 };
 
 module.exports = {
@@ -159,6 +159,6 @@ module.exports = {
     createDatasetPayload,
     createRandomHash,
     isPlainObject,
-    createTimeoutPromise,
     maybeLoadPageFunctionFromDisk,
+    createError,
 };

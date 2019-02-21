@@ -15,7 +15,6 @@ describe('tools.', () => {
             const meta = request.userData[META_KEY];
             expect(meta.depth).to.be.eql(0);
             expect(meta.parentRequestId).to.be.eql(null);
-            expect(meta.childRequestIds).to.be.eql({});
         });
     });
 });

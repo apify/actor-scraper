@@ -3,7 +3,7 @@
  * such as crawling depth are stored on the Request object.
  * @type {string}
  */
-exports.META_KEY = '__crawler-run-metadata';
+exports.META_KEY = '__scraper-metadata__';
 
 /**
  * The default resolution to be used by the browser instances.

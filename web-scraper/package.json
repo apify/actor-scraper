@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "dependencies": {
     "apify": "^0.11.8",
-    "@mnmkng/scraper-tools": "^0.0.1",
+    "@mnmkng/scraper-tools": "^0.0.4",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
