@@ -7,8 +7,6 @@ const {
 } = require('@mnmkng/scraper-tools');
 
 const GlobalStore = require('./global_store');
-const attachContext = require('./context.browser');
-const attachNodeProxy = require('./node_proxy.browser');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
