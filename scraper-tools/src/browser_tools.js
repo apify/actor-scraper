@@ -16,7 +16,8 @@ const { utils: { log } } = Apify;
  * @return {string}
  */
 const wrapPageFunction = (pageFunctionString, namespace) => {
-    return `window['${namespace}'].pageFunction = ${pageFunctionString}`;
+    return `if (typeof window['${namespace}'] !== 'object') window['${namespace}'] = {}; 
+    window['${namespace}'].pageFunction = ${pageFunctionString}`;
 };
 
 /**

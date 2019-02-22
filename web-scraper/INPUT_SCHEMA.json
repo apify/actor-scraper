@@ -8,7 +8,7 @@
             "type": "array",
             "description": "URLs to start with",
             "prefill": [
-                { "url": "http://example.com" },
+                { "url": "https://example.com" },
                 { "url": "http://iana.org" }
             ],
             "editor": "requestListSources"

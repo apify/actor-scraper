@@ -9,6 +9,7 @@ const {
 const GlobalStore = require('./global_store');
 const attachContext = require('./context.browser');
 const attachNodeProxy = require('./node_proxy.browser');
+const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
@@ -154,6 +155,8 @@ class CrawlerSetup {
     }
 
     async _gotoFunction({ request, page }) {
+        const start = process.hrtime();
+
         // Create a new page context with a new random key for Apify namespace.
         const pageContext = {
             apifyNamespace: await tools.createRandomHash(),
@@ -173,48 +176,65 @@ class CrawlerSetup {
         // Prevent download of stylesheets and media, unless selected otherwise
         if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
 
-        // Invoke navigation.
-        const response = await page.goto(request.url, {
-            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-        });
-
-        // Inject selected libraries
-        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
-        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+        tools.logPerformance(request, 'gotoFunction INIT', start);
+        const handleStart = process.hrtime();
 
         // Attach function handles to the page to enable use of Node.js APIs from Browser context.
         pageContext.browserHandles = {
-            saveSnapshot: await browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot(page)),
-            skipLinks: await browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; }),
-            globalStore: await browserTools.createBrowserHandlesForObject(
+            saveSnapshot: browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot(page)),
+            skipLinks: browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; }),
+            globalStore: browserTools.createBrowserHandlesForObject(
                 page,
                 this.globalStore,
                 ['size', 'clear', 'delete', 'entries', 'forEach', 'get', 'has', 'keys', 'set', 'values'],
             ),
-            log: await browserTools.createBrowserHandlesForObject(
+            log: browserTools.createBrowserHandlesForObject(
                 page,
                 log,
                 ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
             ),
-            apify: await browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']),
+            apify: browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']),
         };
         if (this.requestQueue) {
-            pageContext.browserHandles.requestQueue = await browserTools.createBrowserHandlesForObject(
+            pageContext.browserHandles.requestQueue = browserTools.createBrowserHandlesForObject(
                 page,
                 this.requestQueue,
                 ['addRequest'],
             );
         }
+        tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
 
-        // Add Apify namespace to Browser context
-        await page.evaluate((namespace) => { window[namespace] = {}; }, pageContext.apifyNamespace);
+        const evalStart = process.hrtime();
+        await Promise.all([
+            page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
+            page.evaluateOnNewDocument(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace)),
+        ]);
+        tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
 
-        // Inject Context class into the Browser, to be able to
-        // construct a context instance later.
-        await page.evaluate(attachContext, pageContext.apifyNamespace);
-        await page.evaluate(attachNodeProxy, pageContext.apifyNamespace);
 
-        await page.evaluate(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace));
+        // Invoke navigation.
+        const navStart = process.hrtime();
+        const response = await page.goto(request.url, {
+            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+            waitUntil: 'domcontentloaded',
+        });
+        tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
+
+        // Make sure handles attached in the meantime.
+        const delayStart = process.hrtime();
+        const promises = Object.entries(pageContext.browserHandles)
+            .map(async ([name, promise]) => {
+                // Unwrap promises.
+                pageContext.browserHandles[name] = await promise;
+            });
+        await Promise.all(promises);
+
+        // Inject selected libraries
+        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
+        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+
+        tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
+        tools.logPerformance(request, 'gotoFunction EXECUTION', start);
         return response;
     }
 
@@ -238,6 +258,8 @@ class CrawlerSetup {
      * @returns {Function}
      */
     async _handlePageFunction({ request, response, page, autoscaledPool }) {
+        const start = process.hrtime();
+
         const pageContext = this.pageContexts.get(page);
 
         /**
@@ -268,8 +290,11 @@ class CrawlerSetup {
         };
 
         /**
-         * USER FUNCTION INVOCATION
+         * USER FUNCTION EXECUTION
          */
+        tools.logPerformance(request, 'handlePageFunction PREPROCESSING', start);
+        const startUserFn = process.hrtime();
+
         const namespace = pageContext.apifyNamespace;
         const output = await page.evaluate(async (ctxOpts, namespc) => {
             /* eslint-disable no-shadow */
@@ -286,6 +311,9 @@ class CrawlerSetup {
             // Stringify manually because error info seems to get lost.
             return JSON.stringify(output);
         }, contextOptions, namespace);
+
+        tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
+        const finishUserFn = process.hrtime();
 
         /**
          * POST-PROCESSING
@@ -305,6 +333,9 @@ class CrawlerSetup {
 
         // Save the `pageFunction`s result (or just metadata) to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);
+
+        tools.logPerformance(request, 'handlePageFunction POSTPROCESSING', finishUserFn);
+        tools.logPerformance(request, 'handlePageFunction EXECUTION', start);
     }
 
     async _handleMaxResultsPerCrawl(autoscaledPool) {
@@ -315,6 +346,8 @@ class CrawlerSetup {
     }
 
     async _handleLinks(page, request) {
+        const start = process.hrtime();
+
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
@@ -336,12 +369,16 @@ class CrawlerSetup {
                 },
             },
         });
+
+        tools.logPerformance(request, 'handleLinks EXECUTION', start);
     }
 
-    async _handleResult(...args) {
-        const payload = tools.createDatasetPayload(...args);
+    async _handleResult(request, response, pageFunctionResult, isError) {
+        const start = process.hrtime();
+        const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
         await Apify.pushData(payload);
         this.pagesOutputted++;
+        tools.logPerformance(request, 'handleResult EXECUTION', start);
     }
 }
 

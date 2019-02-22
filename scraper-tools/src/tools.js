@@ -152,6 +152,15 @@ const createError = (obj = {}) => {
     return error;
 };
 
+const logPerformance = (request, title, hrtime) => {
+    if (log.getLevel() !== log.LEVELS.PERF) return;
+    const runtime = process.hrtime(hrtime);
+    const nanos = runtime[0] * 1e9 + runtime[1];
+    const micros = nanos / 1000;
+    const millis = micros / 1000;
+    log.perf(`${request.id} ${title} took ${Math.round(millis)} ms.`);
+};
+
 module.exports = {
     evalPageFunctionOrThrow,
     checkInputOrThrow,
@@ -161,4 +170,5 @@ module.exports = {
     isPlainObject,
     maybeLoadPageFunctionFromDisk,
     createError,
+    logPerformance,
 };
