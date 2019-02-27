@@ -49,39 +49,6 @@ describe('browserTools.', () => {
         await browser.close();
     });
 
-    describe('enqueueLinks()', () => {
-        it('should work', async () => {
-            const page = await browser.newPage();
-            await page.setContent(PAGE_CONTENT);
-            const linkSelector = 'a';
-            const pseudoUrls = [
-                { purl: 'https://example.com[.*]' },
-            ];
-            let id = 0;
-            const requestQueue = await Apify.openRequestQueue();
-            requestQueue.requests = [];
-            requestQueue.addRequest = function (request) {
-                requestQueue.requests.push(request);
-                return { requestId: `some-${++id}` };
-            };
-
-            const parentRequest = new Apify.Request({ id: 'parent', url: 'https://www.example.com' });
-            tools.ensureMetaData(parentRequest);
-
-            await browserTools.enqueueLinks({ page, linkSelector, pseudoUrls, requestQueue, parentRequest });
-
-            expect(requestQueue.requests).to.have.lengthOf(3);
-            requestQueue.requests.forEach((r) => {
-                expect(r.userData[META_KEY].depth).to.be.eql(1);
-                expect(r.userData[META_KEY].parentRequestId).to.be.eql('parent');
-                expect(r.userData[META_KEY].childRequestIds).to.be.eql({});
-            });
-            const children = Object.keys(parentRequest.userData[META_KEY].childRequestIds);
-            expect(children).to.have.lengthOf(3);
-            children.forEach(c => expect(/^some-[123]$/.test(c)).to.be.eql(true));
-        });
-    });
-
     describe('createBrowserHandle()', () => {
         it('should work', async () => {
             const page = await browser.newPage();
@@ -100,20 +67,24 @@ describe('browserTools.', () => {
 
             const handlesMap = await browserTools.createBrowserHandlesForObject(page, instance, methods);
 
-            expect(handlesMap.getValue).to.be.a('string');
-            expect(handlesMap.setValue).to.be.a('string');
-            expect(handlesMap.setValue).not.to.be.eql(handlesMap.getValue);
+            expect(handlesMap.getValue).to.be.an('object');
+            expect(handlesMap.getValue.value).to.be.a('string');
+            expect(handlesMap.getValue.type).to.be.eql('METHOD');
+            expect(handlesMap.setValue).to.be.an('object');
+            expect(handlesMap.setValue.value).to.be.a('string');
+            expect(handlesMap.setValue.type).to.be.eql('METHOD');
+            expect(handlesMap.setValue.value).not.to.be.eql(handlesMap.getValue.value);
 
             await page.evaluate(async (setValueHandle) => {
                 await window[setValueHandle]('123', 'hello', { contentType: 'text/plain' });
-            }, handlesMap.setValue);
+            }, handlesMap.setValue.value);
             const value = await instance.getValue('123');
             expect(value).to.be.eql('hello');
 
             await instance.setValue('321', 'bye', { contentType: 'text/plain' });
             const valueFromBrowser = await page.evaluate(async (getValueHandle) => {
                 return window[getValueHandle]('321');
-            }, handlesMap.getValue);
+            }, handlesMap.getValue.value);
             expect(valueFromBrowser).to.be.eql('bye');
 
             const nodeContext = {
@@ -126,7 +97,7 @@ describe('browserTools.', () => {
                     one: await window[gvh]('123'),
                     three: await window[gvh]('321'),
                 };
-            }, handlesMap.getValue);
+            }, handlesMap.getValue.value);
 
             expect(nodeContext).to.be.eql(browserContext);
         });
