@@ -153,11 +153,12 @@
             "default": {},
             "editor": "json"
         },
-        "cookies": {
-            "title": "Cookies",
-            "type": "object",
+        "initialCookies": {
+            "title": "Initial cookies",
+            "type": "array",
             "description": "The provided cookies will be pre-set to all pages the scraper opens.",
-            "default": {},
+            "default": [],
+            "prefill": [],
             "editor": "json"
         }
     },

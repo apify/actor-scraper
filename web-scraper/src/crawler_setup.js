@@ -16,7 +16,7 @@ const { utils: { log, puppeteer } } = Apify;
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
  * and IDE type check integration.
  *
- * @typedef {Number} Input
+ * @typedef {Object} Input
  * @property {Object[]} startUrls
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
@@ -39,6 +39,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
+ * @property {Object} initialCookies
  */
 
 /**
@@ -75,6 +76,9 @@ class CrawlerSetup {
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
+        });
+        this.input.initialCookies.forEach((cookie) => {
+            if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
 
         // Used to store page specific data.
@@ -173,6 +177,9 @@ class CrawlerSetup {
 
         // Prevent download of stylesheets and media, unless selected otherwise
         if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
+
+        // Add initial cookies, if any.
+        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
 
         tools.logPerformance(request, 'gotoFunction INIT', start);
         const handleStart = process.hrtime();
