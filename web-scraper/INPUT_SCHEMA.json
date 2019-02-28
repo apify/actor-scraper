@@ -8,8 +8,7 @@
             "type": "array",
             "description": "URLs to start with",
             "prefill": [
-                { "url": "https://example.com" },
-                { "url": "http://iana.org" }
+                { "url": "https://apify.com" }
             ],
             "editor": "requestListSources"
         },
@@ -27,7 +26,7 @@
             "default": [],
             "prefill": [
                 {
-                    "purl": "https://www.iana.org/[((?!\\.pdf$).)*]"
+                    "purl": "https://[.*]apify.com[.*]"
                 }
             ]
         },
@@ -42,7 +41,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async (context) => {\n    const title = document.querySelector('title').textContent;\n    context.log.info(`FROM NODE: ${title}`);\n    console.log('FROM BROWSER:', { title });\n    return { title };\n}",
+            "prefill": "async (context) => {\n    const { request, log } = context;\n    const title = document.querySelector('title').textContent;\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
@@ -151,6 +150,7 @@
             "type": "object",
             "description": "This object will be available on pageFunction's context as customData.",
             "default": {},
+            "prefill": {},
             "editor": "json"
         },
         "initialCookies": {
