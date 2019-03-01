@@ -41,7 +41,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async (context) => {\n    const { request, log } = context;\n    const title = document.querySelector('title').textContent;\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
+            "prefill": "async function pageFunction(context) {\n    const { request, log } = context;\n    const title = document.querySelector('title').textContent;\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
