@@ -1,3 +1,4 @@
+/* istanbul ignore next */
 /**
  * Command to be evaluated for Browser side code injection.
  * @param apifyNamespace
@@ -63,6 +64,7 @@ module.exports = (apifyNamespace) => {
          * @param {Object} options.pageFunctionArguments
          */
         class Context {
+            /* eslint-disable class-methods-use-this */
             constructor(options) {
                 const {
                     crawlerSetup,
@@ -128,6 +130,58 @@ module.exports = (apifyNamespace) => {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
                 return this[internalState].requestQueue.addRequest(request, options);
+            }
+
+            async waitFor(selectorOrNumberOrFunction, options = {}) {
+                if (!options || typeof options !== 'object') throw new Error('Parameter options must be an Object');
+                const type = typeof selectorOrNumberOrFunction;
+                if (type === 'string') return this._waitForSelector(selectorOrNumberOrFunction, options);
+                if (type === 'number') return this._waitForMillis(selectorOrNumberOrFunction);
+                if (type === 'function') return this._waitForFunction(selectorOrNumberOrFunction, options);
+                throw new Error('Parameter selectorOrNumberOrFunction must be one of the said types.');
+            }
+
+            async _waitForSelector(selector, options = {}) {
+                try {
+                    return this._poll(() => {
+                        return !!global.document.querySelector(selector);
+                    }, options);
+                } catch (err) {
+                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                        throw new Error(`Timeout Error: waiting for selector failed: ${err.message}`);
+                    }
+                }
+            }
+
+            async _waitForMillis(millis) {
+                return new Promise(res => setTimeout(res, millis));
+            }
+
+            async _waitForFunction(predicate, options = {}) {
+                try {
+                    return this._poll(predicate, options);
+                } catch (err) {
+                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                        throw new Error(`Timeout Error: waiting for function failed: ${err.message}`);
+                    }
+                }
+            }
+
+            async _poll(predicate, options = {}) {
+                const {
+                    pollingIntervalMillis = 50,
+                    timeoutMillis = 20000,
+                } = options;
+                return new Promise((resolve, reject) => {
+                    const handler = () => {
+                        return predicate() ? resolve() : setTimeout(handler);
+                    };
+                    const pollTimeout = setTimeout(handler, pollingIntervalMillis);
+                    setTimeout(() => {
+                        clearTimeout(pollTimeout);
+                        return reject(new Error(`timeout ${timeoutMillis}ms exceeded`));
+                    }, timeoutMillis);
+                });
             }
         }
 

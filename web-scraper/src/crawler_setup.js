@@ -232,7 +232,7 @@ class CrawlerSetup {
                 // Unwrap promises.
                 pageContext.browserHandles[name] = await promise;
             });
-        await Promise.all(promises);
+        await Promise.all(promises.concat(page.waitFor(namespace => !!window[namespace], {}, pageContext.apifyNamespace)));
 
         // Inject selected libraries
         if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
