@@ -8,7 +8,7 @@ describe('Bundle', () => {
     let browser;
     let page;
     before(async () => {
-        browser = await Apify.launchPuppeteer({ headless: false });
+        browser = await Apify.launchPuppeteer({ headless: true });
     });
     after(async () => {
         await browser.close();
@@ -39,8 +39,6 @@ describe('Bundle', () => {
             await page.goto('about:chrome');
             await page.waitFor(namespace => !!window[namespace], {}, NAMESPACE);
             await page.evaluate((namespace, contextOptions) => {
-                console.log('CTXOPTS');
-                console.dir(contextOptions);
                 window.contextInstance = window[namespace].createContext(contextOptions);
             }, NAMESPACE, CONTEXT_OPTIONS);
         });

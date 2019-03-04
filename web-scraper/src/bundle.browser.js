@@ -105,6 +105,14 @@ module.exports = (apifyNamespace) => {
                 // Browser side libraries
                 if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
                 if (this[setup].injectUnderscore) this.underscoreJs = global._.noConflict();
+
+                // Bind this to allow destructuring off context in pageFunction.
+                this.getValue = this.getValue.bind(this);
+                this.setValue = this.setValue.bind(this);
+                this.saveSnapshot = this.saveSnapshot.bind(this);
+                this.skipLinks = this.skipLinks.bind(this);
+                this.enqueueRequest = this.enqueueRequest.bind(this);
+                this.waitFor = this.waitFor.bind(this);
             }
 
             async getValue(...args) {
