@@ -191,7 +191,7 @@ class CrawlerSetup {
             globalStore: browserTools.createBrowserHandlesForObject(
                 page,
                 this.globalStore,
-                ['size', 'clear', 'delete', 'entries', 'forEach', 'get', 'has', 'keys', 'set', 'values'],
+                ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
             ),
             log: browserTools.createBrowserHandlesForObject(
                 page,
