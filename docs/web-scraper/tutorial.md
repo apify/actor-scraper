@@ -4,13 +4,18 @@ Welcome to the getting started tutorial to walk you through creating your first 
 ## What is `apify/web-scraper`
 `apify/web-scraper` is an actor. If you want to know more about actors, you can read our [actors page](https://apify.com/actors) or [in the documentation](https://apify.com/docs/actor). For now, let's just think of an actor as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations tasks.
 
+You can create 10 different tasks for 10 different websites, with very different options, but there will always be just one actor, the `apify/web-scraper`. This is the essence of tasks. They are nothing but saved configurations of the actor that you can run easily and repeatedly.
+
 ## Creating your first task
 Depending on how you arrived at this tutorial, you may already have your first task created for `apify/web-scraper`. If not, the easiest way is just to go to the [actor's library page](https://apify.com/apify/web-scraper) and click the **Try Actor** button. This will take you to the task configuration page.
 
-![web-scraper in library](./static/001-creating-your-first-task.png "Creating your first task.")
+![web-scraper in library](./static/creating-your-first-task.png "Creating your first task.")
 
 ## Task configuration
-Before we jump into the scraping itself, let's just have a quick look at the user interface. At the top, you should see several tabs, with the INPUT tab in focus. The INPUT tab is where you create your scraping configuration and we'll talk about it in much more detail later, so let's check out the other tabs now.
+Before we jump into the scraping itself, let's just have a quick look at the user interface that's available to us.
+
+### INPUT
+The INPUT tab is where you create your scraping configuration and we'll talk about it in much more detail later. The creator of the actor prepares the form you see so that you can easily tell the actor what to do. 
 
 ### SETTINGS
 In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
@@ -30,14 +35,11 @@ After you run your task for the first time, you will find the run here and will 
 The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically, and includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
 
 ## The INPUT
-Now let's go back to the INPUT tab. This is where all the magic happens. The creator of the actor prepares this form so that you can easily tell the actor what to do. This is the essence of tasks. You can fill up this form 10 different times for 10 different websites, creating 10 tasks, but there will always be just one actor, the `apify/web-scraper`. All those tasks are nothing but saved configurations of the actor that you can run easily.
+Now let's go back to the INPUT tab. As you can see, there are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
 
 > We will not go through all the available INPUT options in this tutorial. See the actor's README under the ACTOR INFO tab for detailed information.
 
-### Trying it out
-As you can see, there are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
-
-Before you click Run to see what happens, set the `Max pages per crawl` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works. It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.02 CU, so you can run it 500 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
+Before you click Run to see what happens, set the `Max pages per crawl` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works. It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
 
 Now click **Save & Run**! *(either at the very bottom or in the top-right corner of your screen)*
 
@@ -76,7 +78,7 @@ https://apify.com/library?type=acts
 
 ^^^ This is our new Start URL ^^^
 
-We'll also need to somehow distinguish the Start URL from all the other URLs that the scraper will add later. To do this, open the Start URL details and see the **User data** input. Here you can add any information you'll need during the scrape in a JSON format. For now, just add a label to the Start URL.
+We'll also need to somehow distinguish the Start URL from all the other URLs that the scraper will add later. To do this, click the green **Details** icon in the Start URL form and see the **User data** input. Here you can add any information you'll need during the scrape in a JSON format. For now, just add a label to the Start URL.
 
 ```json
 {
@@ -84,7 +86,7 @@ We'll also need to somehow distinguish the Start URL from all the other URLs tha
 }
 ```
 
-> [ADD SCREENSHOT]
+![start url input](./static/the-start-url.png "Adding new Start URL.")
 
 ### Crawling the website with Pseudo URLs
 Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use Pseudo URLs to do just that. By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
@@ -124,7 +126,7 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 }
 ```
 
-> [ADD SCREENSHOT]
+![pseudo url input](./static/making-a-pseudo-url.png "Adding new Pseudo URL.")
 
 #### Test run
 We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per crawl** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
@@ -139,7 +141,7 @@ The DevTools window will pop up, and display a lot of, perhaps unfamiliar, infor
 
 You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is `Library`. It's always good practice to do your research using the DevTools before writing the `pageFunction` and running your task.
 
-> [ADD SCREENSHOT]
+![devtools](./static/using-devtools.png "Finding title element in DevTools.")
 
 > For the sake of brevity, we won't go into the details of using the DevTools in this tutorial. If you're just starting out with DevTools, this [Google tutorial](https://developers.google.com/web/tools/chrome-devtools/) is a good place to begin.
 
@@ -248,18 +250,18 @@ We've confirmed that the scraper works as expected, so now it's time to add more
 
 To add `jQuery`, all we need to do is turn on **Inject jQuery** under INPUT **Options**. This will add a `context.jQuery` function that you can use.
 
-Now that's out of the way, let's open one of the detail pages and use our DevTools-Fu to figure out how to get the title of the actor.
+Now that's out of the way, let's open one of the actor detail pages in the Library, for example the [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to figure out how to get the title of the actor.
 
 #### Title
-> [ADD SCREENSHOT]
+![actor title](./static/title-01.png "Finding actor title in DevTools.")
 
-Not surprisingly, we find out that the title is there under an `<h1>` tag, as titles should be. Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking. Is there any parent element that perhaps wraps all the information that we want to scrape? Yes, there is! The `<div class="wrap ...">` is a common ancestor to everything. So let's start by getting that element first.
+By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be. Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking. Is there any parent element that perhaps wraps all the information that we want to scrape? Yes, there is! The `<div class="wrap ...">` is a common ancestor to everything. So let's start by getting that element first.
 
 > Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar where you can quickly search for elements using their selectors.
 
 Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page, so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
 
-> [ADD SCREENSHOT]
+![actor title selector](./static/title-02.png "Finding actor title in DevTools.")
 
 ```js
 // Using jQuery.
@@ -279,7 +281,7 @@ return {
 #### Description
 Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
 
-> [ADD SCREENSHOT]
+![actor description selector](./static/description.png "Finding actor description in DevTools.")
 
 ```js
 const $wrapper = $('header div.wrap');
@@ -294,7 +296,7 @@ Getting the `lastRunDate` and `runCount` is not as straightforward as the previo
 #### Last run date
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
 
-> [ADD SCREENSHOT]
+![actor last run date selector](./static/last-run-date.png "Finding actor last run date in DevTools.")
 
 ```js
 const $wrapper = $('header div.wrap');
@@ -305,7 +307,7 @@ return {
 };
 ```
 
-It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper` and find the `<time>` elements it contains. There are two, so we grab the second one using the `.eq(1)` call and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a `string`.
+It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper` and find the `<time>` elements it contains. There are two, so we grab the second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a `string`.
 
 But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()` constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`. Phew!
 
@@ -421,7 +423,7 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-> [ADD SCREENSHOT]
+![waiting for the button](./static/waiting-for-the-button.png "Finding show more button in DevTools.")
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
@@ -518,7 +520,7 @@ async function pageFunction(context) {
 
 That's it! You can now remove the **Max pages per crawl** limit, **Save & Run** your task and watch the scraper paginate through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see the clean items. You should have a table of all the actor's details in front of you. If you do, great job! You've successfully scraped the Apify Library. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
-> [ADD SCREENSHOT]
+![final results](./static/plugging-it-into-the-pagefunction.png "Final results.")
 
 ### Downloading the scraped data
 You already know the DATASET tab of the run console since this is where we've always previewed our data. Notice that at the bottom, there is a table with multiple data formats, such as JSON, CSV or an Excel sheet, and to the right, there are options to download the scraping results in any of those formats. Go ahead and try it.
