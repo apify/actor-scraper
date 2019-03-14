@@ -204,9 +204,11 @@ We've covered all the concepts that we need to understand to successfully scrape
    1. **URL** - The URL that goes directly to the actor's detail page.
    2. **Unique identifier** - Such as `apify/web-scraper`.
    4. **Title** - The title visible in the actor's detail page.
-   5. **Description** - Tha actor's description.
+   5. **Description** - The actor's description.
    6. **Last run date**- When the actor was last run.
    7. **Number of runs** - How many times the actor was run.
+   
+![data to scrape](./static/scraping-practice.png "Overview of data to be scraped.")
 
 ### Scraping the URL and Unique identifier
 For this information, we just need the `request.url` because it includes the Unique identifier.
