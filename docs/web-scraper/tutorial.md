@@ -15,7 +15,7 @@ Depending on how you arrived at this tutorial, you may already have your first t
 Before we jump into the scraping itself, let's just have a quick look at the user interface that's available to us.
 
 ### INPUT
-The INPUT tab is where you create your scraping configuration and we'll talk about it in much more detail later. The creator of the actor prepares the form you see so that you can easily tell the actor what to do. 
+The INPUT tab is where you create your scraping configuration and we'll talk about it in much more detail later. The creator of the actor prepares the INPUT form so that you can easily tell the actor what to do. 
 
 ### SETTINGS
 In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
