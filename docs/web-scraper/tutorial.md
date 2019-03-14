@@ -104,7 +104,7 @@ If you'd like to learn more about Pseudo URLs, [visit a quick tutorial in our do
 So, working with our actor details example, we could produce a Pseudo URL like this:
 
 ```
-https://apify.com/[.*]/[.*]
+https://apify.com/[.+]/[.+]
 ```
 
 This Pseudo URL will match all actor detail pages, such as:
@@ -116,7 +116,7 @@ https://apify.com/apify/web-scraper
 But it will not match pages we're not interested in, such as:
 
 ```
-https://apify.com/contacts
+https://apify.com/contact
 ```
 Let's use the above Pseudo URL in our task. We should also add a label as we did with our Start URL. This label will be added to all pages that were enqueued into the request queue using the given Pseudo URL.
 
