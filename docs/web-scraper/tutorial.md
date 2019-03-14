@@ -246,7 +246,7 @@ async function pageFunction(context) {
 Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking the **Clean items** card, or by going to the **DATASET** tab. Click **Preview data** again (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
 
 ### Scraping Title, Description, Last run date and Number of runs
-We've confirmed that the scraper works as expected, so now it's time to add more data to the results. To do that, we'll be using the infamous [`jQuery` library](https://jquery.com/), because it provides some nice tools and a lot of people familiar with JavaScript already know how to use it.
+We've confirmed that the scraper works as expected, so now it's time to add more data to the results. To do that, we'll be using the [`jQuery` library](https://jquery.com/), because it provides some nice tools and a lot of people familiar with JavaScript already know how to use it.
 
 > If you're not familiar with `jQuery`, you can find good information [in the docs](https://api.jquery.com/) and if you just don't want to use it, that's okay. Everything can be done using pure JavaScript too.
 
