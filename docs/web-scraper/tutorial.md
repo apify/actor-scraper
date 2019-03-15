@@ -450,13 +450,13 @@ async function pageFunction(context) {
 
 // ...
 
-let timeout; // undefined
+let timeoutMillis; // undefined
 const buttonSelector = 'div.show-more > button';
 while (true) {
     log.info('Waiting for the "Show more" button.');
     try {
-        await waitFor(buttonSelector, { timeout }); // Default timeout first time.
-        timeout = 2000; // 2 sec timeout after the first.
+        await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
+        timeoutMillis = 2000; // 2 sec timeout after the first.
     } catch (err) {
         // Ignore the timeout error.
         log.info('Could not find the "Show more button", we\'ve reached the end.');
