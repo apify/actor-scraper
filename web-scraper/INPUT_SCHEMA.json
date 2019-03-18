@@ -1,6 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
+    "description": "Web Scraper is a ready-made solution for scraping the web using the Chrome browser. It takes away all the work necessary to set up a browser for crawling, controls the browser automatically and produces machine readable results in several common formats.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {

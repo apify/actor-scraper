@@ -26,6 +26,10 @@ Underneath, it uses the [Puppeteer](https://github.com/GoogleChrome/puppeteer/) 
 the browser, but you don't need to worry about that. Using a simple web UI and a little of basic
 JavaScript, you can tweak it to serve almost any scraping need.
 
+## Getting Started
+If you're new to scraping or Apify, be sure to [visit our tutorial](https://apify.com/docs/scraping/web-scraper-tutorial)
+to walk you through creating your first scraping task step by step.
+
 ## Input
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
