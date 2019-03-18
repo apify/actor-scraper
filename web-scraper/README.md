@@ -3,6 +3,7 @@
 <!-- toc -->
 
 - [How it works](#how-it-works)
+- [Getting Started](#getting-started)
 - [Input](#input)
 - [Page function](#page-function)
   * [`context`](#context)
