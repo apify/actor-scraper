@@ -6,16 +6,36 @@ Welcome to the getting started tutorial to walk you through creating your first 
 
 You can create 10 different tasks for 10 different websites, with very different options, but there will always be just one actor, the `apify/web-scraper`. This is the essence of tasks. They are nothing but saved configurations of the actor that you can run easily and repeatedly.
 
-## Creating your first task
+## Trying it out
 Depending on how you arrived at this tutorial, you may already have your first task created for `apify/web-scraper`. If not, the easiest way is just to go to the [actor's library page](https://apify.com/apify/web-scraper) and click the **Try Actor** button. This will take you to the task configuration page.
 
 ![web-scraper in library](./static/creating-your-first-task.png "Creating your first task.")
 
-## Task configuration
+### Running a task
+You are now in the INPUT tab of the task configuration. Before we delve into the details, let's just see how the example works. Scroll down a bit and set the `Max pages per crawl` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works.
+
+> It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
+
+Now click **Save & Run**! *(either at the very bottom or in the top-right corner of your screen)*
+
+### The run detail
+After clicking **Save & Run**, the window will change to the run detail. Here, you will see the Log of the run. If it seems that nothing is happening, don't worry, it takes a few seconds for the run to fully boot up. In under a minute, you should have the 10 pages scraped. You will know that the run successfully completed when the `RUNNING` card in top-left corner changes to `SUCCEEDED`.
+
+> Feel free to browse through the various new tabs: LOG, INFO, INPUT and other, but for the sake of brevity, we will not explain all their features in this tutorial.
+
+Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Clean items** to see the results of the scrape. This takes you to the DATASET tab, where you can display or download the results in various formats. For now, just click the blue **Preview data** button. Voila, the scraped data.
+
+![run detail](./static/the-run-detail.png "Viewing results in the run detail.")
+
+Good job! We've run our first task and got some results. Let's learn how to change the default configuration to scrape something more interesting than just the page's `<title>`.
+
+## Creating your own task
 Before we jump into the scraping itself, let's just have a quick look at the user interface that's available to us.
 
 ### INPUT
-The INPUT tab is where you create your scraping configuration and we'll talk about it in much more detail later. The creator of the actor prepares the INPUT form so that you can easily tell the actor what to do. 
+The INPUT tab is where we started and it's the place where you create your scraping configuration. The creator of the actor prepares the INPUT form so that you can easily tell the actor what to do. There are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
+
+> We will not go through all the available INPUT options in this tutorial. See the actor's README under the ACTOR INFO tab for detailed information.
 
 ### SETTINGS
 In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
@@ -29,28 +49,10 @@ Since tasks are just configurations for actors, this tab shows you all the infor
 Webhooks are a feature that help keep you aware of what's happening with your tasks. You can set them up to inform you when a task starts, finishes, fails and so on, or you can even use them to run more tasks, depending on the outcome of the original one. You can find the [documentation on webhooks here](https://apify.com/docs/webhooks).
 
 ### RUNS
-After you run your task for the first time, you will find the run here and will be able to open its detail page to see all information about it. All runs of your task including their results will be stored here for the data retention period, [which you can find under your plan](https://apify.com/pricing).
+You can find all the task runs and their detail pages here. Every time you start a task, it will appear here in the list. All runs of your task including their results will be stored here for the data retention period, [which you can find under your plan](https://apify.com/pricing).
 
 ### API
-The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically, and includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
-
-## The INPUT
-Now let's go back to the INPUT tab. As you can see, there are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
-
-> We will not go through all the available INPUT options in this tutorial. See the actor's README under the ACTOR INFO tab for detailed information.
-
-Before you click Run to see what happens, set the `Max pages per crawl` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works. It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
-
-Now click **Save & Run**! *(either at the very bottom or in the top-right corner of your screen)*
-
-### The run detail
-After clicking **Save & Run**, the window will change to the run detail. Here, you will see the Log of the run. If it seems that nothing is happening, don't worry, it takes a few seconds for the run to fully boot up. In under a minute, you should have the 10 pages scraped. You will know that the run successfully completed when the `RUNNING` card in top-left corner changes to `SUCCEEDED`.
-
-> Feel free to browse through the various new tabs: LOG, INFO, INPUT and other, but for the sake of brevity, we will not explain all their features in this tutorial.
-
-Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Clean items** to see the results of the scrape. This takes you to the DATASET tab, where you can display or download the results in various formats. For now, just click the blue **Preview data** button. Voila, the scraped data. If you see a bunch of weird things like `#debug/errorMessages`, just check the **Clean data** checkbox above the top-left corner of the results table and it should go away.
-
-Good job! We've run our first task and got some results. Let's learn how to change the default configuration to scrape something more interesting than just the page's `<title>`.
+The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
 
 ## Scraping theory
 Since this is a tutorial, we'll be scraping our own website. A great candidate for some scraping practice is the [Apify Library](https://apify.com/library). It's a page that uses modern web technologies and displays a lot of different items in various categories, just like an online store, a typical scraping target, would.
