@@ -133,7 +133,7 @@ module.exports = (apifyNamespace) => {
                 return global[handle]();
             }
 
-            async enqueueRequest(request, options) {
+            async enqueueRequest(request, options = {}) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
