@@ -34,7 +34,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
  * @property {number} maxCrawlingDepth
- * @property {number} minConcurrency
  * @property {number} maxConcurrency
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
@@ -135,6 +134,7 @@ class CrawlerSetup {
             handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
+            maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             // maxOpenPagesPerInstance: use default,

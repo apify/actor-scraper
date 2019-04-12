@@ -128,6 +128,13 @@
             "minimum": 0,
             "default": 0
         },
+        "maxConcurrency": {
+            "title": "Max concurrency",
+            "type": "integer",
+            "description": "Defines how many pages can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. Use this option to set a hard limit.",
+            "minimum": 1,
+            "default": 50
+        },
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
