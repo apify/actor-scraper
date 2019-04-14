@@ -42,7 +42,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async function pageFunction(context) {\n    const { request, log } = context;\n    const title = await page.title();\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
+            "prefill": "async function pageFunction(context) {\n    const { page, request, log } = context;\n    const title = await page.title();\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
