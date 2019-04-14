@@ -161,7 +161,7 @@
             "title": "Pre goto function",
             "type": "string",
             "description": "This function is executed before navigation to a given URL. It can be useful to do pre-processing, changes to the page that allow bypassing anti-scraping protections or just setting cookies.",
-            "prefill": "async function preGotoFunction({ request, page, Apify }) {}",
+            "prefill": "async function preGotoFunction({ request, page, Apify }) {\n    /* add your pre-navigation logic here, if needed */\n}",
             "editor": "javascript"
         }
     },
