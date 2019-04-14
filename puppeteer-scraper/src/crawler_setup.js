@@ -4,7 +4,6 @@ const {
     tools,
     browserTools,
     createContext,
-    GlobalStore,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
 } = require('@mnmkng/scraper-tools');
 
@@ -25,8 +24,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
  * @property {boolean} browserLog
- * @property {boolean} injectJQuery
- * @property {boolean} injectUnderscore
  * @property {boolean} downloadMedia
  * @property {boolean} downloadCss
  * @property {boolean} ignoreSslErrors
@@ -39,6 +36,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
+ * @property {string} preGotoFunction
  */
 
 /**
@@ -47,12 +45,15 @@ const { utils: { log, puppeteer } } = Apify;
  */
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
-    constructor(input, environment) {
+    constructor(input) {
+        // Set log level early to prevent missed messages.
+        if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
+
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
 
         // Attempt to load page function from disk if not present on input.
-        tools.maybeLoadPageFunctionFromDisk(input);
+        tools.maybeLoadPageFunctionFromDisk(input, __dirname);
 
         // Validate INPUT if not running on Apify Cloud Platform.
         if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
@@ -61,7 +62,7 @@ class CrawlerSetup {
          * @type {Input}
          */
         this.input = input;
-        this.env = Object.assign({}, environment);
+        this.env = Apify.getEnv();
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -73,15 +74,15 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
-
-        // Side effects
-        if (this.input.debugLog) log.setLevel(log.LEVELS.DEBUG);
+        this.input.initialCookies.forEach((cookie) => {
+            if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
+        });
 
         // Page Function needs to be evaluated.
         this.evaledPageFunction = tools.evalPageFunctionOrThrow(this.input.pageFunction);
 
         // Used to store data that persist navigations
-        this.globalStore = new GlobalStore();
+        this.globalStore = new Map();
 
         // Excluded resources
         this.blockedResources = new Set(['font', 'image', 'media', 'stylesheet']);
@@ -130,12 +131,9 @@ class CrawlerSetup {
             handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
+            maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            // maxOpenPagesPerInstance: use default,
-            // retireInstanceAfterRequestCount: use default,
-            // instanceKillerIntervalMillis: use default,
-            // killInstanceAfterMillis: use default,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             launchPuppeteerOptions: {
@@ -161,9 +159,21 @@ class CrawlerSetup {
         // Prevent download of stylesheets and media, unless selected otherwise
         if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
 
+        // Add initial cookies, if any.
+        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+
+        // Enable pre-processing before navigation is initiated.
+        try {
+            await this.input.preGotoFunction({ request, page, Apify });
+        } catch (err) {
+            log.error('User provided Pre goto function failed.');
+            throw err;
+        }
+
         // Invoke navigation.
         return page.goto(request.url, {
             timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+            waitUntil: 'domcontentloaded',
         });
     }
 
@@ -171,16 +181,12 @@ class CrawlerSetup {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
-        return this._handleResult(request, null, true);
+        return this._handleResult(request, {}, null, true);
     }
 
     /**
-     * Factory that creates a `handlePageFunction` to be used in the `PuppeteerCrawler`
-     * class.
-     *
      * First of all, it initializes the state that is exposed to the user via
-     * `pageFunction` context and then it constructs all the context's functions to
-     * avoid unnecessary operations with each `pageFunction` call.
+     * `pageFunction` context.
      *
      * Then it invokes the user provided `pageFunction` with the prescribed context
      * and saves it's return value.
@@ -190,7 +196,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool }) {
+    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -199,11 +205,27 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl();
+        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
 
-        // Setup Context and pass the configuration down to Browser.
-        const { context, state } = createContext(this, { request, response, page, puppeteerPool });
+        // Setup and create Context.
+        const contextOptions = {
+            crawlerSetup: Object.assign(
+                _.pick(this, ['rawInput', 'env', 'globalStore', 'requestQueue']),
+                _.pick(this.input, ['customData', 'useRequestQueue']),
+            ),
+            pageFunctionArguments: {
+                page,
+                autoscaledPool,
+                puppeteerPool,
+                request,
+                response: {
+                    status: response.status(),
+                    headers: response.headers(),
+                },
+            },
+        };
+        const { context, state } = createContext(contextOptions);
 
         /**
          * USER FUNCTION INVOCATION
@@ -213,22 +235,20 @@ class CrawlerSetup {
         /**
          * POST-PROCESSING
          */
-
         // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        await this._handleLinks(page, state, request);
+        if (!state.skipLinks) await this._handleLinks(page, state, request);
 
         // Save the `pageFunction`s result to the default dataset unless
         // the `skipOutput()` context function was invoked.
-        if (state.skipOutput) return;
-        await this._handleResult(request, pageFunctionResult);
+        await this._handleResult(request, response, pageFunctionResult);
     }
 
-    async _handleMaxResultsPerCrawl() {
-        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return;
+    async _handleMaxResultsPerCrawl(autoscaledPool) {
+        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return false;
         log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
-        await this.crawler.abort();
+        await autoscaledPool.abort();
         return true;
     }
 
@@ -239,12 +259,12 @@ class CrawlerSetup {
             log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
+        const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
         if (!canEnqueue) return;
 
         await Apify.utils.enqueueLinks({
             page,
-            linkSelector: this.input.linkSelector,
+            selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
             userData: {
@@ -256,8 +276,8 @@ class CrawlerSetup {
         });
     }
 
-    async _handleResult(request, pageFunctionResult, isError) {
-        const payload = tools.createDatasetPayload(request, pageFunctionResult, isError);
+    async _handleResult(request, response, pageFunctionResult, isError) {
+        const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
         await Apify.pushData(payload);
         this.pagesOutputted++;
     }

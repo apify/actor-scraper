@@ -47,7 +47,7 @@ const { utils: { log, puppeteer } } = Apify;
  */
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
-    constructor(input, environment) {
+    constructor(input) {
         // Set log level early to prevent missed messages.
         if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 
@@ -64,7 +64,7 @@ class CrawlerSetup {
          * @type {Input}
          */
         this.input = input;
-        this.env = Object.assign({}, environment);
+        this.env = Apify.getEnv();
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -120,7 +120,7 @@ class CrawlerSetup {
     }
 
     /**
-     * Resolves to an options object that may be directly passed to a `PuppeteerCrawler`
+     * Resolves to a `PuppeteerCrawler` instance.
      * constructor.
      * @returns {Promise<PuppeteerCrawler>}
      */
@@ -137,10 +137,6 @@ class CrawlerSetup {
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            // maxOpenPagesPerInstance: use default,
-            // retireInstanceAfterRequestCount: use default,
-            // instanceKillerIntervalMillis: use default,
-            // killInstanceAfterMillis: use default,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             launchPuppeteerOptions: {
@@ -364,7 +360,7 @@ class CrawlerSetup {
 
         await Apify.utils.enqueueLinks({
             page,
-            linkSelector: this.input.linkSelector,
+            selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
             userData: {

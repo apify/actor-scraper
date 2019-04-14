@@ -10,9 +10,6 @@ Apify.main(async () => {
     const input = await Apify.getInput();
     if (!input) throw new Error('INPUT cannot be empty!');
 
-    log.debug('Getting environment information.');
-    const env = Apify.getEnv();
-
     // Get crawler setup and startup options.
     log.info('Configuring Web Scraper.');
     const setup = new CrawlerSetup(input, env);
