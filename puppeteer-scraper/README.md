@@ -1,18 +1,22 @@
 # Apify Puppeteer Scraper
 
-
 <!-- toc -->
 
 - [How it works](#how-it-works)
 - [Input](#input)
 - [Page function](#page-function)
-  * [`context`](#context)
-    + [Data structures](#data-structures)
-    + [Functions](#functions)
-    + [Class instances and namespaces](#class-instances-and-namespaces)
-      - [Global Store](#global-store)
-      - [Log](#log)
-      - [Underscore](#underscore)
+- [`context`](#context)
+  * [Data structures](#data-structures)
+  * [Functions](#functions)
+  * [Class instances and namespaces](#class-instances-and-namespaces)
+    + [Page](#page)
+    + [Request](#request)
+    + [Response](#response)
+    + [PuppeteerPool](#puppeteerpool)
+    + [AutoscaledPool](#autoscaledpool)
+    + [Global Store](#global-store)
+    + [Log](#log)
+    + [Apify](#apify)
 - [Output](#output)
   * [Dataset](#dataset)
 

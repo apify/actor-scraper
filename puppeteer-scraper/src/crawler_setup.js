@@ -78,8 +78,11 @@ class CrawlerSetup {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
 
-        // Page Function needs to be evaluated.
-        this.evaledPageFunction = tools.evalPageFunctionOrThrow(this.input.pageFunction);
+        // Functions need to be evaluated.
+        this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
+        if (this.input.preGotoFunction) {
+            this.evaledPreGotoFunction = tools.evalFunctionOrThrow(this.input.preGotoFunction);
+        }
 
         // Used to store data that persist navigations
         this.globalStore = new Map();
@@ -163,11 +166,13 @@ class CrawlerSetup {
         if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
 
         // Enable pre-processing before navigation is initiated.
-        try {
-            await this.input.preGotoFunction({ request, page, Apify });
-        } catch (err) {
-            log.error('User provided Pre goto function failed.');
-            throw err;
+        if (this.evaledPreGotoFunction) {
+            try {
+                await this.evaledPreGotoFunction({ request, page, Apify });
+            } catch (err) {
+                log.error('User provided Pre goto function failed.');
+                throw err;
+            }
         }
 
         // Invoke navigation.
