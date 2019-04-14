@@ -1,7 +1,7 @@
 {
     "title": "Puppeteer Scraper Input",
     "type": "object",
-    "description": "Puppeteer Scraper is a ready-made solution for scraping the web using Chrome & Puppeteer. It enhances Puppeteer with features that enable seamless scaling, error handling, storage of results and many more.",
+    "description": "Puppeteer Scraper is the most powerful scraper tool in our arsenal (aside from developing your own actors). It uses the Puppeteer library to programmatically control a headless Chrome browser and it can make it do almost anything. If using the Web Scraper does not cut it, Puppeteer Scraper is what you need.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {

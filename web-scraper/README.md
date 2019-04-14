@@ -44,9 +44,14 @@ const context = {
     // USEFUL DATA
     input, // Unaltered original input as parsed from the UI
     env, // Contains information about the run such as actorId or runId
-    customData, // Value of the 'Custom data' Crawler option.
+    customData, // Value of the 'Custom data' scraper option.
+    
+    // EXPOSED OBJECTS
     request, // Apify.Request object.
     response, // Response object holding the status code and headers.
+    globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
+    log, // Reference to Apify.utils.log 
+    underscoreJs, // A reference to the Underscore _ object (if Inject Underscore was used).
     
     // EXPOSED FUNCTIONS
     setValue, // Reference to the Apify.setValue() function.
@@ -57,16 +62,12 @@ const context = {
     enqueueRequest, // Adds a page to the request queue.
     jQuery, // A reference to the jQuery $ function (if Inject JQuery was used).
     
-    // EXPOSED OBJECTS
-    globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
-    log, // Reference to Apify.utils.log 
-    underscoreJs, // A reference to the Underscore _ object (if Inject Underscore was used).
 }
 ```
-### `context`
+## `context`
 The following tables describe the `context` object in more detail.
 
-#### Data structures
+### Data structures
 <table>
 <thead>
     <tr><td>Argument</td><td>Type</td></tr>
@@ -91,20 +92,10 @@ The following tables describe the `context` object in more detail.
     </td></tr>
     <tr><td><code>request</code></td><td><code>Request</code></td></tr>
     <tr><td colspan="2">
-        Apify uses a <code>request</code> object to represent metadata about the currently crawled page,
-        such as its URL or the number of retries. See the
-        <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
-        class for a preview of the structure and full documentation.
-    </td></tr>
-    <tr><td><code>response</code></td><td><code>{status: number, headers: Object}</code></td></tr>
-    <tr><td colspan="2">
-        The HTTP response object is produced by Puppeteer. Currently, we only pass the HTTP status code
-        and the response headers to the <code>context</code>.
-    </td></tr>
 </tbody>
 </table>
 
-#### Functions
+### Functions
 The `context` object provides several helper functions that make scraping and saving data easier
 and more streamlined. All of the functions are `async` so make sure to use `await` with their invocations.
 
@@ -148,7 +139,7 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
     </td></tr>
     <tr><td><code>skipLinks</code></td><td></td></tr>
     <tr><td colspan="2">
-        With each invocation of the <code>pageFunction</code> the crawler attempts to extract
+        With each invocation of the <code>pageFunction</code> the scraper attempts to extract
         new URLs from the page using the Link selector and PseudoURLs provided in the input UI.
         If you want to prevent this behavior in certain cases, call the <code>skipLinks</code>
         function and no URLs will be added to the queue for the given page.
@@ -173,11 +164,21 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
 </tbody>
 </table>
 
-#### Class instances and namespaces
+### Class instances and namespaces
 The following are either class instances or namespaces, which is just a way of saying objects
 with functions on them.
 
-##### Global Store
+#### Request
+Apify uses a `request` object to represent metadata about the currently crawled page,
+such as its URL or the number of retries. See the
+<a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
+class for a preview of the structure and full documentation.
+
+#### Response
+The `response` object is produced by Puppeteer. Currently, we only pass the HTTP status code
+and the response headers to the `context`.
+
+#### Global Store
 `globalStore` represents an instance of a very simple in memory store that is not scoped to the individual
 `pageFunction` invocation. This enables you to easily share global data such as API responses, tokens and other.
 Since the stored data need to cross from the Browser to the Node.js process, it cannot be any kind of data,
@@ -192,14 +193,14 @@ but only JSON stringifiable objects. You cannot store DOM objects, functions, ci
    - Only `string` keys can be used and the values need to be JSON stringifiable.
    - `map.forEach()` is not supported.
 
-##### Log
+#### Log
 `log` is a reference to
 <a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>.
 You can use any of the logging methods such as <code>log.info</code> or <code>log.exception</code>.
 <code>log.debug</code> is special, because you can trigger visibility of those messages in the
 scraper's Log by the provided **Debug log** input option.
 
-##### Underscore
+#### Underscore
 <a href="https://underscorejs.org/" target="_blank">Underscore</a> is a helper library.
 You can use it in your `pageFunction` if you use the **Inject Underscore** input option.
 
