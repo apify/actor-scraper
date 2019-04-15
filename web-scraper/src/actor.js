@@ -12,7 +12,7 @@ Apify.main(async () => {
 
     // Get crawler setup and startup options.
     log.info('Configuring Web Scraper.');
-    const setup = new CrawlerSetup(input, env);
+    const setup = new CrawlerSetup(input);
     const crawler = await setup.createCrawler();
 
     log.info('Configuration completed. Starting the scrape.');
