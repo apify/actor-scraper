@@ -1,4 +1,5 @@
 const Apify = require('apify');
+const _ = require('underscore');
 const {
     tools,
     createContext,
