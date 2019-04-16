@@ -1,7 +1,7 @@
 {
     "title": "Puppeteer Scraper Input",
     "type": "object",
-    "description": "Puppeteer Scraper is the most powerful scraper tool in our arsenal (aside from developing your own actors). It uses the Puppeteer library to programmatically control a headless Chrome browser and it can make it do almost anything. If using the Web Scraper does not cut it, Puppeteer Scraper is what you need.",
+    "description": "Use the following form to configure Puppeteer Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {

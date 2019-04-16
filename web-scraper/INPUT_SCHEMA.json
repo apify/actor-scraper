@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Web Scraper is a ready-made solution for scraping the web using the Chrome browser. It takes away all the work necessary to set up a browser for crawling, controls the browser automatically and produces machine readable results in several common formats.",
+    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href=\"https://apify.com/docs/scraping/web-scraper-tutorial\" target=\"_blank\">step by step tutorial</a> to help you with the basics.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
