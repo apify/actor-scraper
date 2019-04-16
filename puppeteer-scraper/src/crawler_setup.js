@@ -15,7 +15,7 @@ const { utils: { log, puppeteer } } = Apify;
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
  * and IDE type check integration.
  *
- * @typedef {Number} Input
+ * @typedef {Object} Input
  * @property {Object[]} startUrls
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
@@ -106,7 +106,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = await Apify.openRequestList('PUPPETEER-SCRAPER', this.input.startUrls);
+        this.requestList = await Apify.openRequestList('PUPPETEER_SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -182,7 +182,7 @@ class CrawlerSetup {
         });
     }
 
-    _handleFailedRequestFunction({ request }) { // eslint-disable-line class-methods-use-this
+    _handleFailedRequestFunction({ request }) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
@@ -194,7 +194,7 @@ class CrawlerSetup {
      * `pageFunction` context.
      *
      * Then it invokes the user provided `pageFunction` with the prescribed context
-     * and saves it's return value.
+     * and saves its return value.
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.

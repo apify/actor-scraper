@@ -40,18 +40,9 @@ class Context {
         this.globalStore = crawlerSetup.globalStore;
         this.log = Apify.utils.log;
 
-        this.request = pageFunctionArguments.request;
-        this.response = pageFunctionArguments.response;
-        this.autoscaledPool = pageFunctionArguments.autoscaledPool;
-
-        // When using PuppeteerCrawler
-        if (pageFunctionArguments.page) {
-            this.page = pageFunctionArguments.page;
-            this.puppeteerPool = pageFunctionArguments.puppeteerPool;
-        }
-
-        // When using CheerioCrawler
-        if (pageFunctionArguments.$) this.$ = pageFunctionArguments.$;
+        // Page function arguments are directly passed from CrawlerSetup
+        // and differ between Puppeteer and Cheerio Scrapers.
+        Object.assign(this, pageFunctionArguments);
 
         // Bind this to allow destructuring off context in pageFunction.
         this.saveSnapshot = this.saveSnapshot.bind(this);

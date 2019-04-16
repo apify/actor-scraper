@@ -41,9 +41,15 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  */
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
-    constructor(input, environment) {
+    constructor(input) {
+        // Set log level early to prevent missed messages.
+        if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
+
         // Keep this as string to be immutable.
         this.rawInput = JSON.stringify(input);
+
+        // Attempt to load page function from disk if not present on input.
+        tools.maybeLoadPageFunctionFromDisk(input, __dirname);
 
         // Validate INPUT if not running on Apify Cloud Platform.
         if (!Apify.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
@@ -51,8 +57,8 @@ class CrawlerSetup {
         /**
          * @type {Input}
          */
-        this.input = JSON.parse(this.rawInput);
-        this.env = Object.assign({}, environment);
+        this.input = input;
+        this.env = Apify.getEnv();
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -64,15 +70,15 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
+        this.input.initialCookies.forEach((cookie) => {
+            if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
+        });
 
-        // Side effects
-        if (this.input.debugLog) log.setLevel(log.LEVELS.DEBUG);
-
-        // Page Function needs to be evaluated.
-        this.evaledPageFunction = tools.evalPageFunctionOrThrow(this.input.pageFunction);
+        // Functions need to be evaluated.
+        this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
 
         // Used to store data that persist navigations
-        this.globalStore = new GlobalStore();
+        this.globalStore = new Map();
 
         // Initialize async operations.
         this.crawler = null;
@@ -85,7 +91,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = await Apify.openRequestList('CHEERIO-SCRAPER', this.input.startUrls);
+        this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -100,8 +106,7 @@ class CrawlerSetup {
     }
 
     /**
-     * Resolves to a CheerioCrawler instance set up with input values.
-     *
+     * Resolves to a `CheerioCrawler` instance.
      * @returns {Promise<CheerioCrawler>}
      */
     async createCrawler() {
@@ -109,19 +114,17 @@ class CrawlerSetup {
 
         const options = {
             ...this.input.proxyConfiguration,
-            handlePageFunction: this.handlePageFunction.bind(this),
+            handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
-            // requestFunction: use default,
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
             requestTimeoutSecs: this.input.pageLoadTimeoutSecs,
             ignoreSslErrors: this.input.ignoreSslErrors,
-            handleFailedRequestFunction: this.handleFailedRequestFunction.bind(this),
+            handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             autoscaledPoolOptions: {
-                minConcurrency: MIN_CONCURRENCY,
-                maxConcurrency: MAX_CONCURRENCY,
+                maxConcurrency: this.input.maxConcurrency,
                 systemStatusOptions: {
                     // Cheerio does a lot of sync operations, so we need to
                     // give it some time to do its job.
@@ -135,30 +138,26 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async handleFailedRequestFunction({ request }) {
+    _handleFailedRequestFunction({ request }) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
-        return this._handleResult(request, null, true);
+        return this._handleResult(request, {}, null, true);
     }
 
     /**
-     * Factory that creates a `handlePageFunction` to be used in the `CheerioCrawler`
-     * class.
-     *
      * First of all, it initializes the state that is exposed to the user via
-     * `pageFunction` context and then it constructs all the context's functions to
-     * avoid unnecessary operations with each `pageFunction` call.
+     * `pageFunction` context.
      *
      * Then it invokes the user provided `pageFunction` with the prescribed context
-     * and saves it's return value.
+     * and saves its return value.
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
      * @param {Object} environment
      * @returns {Function}
      */
-    async handlePageFunction({ $, html, request, response }) {
+    async _handlePageFunction({ request, response, $, html, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -170,8 +169,24 @@ class CrawlerSetup {
         const aborted = await this._handleMaxResultsPerCrawl();
         if (aborted) return;
 
-        // Initialize context and state.
-        const { context, state } = createContext(this, { request, response, html, $ });
+        // Setup and create Context.
+        const contextOptions = {
+            crawlerSetup: Object.assign(
+                _.pick(this, ['rawInput', 'env', 'globalStore', 'requestQueue']),
+                _.pick(this.input, ['customData', 'useRequestQueue']),
+            ),
+            pageFunctionArguments: {
+                $,
+                html,
+                autoscaledPool,
+                request,
+                response: {
+                    status: response.statusCode,
+                    headers: response.headers,
+                },
+            },
+        };
+        const { context, state } = createContext(contextOptions);
 
         /**
          * USER FUNCTION INVOCATION

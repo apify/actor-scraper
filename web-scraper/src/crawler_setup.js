@@ -105,7 +105,7 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = await Apify.openRequestList('WEB-SCRAPER', this.input.startUrls);
+        this.requestList = await Apify.openRequestList('WEB_SCRAPER', this.input.startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
