@@ -22,14 +22,15 @@
 
 ## How it works
 
-Crawler Cheerio is a ready-made solution for crawling the web using plain HTTP requests to retrieve HTML pages
-and then parsing and inspecting the HTML using the [Cheerio](https://www.npmjs.com/package/cheerio) NPM package.
+Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests to retrieve HTML pages
+and then parsing and inspecting the HTML using the [Cheerio](https://www.npmjs.com/package/cheerio) library.
+It's blazing fast.
 
 Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library, that does not run in the
 browser, but instead constructs a DOM out of a HTML string and then provides the user with API to work with that
 DOM.
 
-Crawler Cheerio is ideal for scraping websites that do not rely on client-side JavaScript to serve their content.
+Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content.
 It can be as much as 20 times faster than using a full browser solution such as Puppeteer.
 
 ## Input
