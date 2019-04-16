@@ -2,7 +2,6 @@ const Apify = require('apify');
 const {
     tools,
     createContext,
-    GlobalStore,
     constants: { META_KEY },
 } = require('@mnmkng/scraper-tools');
 
@@ -11,8 +10,6 @@ const SCHEMA = require('../INPUT_SCHEMA');
 const { utils: { log } } = Apify;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
-const MIN_CONCURRENCY = 5;
-const MAX_CONCURRENCY = 100;
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -31,9 +28,11 @@ const MAX_CONCURRENCY = 100;
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
  * @property {number} maxCrawlingDepth
+ * @property {number} maxConcurrency
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
+ * @property {Array} initialCookies
  */
 
 /**

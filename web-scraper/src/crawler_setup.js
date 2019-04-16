@@ -38,7 +38,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
- * @property {Object} initialCookies
+ * @property {Array} initialCookies
  */
 
 /**

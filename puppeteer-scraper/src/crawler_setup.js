@@ -31,11 +31,11 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
  * @property {number} maxCrawlingDepth
- * @property {number} minConcurrency
  * @property {number} maxConcurrency
  * @property {number} pageLoadTimeoutSecs
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
+ * @property {Array} initialCookies
  * @property {string} preGotoFunction
  */
 
