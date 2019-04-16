@@ -16,7 +16,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
  * and IDE type check integration.
  *
- * @typedef {Number} Input
+ * @typedef {Object} Input
  * @property {Object[]} startUrls
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
@@ -222,7 +222,7 @@ class CrawlerSetup {
         // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (!state.skipLinks) await this._handleLinks($, state, request);
+        if (!state.skipLinks) await this._handleLinks($, request);
 
         // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);
@@ -235,7 +235,7 @@ class CrawlerSetup {
         return true;
     }
 
-    async _handleLinks($, state, request) {
+    async _handleLinks($, request) {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {

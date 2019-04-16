@@ -139,6 +139,9 @@ class CrawlerSetup {
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
+            puppeteerPoolOptions: {
+                useLiveView: true,
+            },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
@@ -239,7 +242,7 @@ class CrawlerSetup {
         return response;
     }
 
-    _handleFailedRequestFunction({ request }) { // eslint-disable-line class-methods-use-this
+    _handleFailedRequestFunction({ request }) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
@@ -251,7 +254,7 @@ class CrawlerSetup {
      * `pageFunction` context.
      *
      * Then it invokes the user provided `pageFunction` with the prescribed context
-     * and saves it's return value.
+     * and saves its return value.
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
