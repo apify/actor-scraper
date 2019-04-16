@@ -54,7 +54,7 @@ const context = {
     request, // Apify.Request object.
     response, // Response object holding the status code and headers.
     puppeteerPool, // Reference to the Apify.PuppeteerPool instance running the browsers.
-    autoscaledPool, // Referenceto the Apify.AutoscaledPool instance managing concurrency.
+    autoscaledPool, // Reference to the Apify.AutoscaledPool instance managing concurrency.
     globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
     log, // Reference to Apify.utils.log
     Apify, // Reference to the full power of Apify SDK.
@@ -93,18 +93,6 @@ The following tables describe the `context` object in more detail.
         Since the input UI is fixed, it does not support adding of other fields that may be needed for all
         specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
         and its contents will be available under the <code>customData</code> context key.
-    </td></tr>
-    <tr><td><code>request</code></td><td><code>Request</code></td></tr>
-    <tr><td colspan="2">
-        Apify uses a <code>request</code> object to represent metadata about the currently crawled page,
-        such as its URL or the number of retries. See the
-        <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
-        class for a preview of the structure and full documentation.
-    </td></tr>
-    <tr><td><code>response</code></td><td><code>{status: number, headers: Object}</code></td></tr>
-    <tr><td colspan="2">
-        The HTTP response object is produced by Puppeteer. Currently, we only pass the HTTP status code
-        and the response headers to the <code>context</code>.
     </td></tr>
 </tbody>
 </table>
@@ -216,7 +204,6 @@ runs using the SDK, some edge case manipulations may lead to inconsistencies.
 Use `Apify` with caution and avoid making global changes unless you know what you're doing.
 
 ## Output
-
 Output is a dataset containing extracted data for each scraped page. To save data into
 the dataset, return an `Object` or an `Object[]` from the `pageFunction`.
 

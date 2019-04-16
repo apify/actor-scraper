@@ -207,7 +207,6 @@ scraper's Log by the provided **Debug log** input option.
 You can use it in your `pageFunction` if you use the **Inject Underscore** input option.
 
 ## Output
-
 Output is a dataset containing extracted data for each scraped page. To save data into
 the dataset, return an `Object` or an `Object[]` from the `pageFunction`.
 

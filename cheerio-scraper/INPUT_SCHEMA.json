@@ -9,8 +9,7 @@
             "type": "array",
             "description": "URLs to start with",
             "prefill": [
-                { "url": "http://example.com" },
-                { "url": "http://iana.org" }
+                { "url": "https://apify.com" }
             ],
             "editor": "requestListSources"
         },
@@ -28,7 +27,7 @@
             "default": [],
             "prefill": [
                 {
-                    "purl": "https://www.iana.org/[((?!\\.pdf$).)*]"
+                    "purl": "https://apify.com[(/[\\w-]+)?]"
                 }
             ]
         },
@@ -43,7 +42,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async ({ $, request }) => {\n    const title = $('title').text();\n    console.log(`Title of ${request.url}: ${title}`);\n    return { title };\n}",
+            "prefill": "async function pageFunction(context) {\n    const { $, request, log } = context;\n    const title = $('title').text();\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
@@ -99,6 +98,13 @@
             "minimum": 0,
             "default": 0
         },
+        "maxConcurrency": {
+            "title": "Max concurrency",
+            "type": "integer",
+            "description": "Defines how many pages can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. Use this option to set a hard limit.",
+            "minimum": 1,
+            "default": 50
+        },
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
@@ -124,11 +130,12 @@
             "default": {},
             "editor": "json"
         },
-        "cookies": {
-            "title": "Cookies",
-            "type": "object",
+        "initialCookies": {
+            "title": "Initial cookies",
+            "type": "array",
             "description": "The provided cookies will be pre-set to all pages the scraper opens.",
-            "default": {},
+            "default": [],
+            "prefill": [],
             "editor": "json"
         }
     },
