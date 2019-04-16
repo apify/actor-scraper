@@ -245,8 +245,7 @@ class CrawlerSetup {
         // or maxCrawlingDepth would be exceeded.
         if (!state.skipLinks) await this._handleLinks(page, state, request);
 
-        // Save the `pageFunction`s result to the default dataset unless
-        // the `skipOutput()` context function was invoked.
+        // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);
     }
 

@@ -118,6 +118,7 @@ class CrawlerSetup {
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
+            prepareRequestFunction: this._prepareRequestFunction.bind(this),
             requestTimeoutSecs: this.input.pageLoadTimeoutSecs,
             ignoreSslErrors: this.input.ignoreSslErrors,
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
@@ -136,6 +137,27 @@ class CrawlerSetup {
         this.crawler = new Apify.CheerioCrawler(options);
 
         return this.crawler;
+    }
+
+    _prepareRequestFunction({ request }) {
+        // Normalize headers
+        request.headers = Object
+            .entries(request.headers)
+            .reduce((newHeaders, [key, value]) => {
+                newHeaders[key.toLowerCase()] = value;
+                return newHeaders;
+            }, {});
+
+        // Add initial cookies, if any.
+        if (this.input.initialCookies.length) {
+            const cookieHeaderValue = this.input.initialCookies
+                .map(({ name, value }) => `${name}=${value}`)
+                .join('; ');
+            Object.assign(request.headers, {
+                cookie: cookieHeaderValue,
+            });
+        }
+        return request;
     }
 
     _handleFailedRequestFunction({ request }) {
@@ -196,40 +218,38 @@ class CrawlerSetup {
         /**
          * POST-PROCESSING
          */
-        // Enqueue more links if Pseudo URLs and a clickable selector are available,
+        // Enqueue more links if Pseudo URLs and a link selector are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        await this._handleLinks(state, request, $, response);
+        if (!state.skipLinks) await this._handleLinks($, state, request);
 
-        // Save the `pageFunction`s result to the default dataset unless
-        // the `skipOutput()` context function was invoked.
-        if (state.skipOutput) return;
-        await this._handleResult(request, pageFunctionResult);
+        // Save the `pageFunction`s result to the default dataset.
+        await this._handleResult(request, response, pageFunctionResult);
     }
 
-    async _handleMaxResultsPerCrawl() {
-        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return;
+    async _handleMaxResultsPerCrawl(autoscaledPool) {
+        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return false;
         log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
-        await this.crawler.abort();
+        await autoscaledPool.abort();
         return true;
     }
 
-    async _handleLinks(state, request, $, response) {
+    async _handleLinks($, state, request) {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
             log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = !state.skipLinks && this.input.pseudoUrls.length && this.input.linkSelector;
+        const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
         if (!canEnqueue) return;
 
         await Apify.utils.enqueueLinks({
             $,
-            linkSelector: this.input.linkSelector,
+            selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
-            baseUrl: response.request.uri.href,
+            baseUrl: request.loadedUrl,
             userData: {
                 [META_KEY]: {
                     parentRequestId: request.id,
@@ -239,8 +259,8 @@ class CrawlerSetup {
         });
     }
 
-    async _handleResult(request, pageFunctionResult, isError) {
-        const payload = tools.createDatasetPayload(request, pageFunctionResult, isError);
+    async _handleResult(request, response, pageFunctionResult, isError) {
+        const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
         await Apify.pushData(payload);
         this.pagesOutputted++;
     }
