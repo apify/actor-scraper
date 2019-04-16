@@ -139,6 +139,9 @@ class CrawlerSetup {
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
+            puppeteerPoolOptions: {
+                useLiveView: true,
+            },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
