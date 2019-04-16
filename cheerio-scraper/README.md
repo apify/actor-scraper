@@ -103,7 +103,12 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
     <tr><td>Argument</td><td>Arguments</td></tr>
 </thead>
 <tbody>
-    <tr><td><code>$</code></td><td><code>(selector: string)</code></td></tr>
+    <tr><td><code>$</code></td>
+    <td>
+        <a href="https://github.com/cheeriojs/cheerio#-selector-context-root-" target="_blank">
+            <code>selector, [context], [root]</code>
+        </a>
+    </td></tr>
     <tr><td colspan="2">
         Reference to the <a href="https://github.com/cheeriojs/cheerio" target="_blank">Cheerio</a>
         function, which enables you to work with the page's HTML just as `jQuery` would.
