@@ -56,7 +56,7 @@
         "debugLog": {
             "title": "Debug log",
             "type": "boolean",
-            "description": "Debug messages will be included in the log. Use `context.log.debug('message')` to log your own debug messages.",
+            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
             "default": false,
             "groupCaption": "Options",
             "groupDescription": "Crawler settings"
