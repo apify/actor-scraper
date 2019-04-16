@@ -1,6 +1,6 @@
 {
   "name": "@mnmkng/scraper-tools",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "Tools shared by Apify actor-scrapers.",
   "main": "src/main.js",
   "dependencies": {

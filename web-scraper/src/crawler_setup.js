@@ -182,7 +182,7 @@ class CrawlerSetup {
 
         // Attach function handles to the page to enable use of Node.js APIs from Browser context.
         pageContext.browserHandles = {
-            saveSnapshot: browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot(page)),
+            saveSnapshot: browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot({ page })),
             skipLinks: browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; }),
             globalStore: browserTools.createBrowserHandlesForObject(
                 page,

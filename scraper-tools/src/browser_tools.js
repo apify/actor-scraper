@@ -180,11 +180,12 @@ let lastSnapshotTimestamp = 0;
  * under the SNAPSHOT-HTML and SNAPSHOT-SCREENSHOT keys.
  *
  * @param {Object} options
- * @param {Page} page
- * @param {Cheerio} $
+ * @param {Page} [options.page]
+ * @param {Cheerio} [options.$]
  * @return {Promise}
  */
 const saveSnapshot = async ({ page, $ }) => {
+    if (!page && !$) throw new Error('One of parameters "page" or "$" must be provided.');
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
