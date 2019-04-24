@@ -168,9 +168,6 @@ class CrawlerSetup {
         // Attach a console listener to get all logs as soon as possible.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
-        // Add Error.prototype.toJSON unless already there.
-        await browserTools.maybeAddErrorToJson(page);
-
         // Hide WebDriver before navigation
         await puppeteer.hideWebDriver(page);
 
@@ -287,8 +284,8 @@ class CrawlerSetup {
             pageFunctionArguments: {
                 request,
                 response: {
-                    status: response.status(),
-                    headers: response.headers(),
+                    status: response && response.status(),
+                    headers: response && response.headers(),
                 },
             },
         };
@@ -307,13 +304,15 @@ class CrawlerSetup {
             try {
                 output.pageFunctionResult = await window[namespc].pageFunction(context);
             } catch (err) {
-                output.pageFunctionError = err;
+                output.pageFunctionError = Object.getOwnPropertyNames(err)
+                    .reduce((memo, name) => {
+                        memo[name] = err[name];
+                        return memo;
+                    }, {});
             }
             // This needs to be added after pageFunction has run.
             output.requestFromBrowser = context.request;
-
-            // Stringify manually because error info seems to get lost.
-            return JSON.stringify(output);
+            return output;
         }, contextOptions, namespace);
 
         tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
@@ -322,7 +321,7 @@ class CrawlerSetup {
         /**
          * POST-PROCESSING
          */
-        const { pageFunctionResult, requestFromBrowser, pageFunctionError } = JSON.parse(output);
+        const { pageFunctionResult, requestFromBrowser, pageFunctionError } = output;
         // Merge requestFromBrowser into request to preserve modifications that
         // may have been made in browser context.
         Object.assign(request, requestFromBrowser);

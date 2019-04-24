@@ -88,12 +88,21 @@ module.exports = (apifyNamespace) => {
                 this.customData = crawlerSetup.customData;
                 this.response = pageFunctionArguments.response;
                 this.request = pageFunctionArguments.request;
-                // Functions are not converted so we need to add this one
+                // Functions are not converted so we need to add them this way
+                // to not be enumerable and thus not polluting the object.
                 Reflect.defineProperty(this.request, 'doNotRetry', {
                     value(message) {
                         // this refers to request instance!
                         this.noRetry = true;
                         if (message) throw new Error(message);
+                    },
+                    enumerable: false,
+                });
+                Reflect.defineProperty(this.request, 'pushErrorMessage', {
+                    value(errorOrMessage) {
+                        // It's a simplified fake of the original function.
+                        const msg = (errorOrMessage && errorOrMessage.message) || `${errorOrMessage}`;
+                        this.errorMessages.push(msg);
                     },
                     enumerable: false,
                 });
