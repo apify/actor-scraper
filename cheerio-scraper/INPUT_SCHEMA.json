@@ -68,7 +68,7 @@
             "default": false
         },
         "useCookieJar": {
-            "title": "Use cookie jar",
+            "title": "Save cookies",
             "type": "boolean",
             "description": "Crawler will use a cookie jar to persist cookies between requests.",
             "default": false
