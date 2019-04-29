@@ -68,9 +68,9 @@
             "default": false
         },
         "useCookieJar": {
-            "title": "Save cookies",
+            "title": "(UNSTABLE) Save cookies",
             "type": "boolean",
-            "description": "Crawler will use a cookie jar to persist cookies between requests.",
+            "description": "The scraper will use a cookie jar to persist cookies between requests. This is a temporary solution and the feature is UNSTABLE, meaning that it will most likely be removed in the future and replaced with a different API. Use at your own risk.",
             "default": false
         },
         "maxRequestRetries": {
