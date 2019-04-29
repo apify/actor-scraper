@@ -133,6 +133,9 @@ class CrawlerSetup {
                     maxEventLoopOverloadedRatio: MAX_EVENT_LOOP_OVERLOADED_RATIO,
                 },
             },
+            requestOptions: {
+                jar: this.input.useCookieJar,
+            }
         };
 
         this.crawler = new Apify.CheerioCrawler(options);

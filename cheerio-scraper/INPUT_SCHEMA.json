@@ -67,6 +67,12 @@
             "description": "Crawler will ignore SSL certificate errors.",
             "default": false
         },
+        "useCookieJar": {
+            "title": "Save cookies",
+            "type": "boolean",
+            "description": "Crawler will use a cookie jar to persist cookies between requests.",
+            "default": false
+        },
         "maxRequestRetries": {
             "title": "Max request retries",
             "type": "integer",
