@@ -225,8 +225,8 @@ class CrawlerSetup {
                 puppeteerPool,
                 request,
                 response: {
-                    status: response.status(),
-                    headers: response.headers(),
+                    status: response && response.status(),
+                    headers: response && response.headers(),
                 },
             },
         };

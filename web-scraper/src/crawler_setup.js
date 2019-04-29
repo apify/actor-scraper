@@ -284,8 +284,8 @@ class CrawlerSetup {
             pageFunctionArguments: {
                 request,
                 response: {
-                    status: response.status(),
-                    headers: response.headers(),
+                    status: response && response.status(),
+                    headers: response && response.headers(),
                 },
             },
         };
