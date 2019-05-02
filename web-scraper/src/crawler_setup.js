@@ -1,5 +1,6 @@
 const Apify = require('apify');
 const _ = require('underscore');
+const contentType = require('content-type');
 const {
     tools,
     browserTools,
@@ -11,6 +12,8 @@ const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
+
+const ASSERT_NAMESPACE_TIMEOUT_MILLIS = 5000;
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -219,6 +222,7 @@ class CrawlerSetup {
             timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
             waitUntil: 'domcontentloaded',
         });
+        await this._waitForLoadEventWhenXml(page, response);
         tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
 
         // Make sure handles attached in the meantime.
@@ -228,7 +232,8 @@ class CrawlerSetup {
                 // Unwrap promises.
                 pageContext.browserHandles[name] = await promise;
             });
-        await Promise.all(promises.concat(page.waitFor(namespace => !!window[namespace], {}, pageContext.apifyNamespace)));
+
+        await Promise.all(promises.concat(this._assertNamespace(page, pageContext.apifyNamespace)));
 
         // Inject selected libraries
         if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
@@ -382,6 +387,46 @@ class CrawlerSetup {
         await Apify.pushData(payload);
         this.pagesOutputted++;
         tools.logPerformance(request, 'handleResult EXECUTION', start);
+    }
+
+    async _assertNamespace(page, namespace) {
+        try {
+            await page.waitFor(nmspc => !!window[nmspc], { timeout: ASSERT_NAMESPACE_TIMEOUT_MILLIS }, namespace);
+        } catch (err) {
+            if (err.stack.startsWith('TimeoutError')) {
+                throw new Error('Unable to inject environment into the browser context. '
+                    + 'This is a website specific edge case. If this persists even after retries, '
+                    + 'please contact support or make an issue at GitHub for help.');
+            } else {
+                throw err;
+            }
+        }
+    }
+
+    async _waitForLoadEventWhenXml(page, response) {
+        // Response can sometimes be null.
+        if (!response) return;
+
+        const cTypeHeader = response.headers()['content-type'];
+        try {
+            const { type } = contentType.parse(cTypeHeader);
+            if (!/^(text|application)\/xml$|\+xml$/.test(type)) return;
+        } catch (err) {
+            // Invalid type is not XML.
+            return;
+        }
+
+        try {
+            const timeout = this.input.pageLoadTimeoutSecs * 1000;
+            await page.waitFor(() => document.readyState === 'complete', { timeout });
+        } catch (err) {
+            if (err.stack.startsWith('TimeoutError')) {
+                throw new Error('Parsing of XML in the page timed out. If you\'re expecting a large XML file, '
+                    + ' such as a site map, try increasing the Page load timeout input setting.');
+            } else {
+                throw err;
+            }
+        }
     }
 }
 
