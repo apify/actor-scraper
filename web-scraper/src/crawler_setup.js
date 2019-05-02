@@ -13,8 +13,6 @@ const SCHEMA = require('../INPUT_SCHEMA');
 
 const { utils: { log, puppeteer } } = Apify;
 
-const ASSERT_NAMESPACE_TIMEOUT_MILLIS = 5000;
-
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
  * and IDE type check integration.
@@ -389,12 +387,11 @@ class CrawlerSetup {
 
     async _assertNamespace(page, namespace) {
         try {
-            await page.waitFor(nmspc => !!window[nmspc], { timeout: ASSERT_NAMESPACE_TIMEOUT_MILLIS }, namespace);
+            await page.waitFor(nmspc => !!window[nmspc], { timeout: this.input.pageLoadTimeoutSecs * 1000 }, namespace);
         } catch (err) {
             if (err.stack.startsWith('TimeoutError')) {
-                throw new Error('Unable to inject environment into the browser context. '
-                    + 'This is a website specific edge case. If this persists even after retries, '
-                    + 'please contact support or make an issue at GitHub for help.');
+                throw new Error('Injection of environment into the browser context timed out. '
+                    + 'If this persists even after retries, try increasing the Page load timeout input setting.');
             } else {
                 throw err;
             }
