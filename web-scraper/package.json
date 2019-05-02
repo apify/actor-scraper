@@ -6,7 +6,8 @@
   "dependencies": {
     "apify": "^0.13.7",
     "@mnmkng/scraper-tools": "^0.1.0",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "content-type": "^1.0.4"
   },
   "devDependencies": {
     "@types/puppeteer": "^1.10.0",
