@@ -22,7 +22,7 @@
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the crawler where to find links.",
+            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
@@ -59,7 +59,7 @@
             "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
             "default": false,
             "groupCaption": "Options",
-            "groupDescription": "Crawler settings"
+            "groupDescription": "Scraper settings"
         },
         "browserLog": {
             "title": "Browser log",
@@ -82,19 +82,19 @@
         "downloadMedia": {
             "title": "Download media",
             "type": "boolean",
-            "description": "Crawler will skip downloading media such as images, fonts, videos and sounds. This helps to speed up the crawl, but may break certain websites.",
+            "description": "Scraper will downloading media such as images, fonts, videos and sounds. This will slow down the scrape, but may help when certain websites are not loading correctly.",
             "default": false
         },
         "downloadCss": {
             "title": "Download CSS",
             "type": "boolean",
-            "description": "Crawler will skip downloading CSS stylesheets. This helps to speed up the crawl, but may break certain websites.",
+            "description": "Scraper will download CSS stylesheets. This will slow down the scrape, but may help when certain websites are not loading correctly.",
             "default": false
         },
         "ignoreSslErrors": {
             "title": "Ignore SSL errors",
             "type": "boolean",
-            "description": "Crawler will ignore SSL certificate errors.",
+            "description": "Scraper will ignore SSL certificate errors.",
             "default": false
         },
         "maxRequestRetries": {
@@ -106,9 +106,9 @@
             "unit": "retries"
         },
         "maxPagesPerCrawl": {
-            "title": "Max pages per crawl",
+            "title": "Max pages per run",
             "type": "integer",
-            "description": "Maximum number of pages that the crawler will open. 0 means unlimited.",
+            "description": "Maximum number of pages that the scraper will open. 0 means unlimited.",
             "minimum": 0,
             "default": 0,
             "unit": "pages"
@@ -116,7 +116,7 @@
         "maxResultsPerCrawl": {
             "title": "Max result records",
             "type": "integer",
-            "description": "Maximum number of results that will be saved to dataset. The crawler will terminate afterwards. 0 means unlimited.",
+            "description": "Maximum number of results that will be saved to dataset. The scraper will terminate afterwards. 0 means unlimited.",
             "minimum": 0,
             "default": 0,
             "unit": "results"
@@ -124,7 +124,7 @@
         "maxCrawlingDepth": {
             "title": "Max crawling depth",
             "type": "integer",
-            "description": "Defines how many links away from the StartURLs will the crawler descend. 0 means unlimited.",
+            "description": "Defines how many links away from the StartURLs will the scraper descend. 0 means unlimited.",
             "minimum": 0,
             "default": 0
         },
@@ -138,7 +138,7 @@
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
-            "description": "Maximum time the crawler will allow a web page to load in seconds.",
+            "description": "Maximum time the scraper will allow a web page to load in seconds.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
@@ -147,7 +147,7 @@
         "pageFunctionTimeoutSecs": {
             "title": "Page function timeout",
             "type": "integer",
-            "description": "Maximum time the crawler will wait for the page function to execute in seconds.",
+            "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
