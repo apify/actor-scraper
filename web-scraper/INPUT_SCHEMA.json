@@ -82,7 +82,7 @@
         "downloadMedia": {
             "title": "Download media",
             "type": "boolean",
-            "description": "Scraper will downloading media such as images, fonts, videos and sounds. This will slow down the scrape, but may help when certain websites are not loading correctly.",
+            "description": "Scraper will download media such as images, fonts, videos and sounds. This will slow down the scrape, but may help when certain websites are not loading correctly.",
             "default": false
         },
         "downloadCss": {
