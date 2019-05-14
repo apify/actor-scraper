@@ -160,7 +160,7 @@ module.exports = (apifyNamespace) => {
 
             async _waitForSelector(selector, options = {}) {
                 try {
-                    return this._poll(() => {
+                    await this._poll(() => {
                         return !!global.document.querySelector(selector);
                     }, options);
                 } catch (err) {
@@ -176,7 +176,7 @@ module.exports = (apifyNamespace) => {
 
             async _waitForFunction(predicate, options = {}) {
                 try {
-                    return this._poll(predicate, options);
+                    await this._poll(predicate, options);
                 } catch (err) {
                     if (/timeout \d+ms exceeded/.test(err.message)) {
                         throw new Error(`Timeout Error: waiting for function failed: ${err.message}`);
@@ -196,7 +196,7 @@ module.exports = (apifyNamespace) => {
                     const pollTimeout = setTimeout(handler, pollingIntervalMillis);
                     setTimeout(() => {
                         clearTimeout(pollTimeout);
-                        return reject(new Error(`timeout ${timeoutMillis}ms exceeded`));
+                        return reject(new Error(`timeout of ${timeoutMillis}ms exceeded.`));
                     }, timeoutMillis);
                 });
             }
