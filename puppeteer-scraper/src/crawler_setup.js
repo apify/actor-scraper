@@ -263,7 +263,7 @@ class CrawlerSetup {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
-            log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
+            log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
         const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
