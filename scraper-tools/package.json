@@ -1,6 +1,6 @@
 {
   "name": "@mnmkng/scraper-tools",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tools shared by Apify actor-scrapers.",
   "main": "src/main.js",
   "dependencies": {
@@ -8,10 +8,10 @@
     "underscore": "^1.9.1"
   },
   "peerDependencies": {
-    "apify": "^0.13.7"
+    "apify": "^0.14.8"
   },
   "devDependencies": {
-    "apify": "^0.13.7",
+    "apify": "^0.14.8",
     "@types/fs-extra": "^5.0.4",
     "@types/puppeteer": "^1.10.0",
     "@types/underscore": "^1.8.9",

@@ -1,5 +1,4 @@
 const { inspect } = require('util');
-const _ = require('underscore');
 const Apify = require('apify');
 
 const tools = require('./tools');
@@ -18,35 +17,6 @@ const { utils: { log } } = Apify;
 const wrapPageFunction = (pageFunctionString, namespace) => {
     return `if (typeof window['${namespace}'] !== 'object') window['${namespace}'] = {}; 
     window['${namespace}'].pageFunction = ${pageFunctionString}`;
-};
-
-/**
- * Function to be executed in a browser context to add a toJSON
- * function to Error objects. This enables them to be stringified
- * correctly when crossing Browser-Node boundary.
- *
- * @param {Page} page
- * @return {Promise}
- */
-const maybeAddErrorToJson = async (page) => {
-    /* eslint-disable no-extend-native */
-    return page.evaluateOnNewDocument(() => {
-        if (!('toJSON' in Error.prototype)) {
-            Object.defineProperty(Error.prototype, 'toJSON', {
-                value() {
-                    const alt = {};
-
-                    Object.getOwnPropertyNames(this).forEach(function (name) {
-                        alt[name] = this[name];
-                    }, this);
-
-                    return alt;
-                },
-                configurable: true,
-                writable: true,
-            });
-        }
-    });
 };
 
 /**
@@ -211,7 +181,6 @@ const saveSnapshot = async ({ page, $ }) => {
 
 module.exports = {
     wrapPageFunction,
-    maybeAddErrorToJson,
     createBrowserHandle,
     createBrowserHandlesForObject,
     dumpConsole,
