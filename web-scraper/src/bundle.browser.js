@@ -164,9 +164,10 @@ module.exports = (apifyNamespace) => {
                         return !!global.document.querySelector(selector);
                     }, options);
                 } catch (err) {
-                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                    if (/timeout of \d+ms exceeded/.test(err.message)) {
                         throw new Error(`Timeout Error: waiting for selector failed: ${err.message}`);
                     }
+                    throw err;
                 }
             }
 
@@ -178,9 +179,10 @@ module.exports = (apifyNamespace) => {
                 try {
                     await this._poll(predicate, options);
                 } catch (err) {
-                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                    if (/timeout of \d+ms exceeded/.test(err.message)) {
                         throw new Error(`Timeout Error: waiting for function failed: ${err.message}`);
                     }
+                    throw err;
                 }
             }
 
