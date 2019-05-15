@@ -148,7 +148,6 @@ class CrawlerSetup {
                 defaultViewport: DEFAULT_VIEWPORT,
                 devtools: this.devtools,
                 stealth: true,
-                useChrome: true,
             },
         };
 
