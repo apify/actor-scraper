@@ -180,30 +180,7 @@ class CrawlerSetup {
 
         tools.logPerformance(request, 'gotoFunction INIT', start);
         const handleStart = process.hrtime();
-
-        // Attach function handles to the page to enable use of Node.js APIs from Browser context.
-        pageContext.browserHandles = {
-            saveSnapshot: browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot({ page })),
-            skipLinks: browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; }),
-            globalStore: browserTools.createBrowserHandlesForObject(
-                page,
-                this.globalStore,
-                ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
-            ),
-            log: browserTools.createBrowserHandlesForObject(
-                page,
-                log,
-                ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
-            ),
-            apify: browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']),
-        };
-        if (this.requestQueue) {
-            pageContext.browserHandles.requestQueue = browserTools.createBrowserHandlesForObject(
-                page,
-                this.requestQueue,
-                ['addRequest'],
-            );
-        }
+        pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
         tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
 
         const evalStart = process.hrtime();
@@ -223,15 +200,8 @@ class CrawlerSetup {
         await this._waitForLoadEventWhenXml(page, response);
         tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
 
-        // Make sure handles attached in the meantime.
         const delayStart = process.hrtime();
-        const promises = Object.entries(pageContext.browserHandles)
-            .map(async ([name, promise]) => {
-                // Unwrap promises.
-                pageContext.browserHandles[name] = await promise;
-            });
-
-        await Promise.all(promises.concat(this._assertNamespace(page, pageContext.apifyNamespace)));
+        await this._assertNamespace(page, pageContext.apifyNamespace);
 
         // Inject selected libraries
         if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
@@ -424,6 +394,44 @@ class CrawlerSetup {
                 throw err;
             }
         }
+    }
+
+    async _injectBrowserHandles(page, pageContext) {
+        const saveSnapshotP = browserTools.createBrowserHandle(page, () => browserTools.saveSnapshot({ page }));
+        const skipLinksP = browserTools.createBrowserHandle(page, () => { pageContext.skipLinks = true; });
+        const globalStoreP = browserTools.createBrowserHandlesForObject(
+            page,
+            this.globalStore,
+            ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
+        );
+        const logP = browserTools.createBrowserHandlesForObject(
+            page,
+            log,
+            ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
+        );
+        const apifyP = browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']);
+        const requestQueueP = this.requestQueue
+            ? browserTools.createBrowserHandlesForObject(page, this.requestQueue, ['addRequest'])
+            : null;
+
+        const [
+            saveSnapshot,
+            skipLinks,
+            globalStore,
+            logHandle,
+            apify,
+            requestQueue,
+        ] = await Promise.all([saveSnapshotP, skipLinksP, globalStoreP, logP, apifyP, requestQueueP]);
+
+        const handles = {
+            saveSnapshot,
+            skipLinks,
+            globalStore,
+            log: logHandle,
+            apify,
+        };
+        if (requestQueue) handles.requestQueue = requestQueue;
+        return handles;
     }
 }
 
