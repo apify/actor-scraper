@@ -148,6 +148,8 @@ class CrawlerSetup {
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 devtools: this.devtools,
+                stealth: true,
+                useChrome: true,
             },
         };
 
@@ -168,9 +170,6 @@ class CrawlerSetup {
 
         // Attach a console listener to get all logs as soon as possible.
         if (this.input.browserLog) browserTools.dumpConsole(page);
-
-        // Hide WebDriver before navigation
-        await puppeteer.hideWebDriver(page);
 
         // Prevent download of stylesheets and media, unless selected otherwise
         if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
