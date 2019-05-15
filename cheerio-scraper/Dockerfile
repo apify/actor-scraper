@@ -1,7 +1,6 @@
 FROM apify/actor-node-basic
 
-# Copy source code
-COPY . ./
+COPY package.json package-lock.json ./
 
 # Install default dependencies, print versions of everything
 RUN npm --quiet set progress=false \
@@ -12,3 +11,5 @@ RUN npm --quiet set progress=false \
  && node --version \
  && echo "NPM version:" \
  && npm --version
+
+COPY . ./
