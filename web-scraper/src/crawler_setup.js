@@ -283,7 +283,25 @@ class CrawlerSetup {
             }
             // This needs to be added after pageFunction has run.
             output.requestFromBrowser = context.request;
-            return output;
+
+            /**
+             * Since Dates cannot travel back to Node and Puppeteer does not use .toJSON
+             * to stringify, they come back as empty objects. We could use JSON.stringify
+             * ourselves, but that exposes us to overridden .toJSON in the target websites.
+             * This hack is not ideal, but it avoids both problems.
+             */
+            function replaceAllDatesInObjectWithISOStrings(obj) {
+                for (const [key, value] of Object.entries(obj)) {
+                    if (value instanceof Date && typeof value.toISOString === 'function') {
+                        obj[key] = value.toISOString();
+                    } else if (value && typeof value === 'object') {
+                        replaceAllDatesInObjectWithISOStrings(value);
+                    }
+                }
+                return obj;
+            }
+
+            return replaceAllDatesInObjectWithISOStrings(output);
         }, contextOptions, namespace);
 
         tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
