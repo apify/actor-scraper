@@ -7,9 +7,9 @@ Welcome to the getting started tutorial to walk you through creating your first 
 You can create 10 different tasks for 10 different websites, with very different options, but there will always be just one actor, the `apify/web-scraper`. This is the essence of tasks. They are nothing but saved configurations of the actor that you can run easily and repeatedly.
 
 ## Trying it out
-Depending on how you arrived at this tutorial, you may already have your first task created for `apify/web-scraper`. If not, the easiest way is just to go to the [actor's library page](https://apify.com/apify/web-scraper) and click the **Try Actor** button. This will take you to the task configuration page.
+Depending on how you arrived at this tutorial, you may already have your first task created for `apify/web-scraper`. If not, the easiest way is just to go to the [actor's store page](https://apify.com/apify/web-scraper) and click the **Try Actor** button. This will take you to the task configuration page.
 
-![web-scraper in library](./static/creating-your-first-task.png "Creating your first task.")
+![web-scraper in store](./static/creating-your-first-task.png "Creating your first task.")
 
 ### Running a task
 You are now in the INPUT tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages, such as `https://apify.com/contact` and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
@@ -57,10 +57,10 @@ You can find all the task runs and their detail pages here. Every time you start
 The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
 
 ## Scraping theory
-Since this is a tutorial, we'll be scraping our own website. A great candidate for some scraping practice is the [Apify Library](https://apify.com/library). It's a page that uses modern web technologies and displays a lot of different items in various categories, just like an online store, a typical scraping target, would.
+Since this is a tutorial, we'll be scraping our own website. A great candidate for some scraping practice is the [Apify Store](https://apify.com/store). It's a page that uses modern web technologies and displays a lot of different items in various categories, just like an online store, a typical scraping target, would.
 
 ### The goal
-We want to create a scraper that scrapes all the actors (i.e. not crawlers, our legacy product) in the library and collects the following attributes for each actor:
+We want to create a scraper that scrapes all the actors (i.e. not crawlers, our legacy product) in the store and collects the following attributes for each actor:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
    2. **Unique identifier** - Such as `apify/web-scraper`.
@@ -74,10 +74,10 @@ Some of this information may be scraped directly from the listing pages, but for
 ### The Start URL
 Let's start with something simple. In the INPUT tab of the task we have, we'll change the Start URL from `https://apify.com`. This will tell the scraper to start by opening a different URL. You can add more Start URLs or even use a file with a list of thousands of them, but in this case, we'll be good with just one.
 
-How do we choose the new Start URL? The goal is to scrape all actors in the library. If we go to the [library page](https://apify.com/library) and choose `Actors only` in the **Show** dropdown, we'll see that the URL in our address bar has changed to:
+How do we choose the new Start URL? The goal is to scrape all actors in the store. If we go to the [store page](https://apify.com/store) and choose `Actors only` in the **Show** dropdown, we'll see that the URL in our address bar has changed to:
 
 ```
-https://apify.com/library?type=acts
+https://apify.com/store?type=acts
 ```
 
 ^^^ This is our new Start URL ^^^
@@ -95,7 +95,7 @@ We'll also need to somehow distinguish the Start URL from all the other URLs tha
 ### Crawling the website with Pseudo URLs
 Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use Pseudo URLs to do just that. By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
 
-To find the structure, open some of the actor details in the library. You'll find that the URLs always follow the same pattern:
+To find the structure, open some of the actor details in the store. You'll find that the URLs always follow the same pattern:
 
 ```
 https://apify.com/{OWNER}/{NAME}
@@ -139,11 +139,11 @@ We've added some configuration, so it's time to test it. Just run the task, keep
 The Page function is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create the `pageFunction`, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are Developer Tools in browsers, DevTools.
 
 #### Using DevTools
-Open the [library page](https://apify.com/library) in the Chrome browser (or use any other browser, just note that the DevTools may differ slightly) and open the DevTools, either by right-clicking on the page and selecting `Inspect` or by pressing `F12`.
+Open the [store page](https://apify.com/store) in the Chrome browser (or use any other browser, just note that the DevTools may differ slightly) and open the DevTools, either by right-clicking on the page and selecting `Inspect` or by pressing `F12`.
 
 The DevTools window will pop up, and display a lot of, perhaps unfamiliar, information. Don't worry about that too much and just open the Elements tab (the one with the page's HTML). The Elements tab allows you to browse the structure of the page and search within it using the search tool. You can open the search tool by pressing `CTRL+F` or `CMD+F`. Try typing `<title>` into the search bar.
 
-You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is `Library`. It's always good practice to do your research using the DevTools before writing the `pageFunction` and running your task.
+You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is `Store`. It's always good practice to do your research using the DevTools before writing the `pageFunction` and running your task.
 
 ![devtools](./static/using-devtools.png "Finding title element in DevTools.")
 
@@ -159,7 +159,7 @@ We know that we'll visit two kinds of pages, the list page (Start URL) and the d
 async function pageFunction(context) {
     const { request, log, skipLinks } = context;
     if (request.userData.label === 'START') {
-        log.info('Library opened!');
+        log.info('Store opened!');
         // Do some stuff later.
     }
     if (request.userData.label === 'DETAIL') {
@@ -176,7 +176,7 @@ async function pageFunction(context) {
 This may seem like a lot of new things, but it's all connected to our earlier configuration.
 
 #### `context.request`
-The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the Start URL and the Pseudo URL, we set a `label` to it. We're now using it in the `pageFunction` to distinguish between the library page and the detail pages.
+The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the Start URL and the Pseudo URL, we set a `label` to it. We're now using it in the `pageFunction` to distinguish between the store page and the detail pages.
 
 #### `context.skipLinks()`
 When a Pseudo URL is set, the scraper attempts to enqueue matching links on all pages it visits. `skipLinks()` is used to tell the scraper that we don't want this to happen on the current page.
@@ -229,7 +229,7 @@ We'll add our first data to the `pageFunction` and carry out a test run to see t
 async function pageFunction(context) {
     const { request, log, skipLinks } = context;
     if (request.userData.label === 'START') {
-        log.info('Library opened!');
+        log.info('Store opened!');
         // Do some stuff later.
     }
     if (request.userData.label === 'DETAIL') {
@@ -257,7 +257,7 @@ We've confirmed that the scraper works as expected, so now it's time to add more
 
 To add `jQuery`, all we need to do is turn on **Inject jQuery** under INPUT **Options**. This will add a `context.jQuery` function that you can use.
 
-Now that's out of the way, let's open one of the actor detail pages in the Library, for example the [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to figure out how to get the title of the actor.
+Now that's out of the way, let's open one of the actor detail pages in the Store, for example the [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to figure out how to get the title of the actor.
 
 #### Title
 ![actor title](./static/title-01.png "Finding actor title in DevTools.")
@@ -360,7 +360,7 @@ All we need to do now is to add this to our `pageFunction`:
 async function pageFunction(context) {
     const { request, log, skipLinks, jQuery: $ } = context; // Use jQuery as $
     if (request.userData.label === 'START') {
-        log.info('Library opened!');
+        log.info('Store opened!');
         // Do some stuff later.
     }
     if (request.userData.label === 'DETAIL') {
@@ -393,7 +393,7 @@ Pagination is just a term that represents "going to the next page of results". Y
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may just use links that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
 ### Waiting for dynamic content
-Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Library is a JavaScript application (as many, if not most modern websites are), the button might not exist in the page when the scraper runs the `pageFunction`.
+Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Store is a JavaScript application (as many, if not most modern websites are), the button might not exist in the page when the scraper runs the `pageFunction`.
 
 How is this possible? Because the scraper only waits with executing the `pageFunction` for the page to load its HTML. If there's additional JavaScript that modifies the DOM afterwards, the `pageFunction` may execute before this JavaScript had the time to run.
 
@@ -491,7 +491,7 @@ We've got the general algorithm ready, so all that's left is to integrate it int
 async function pageFunction(context) {
     const { request, log, skipLinks, jQuery: $, waitFor } = context;
     if (request.userData.label === 'START') {
-        log.info('Library opened!');
+        log.info('Store opened!');
         let timeoutMillis; // undefined
         const buttonSelector = 'div.show-more > button';
         while (true) {
@@ -530,7 +530,7 @@ async function pageFunction(context) {
 }
 ```
 
-That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see the clean items. You should have a table of all the actor's details in front of you. If you do, great job! You've successfully scraped the Apify Library. And if not, no worries, just go through the code examples again, it's probably just some typo.
+That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see the clean items. You should have a table of all the actor's details in front of you. If you do, great job! You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
 ![final results](./static/plugging-it-into-the-pagefunction.png "Final results.")
 
@@ -554,7 +554,7 @@ async function pageFunction(context) {
     if (label === 'DETAIL') return handleDetail(context);
 
     async function handleStart({ log, waitFor }) {
-        log.info('Library opened!');
+        log.info('Store opened!');
         let timeoutMillis; // undefined
         const buttonSelector = 'div.show-more > button';
         while (true) {
