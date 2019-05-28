@@ -14,7 +14,7 @@ Depending on how you arrived at this tutorial, you may already have your first t
 ### Running a task
 You are now in the INPUT tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages, such as `https://apify.com/contact` and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
 
-Scroll down a bit and set the `Max pages per crawl` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works.
+Scroll down a bit and set the `Max pages per run` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that it works.
 
 > It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
 
@@ -133,7 +133,7 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 ![pseudo url input](./static/making-a-pseudo-url.png "Adding new Pseudo URL.")
 
 #### Test run
-We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per crawl** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
+We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
 
 ### The `pageFunction`
 The Page function is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create the `pageFunction`, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are Developer Tools in browsers, DevTools.
@@ -530,7 +530,7 @@ async function pageFunction(context) {
 }
 ```
 
-That's it! You can now remove the **Max pages per crawl** limit, **Save & Run** your task and watch the scraper paginate through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see the clean items. You should have a table of all the actor's details in front of you. If you do, great job! You've successfully scraped the Apify Library. And if not, no worries, just go through the code examples again, it's probably just some typo.
+That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see the clean items. You should have a table of all the actor's details in front of you. If you do, great job! You've successfully scraped the Apify Library. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
 ![final results](./static/plugging-it-into-the-pagefunction.png "Final results.")
 
