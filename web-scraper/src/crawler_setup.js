@@ -49,6 +49,7 @@ const { utils: { log, puppeteer } } = Apify;
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
     constructor(input) {
+        this.name = 'Web Scraper';
         // Set log level early to prevent missed messages.
         if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 

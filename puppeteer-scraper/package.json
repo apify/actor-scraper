@@ -4,14 +4,14 @@
   "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "apify": "^0.14.8",
-    "@mnmkng/scraper-tools": "^0.1.1",
+    "apify": "^0.14.11",
+    "@mnmkng/scraper-tools": "^0.1.2",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/puppeteer": "^1.10.0",
-    "@types/underscore": "^1.8.9",
+    "@types/puppeteer": "^1.12.4",
+    "@types/underscore": "^1.8.18",
     "chai": "^4.2.0",
     "eslint": "^5.8.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -23,7 +23,7 @@
     "fs-extra": "^7.0.1",
     "markdown-toc": "^1.2.0",
     "mocha": "^5.2.0",
-    "nyc": "^14.0.0",
+    "nyc": "^14.1.1",
     "sinon": "^7.1.1"
   },
   "scripts": {

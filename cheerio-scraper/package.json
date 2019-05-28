@@ -4,8 +4,8 @@
 	"description": "Crawl web pages using HTTP requests and Cheerio",
 	"main": "src/main.js",
 	"dependencies": {
-		"apify": "^0.14.8",
-		"@mnmkng/scraper-tools": "^0.1.1",
+		"apify": "^0.14.11",
+		"@mnmkng/scraper-tools": "^0.1.2",
 		"underscore": "^1.9.1"
 	},
 	"devDependencies": {
@@ -19,7 +19,7 @@
 		"eslint-plugin-react": "^7.11.1",
 		"markdown-toc": "^1.2.0",
 		"mocha": "^5.2.0",
-		"nyc": "^14.0.0",
+		"nyc": "^14.1.1",
 		"sinon": "^7.1.1"
 	},
 	"scripts": {

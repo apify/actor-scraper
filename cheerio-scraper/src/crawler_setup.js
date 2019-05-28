@@ -43,6 +43,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 class CrawlerSetup {
     /* eslint-disable class-methods-use-this */
     constructor(input) {
+        this.name = 'Cheerio Scraper';
         // Set log level early to prevent missed messages.
         if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 
