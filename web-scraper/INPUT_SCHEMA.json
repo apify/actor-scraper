@@ -168,6 +168,29 @@
             "default": [],
             "prefill": [],
             "editor": "json"
+        },
+        "waitUntil": {
+            "title": "Navigation wait until",
+            "type": "array",
+            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <codę>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>.",
+            "default": ["domcontentloaded"],
+            "editor": "json"
+        },
+        "useChrome": {
+            "title": "Use Chrome",
+            "type": "boolean",
+            "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
+            "default": false,
+            "groupCaption": "Browser masking options (read tooltips before use)",
+            "groupDescription": "Scraper settings"
+        },
+        "useStealth": {
+            "title": "Use Stealth",
+            "type": "boolean",
+            "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "default": false,
+            "groupCaption": "Browser masking options (read tooltips before use)",
+            "groupDescription": "Scraper settings"
         }
     },
     "required": ["startUrls", "pageFunction"]

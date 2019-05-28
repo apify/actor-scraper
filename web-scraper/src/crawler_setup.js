@@ -40,6 +40,9 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
  * @property {Array} initialCookies
+ * @property {Array} waitUntil
+ * @property {boolean} useChrome
+ * @property {boolean} useStealth
  */
 
 /**
@@ -81,6 +84,11 @@ class CrawlerSetup {
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
+        this.input.waitUntil.forEach((event) => {
+            if (!/^(domcontentloaded|load|networkidle2|networkidle0)$/.test(event)) {
+                throw new Error('Navigation wait until events must be valid. See tooltip.');
+            }
+        });
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
@@ -89,9 +97,13 @@ class CrawlerSetup {
         this.globalStore = new GlobalStore();
 
         // Excluded resources
-        this.blockedResources = new Set(['font', 'image', 'media', 'stylesheet']);
-        if (this.input.downloadMedia) ['font', 'image', 'media'].forEach(m => this.blockedResources.delete(m));
-        if (this.input.downloadCss) this.blockedResources.delete('stylesheet');
+        this.blockedUrlPatterns = [];
+        if (!this.input.downloadMedia) {
+            this.blockedUrlPatterns = [...this.blockedUrlPatterns,
+                '.jpg', '.jpeg', '.png', '.svg', '.gif', '.webp', '.webm', '.ico', '.woff', '.eot',
+            ];
+        }
+        if (!this.input.downloadCss) this.blockedUrlPatterns.push('.css');
 
         // Start Chromium with Debugger any time the page function includes the keyword.
         this.devtools = this.input.pageFunction.includes('debugger;');
@@ -143,13 +155,15 @@ class CrawlerSetup {
             // launchPuppeteerFunction: use default,
             puppeteerPoolOptions: {
                 useLiveView: true,
+                recycleDiskCache: true,
             },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 devtools: this.devtools,
-                stealth: true,
+                useChrome: this.input.useChrome,
+                stealth: this.input.useStealth,
             },
         };
 
@@ -172,7 +186,12 @@ class CrawlerSetup {
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
         // Prevent download of stylesheets and media, unless selected otherwise
-        if (this.blockedResources.size) await puppeteer.blockResources(page, Array.from(this.blockedResources));
+        if (this.blockedUrlPatterns.length) {
+            await puppeteer.blockRequests(page, {
+                urlPatterns: this.blockedUrlPatterns,
+                includeDefaults: false,
+            });
+        }
 
         // Add initial cookies, if any.
         if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
@@ -192,9 +211,9 @@ class CrawlerSetup {
 
         // Invoke navigation.
         const navStart = process.hrtime();
-        const response = await page.goto(request.url, {
+        const response = await puppeteer.gotoExtended(page, request, {
             timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-            waitUntil: 'domcontentloaded',
+            waitUntil: this.input.waitUntil,
         });
         await this._waitForLoadEventWhenXml(page, response);
         tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
