@@ -181,16 +181,14 @@
             "type": "boolean",
             "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
             "default": false,
-            "groupCaption": "Browser masking options (read tooltips before use)",
-            "groupDescription": "Scraper settings"
+            "groupCaption": "Browser masking options",
+            "groupDescription": "Settings that help mask as a real user and prevent scraper detection."
         },
         "useStealth": {
             "title": "Use Stealth",
             "type": "boolean",
             "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
-            "default": false,
-            "groupCaption": "Browser masking options (read tooltips before use)",
-            "groupDescription": "Scraper settings"
+            "default": false
         }
     },
     "required": ["startUrls", "pageFunction"]
