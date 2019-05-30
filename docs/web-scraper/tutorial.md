@@ -93,9 +93,9 @@ We'll also need to somehow distinguish the Start URL from all the other URLs tha
 ![start url input](./static/the-start-url.png "Adding new Start URL.")
 
 ### Crawling the website with Pseudo URLs
-Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use Pseudo URLs to do just that. By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
+What is a Pseudo URL? Let me explain. Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use a certain pattern to describe this structure. And that's what a Pseudo URL is. A pattern that describes a URL structure.  By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
 
-To find the structure, open some of the actor details in the store. You'll find that the URLs always follow the same pattern:
+Let's see an example. To find the pattern, open some of the actor details in the store. You'll find that the URLs are always structured the same:
 
 ```
 https://apify.com/{OWNER}/{NAME}
