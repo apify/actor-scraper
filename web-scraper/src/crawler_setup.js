@@ -89,6 +89,7 @@ class CrawlerSetup {
                 throw new Error('Navigation wait until events must be valid. See tooltip.');
             }
         });
+        tools.evalFunctionOrThrow(this.input.pageFunction);
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
