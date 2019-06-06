@@ -92,8 +92,6 @@ The following tables describe the `context` object in more detail.
         specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
         and its contents will be available under the <code>customData</code> context key.
     </td></tr>
-    <tr><td><code>request</code></td><td><code>Request</code></td></tr>
-    <tr><td colspan="2">
 </tbody>
 </table>
 
