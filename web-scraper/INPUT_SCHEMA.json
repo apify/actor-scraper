@@ -42,7 +42,7 @@
             "title": "Page function",
             "type": "string",
             "description": "Function executed for each request",
-            "prefill": "async function pageFunction(context) {\n    const { request, log } = context;\n    const title = document.querySelector('title').textContent;\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
+            "prefill": "async function pageFunction(context) {\n    // See README for context properties. If the syntax is unfamiliar see the link\n    // https://javascript.info/destructuring-assignment#object-destructuring\n    const { request, log, jQuery } = context;\n\n    // To be able to use jQuery as $, one needs save it into a variable\n    // and select the inject jQuery option. We've selected it for you.\n    const $ = jQuery;\n    const title = $('title').text();\n\n    // This is yet another new feature of Javascript called template strings.\n    // https://javascript.info/string#quotes\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n\n    // To save data just return an object with the requested properties.\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "proxyConfiguration": {
@@ -71,7 +71,7 @@
             "title": "Inject jQuery",
             "type": "boolean",
             "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
-            "default": false
+            "default": true
         },
         "injectUnderscore": {
             "title": "Inject Underscore",
