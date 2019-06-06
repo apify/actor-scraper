@@ -172,8 +172,9 @@
         "waitUntil": {
             "title": "Navigation wait until",
             "type": "array",
-            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <codę>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>.",
+            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>.",
             "default": ["domcontentloaded"],
+            "prefill": ["domcontentloaded"],
             "editor": "json"
         },
         "useChrome": {
