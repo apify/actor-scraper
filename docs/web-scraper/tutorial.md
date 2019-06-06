@@ -65,7 +65,7 @@ We want to create a scraper that scrapes all the actors (i.e. not crawlers, our 
    1. **URL** - The URL that goes directly to the actor's detail page.
    2. **Unique identifier** - Such as `apify/web-scraper`.
    4. **Title** - The title visible in the actor's detail page.
-   5. **Description** - Tha actor's description.
+   5. **Description** - The actor's description.
    6. **Last run date**- When the actor was last run.
    7. **Number of runs** - How many times the actor was run.
 

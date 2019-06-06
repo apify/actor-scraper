@@ -1,0 +1,7 @@
+.idea
+apify_storage
+node_modules
+.nyc_output
+coverage
+src/page_function.js
+.DS_Store
