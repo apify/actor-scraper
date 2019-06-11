@@ -1,12 +1,12 @@
 # Scraping with Cheerio Scraper
 This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store` 
-using the `apify/cheerio-scraper`. If you arrived here from the [Getting started with Apify scrapers](https://__APIFY__introduction),
+using the `apify/cheerio-scraper`. If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
 
 ## Scraping Title, Description, Last run date and Number of runs
-In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorials/introduction) tutorial, we've confirmed that the scraper works as expected,
+In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Cheerio`](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
