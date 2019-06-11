@@ -43,7 +43,7 @@ function loadPartials(dirname) {
 function getView(dirname) {
     return {
         name: dirname,
-        capitalizedName: dirname.charAt(0).toUpperCase() + dirname.substr(1),
+        capitalizedName: dirname.split('-').map(capitalize).join(' '),
         code: () => (filename) => {
             const codeFile = path.join(__dirname, dirname, 'code', filename);
             const code = fs.readFileSync(codeFile, 'utf8');
@@ -53,4 +53,9 @@ function getView(dirname) {
         },
         dontForget: dirname === 'web' ? '(don\'t forget to tick that **Inject jQuery** box)' : '',
     };
+}
+
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.substr(1);
 }

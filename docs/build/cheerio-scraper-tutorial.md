@@ -1,4 +1,4 @@
-# Scraping with Cheerio-scraper Scraper
+# Scraping with Cheerio Scraper
 This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store` 
 using the `apify/cheerio-scraper`. If you arrived here from the [Getting started with Apify scrapers](intro-scraper-tutorial),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
