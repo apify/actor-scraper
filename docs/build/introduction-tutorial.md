@@ -2,11 +2,11 @@
 Welcome to the getting started tutorial to walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a `pageFunction` and finally download the scraped data as an Excel sheet, or in another format, such as JSON or CSV. But first, let's give you a brief introduction to Apify.
 
 ## What is an Apify scraper
-It doesn't matter whether you arrived here from `apify/web-scraper`, `apify/puppeteer-scraper` or `apify/cheerio-scraper`.  All of them are actors and for now, let's just think of actor as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations tasks.
+It doesn't matter whether you arrived here from `apify/web-scraper`, `apify/puppeteer-scraper` or `apify/cheerio-scraper`.  All of them are **actors** and for now, let's just think of **actor** as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations **tasks**.
 
 > If you need help choosing the right scraper, see this [great knowledge base article](https://kb.apify.com/tutorials-getting-started/choosing-the-right-scraper). And if you just want to learn more about actors in general, you can read our [actors page](https://apify.com/actors) or [browse the documentation](https://apify.com/docs/actor). 
 
-You can create 10 different tasks for 10 different websites, with very different options, but there will always be just one actor, the `apify/*-scraper` you chose. This is the essence of tasks. They are nothing but saved configurations of the actor that you can run easily and repeatedly.
+You can create 10 different **tasks** for 10 different websites, with very different options, but there will always be just one **actor**, the `apify/*-scraper` you chose. This is the essence of tasks. They are nothing but **saved configurations** of the actor that you can run easily and repeatedly.
 
 ## Trying it out
 Depending on how you arrived at this tutorial, you may already have your first task created for the scraper of your choice. If not, the easiest way is to go to [Apify tasks](https://my.apify.com/tasks) and click the **Create a new task** button. This will present you with a list of actors to choose from. Once you select one of the actors, it will take you to its task configuration page.
