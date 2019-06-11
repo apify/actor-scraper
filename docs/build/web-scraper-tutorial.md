@@ -1,6 +1,6 @@
-# Scraping with Web Scraper
+# Scraping with Web-scraper Scraper
 This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store` 
-using the `apify/web-scraper`. If you arrived here from the [Getting started with Apify scrapers](intro-scraper-tutorial),
+using the `apify/web-scraper-scraper`. If you arrived here from the [Getting started with Apify scrapers](intro-scraper-tutorial),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
@@ -161,7 +161,7 @@ async function pageFunction(context) {
 ```
 
 ### Test run 3
-As always, try hitting that **Save & Run** button (don&#39;t forget to tick that **Inject jQuery** box) and visit 
+As always, try hitting that **Save & Run** button  and visit 
 the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!
 
@@ -415,4 +415,4 @@ of JavaScript. It helps you put what matters on top, if you so desire.
 ## Final word
 Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
 
-Finally, `apify/web-scraper` is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/gettingstarted). We think you'd like it!
+Finally, `apify/web-scraper-scraper` is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/gettingstarted). We think you'd like it!

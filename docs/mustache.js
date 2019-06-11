@@ -4,10 +4,10 @@ const Mustache = require('mustache');
 
 const defaultPartials = loadPartials('common');
 
-buildTutorial('intro');
-buildTutorial('web');
-buildTutorial('cheerio');
-buildTutorial('puppeteer');
+buildTutorial('introduction');
+buildTutorial('web-scraper');
+buildTutorial('cheerio-scraper');
+buildTutorial('puppeteer-scraper');
 
 function buildTutorial(dirname) {
     const filename = `${dirname}.md`;
@@ -19,7 +19,7 @@ function buildTutorial(dirname) {
         ...loadPartials(dirname),
     };
     const markdown = Mustache.render(template, view, partials);
-    const buildFilename = `${dirname}-scraper-tutorial.md`;
+    const buildFilename = `${dirname}-tutorial.md`;
     const buildPath = path.join(__dirname, 'build', buildFilename);
     fs.writeFileSync(buildPath, markdown);
 }
