@@ -255,6 +255,14 @@ async function pageFunction(context) {
 Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking the **Clean items** card, or by going to the **DATASET** tab. Click **Preview data** again (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
 
 ## Choosing sides
-Up until now, everything has been the same for all the Apify scrapers. Whether you're using `apify/web-scraper`, `apify/puppeteer-scraper` or `apify/cheerio-scraper`, what you've learned now will always be the same. This is great if you ever need to switch scrapers, because there's no need to learn everything from scratch.
+Up until now, everything has been the same for all the Apify scrapers. Whether you're using `apify/web-scraper`,
+`apify/puppeteer-scraper` or `apify/cheerio-scraper`, what you've learned now will always be the same.
+This is great if you ever need to switch scrapers, because there's no need to learn everything from scratch.
 
-There are differences in the code we use in the `pageFunction` though. Often subtle, sometimes large. In the next part of the tutorial, we'll focus on specific implementation details of the individual scrapers. So it's time to choose sides. But don't worry, at Apify, no side is the dark side.
+There are differences in the code we use in the `pageFunction` though. Often subtle, sometimes large.
+In the next part of the tutorial, we'll focus on specific implementation details of the individual scrapers.
+So it's time to choose sides. But don't worry, at Apify, no side is the dark side.
+
+ - [Continue to Web Scraper tutorial](https://__APIFY__web-scraper)
+ - [Continue to Cheerio Scraper tutorial](https://__APIFY__cheerio-scraper)
+ - [Continue to Puppeteer Scraper tutorial](https://__APIFY__puppeteer-scraper)
