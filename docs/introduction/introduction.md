@@ -242,6 +242,6 @@ There are differences in the code we use in the `pageFunction` though. Often sub
 In the next part of the tutorial, we'll focus on specific implementation details of the individual scrapers.
 So it's time to choose sides. But don't worry, at Apify, no side is the dark side.
 
- - [Continue to Web Scraper tutorial](https://__APIFY__web-scraper)
- - [Continue to Cheerio Scraper tutorial](https://__APIFY__cheerio-scraper)
- - [Continue to Puppeteer Scraper tutorial](https://__APIFY__puppeteer-scraper)
+ - [Continue to Web Scraper tutorial](https://apify.com/docs/scraping/tutorials/web-scraper)
+ - [Continue to Cheerio Scraper tutorial](https://apify.com/docs/scraping/tutorials/cheerio-scraper)
+ - [Continue to Puppeteer Scraper tutorial](https://apify.com/docs/scraping/tutorials/puppeteer-scraper)

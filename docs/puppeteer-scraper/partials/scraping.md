@@ -1,5 +1,5 @@
 ## Scraping Title, Description, Last run date and Number of runs
-In the [Getting started with Apify scrapers](https://__APIFY__introduction) tutorial, we've confirmed that the scraper works as expected,
+In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorials/introduction) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Puppeteer` library](https://github.com/GoogleChrome/puppeteer). Puppeteer is a browser
