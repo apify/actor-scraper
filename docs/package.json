@@ -1,0 +1,22 @@
+{
+    "name": "actor-scraper-docs",
+    "version": "1.0.0",
+    "description": "Documentation for scraper actors.",
+    "main": "index.js",
+    "scripts": {
+        "test": ""
+    },
+    "dependencies": {
+        "mustache": "^3.0.1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/apifytech/actor-scraper.git"
+    },
+    "author": "ondra@apify.com",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/apifytech/actor-scraper/issues"
+    },
+    "homepage": "https://github.com/apifytech/actor-scraper#readme"
+}
