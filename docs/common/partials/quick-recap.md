@@ -1,4 +1,4 @@
-## Quick Recap
+## Quick recap
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
