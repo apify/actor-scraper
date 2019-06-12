@@ -14,5 +14,8 @@ it in a nice, manageable UI. It provides almost all of its features in a format 
 when first trying to scrape using Puppeteer. 
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/puppeteer-scraper`](https://apify.com/apify/puppeteer-scraper) page and use our DevTools-Fu
+[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu
 to figure out how to get the title of the actor.
+
+> If you're wondering why we're using `apify/web-scraper` as an example instead of `puppeteer-scraper`,
+it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!

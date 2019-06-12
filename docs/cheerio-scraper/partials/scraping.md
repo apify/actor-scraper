@@ -11,5 +11,8 @@ of those are, don't worry. We'll walk you through using them step by step.
 > To learn more about `Cheerio`, see [the docs on their GitHub page](https://github.com/cheeriojs/cheerio).
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/cheerio-scraper`](https://apify.com/apify/cheerio-scraper) page and use our DevTools-Fu
+[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu
 to figure out how to get the title of the actor.
+
+> If you're wondering why we're using `apify/web-scraper` as an example instead of `cheerio-scraper`,
+it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!
