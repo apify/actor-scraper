@@ -1,9 +1,9 @@
-### Bonus 2: Using jQuery with Puppeteer Scraper
+## Bonus 2: Using jQuery with Puppeteer Scraper
 If you're familiar with the [`jQuery` library](https://jquery.com/), you may have looked at the scraping code and thought
 that it's unnecessarily complicated. That's probably up to everyone to decide on their own, but the good news is,
 you can easily use `jQuery` with Puppeteer Scraper too.
 
-#### Injecting jQuery
+### Injecting jQuery
 To be able to use jQuery, we first need to introduce it to the browser. Fortunately, we have a helper function to
 do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteer.injectJQuery)
 

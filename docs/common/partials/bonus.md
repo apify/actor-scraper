@@ -1,4 +1,4 @@
-### Bonus: Making your `pageFunction` neater
+## Bonus: Making your code neater
 You may have noticed that the `pageFunction` gets quite bulky. To make better sense of your code and have an easier
 time maintaining or extending your task, feel free to define other functions inside the `pageFunction`
 that encapsulate all the different logic. You can, for example, define a function for each of the different pages:
