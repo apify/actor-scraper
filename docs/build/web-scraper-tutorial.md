@@ -5,16 +5,36 @@ tutorial, great! You are ready to continue where we left off. If you haven't see
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
 
-## Scraping Title, Description, Last run date and Number of runs
-In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected, so now it's time to add more data to the results.
+## Getting to know our tools
+In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial,
+we've confirmed that the scraper works as expected, so now it's time to add more data to the results.
 
-To do that, we'll be using the [`jQuery` library](https://jquery.com/), because it provides some nice tools and a lot of people familiar with JavaScript already know how to use it.
+To do that, we'll be using the [`jQuery` library](https://jquery.com/), because it provides some nice tools
+and a lot of people familiar with JavaScript already know how to use it.
 
-> If you're not familiar with `jQuery`, you can find good information [in the docs](https://api.jquery.com/) and if you just don't want to use it, that's okay. Everything can be done using pure JavaScript too.
+> If you're not familiar with `jQuery`, you can find good information [in the docs](https://api.jquery.com/)
+and if you just don't want to use it, that's okay. Everything can be done using pure JavaScript too.
 
-To add `jQuery`, all we need to do is turn on **Inject jQuery** under INPUT **Options**. This will add a `context.jQuery` function that you can use.
+To add `jQuery`, all we need to do is turn on **Inject jQuery** under INPUT **Options**.
+This will add a `context.jQuery` function that you can use.
 
-Now that's out of the way, let's open one of the actor detail pages in the Store, for example the [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to figure out how to get the title of the actor.
+Now that's out of the way, let's open one of the actor detail pages in the Store, for example
+the [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
+
+## Quick Recap
+Before we start, let's do a quick recap of the data we chose to scrape:
+
+   1. **URL** - The URL that goes directly to the actor's detail page.
+   2. **Unique identifier** - Such as `apify/web-scraper`.
+   3. **Title** - The title visible in the actor's detail page.
+   4. **Description** - The actor's description.
+   5. **Last run date**- When the actor was last run.
+   6. **Number of runs** - How many times the actor was run.
+   
+![data to scrape](../img/scraping-practice.png "Overview of data to be scraped.")
+
+We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
+tutorial, so let's get to the next one on the list: Title
 
 ### Title
 ![actor title](../img/title-01.png "Finding actor title in DevTools.")

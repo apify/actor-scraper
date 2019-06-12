@@ -5,7 +5,7 @@ tutorial, great! You are ready to continue where we left off. If you haven't see
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
 
-## Scraping Title, Description, Last run date and Number of runs
+## Getting to know our tools
 In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
@@ -18,11 +18,25 @@ of those are, don't worry. We'll walk you through using them step by step.
 > To learn more about `Cheerio`, see [the docs on their GitHub page](https://github.com/cheeriojs/cheerio).
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu
-to figure out how to get the title of the actor.
+[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
 
 > If you're wondering why we're using `apify/web-scraper` as an example instead of `cheerio-scraper`,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!
+
+## Quick Recap
+Before we start, let's do a quick recap of the data we chose to scrape:
+
+   1. **URL** - The URL that goes directly to the actor's detail page.
+   2. **Unique identifier** - Such as `apify/web-scraper`.
+   3. **Title** - The title visible in the actor's detail page.
+   4. **Description** - The actor's description.
+   5. **Last run date**- When the actor was last run.
+   6. **Number of runs** - How many times the actor was run.
+   
+![data to scrape](../img/scraping-practice.png "Overview of data to be scraped.")
+
+We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
+tutorial, so let's get to the next one on the list: Title
 
 ### Title
 ![actor title](../img/title-01.png "Finding actor title in DevTools.")

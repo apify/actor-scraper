@@ -136,7 +136,7 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 
 ![pseudo url input](../img/making-a-pseudo-url.png "Adding new Pseudo URL.")
 
-#### Test run
+### Test run
 We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
 
 ### The `pageFunction`
@@ -206,20 +206,12 @@ Will produce the following table:
 | ----- | --- |
 | Web Scraping, Data Extraction and Automation - Apify | https://apify.com |
 
-## Scraping practice - getting the data
-We've covered all the concepts that we need to understand to successfully scrape the data in our goal, so let's get to it. Just a quick recap of the data we want:
-
-   1. **URL** - The URL that goes directly to the actor's detail page.
-   2. **Unique identifier** - Such as `apify/web-scraper`.
-   4. **Title** - The title visible in the actor's detail page.
-   5. **Description** - The actor's description.
-   6. **Last run date**- When the actor was last run.
-   7. **Number of runs** - How many times the actor was run.
-   
-![data to scrape](../img/scraping-practice.png "Overview of data to be scraped.")
-
-### Scraping the URL and Unique identifier
-For this information, we just need the `request.url` because it includes the Unique identifier.
+## Scraping basics
+We've covered all the concepts that we need to understand to successfully scrape the data in our goal,
+so let's get to it and start with something really simple. We will only output data that are already available
+to us in the page's URL. Remember from [our goal](#the-goal) that we also want to include the **URL** and a **Unique
+identifier** in our results. To get those, we just need the `request.url` because it is the URL and 
+includes the Unique identifier.
 
 ```js
 const { url } = request; 
@@ -231,7 +223,9 @@ We'll add our first data to the `pageFunction` and carry out a test run to see t
 
 {{#code}}test-run-2.js{{/code}}
 
-Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking the **Clean items** card, or by going to the **DATASET** tab. Click **Preview data** again (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
+Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking 
+the **Clean items** card, or by going to the **DATASET** tab. Click **Preview data** again (and check Clean data,
+ if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
 
 ## Choosing sides
 Up until now, everything has been the same for all the Apify scrapers. Whether you're using `apify/web-scraper`,

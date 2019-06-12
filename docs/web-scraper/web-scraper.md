@@ -1,6 +1,8 @@
 {{> intro}}
 
-{{> scraping}}
+{{> tools}}
+
+{{> quick-recap}}
 
 {{> title}}
 
