@@ -15,6 +15,7 @@ so we need to make the selector a little bit more specific by adding its parent 
 ![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
 
 {{#code}}title-1.js{{/code}}
+{{> note-title-1}}
 
 > Always make sure to use the DevTools to verify your scraping process and assumptions. 
 It's faster than changing the crawler code all the time.
@@ -22,3 +23,4 @@ It's faster than changing the crawler code all the time.
 Getting the title should now be pretty easy. We know that it's in the `$wrapper` so we just need to find it there:
 
 {{#code}}title-2.js{{/code}}
+{{> note-title-2}}

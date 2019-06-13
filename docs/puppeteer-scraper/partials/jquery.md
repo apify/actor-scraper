@@ -36,4 +36,5 @@ Let's try refactoring the Bonus 1 version of the `pageFunction` to use `jQuery`.
 {{#code}}jquery.js{{/code}}
 
 > There's an important takeaway from the example code. You can only use jQuery in the browser scope, even though you're
-injecting it outside of the browser. Keep this in mind.
+injecting it outside of the browser. We're using the [`page.evaluate()`](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args)
+function to run the script in the context of the browser and the return value is passed back to Node.js. Keep this in mind.

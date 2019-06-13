@@ -52,6 +52,7 @@ function getView(dirname) {
             return header + code + footer;
         },
         dontForget: dirname === 'web' ? '(don\'t forget to tick that **Inject jQuery** box)' : '',
+        eq1: dirname === 'puppeteer-scraper' ? 'els[1]' : '.eq(1)',
     };
 }
 

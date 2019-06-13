@@ -4,9 +4,10 @@ The DevTools tell us that the `lastRunDate` can be found in the second of the tw
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 {{#code}}last-run-date.js{{/code}}
+{{> note-last-run-date}}
 
 It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper`
-and find the `<time>` elements it contains. There are two, so we grab the second one using the `.eq(1)` call
+and find the `<time>` elements it contains. There are two, so we grab the second one using the `{{eq1}}` call
 (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored
 as a `string`.
 

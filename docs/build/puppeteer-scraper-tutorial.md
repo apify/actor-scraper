@@ -74,6 +74,13 @@ so we need to make the selector a little bit more specific by adding its parent 
 // Using Puppeteer.
 const $wrapper = await page.$('header div.wrap');
 ```
+The [`page`](https://pptr.dev/#?product=Puppeteer&show=api-class-page) variable is provided by Puppeteer
+and it represents the open browser page. The [`page.$()`](https://pptr.dev/#?product=Puppeteer&show=api-pageselector)
+is similar to jQuery. You provide it with a selector and it returns a reference to an element.
+Be careful though. Elements only exist in the browser and this is Node.js context. The element is not an
+actual [`Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element),
+but an [`ElementHandle`](https://pptr.dev/#?product=Puppeteer&show=api-class-elementhandle). You can use
+the `ElementHandle` to operate on the `Element` in the browser, but it's not the `Element` itself.
 
 > Always make sure to use the DevTools to verify your scraping process and assumptions. 
 It's faster than changing the crawler code all the time.
@@ -88,6 +95,11 @@ return {
     title,
 }
 ```
+The [`$wrapper.$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args-1)
+function allows you to run a function in the browser, within the context of the `$wrapper` and with the selected
+element as the first argument. Here we use it to extract the text content of a `h1` element that exists inside
+the `$wrapper`. The return value of the function is automatically passed back to the Node.js context, so we
+receive an actual `string` with the element's text.
 
 ### Description
 Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
@@ -127,9 +139,13 @@ return {
     lastRunDate,
 };
 ```
+Similarly to `$wrapper.$eval`, the [`$wrapper.$$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args)
+function runs a function in the browser, within the context of the `$wrapper`. Only this time, it does not provide
+you with a single `Element` as the function's argument, but rather with an `Array` of `Elements`. Once again,
+the return value of the function will be passed back to the Node.js context.
 
 It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper`
-and find the `<time>` elements it contains. There are two, so we grab the second one using the `.eq(1)` call
+and find the `<time>` elements it contains. There are two, so we grab the second one using the `els[1]` call
 (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored
 as a `string`.
 
@@ -239,6 +255,11 @@ async function pageFunction(context) {
     }
 }
 ```
+> You have definitely noticed that we changed up the code a little bit. This is because the back and forth communication
+between Node.js and browser takes some time and it slows down the scraper. To limit the effect of this, we changed
+all the functions to start at the same time and only wait for all of them to finish at the end. This is called
+concurrency or parallelism. Unless the functions need to be executed in a specific order, it's often a good idea
+to run them concurrently to speed things up.
 
 ### Test run 3
 As always, try hitting that **Save & Run** button  and visit 
@@ -608,7 +629,8 @@ async function pageFunction(context) {
 ```
 
 > There's an important takeaway from the example code. You can only use jQuery in the browser scope, even though you're
-injecting it outside of the browser. Keep this in mind.
+injecting it outside of the browser. We're using the [`page.evaluate()`](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args)
+function to run the script in the context of the browser and the return value is passed back to Node.js. Keep this in mind.
 
 ## Final word
 Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!

@@ -7,6 +7,7 @@ the properties we parsed from the URL earlier and we're good to go.
 All we need to do now is add this to our `pageFunction`:
 
 {{#code}}wrapping-it-up-2.js{{/code}}
+{{> note-wrapping-it-up-2}}
 
 ### Test run 3
 As always, try hitting that **Save & Run** button {{dontForget}} and visit 
