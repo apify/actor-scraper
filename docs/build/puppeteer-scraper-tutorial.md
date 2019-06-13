@@ -30,8 +30,8 @@ It's also much easier to work with external APIs, databases or the [Apify SDK](h
 in the Node.js context. The tradeoff is simple. Power vs simplicity. Web Scraper is simple,
 Puppeteer Scraper is powerful (and the [Apify SDK](https://sdk.apify.com) is super-powerful).
 
-> Simply put, Web Scraper `pageFunction` is just a a single 
-[page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call. 
+> Simply put, Web Scraper `pageFunction` is just a single 
+[page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call.
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
 [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
