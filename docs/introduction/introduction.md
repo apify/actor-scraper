@@ -136,6 +136,17 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 
 ![pseudo url input](../img/making-a-pseudo-url.jpg "Adding new Pseudo URL.")
 
+### Filtering with a link selector
+Pseudo URLs are just one part of your URL matching arsenal. The other one is the **Link selector** which you can find
+right under the Pseudo URLs input field. It's just a CSS selector and its purpose is to select the HTML elements
+where the scraper should look for URLs. And by looking for URLs we mean finding the elements' 'href' attributes.
+For example, to enqueue URLs from `<div class="my-class" href=...>` tags, you would enter `'div.my-class'`. For now
+let's just keep the default selector: `a`, which pretty much means "all links".
+
+What's the connection to Pseudo URLs? Well, first, all the URLs found in the elements that match the link selector
+are collected. Then, Pseudo URLs are used to filter those URLs an enqueue only the ones that match the Pseudo URL
+structure. Simple.
+
 ### Test run
 We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
 
@@ -205,6 +216,23 @@ Will produce the following table:
 | title | url |
 | ----- | --- |
 | Web Scraping, Data Extraction and Automation - Apify | https://apify.com |
+
+### Scraper Lifecycle
+Now that we're familiar with all the pieces in the puzzle, we'll quickly take a look at the scraper lifecycle,
+or in other words, what does the scraper actually do when it scrapes. It's quite straightforward.
+
+The scraper
+ 1. visits the first **Start URL** and waits for the page to load.
+ 2. executes the `pageFunction`.
+ 3. finds all the elements matching the **Link selector** and extracts their `href` attributes (URLs).
+ 4. uses the **Pseudo URLs** to filter the extracted URLs and throws away those that don't match.
+ 5. enqueues the matching URLs to the end of the crawling queue.
+ 6. closes the page and selects a new URL to visit, either from the Start URLs if there are any left,
+    or from the beginning of the crawling queue.
+    
+> When you're not using the request queue, the scraper just repeats the steps 1 and 2. You would not use
+the request queue when you already know all the URLs you want to visit. For example, when you have
+a pre-existing list of a thousand URLs that you uploaded as a text file. Or when scraping just a single URL. 
 
 ## Scraping basics
 We've covered all the concepts that we need to understand to successfully scrape the data in our goal,
