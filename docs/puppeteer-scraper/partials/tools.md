@@ -11,7 +11,20 @@ you'll need to visit its [documentation](https://pptr.dev/) and really dive deep
 
 > The purpose of Puppeteer Scraper is to remove some of the difficulty faced when using Puppeteer by wrapping
 it in a nice, manageable UI. It provides almost all of its features in a format that is much easier to grasp
-when first trying to scrape using Puppeteer. 
+when first trying to scrape using Puppeteer.
+
+### Web Scraper differences
+At first glance, it may seem like Web Scraper and Puppeteer Scraper are almost the same. Well, they are.
+In fact, Web Scraper uses Puppeteer underneath. The difference is the amount of control they give you.
+Where Web Scraper only gives you access to in-browser JavaScript and the `pageFunction` is executed
+in the browser context, Puppeteer Scraper's `pageFunction` is executed in Node.js context, giving you
+much more freedom to bend the browser to your will. You're the puppeteer and the browser is your puppet.
+It's also much easier to work with external APIs, databases or the [Apify SDK](https://sdk.apify.com)
+in the Node.js context. The tradeoff is simple. Power vs simplicity. Web Scraper is simple,
+Puppeteer Scraper is powerful (and the [Apify SDK](https://sdk.apify.com) is super-powerful).
+
+> Simply put, Web Scraper `pageFunction` is just a a single 
+[page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call. 
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
 [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
