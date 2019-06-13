@@ -33,13 +33,13 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last run date**- When the actor was last run.
    6. **Number of runs** - How many times the actor was run.
    
-![data to scrape](../img/scraping-practice.png "Overview of data to be scraped.")
+![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### Title
-![actor title](../img/title-01.png "Finding actor title in DevTools.")
+![actor title](../img/title-01.jpg "Finding actor title in DevTools.")
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -52,7 +52,7 @@ where you can quickly search for elements using their selectors.
 Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page,
 so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
 
-![actor title selector](../img/title-02.png "Finding actor title in DevTools.")
+![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
 
 ```js
 // Using Cheerio.
@@ -74,7 +74,7 @@ return {
 ### Description
 Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
 
-![actor description selector](../img/description.png "Finding actor description in DevTools.")
+![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
 const $wrapper = $('header div.wrap');
@@ -89,7 +89,7 @@ Getting the `lastRunDate` and `runCount` is not as straightforward as the previo
 ### Last run date
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
 
-![actor last run date selector](../img/last-run-date.png "Finding actor last run date in DevTools.")
+![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
 const $wrapper = $('header div.wrap');
@@ -213,7 +213,7 @@ ever could.
 We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
 Then we click the Show more button and wait for incoming requests to appear in the list.
 
-![inspect-network](../img/inspect-network.png "Inspecting network in DevTools.")
+![inspect-network](../img/inspect-network.jpg "Inspecting network in DevTools.")
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
 data. This means that the data about actors must already be available in the page and the Show more button only
@@ -226,7 +226,7 @@ few hits do not provide any interesting information, but in the end, we find our
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about `apify/web-scraper`. In DevTools,
 you can right click an element and click **Store as global variable** to make this element available in the Console.
 
-![find-data](../img/find-data.png "Finding the hidden actor data.")
+![find-data](../img/find-data.jpg "Finding the hidden actor data.")
 
 A `temp1` variable is now added to your console. We're mostly interested in its contents and we can get that using
 the `temp1.textContent` property. You can see that it's a rather large JSON string. How do we know?
@@ -240,7 +240,7 @@ const data = JSON.parse(temp1.textContent);
 After entering the above command into the console, we can inspect the `data` variable and see that all the information
 we need is there, in the `data.props.pageProps.items` array. Great!
 
-![inspect-data](../img/inspect-data.png "Inspecting the hidden actor data.")
+![inspect-data](../img/inspect-data.jpg "Inspecting the hidden actor data.")
 
 > It's obvious that all the information we set to scrape is available in this one data object,
 so you might already be wondering, can I just make one request to the store to get this JSON

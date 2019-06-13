@@ -25,7 +25,7 @@ ever could.
 We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
 Then we click the Show more button and wait for incoming requests to appear in the list.
 
-![inspect-network](../img/inspect-network.png "Inspecting network in DevTools.")
+![inspect-network](../img/inspect-network.jpg "Inspecting network in DevTools.")
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
 data. This means that the data about actors must already be available in the page and the Show more button only
@@ -38,7 +38,7 @@ few hits do not provide any interesting information, but in the end, we find our
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about `apify/web-scraper`. In DevTools,
 you can right click an element and click **Store as global variable** to make this element available in the Console.
 
-![find-data](../img/find-data.png "Finding the hidden actor data.")
+![find-data](../img/find-data.jpg "Finding the hidden actor data.")
 
 A `temp1` variable is now added to your console. We're mostly interested in its contents and we can get that using
 the `temp1.textContent` property. You can see that it's a rather large JSON string. How do we know?
@@ -52,7 +52,7 @@ const data = JSON.parse(temp1.textContent);
 After entering the above command into the console, we can inspect the `data` variable and see that all the information
 we need is there, in the `data.props.pageProps.items` array. Great!
 
-![inspect-data](../img/inspect-data.png "Inspecting the hidden actor data.")
+![inspect-data](../img/inspect-data.jpg "Inspecting the hidden actor data.")
 
 > It's obvious that all the information we set to scrape is available in this one data object,
 so you might already be wondering, can I just make one request to the store to get this JSON

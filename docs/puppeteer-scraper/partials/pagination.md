@@ -44,7 +44,7 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-![waiting for the button](../img/waiting-for-the-button.png "Finding show more button in DevTools.")
+![waiting for the button](../img/waiting-for-the-button.jpg "Finding show more button in DevTools.")
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
@@ -113,4 +113,4 @@ the clean items. You should have a table of all the actor's details in front of 
 You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
-![final results](../img/plugging-it-into-the-pagefunction.png "Final results.")
+![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")

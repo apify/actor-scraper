@@ -1,7 +1,7 @@
 ### Last run date
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
 
-![actor last run date selector](../img/last-run-date.png "Finding actor last run date in DevTools.")
+![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 {{#code}}last-run-date.js{{/code}}
 

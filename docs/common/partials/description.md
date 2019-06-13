@@ -1,7 +1,7 @@
 ### Description
 Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
 
-![actor description selector](../img/description.png "Finding actor description in DevTools.")
+![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 {{#code}}description.js{{/code}}
 

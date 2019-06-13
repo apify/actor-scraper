@@ -18,7 +18,20 @@ you'll need to visit its [documentation](https://pptr.dev/) and really dive deep
 
 > The purpose of Puppeteer Scraper is to remove some of the difficulty faced when using Puppeteer by wrapping
 it in a nice, manageable UI. It provides almost all of its features in a format that is much easier to grasp
-when first trying to scrape using Puppeteer. 
+when first trying to scrape using Puppeteer.
+
+### Web Scraper differences
+At first glance, it may seem like Web Scraper and Puppeteer Scraper are almost the same. Well, they are.
+In fact, Web Scraper uses Puppeteer underneath. The difference is the amount of control they give you.
+Where Web Scraper only gives you access to in-browser JavaScript and the `pageFunction` is executed
+in the browser context, Puppeteer Scraper's `pageFunction` is executed in Node.js context, giving you
+much more freedom to bend the browser to your will. You're the puppeteer and the browser is your puppet.
+It's also much easier to work with external APIs, databases or the [Apify SDK](https://sdk.apify.com)
+in the Node.js context. The tradeoff is simple. Power vs simplicity. Web Scraper is simple,
+Puppeteer Scraper is powerful (and the [Apify SDK](https://sdk.apify.com) is super-powerful).
+
+> Simply put, Web Scraper `pageFunction` is just a a single 
+[page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call. 
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
 [`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
@@ -36,13 +49,13 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last run date**- When the actor was last run.
    6. **Number of runs** - How many times the actor was run.
    
-![data to scrape](../img/scraping-practice.png "Overview of data to be scraped.")
+![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### Title
-![actor title](../img/title-01.png "Finding actor title in DevTools.")
+![actor title](../img/title-01.jpg "Finding actor title in DevTools.")
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -55,7 +68,7 @@ where you can quickly search for elements using their selectors.
 Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page,
 so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
 
-![actor title selector](../img/title-02.png "Finding actor title in DevTools.")
+![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
 
 ```js
 // Using Puppeteer.
@@ -79,7 +92,7 @@ return {
 ### Description
 Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
 
-![actor description selector](../img/description.png "Finding actor description in DevTools.")
+![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
 const $wrapper = await page.$('header div.wrap');
@@ -97,7 +110,7 @@ Getting the `lastRunDate` and `runCount` is not as straightforward as the previo
 ### Last run date
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
 
-![actor last run date selector](../img/last-run-date.png "Finding actor last run date in DevTools.")
+![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
 const $wrapper = await page.$('header div.wrap');
@@ -301,7 +314,7 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-![waiting for the button](../img/waiting-for-the-button.png "Finding show more button in DevTools.")
+![waiting for the button](../img/waiting-for-the-button.jpg "Finding show more button in DevTools.")
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
@@ -422,7 +435,7 @@ the clean items. You should have a table of all the actor's details in front of 
 You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
-![final results](../img/plugging-it-into-the-pagefunction.png "Final results.")
+![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
 
 ## Downloading the scraped data
 You already know the DATASET tab of the run console since this is where we've always previewed our data.

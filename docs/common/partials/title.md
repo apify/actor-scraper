@@ -1,5 +1,5 @@
 ### Title
-![actor title](../img/title-01.png "Finding actor title in DevTools.")
+![actor title](../img/title-01.jpg "Finding actor title in DevTools.")
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -12,7 +12,7 @@ where you can quickly search for elements using their selectors.
 Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page,
 so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
 
-![actor title selector](../img/title-02.png "Finding actor title in DevTools.")
+![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
 
 {{#code}}title-1.js{{/code}}
 
