@@ -140,6 +140,9 @@ class CrawlerSetup {
     async createCrawler() {
         await this.initPromise;
 
+        const args = [];
+        if (this.input.ignoreCorsAndCsp) args.push('--disable-web-security');
+
         const options = {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
@@ -163,6 +166,7 @@ class CrawlerSetup {
                 devtools: this.devtools,
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
+                args,
             },
         };
 
@@ -185,6 +189,9 @@ class CrawlerSetup {
 
         // Add initial cookies, if any.
         if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+
+        // Disable content security policy.
+        if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
 
         // Enable pre-processing before navigation is initiated.
         if (this.evaledPreGotoFunction) {

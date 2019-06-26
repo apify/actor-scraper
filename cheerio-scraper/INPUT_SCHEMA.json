@@ -36,7 +36,7 @@
             "type": "string",
             "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>.",
             "editor": "textfield",
-            "prefill": "a"
+            "default": "a"
         },
         "pageFunction": {
             "title": "Page function",

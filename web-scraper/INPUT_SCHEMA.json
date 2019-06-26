@@ -36,7 +36,7 @@
             "type": "string",
             "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>.",
             "editor": "textfield",
-            "prefill": "a"
+            "default": "a"
         },
         "pageFunction": {
             "title": "Page function",
@@ -82,20 +82,14 @@
         "downloadMedia": {
             "title": "Download media",
             "type": "boolean",
-            "description": "Scraper will download media such as images, fonts, videos and sounds. This will slow down the scrape, but may help when certain websites are not loading correctly.",
-            "default": false
+            "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
+            "default": true
         },
         "downloadCss": {
             "title": "Download CSS",
             "type": "boolean",
-            "description": "Scraper will download CSS stylesheets. This will slow down the scrape, but may help when certain websites are not loading correctly.",
-            "default": false
-        },
-        "ignoreSslErrors": {
-            "title": "Ignore SSL errors",
-            "type": "boolean",
-            "description": "Scraper will ignore SSL certificate errors.",
-            "default": false
+            "description": "Scraper will download CSS stylesheets. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
+            "default": true
         },
         "maxRequestRetries": {
             "title": "Max request retries",
@@ -183,12 +177,26 @@
             "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
             "default": false,
             "groupCaption": "Browser masking options",
-            "groupDescription": "Settings that help mask as a real user and prevent scraper detection."
+            "groupDescription": "Settings that help mask as a real user and prevent scraper detection, but increase the chances of the scraper not working at all with some websites."
         },
         "useStealth": {
             "title": "Use Stealth",
             "type": "boolean",
             "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "default": false
+        },
+        "ignoreSslErrors": {
+            "title": "Ignore SSL errors",
+            "type": "boolean",
+            "description": "Scraper will ignore SSL certificate errors.",
+            "default": false,
+            "groupCaption": "Security options",
+            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
+        },
+        "ignoreCorsAndCsp": {
+            "title": "Ignore CORS and CSP",
+            "type": "boolean",
+            "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
         }
     },

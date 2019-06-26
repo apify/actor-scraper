@@ -107,7 +107,7 @@ https://apify.com/{OWNER}/{NAME}
 Where only the `OWNER` and `NAME` changes. We can leverage this in a Pseudo URL.
 
 #### Making a Pseudo URL
-If you'd like to learn more about Pseudo URLs, [visit a quick tutorial in our docs](https://sdk.apify.com/docs/guides/gettingstarted#introduction-to-pseudo-urls), but for now, let's keep it simple. Pseudo URLs are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://www.regexbuddy.com/regex.html) enclosed in brackets `[]`.
+If you'd like to learn more about Pseudo URLs, [visit a quick tutorial in our docs](https://sdk.apify.com/docs/guides/gettingstarted#introduction-to-pseudo-urls), but for now, let's keep it simple. Pseudo URLs are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://regexone.com/) enclosed in brackets `[]`.
 
 So, working with our actor details example, we could produce a Pseudo URL like this:
 
