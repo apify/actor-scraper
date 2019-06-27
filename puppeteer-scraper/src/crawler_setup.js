@@ -214,7 +214,7 @@ class CrawlerSetup {
     _handleFailedRequestFunction({ request }) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
-        log.error(`Request ${request.id} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
+        log.error(`Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
         return this._handleResult(request, {}, null, true);
     }
 
@@ -289,7 +289,7 @@ class CrawlerSetup {
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
-            log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
+            log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
 
@@ -301,7 +301,7 @@ class CrawlerSetup {
             transformRequestFunction: (rqst) => {
                 rqst.userData = {
                     [META_KEY]: {
-                        parentRequestId: rqst.id,
+                        parentRequestId: request.id || request.uniqueKey,
                         depth: currentDepth + 1,
                     },
                 };
