@@ -136,7 +136,7 @@ class CrawlerSetup {
             },
             requestOptions: {
                 jar: this.input.useCookieJar,
-            }
+            },
         };
 
         this.crawler = new Apify.CheerioCrawler(options);
@@ -255,11 +255,15 @@ class CrawlerSetup {
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
             baseUrl: request.loadedUrl,
-            userData: {
-                [META_KEY]: {
-                    parentRequestId: request.id,
-                    depth: currentDepth + 1,
-                },
+            transformRequestFunction: (rqst) => {
+                rqst.userData = {
+                    [META_KEY]: {
+                        parentRequestId: request.id || request.uniqueKey,
+                        depth: currentDepth + 1,
+                    },
+                };
+                rqst.useExtendedUniqueKey = true;
+                return rqst;
             },
         });
     }
