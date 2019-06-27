@@ -30,7 +30,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} injectUnderscore
  * @property {boolean} downloadMedia
  * @property {boolean} downloadCss
- * @property {boolean} ignoreSslErrors
  * @property {number} maxRequestRetries
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
@@ -44,6 +43,8 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} useChrome
  * @property {boolean} useStealth
  * @property {boolean} ignoreCorsAndCsp
+ * @property {boolean} ignoreSslErrors
+ * @property {string} clickableElementsSelector
  */
 
 /**
@@ -195,7 +196,6 @@ class CrawlerSetup {
         if (this.blockedUrlPatterns.length) {
             await puppeteer.blockRequests(page, {
                 urlPatterns: this.blockedUrlPatterns,
-                includeDefaults: false,
             });
         }
 
@@ -375,21 +375,26 @@ class CrawlerSetup {
             log.debug(`Request ${request.id} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
-        if (!canEnqueue) return;
 
-        await Apify.utils.enqueueLinks({
+        const enqueueOptions = {
             page,
             selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
-            userData: {
-                [META_KEY]: {
-                    parentRequestId: request.id,
-                    depth: currentDepth + 1,
-                },
+            transformRequestFunction: (rqst) => {
+                rqst.userData = {
+                    [META_KEY]: {
+                        parentRequestId: rqst.id,
+                        depth: currentDepth + 1,
+                    },
+                };
+                rqst.useExtendedUniqueKey = true;
+                return rqst;
             },
-        });
+        };
+
+        if (this.input.linkSelector) await Apify.utils.enqueueLinks(enqueueOptions);
+        if (this.input.clickableElementsSelector) await Apify.utils.puppeteer.enqueueLinksByClickingElements(enqueueOptions);
 
         tools.logPerformance(request, 'handleLinks EXECUTION', start);
     }

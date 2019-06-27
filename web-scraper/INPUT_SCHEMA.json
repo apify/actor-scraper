@@ -34,9 +34,9 @@
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>.",
+            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>. Leave empty to ignore all links.",
             "editor": "textfield",
-            "default": "a"
+            "prefill": "a"
         },
         "pageFunction": {
             "title": "Page function",
@@ -166,7 +166,7 @@
         "waitUntil": {
             "title": "Navigation wait until",
             "type": "array",
-            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>.",
+            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>. <a href=\"https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options\" target=\"_blank\">See Puppeteer docs</a>.",
             "default": ["domcontentloaded"],
             "prefill": ["domcontentloaded"],
             "editor": "json"
@@ -198,6 +198,12 @@
             "type": "boolean",
             "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
+        },
+        "clickableElementsSelector": {
+            "title": "EXPERIMENTAL: Clickable elements selector",
+            "type": "string",
+            "description": "CSS selector matching elements that the scraper will click after the page function finishes. Any triggered requests, navigations or open tabs will be intercepted and the target URLs will be filtered using Pseudo URLs and subsequently added to the request queue.",
+            "editor": "textfield"
         }
     },
     "required": ["startUrls", "pageFunction"]

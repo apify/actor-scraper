@@ -34,9 +34,9 @@
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>.",
+            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>. Leave empty to ignore all links.",
             "editor": "textfield",
-            "default": "a"
+            "prefill": "a"
         },
         "pageFunction": {
             "title": "Page function",

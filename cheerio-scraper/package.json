@@ -4,13 +4,13 @@
 	"description": "Crawl web pages using HTTP requests and Cheerio",
 	"main": "src/main.js",
 	"dependencies": {
-		"apify": "^0.14.15",
 		"@mnmkng/scraper-tools": "^0.1.2",
+		"apify": "^0.15.1-beta.11",
 		"underscore": "^1.9.1"
 	},
 	"devDependencies": {
 		"chai": "^4.2.0",
-		"eslint": "^5.8.0",
+		"eslint": "^6.0.1",
 		"eslint-config-airbnb": "^17.1.0",
 		"eslint-config-airbnb-base": "^13.1.0",
 		"eslint-plugin-import": "^2.14.0",
@@ -18,7 +18,7 @@
 		"eslint-plugin-promise": "^4.0.1",
 		"eslint-plugin-react": "^7.11.1",
 		"markdown-toc": "^1.2.0",
-		"mocha": "^5.2.0",
+		"mocha": "^6.1.4",
 		"nyc": "^14.1.1",
 		"sinon": "^7.1.1"
 	},
