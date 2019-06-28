@@ -378,7 +378,7 @@ class CrawlerSetup {
 
         const enqueueOptions = {
             page,
-            selector: this.input.linkSelector,
+            selector: null,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
             transformRequestFunction: (rqst) => {
@@ -393,8 +393,12 @@ class CrawlerSetup {
             },
         };
 
-        if (this.input.linkSelector) await Apify.utils.enqueueLinks(enqueueOptions);
-        if (this.input.clickableElementsSelector) await Apify.utils.puppeteer.enqueueLinksByClickingElements(enqueueOptions);
+        if (this.input.linkSelector) {
+            await Apify.utils.enqueueLinks({ ...enqueueOptions, ...{ selector: this.input.linkSelector } });
+        }
+        if (this.input.clickableElementsSelector) {
+            await Apify.utils.puppeteer.enqueueLinksByClickingElements({ ...enqueueOptions, ...{ selector: this.input.clickableElementsSelector } });
+        }
 
         tools.logPerformance(request, 'handleLinks EXECUTION', start);
     }
