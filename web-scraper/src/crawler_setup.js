@@ -44,7 +44,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} useStealth
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
- * @property {string} clickableElementsSelector
  */
 
 /**
@@ -347,10 +346,12 @@ class CrawlerSetup {
         // Throw error from pageFunction, if any.
         if (pageFunctionError) throw tools.createError(pageFunctionError);
 
-        // Enqueue more links if Pseudo URLs and a link selector are available,
+        // Enqueue more links if a link selector is available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (!pageContext.skipLinks) await this._handleLinks(page, request);
+        if (this.input.linkSelector && !pageContext.skipLinks) {
+            await this._handleLinks(page, request);
+        }
 
         // Save the `pageFunction`s result (or just metadata) to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);
@@ -378,7 +379,7 @@ class CrawlerSetup {
 
         const enqueueOptions = {
             page,
-            selector: null,
+            selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
             transformRequestFunction: (rqst) => {
@@ -393,12 +394,7 @@ class CrawlerSetup {
             },
         };
 
-        if (this.input.linkSelector) {
-            await Apify.utils.enqueueLinks({ ...enqueueOptions, ...{ selector: this.input.linkSelector } });
-        }
-        if (this.input.clickableElementsSelector) {
-            await Apify.utils.puppeteer.enqueueLinksByClickingElements({ ...enqueueOptions, ...{ selector: this.input.clickableElementsSelector } });
-        }
+        await Apify.utils.enqueueLinks(enqueueOptions);
 
         tools.logPerformance(request, 'handleLinks EXECUTION', start);
     }

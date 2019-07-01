@@ -38,6 +38,12 @@
             "editor": "textfield",
             "prefill": "a"
         },
+        "clickableElementsSelector": {
+            "title": "Clickable elements selector",
+            "type": "string",
+            "description": "For pages where simple 'href' links are not available, this attribute allows you to specify a CSS selector matching elements that the scraper will mouse click after the page function finishes. Any triggered requests, navigations or open tabs will be intercepted and the target URLs will be filtered using Pseudo URLs and subsequently added to the request queue. Leave empty to prevent the scraper from clicking in the page. Using this setting will have a performance impact.",
+            "editor": "textfield"
+        },
         "pageFunction": {
             "title": "Page function",
             "type": "string",
@@ -193,12 +199,6 @@
             "type": "boolean",
             "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
-        },
-        "clickableElementsSelector": {
-            "title": "EXPERIMENTAL: Clickable elements selector",
-            "type": "string",
-            "description": "CSS selector matching elements that the scraper will click after the page function finishes. Any triggered requests, navigations or open tabs will be intercepted and the target URLs will be filtered using Pseudo URLs and subsequently added to the request queue.",
-            "editor": "textfield"
         }
     },
     "required": ["startUrls", "pageFunction"]
