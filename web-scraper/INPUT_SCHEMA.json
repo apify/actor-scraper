@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href=\"https://apify.com/docs/scraping/web-scraper-tutorial\" target=\"_blank\">step by step tutorial</a> to help you with the basics.",
+    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href=\"https://apify.com/docs/scraping/tutorial/introduction\" target=\"_blank\">step by step tutorial</a> to help you with the basics.\n\nIf you get stuck and it seems that you can no longer progress with the Web Scraper, try <a href=\"https://apify.com/docs/scraping/tutorial/puppeteer-scraper\" target=\"_blank\">Puppeteer Scraper</a>. It's a more powerful tool.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
