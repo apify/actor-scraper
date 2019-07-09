@@ -5,7 +5,7 @@ const {
     tools,
     browserTools,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
-} = require('@mnmkng/scraper-tools');
+} = require('@apify/scraper-tools');
 
 const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');

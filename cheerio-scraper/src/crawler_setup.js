@@ -4,7 +4,7 @@ const {
     tools,
     createContext,
     constants: { META_KEY },
-} = require('@mnmkng/scraper-tools');
+} = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
 

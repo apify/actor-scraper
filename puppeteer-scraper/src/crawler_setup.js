@@ -5,7 +5,7 @@ const {
     browserTools,
     createContext,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
-} = require('@mnmkng/scraper-tools');
+} = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
 

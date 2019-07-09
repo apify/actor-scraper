@@ -4,7 +4,7 @@
   "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "@mnmkng/scraper-tools": "^0.1.2",
+    "@apify/scraper-tools": "^0.1.0",
     "apify": "^0.15.1",
     "content-type": "^1.0.4",
     "underscore": "^1.9.1"
@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apifytech/actor-crawler"
+    "url": "https://github.com/apifytech/actor-scraper"
   },
   "author": {
     "name": "Apify",
@@ -46,5 +46,5 @@
     "Ondra Urban <ondra@apify.com>"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/apifytech/actor-crawler"
+  "homepage": "https://github.com/apifytech/actor-scraper"
 }
