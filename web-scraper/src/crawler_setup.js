@@ -22,6 +22,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
+ * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
@@ -121,7 +122,13 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = await Apify.openRequestList('WEB_SCRAPER', this.input.startUrls);
+        const startUrls = this.input.keepUrlFragments
+            ? this.input.startUrls.map((req) => {
+                req.keepUrlFragment = true;
+                return req;
+            })
+            : this.input.startUrls;
+        this.requestList = await Apify.openRequestList('WEB_SCRAPER', startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -391,6 +398,9 @@ class CrawlerSetup {
                     },
                 };
                 rqst.useExtendedUniqueKey = true;
+                if (this.input.keepUrlFragments) {
+                    rqst.keepUrlFragment = true;
+                }
                 return rqst;
             },
         };

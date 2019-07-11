@@ -21,6 +21,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
+ * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
@@ -93,7 +94,13 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', this.input.startUrls);
+        const startUrls = this.input.keepUrlFragments
+            ? this.input.startUrls.map((req) => {
+                req.keepUrlFragment = true;
+                return req;
+            })
+            : this.input.startUrls;
+        this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', startUrls);
 
         // RequestQueue if selected
         if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
@@ -247,8 +254,6 @@ class CrawlerSetup {
             log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
-        const canEnqueue = this.input.pseudoUrls.length && this.input.linkSelector;
-        if (!canEnqueue) return;
 
         await Apify.utils.enqueueLinks({
             $,
@@ -264,6 +269,9 @@ class CrawlerSetup {
                     },
                 };
                 rqst.useExtendedUniqueKey = true;
+                if (this.input.keepUrlFragments) {
+                    rqst.keepUrlFragment = true;
+                }
                 return rqst;
             },
         });
