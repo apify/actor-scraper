@@ -240,6 +240,7 @@ class CrawlerSetup {
     }
 
     async _handleLinks($, request) {
+        if (!(this.input.linkSelector && this.requestQueue)) return;
         const currentDepth = request.userData[META_KEY].depth;
         const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
