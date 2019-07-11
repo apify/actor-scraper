@@ -349,7 +349,7 @@ class CrawlerSetup {
         // Enqueue more links if a link selector is available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (this.input.linkSelector && !pageContext.skipLinks) {
+        if (!pageContext.skipLinks) {
             await this._handleLinks(page, request);
         }
 
@@ -368,6 +368,7 @@ class CrawlerSetup {
     }
 
     async _handleLinks(page, request) {
+        if (!(this.input.linkSelector && this.requestQueue)) return;
         const start = process.hrtime();
 
         const currentDepth = request.userData[META_KEY].depth;
