@@ -5,20 +5,20 @@
 	"main": "src/main.js",
 	"dependencies": {
 		"@apify/scraper-tools": "^0.1.0",
-		"apify": "^0.15.1",
+		"apify": "^0.15.2",
 		"underscore": "^1.9.1"
 	},
 	"devDependencies": {
 		"chai": "^4.2.0",
-		"eslint": "^6.0.1",
+		"eslint": "^6.1.0",
 		"eslint-config-airbnb": "^17.1.1",
 		"eslint-config-airbnb-base": "^13.2.0",
-		"eslint-plugin-import": "^2.14.0",
+		"eslint-plugin-import": "^2.18.2",
 		"eslint-plugin-jsx-a11y": "^6.2.3",
 		"eslint-plugin-promise": "^4.0.1",
 		"eslint-plugin-react": "^7.11.1",
 		"markdown-toc": "^1.2.0",
-		"mocha": "^6.1.4",
+		"mocha": "^6.2.0",
 		"nyc": "^14.1.1",
 		"sinon": "^7.1.1"
 	},

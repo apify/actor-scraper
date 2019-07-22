@@ -16,13 +16,13 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs and Link selector.",
+            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
             "default": true
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links.",
+            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links. Omitting the Pseudo-URLs will cause the scraper to enqueue all links matched by the Link selector.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
