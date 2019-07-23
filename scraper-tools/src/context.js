@@ -1,5 +1,6 @@
 const Apify = require('apify');
 const browserTools = require('./browser_tools');
+const { META_KEY } = require('./consts');
 
 const setup = Symbol('crawler-setup');
 const internalState = Symbol('request-internal-state');
@@ -69,16 +70,28 @@ class Context {
         this[internalState].skipLinks = true;
     }
 
-    async enqueueRequest(request, options = {}) {
+    async enqueueRequest(requestOpts = {}, options = {}) {
         if (!this[setup].useRequestQueue) {
             throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
         }
 
-        const defaultOpts = {
+        const defaultRequestOpts = {
             useExtendedUniqueKey: true,
+            keepUrlFragment: this.input.keepUrlFragments,
         };
 
-        return this[setup].requestQueue.addRequest(request, { ...defaultOpts, ...options });
+        const newRequest = { ...defaultRequestOpts, ...requestOpts };
+
+        const defaultUserData = {
+            [META_KEY]: {
+                parentRequestId: this.request.id || this.request.uniqueKey,
+                depth: this.request.userData[META_KEY].depth + 1,
+            },
+        };
+
+        newRequest.userData = { ...defaultUserData, ...requestOpts.userData };
+
+        return this[setup].requestQueue.addRequest(newRequest, options);
     }
 }
 

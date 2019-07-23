@@ -285,6 +285,7 @@ class CrawlerSetup {
             crawlerSetup: Object.assign(
                 _.pick(this, ['rawInput', 'env']),
                 _.pick(this.input, ['customData', 'useRequestQueue', 'injectJQuery', 'injectUnderscore']),
+                { META_KEY },
             ),
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
@@ -390,18 +391,16 @@ class CrawlerSetup {
             selector: this.input.linkSelector,
             pseudoUrls: this.input.pseudoUrls,
             requestQueue: this.requestQueue,
-            transformRequestFunction: (rqst) => {
-                rqst.userData = {
+            transformRequestFunction: (requestOptions) => {
+                requestOptions.userData = {
                     [META_KEY]: {
                         parentRequestId: request.id || request.uniqueKey,
                         depth: currentDepth + 1,
                     },
                 };
-                rqst.useExtendedUniqueKey = true;
-                if (this.input.keepUrlFragments) {
-                    rqst.keepUrlFragment = true;
-                }
-                return rqst;
+                requestOptions.useExtendedUniqueKey = true;
+                requestOptions.keepUrlFragment = this.input.keepUrlFragments;
+                return requestOptions;
             },
         };
 

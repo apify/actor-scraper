@@ -134,16 +134,29 @@ module.exports = (apifyNamespace) => {
                 return global[handle]();
             }
 
-            async enqueueRequest(request, options = {}) {
+            async enqueueRequest(requestOpts = {}, options = {}) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
 
-                const defaultOpts = {
+                const defaultRequestOpts = {
                     useExtendedUniqueKey: true,
+                    keepUrlFragment: this.input.keepUrlFragments,
                 };
 
-                return this[internalState].requestQueue.addRequest(request, { ...defaultOpts, ...options });
+                const newRequest = { ...defaultRequestOpts, ...requestOpts };
+
+                const metaKey = this[setup].META_KEY;
+                const defaultUserData = {
+                    [metaKey]: {
+                        parentRequestId: this.request.id || this.request.uniqueKey,
+                        depth: this.request.userData[metaKey].depth + 1,
+                    },
+                };
+
+                newRequest.userData = { ...defaultUserData, ...requestOpts.userData };
+
+                return this[internalState].requestQueue.addRequest(newRequest, options);
             }
 
             async waitFor(selectorOrNumberOrFunction, options = {}) {
