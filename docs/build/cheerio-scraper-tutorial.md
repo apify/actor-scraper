@@ -39,95 +39,92 @@ We've already scraped number 1 and 2 in the [Getting started with Apify scrapers
 tutorial, so let's get to the next one on the list: Title
 
 ### Title
-![actor title](../img/title-01.jpg "Finding actor title in DevTools.")
+![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
-By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
-Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
-Is there any parent element that perhaps wraps all the information that we want to scrape? Yes, there is!
-The `<div class="wrap">` is a common ancestor to everything. So let's start by getting that element first.
+Let's start really easy. By using the element selector tool, we find out that the title is there under an `<h1>` tag,
+as titles should be.
 
-> Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar 
-where you can quickly search for elements using their selectors.
+> Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar where you can quickly search for elements using
+> their selectors. And always make sure to use the DevTools to verify your scraping process and assumptions. It's faster than changing the crawler
+> code all the time.
 
-Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page,
-so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
-
-![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
+To get the title we just need to find it:
 
 ```js
 // Using Cheerio.
-const $wrapper = $('header div.wrap');
-```
-
-> Always make sure to use the DevTools to verify your scraping process and assumptions. 
-It's faster than changing the crawler code all the time.
-
-Getting the title should now be pretty easy. We know that it's in the `$wrapper` so we just need to find it there:
-
-```js
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
+    title: $('h1').text(),
 };
 ```
 
 ### Description
-Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
+Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
+there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
+the `<header>` element, which is nested itself in the `<main>` element. Sadly, we're still left with two `<p>` tags. To finally select only the
+description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
 };
 ```
 
-Getting the `lastRunDate` and `runCount` is not as straightforward as the previous items, but not to worry, it's still pretty simple.
-
 ### Last run date
-The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
+The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
 
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
-    lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
+    lastRunDate: new Date(
+        Number(
+            $('time')
+                .eq(1)
+                .attr('datetime'),
+        ),
+    ),
 };
 ```
 
-It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper`
-and find the `<time>` elements it contains. There are two, so we grab the second one using the `.eq(1)` call
-(it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored
-as a `string`.
+It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
+second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
+`string`.
 
-But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it.
-Unfortunately the `new Date()` constructor will not accept a `string`, so we cast the `string` to a `number`
-using the `Number()` function before actually calling `new Date()`. Phew!
+But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()`
+constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`.
+Phew!
 
 ### Run count
 And so we're finishing up with the `runCount`. There's no specific element like `<time>`, so we need to create
 a complex selector and then do a transformation on the result.
 
 ```js
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
-    lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-    runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
+    lastRunDate: new Date(
+        Number(
+            $('time')
+                .eq(1)
+                .attr('datetime'),
+        ),
+    ),
+    runCount: Number(
+        $('ul.stats li:nth-of-type(3)')
+            .text()
+            .match(/\d+/)[0],
+    ),
 };
 ```
 
-The `div.stats > span:nth-of-type(3)` looks complicated, but it only reads that we're looking for
-a `<div class="stats ...">` element and within that element we're looking for the third `<span>` element.
-We grab its text, but we're only interested in the number of runs. So we parse the number out using a regular
-expression. But its type is still a `string`, so we finally convert the result to a `number` by wrapping it with
-a `Number()` call.
+The `ul.stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="stats ...">` element and within that
+element we're looking for the third `<li>` element. We grab its text, but we're only interested in the number of runs. So we parse the number out
+using a regular expression, but its type is still a `string`, so we finally convert the result to a `number` by wrapping it with a `Number()` call.
 
 ### Wrapping it up
 And there we have it! All the data we needed in a single object. For the sake of completeness, let's add
@@ -139,15 +136,24 @@ const { url } = request;
 // ...
 
 const uniqueIdentifier = url.split('/').slice(-2).join('/');
-const $wrapper = $('header div.wrap');
 
 return {
     url,
     uniqueIdentifier,
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
-    lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-    runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
+    lastRunDate: new Date(
+        Number(
+            $('time')
+                .eq(1)
+                .attr('datetime'),
+        ),
+    ),
+    runCount: Number(
+        $('ul.stats li:nth-of-type(3)')
+            .text()
+            .match(/\d+/)[0],
+    ),
 };
 ```
 
@@ -155,7 +161,7 @@ All we need to do now is add this to our `pageFunction`:
 
 ```js
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $ } = context; // Use jQuery as $
+    const { request, log, skipLinks, $ } = context; // $ is Cheerio
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         // Do some stuff later.
@@ -167,15 +173,24 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = $('header div.wrap');
 
         return {
             url,
             uniqueIdentifier,
-            title: $wrapper.find('h1').text(),
-            description: $wrapper.find('p').text(),
-            lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-            runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+            title: $('h1').text(),
+            description: $('main header p[class^=Text__Paragraph]').text(),
+            lastRunDate: new Date(
+                Number(
+                    $('time')
+                        .eq(1)
+                        .attr('datetime'),
+                ),
+            ),
+            runCount: Number(
+                $('ul.stats li:nth-of-type(3)')
+                    .text()
+                    .match(/\d+/)[0],
+            ),
         };
     }
 }
@@ -307,15 +322,24 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = $('header div.wrap');
 
         return {
             url,
             uniqueIdentifier,
-            title: $wrapper.find('h1').text(),
-            description: $wrapper.find('p').text(),
-            lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-            runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+            title: $('h1').text(),
+            description: $('main header p[class^=Text__Paragraph]').text(),
+            lastRunDate: new Date(
+                Number(
+                    $('time')
+                        .eq(1)
+                        .attr('datetime'),
+                ),
+            ),
+            runCount: Number(
+                $('ul.stats li:nth-of-type(3)')
+                    .text()
+                    .match(/\d+/)[0],
+            ),
         };
     }
 }
@@ -384,15 +408,24 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = $('header div.wrap');
 
         return {
             url,
             uniqueIdentifier,
-            title: $wrapper.find('h1').text(),
-            description: $wrapper.find('p').text(),
-            lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-            runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+            title: $('h1').text(),
+            description: $('main header p[class^=Text__Paragraph]').text(),
+            lastRunDate: new Date(
+                Number(
+                    $('time')
+                        .eq(1)
+                        .attr('datetime'),
+                ),
+            ),
+            runCount: Number(
+                $('ul.stats li:nth-of-type(3)')
+                    .text()
+                    .match(/\d+/)[0],
+            ),
         };
     }
 }

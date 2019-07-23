@@ -1,5 +1,4 @@
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
 };

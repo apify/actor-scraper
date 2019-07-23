@@ -12,13 +12,12 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = await page.$('header div.wrap');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = $wrapper.$eval('h1', (el => el.textContent));
-        const descriptionP = $wrapper.$eval('p', (el => el.textContent));
-        const lastRunTimestampP = $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+        const titleP = page.$eval('h1', (el => el.textContent));
+        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
         const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
 

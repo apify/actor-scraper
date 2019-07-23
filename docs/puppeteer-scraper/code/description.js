@@ -1,6 +1,5 @@
-const $wrapper = await page.$('header div.wrap');
-const title = await $wrapper.$eval('h1', (el => el.textContent));
-const description = await $wrapper.$eval('p', (el => el.textContent));
+const title = await page.$eval('h1', (el => el.textContent));
+const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
 
 return {
     title,

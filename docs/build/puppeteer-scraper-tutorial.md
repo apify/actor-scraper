@@ -55,61 +55,41 @@ We've already scraped number 1 and 2 in the [Getting started with Apify scrapers
 tutorial, so let's get to the next one on the list: Title
 
 ### Title
-![actor title](../img/title-01.jpg "Finding actor title in DevTools.")
+![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
-By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
-Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
-Is there any parent element that perhaps wraps all the information that we want to scrape? Yes, there is!
-The `<div class="wrap">` is a common ancestor to everything. So let's start by getting that element first.
+Let's start really easy. By using the element selector tool, we find out that the title is there under an `<h1>` tag,
+as titles should be.
 
-> Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar 
-where you can quickly search for elements using their selectors.
+> Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar where you can quickly search for elements using
+> their selectors. And always make sure to use the DevTools to verify your scraping process and assumptions. It's faster than changing the crawler
+> code all the time.
 
-Using the search bar to find `div.wrap` in the DevTools reveals that it's not the only `div.wrap` in the page,
-so we need to make the selector a little bit more specific by adding its parent element: `header div.wrap`.
-
-![actor title selector](../img/title-02.jpg "Finding actor title in DevTools.")
+To get the title we just need to find it:
 
 ```js
-// Using Puppeteer.
-const $wrapper = await page.$('header div.wrap');
-```
-The [`page`](https://pptr.dev/#?product=Puppeteer&show=api-class-page) variable is provided by Puppeteer
-and it represents the open browser page. The [`page.$()`](https://pptr.dev/#?product=Puppeteer&show=api-pageselector)
-is similar to jQuery. You provide it with a selector and it returns a reference to an element.
-Be careful though. Elements only exist in the browser and this is Node.js context. The element is not an
-actual [`Element`](https://developer.mozilla.org/en-US/docs/Web/API/Element),
-but an [`ElementHandle`](https://pptr.dev/#?product=Puppeteer&show=api-class-elementhandle). You can use
-the `ElementHandle` to operate on the `Element` in the browser, but it's not the `Element` itself.
-
-> Always make sure to use the DevTools to verify your scraping process and assumptions. 
-It's faster than changing the crawler code all the time.
-
-Getting the title should now be pretty easy. We know that it's in the `$wrapper` so we just need to find it there:
-
-```js
-const $wrapper = await page.$('header div.wrap');
-const title = await $wrapper.$eval('h1', (el => el.textContent));
+// Using Puppeteer
+const title = await page.$eval('h1', (el => el.textContent));
 
 return {
     title,
 }
 ```
-The [`$wrapper.$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args-1)
-function allows you to run a function in the browser, within the context of the `$wrapper` and with the selected
-element as the first argument. Here we use it to extract the text content of a `h1` element that exists inside
-the `$wrapper`. The return value of the function is automatically passed back to the Node.js context, so we
-receive an actual `string` with the element's text.
+The [`page.$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args-1)
+function allows you to run a function in the browser, with the selected element as the first argument.
+Here we use it to extract the text content of a `h1` element that's in the page. The return value of the function
+is automatically passed back to the Node.js context, so we receive an actual `string` with the element's text.
 
 ### Description
-Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
+Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
+there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
+the `<header>` element, which is nested itself in the `<main>` element. Sadly, we're still left with two `<p>` tags. To finally select only the
+description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
-const $wrapper = await page.$('header div.wrap');
-const title = await $wrapper.$eval('h1', (el => el.textContent));
-const description = await $wrapper.$eval('p', (el => el.textContent));
+const title = await page.$eval('h1', (el => el.textContent));
+const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
 
 return {
     title,
@@ -117,20 +97,16 @@ return {
 };
 ```
 
-Getting the `lastRunDate` and `runCount` is not as straightforward as the previous items, but not to worry, it's still pretty simple.
-
 ### Last run date
-The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the `$wrapper`.
+The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
 
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
-const $wrapper = await page.$('header div.wrap');
+const title = await page.$eval('h1', (el => el.textContent));
+const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
 
-const title = await $wrapper.$eval('h1', (el => el.textContent));
-const description = await $wrapper.$eval('p', (el => el.textContent));
-
-const lastRunTimestamp = await $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
 return {
@@ -139,34 +115,31 @@ return {
     lastRunDate,
 };
 ```
-Similarly to `$wrapper.$eval`, the [`$wrapper.$$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args)
-function runs a function in the browser, within the context of the `$wrapper`. Only this time, it does not provide
+Similarly to `page.$eval`, the [`page.$$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args)
+function runs a function in the browser, only this time, it does not provide
 you with a single `Element` as the function's argument, but rather with an `Array` of `Elements`. Once again,
 the return value of the function will be passed back to the Node.js context.
 
-It might look a little too complex at first glance, but let me walk you through it. We take our `$wrapper`
-and find the `<time>` elements it contains. There are two, so we grab the second one using the `els[1]` call
-(it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored
-as a `string`.
+It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
+second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
+`string`.
 
-But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it.
-Unfortunately the `new Date()` constructor will not accept a `string`, so we cast the `string` to a `number`
-using the `Number()` function before actually calling `new Date()`. Phew!
+But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()`
+constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`.
+Phew!
 
 ### Run count
 And so we're finishing up with the `runCount`. There's no specific element like `<time>`, so we need to create
 a complex selector and then do a transformation on the result.
 
 ```js
-const $wrapper = await page.$('header div.wrap');
+const title = await page.$eval('h1', (el => el.textContent));
+const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
 
-const title = await $wrapper.$eval('h1', (el => el.textContent));
-const description = await $wrapper.$eval('p', (el => el.textContent));
-
-const lastRunTimestamp = await $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
-const runCountText = await $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+const runCountText = await page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 const runCount = Number(runCountText.match(/\d+/)[0]);
 
 return {
@@ -177,11 +150,9 @@ return {
 };
 ```
 
-The `div.stats > span:nth-of-type(3)` looks complicated, but it only reads that we're looking for
-a `<div class="stats ...">` element and within that element we're looking for the third `<span>` element.
-We grab its text, but we're only interested in the number of runs. So we parse the number out using a regular
-expression. But its type is still a `string`, so we finally convert the result to a `number` by wrapping it with
-a `Number()` call.
+The `ul.stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="stats ...">` element and within that
+element we're looking for the third `<li>` element. We grab its text, but we're only interested in the number of runs. So we parse the number out
+using a regular expression, but its type is still a `string`, so we finally convert the result to a `number` by wrapping it with a `Number()` call.
 
 ### Wrapping it up
 And there we have it! All the data we needed in a single object. For the sake of completeness, let's add
@@ -193,15 +164,14 @@ const { url } = request;
 // ...
 
 const uniqueIdentifier = url.split('/').slice(-2).join('/');
-const $wrapper = await page.$('header div.wrap');
 
-const title = await $wrapper.$eval('h1', (el => el.textContent));
-const description = await $wrapper.$eval('p', (el => el.textContent));
+const title = await page.$eval('h1', (el => el.textContent));
+const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
 
-const lastRunTimestamp = await $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
-const runCountText = await $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+const runCountText = await page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 const runCount = Number(runCountText.match(/\d+/)[0]);
 
 return {
@@ -231,13 +201,12 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = await page.$('header div.wrap');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = $wrapper.$eval('h1', (el => el.textContent));
-        const descriptionP = $wrapper.$eval('p', (el => el.textContent));
-        const lastRunTimestampP = $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+        const titleP = page.$eval('h1', (el => el.textContent));
+        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
         const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
 
@@ -425,13 +394,12 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = await page.$('header div.wrap');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = $wrapper.$eval('h1', (el => el.textContent));
-        const descriptionP = $wrapper.$eval('p', (el => el.textContent));
-        const lastRunTimestampP = $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+        const titleP = page.$eval('h1', (el => el.textContent));
+        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
         const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
 
@@ -511,13 +479,12 @@ async function pageFunction(context) {
 
         // Do some scraping.
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
-        const $wrapper = await page.$('header div.wrap');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = $wrapper.$eval('h1', (el => el.textContent));
-        const descriptionP = $wrapper.$eval('p', (el => el.textContent));
-        const lastRunTimestampP = $wrapper.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = $wrapper.$eval('div.stats > span:nth-of-type(3)', (el => el.textContent));
+        const titleP = page.$eval('h1', (el => el.textContent));
+        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
         const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
 
@@ -610,12 +577,21 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         const results = await page.evaluate(() => { // <-------- Use jQuery only inside page.evaluate (inside browser).
-            const $wrapper = $('header div.wrap');
             return {
-                title: $wrapper.find('h1').text(),
-                description: $wrapper.find('p').text(),
-                lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
-                runCount: Number($wrapper.find('div.stats > span:nth-of-type(3)').text().match(/\d+/)[0]),
+                title: $('h1').text(),
+                description: $('main header p[class^=Text__Paragraph]').text(),
+                lastRunDate: new Date(
+                    Number(
+                        $('time')
+                            .eq(1)
+                            .attr('datetime'),
+                    ),
+                ),
+                runCount: Number(
+                    $('ul.stats li:nth-of-type(3)')
+                        .text()
+                        .match(/\d+/)[0],
+                ),
             };
         })
 

@@ -1,6 +1,11 @@
-const $wrapper = $('header div.wrap');
 return {
-    title: $wrapper.find('h1').text(),
-    description: $wrapper.find('p').text(),
-    lastRunDate: new Date(Number($wrapper.find('time').eq(1).attr('datetime'))),
+    title: $('h1').text(),
+    description: $('main header p[class^=Text__Paragraph]').text(),
+    lastRunDate: new Date(
+        Number(
+            $('time')
+                .eq(1)
+                .attr('datetime'),
+        ),
+    ),
 };

@@ -1,8 +1,9 @@
 ### Description
-Getting the actor's description is a piece of cake. We already have the boilerplate ready, so all we need to do is add a new selection.
+Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
+there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
+the `<header>` element, which is nested itself in the `<main>` element. Sadly, we're still left with two `<p>` tags. To finally select only the
+description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 {{#code}}description.js{{/code}}
-
-Getting the `lastRunDate` and `runCount` is not as straightforward as the previous items, but not to worry, it's still pretty simple.
