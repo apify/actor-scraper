@@ -138,7 +138,12 @@ module.exports = (apifyNamespace) => {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
-                return this[internalState].requestQueue.addRequest(request, options);
+
+                const defaultOpts = {
+                    useExtendedUniqueKey: true,
+                };
+
+                return this[internalState].requestQueue.addRequest(request, { ...defaultOpts, ...options });
             }
 
             async waitFor(selectorOrNumberOrFunction, options = {}) {
