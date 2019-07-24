@@ -122,12 +122,11 @@ class CrawlerSetup {
 
     async _initializeAsync() {
         // RequestList
-        const startUrls = this.input.keepUrlFragments
-            ? this.input.startUrls.map((req) => {
-                req.keepUrlFragment = true;
-                return req;
-            })
-            : this.input.startUrls;
+        const startUrls = this.input.startUrls.map((req) => {
+            req.useExtendedUniqueKey = true;
+            req.keepUrlFragment = this.input.keepUrlFragments;
+            return req;
+        });
         this.requestList = await Apify.openRequestList('WEB_SCRAPER', startUrls);
 
         // RequestQueue if selected
