@@ -57,18 +57,21 @@ tutorial, so let's get to the next one on the list: Title
 ### Title
 ![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
-Let's start really easy. By using the element selector tool, we find out that the title is there under an `<h1>` tag,
-as titles should be.
+By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
+Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
+Is there any parent element that includes our `<h1>` tag, but not the other ones? Yes, there is! There is a `<header>`
+element that we can use to select only the heading we're interested in.
 
 > Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar where you can quickly search for elements using
 > their selectors. And always make sure to use the DevTools to verify your scraping process and assumptions. It's faster than changing the crawler
 > code all the time.
 
-To get the title we just need to find it:
+To get the title we just need to find it using a `header h1` selector, which selects all `<h1>` elements that have a `<header>` ancestor.
+And as we already know, there's only one.
 
 ```js
 // Using Puppeteer
-const title = await page.$eval('h1', (el => el.textContent));
+const title = await page.$eval('header h1', (el => el.textContent));
 
 return {
     title,
@@ -82,14 +85,14 @@ is automatically passed back to the Node.js context, so we receive an actual `st
 ### Description
 Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
-the `<header>` element, which is nested itself in the `<main>` element. Sadly, we're still left with two `<p>` tags. To finally select only the
+the `<header>` element too, same as the title. Sadly, we're still left with two `<p>` tags. To finally select only the
 description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
-const title = await page.$eval('h1', (el => el.textContent));
-const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+const title = await page.$eval('header h1', (el => el.textContent));
+const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 return {
     title,
@@ -103,8 +106,8 @@ The DevTools tell us that the `lastRunDate` can be found in the second of the tw
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
-const title = await page.$eval('h1', (el => el.textContent));
-const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+const title = await page.$eval('header h1', (el => el.textContent));
+const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
@@ -133,8 +136,8 @@ And so we're finishing up with the `runCount`. There's no specific element like 
 a complex selector and then do a transformation on the result.
 
 ```js
-const title = await page.$eval('h1', (el => el.textContent));
-const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+const title = await page.$eval('header h1', (el => el.textContent));
+const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
@@ -165,8 +168,8 @@ const { url } = request;
 
 const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
-const title = await page.$eval('h1', (el => el.textContent));
-const description = await page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+const title = await page.$eval('header h1', (el => el.textContent));
+const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
@@ -203,8 +206,8 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('h1', (el => el.textContent));
-        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const titleP = page.$eval('header h1', (el => el.textContent));
+        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
         const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
         const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
@@ -396,8 +399,8 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('h1', (el => el.textContent));
-        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const titleP = page.$eval('header h1', (el => el.textContent));
+        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
         const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
         const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
@@ -481,8 +484,8 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('h1', (el => el.textContent));
-        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const titleP = page.$eval('header h1', (el => el.textContent));
+        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
         const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
         const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
@@ -578,8 +581,8 @@ async function pageFunction(context) {
 
         const results = await page.evaluate(() => { // <-------- Use jQuery only inside page.evaluate (inside browser).
             return {
-                title: $('h1').text(),
-                description: $('main header p[class^=Text__Paragraph]').text(),
+                title: $('header h1').text(),
+                description: $('header p[class^=Text__Paragraph]').text(),
                 lastRunDate: new Date(
                     Number(
                         $('time')

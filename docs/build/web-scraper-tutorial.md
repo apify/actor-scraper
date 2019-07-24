@@ -39,34 +39,37 @@ tutorial, so let's get to the next one on the list: Title
 ### Title
 ![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
-Let's start really easy. By using the element selector tool, we find out that the title is there under an `<h1>` tag,
-as titles should be.
+By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
+Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
+Is there any parent element that includes our `<h1>` tag, but not the other ones? Yes, there is! There is a `<header>`
+element that we can use to select only the heading we're interested in.
 
 > Remember that you can press CTRL+F (CMD+F) in the Elements tab of DevTools to open the search bar where you can quickly search for elements using
 > their selectors. And always make sure to use the DevTools to verify your scraping process and assumptions. It's faster than changing the crawler
 > code all the time.
 
-To get the title we just need to find it:
+To get the title we just need to find it using a `header h1` selector, which selects all `<h1>` elements that have a `<header>` ancestor.
+And as we already know, there's only one.
 
 ```js
 // Using jQuery.
 return {
-    title: $('h1').text(),
+    title: $('header h1').text(),
 };
 ```
 
 ### Description
 Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
-the `<header>` element, which is nested itself in the `<main>` element. Sadly, we're still left with two `<p>` tags. To finally select only the
+the `<header>` element too, same as the title. Sadly, we're still left with two `<p>` tags. To finally select only the
 description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
 return {
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
 };
 ```
 
@@ -77,8 +80,8 @@ The DevTools tell us that the `lastRunDate` can be found in the second of the tw
 
 ```js
 return {
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
     lastRunDate: new Date(
         Number(
             $('time')
@@ -103,8 +106,8 @@ a complex selector and then do a transformation on the result.
 
 ```js
 return {
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
     lastRunDate: new Date(
         Number(
             $('time')
@@ -138,8 +141,8 @@ const uniqueIdentifier = url.split('/').slice(-2).join('/');
 return {
     url,
     uniqueIdentifier,
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
     lastRunDate: new Date(
         Number(
             $('time')
@@ -176,8 +179,8 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-            title: $('h1').text(),
-            description: $('main header p[class^=Text__Paragraph]').text(),
+            title: $('header h1').text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -359,8 +362,8 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-            title: $('h1').text(),
-            description: $('main header p[class^=Text__Paragraph]').text(),
+            title: $('header h1').text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -443,8 +446,8 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-            title: $('h1').text(),
-            description: $('main header p[class^=Text__Paragraph]').text(),
+            title: $('header h1').text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')

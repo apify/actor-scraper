@@ -7,8 +7,8 @@ const uniqueIdentifier = url.split('/').slice(-2).join('/');
 return {
     url,
     uniqueIdentifier,
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
     lastRunDate: new Date(
         Number(
             $('time')

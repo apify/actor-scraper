@@ -1,4 +1,4 @@
 // Using Cheerio.
 return {
-    title: $('h1').text(),
+    title: $('header h1').text(),
 };

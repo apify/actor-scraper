@@ -1,4 +1,4 @@
 return {
-    title: $('h1').text(),
-    description: $('main header p[class^=Text__Paragraph]').text(),
+    title: $('header h1').text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
 };

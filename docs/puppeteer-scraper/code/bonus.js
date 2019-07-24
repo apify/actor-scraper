@@ -32,8 +32,8 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('h1', (el => el.textContent));
-        const descriptionP = page.$eval('main header p[class^=Text__Paragraph]', (el => el.textContent));
+        const titleP = page.$eval('header h1', (el => el.textContent));
+        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
         const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
         const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 
