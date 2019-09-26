@@ -173,8 +173,8 @@
             "title": "Navigation wait until",
             "type": "array",
             "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>. <a href=\"https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options\" target=\"_blank\">See Puppeteer docs</a>.",
-            "default": ["domcontentloaded"],
-            "prefill": ["domcontentloaded"],
+            "default": ["networkidle2"],
+            "prefill": ["networkidle2"],
             "editor": "json"
         },
         "useChrome": {
