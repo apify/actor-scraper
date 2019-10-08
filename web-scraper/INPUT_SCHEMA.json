@@ -5,6 +5,7 @@
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
+            "sectionCaption": "Basic",
             "title": "Start URLs",
             "type": "array",
             "description": "URLs to start with",
@@ -52,6 +53,7 @@
             "editor": "javascript"
         },
         "proxyConfiguration": {
+            "sectionCaption": "Proxy configuration & Browser masking",
             "title": "Proxy configuration",
             "type": "object",
             "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
@@ -59,37 +61,65 @@
             "default": {},
             "editor": "proxy"
         },
-        "debugLog": {
-            "title": "Debug log",
-            "type": "boolean",
-            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
-            "default": false,
-            "groupCaption": "Options",
-            "groupDescription": "Scraper settings"
+        "initialCookies": {
+            "title": "Initial cookies",
+            "type": "array",
+            "description": "The provided cookies will be pre-set to all pages the scraper opens.",
+            "default": [],
+            "prefill": [],
+            "editor": "json"
         },
-        "browserLog": {
-            "title": "Browser log",
+        "useChrome": {
+            "title": "Use Chrome",
             "type": "boolean",
-            "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
+            "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
+            "default": false,
+            "groupCaption": "Browser masking",
+            "groupDescription": "Settings that help mask as a real user and prevent scraper detection, but increase the chances of the scraper not working at all with some websites."
+        },
+        "useStealth": {
+            "title": "Use Stealth",
+            "type": "boolean",
+            "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "default": false
+        },
+        "ignoreSslErrors": {
+            "title": "Ignore SSL errors",
+            "type": "boolean",
+            "description": "Scraper will ignore SSL certificate errors.",
+            "default": false,
+            "groupCaption": "Security",
+            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
+        },
+        "ignoreCorsAndCsp": {
+            "title": "Ignore CORS and CSP",
+            "type": "boolean",
+            "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
         },
         "injectJQuery": {
-            "title": "Inject jQuery",
+            "sectionCaption": "jQuery & Underscore",
+            "title": "jQuery",
             "type": "boolean",
             "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
-            "default": true
+            "default": true,
+            "groupCaption": "Inject",
+            "groupDescription": "Settings that help inject 3rd party libraries into scraper pageFunction."
         },
         "injectUnderscore": {
-            "title": "Inject Underscore",
+            "title": "Underscore",
             "type": "boolean",
             "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
             "default": false
         },
         "downloadMedia": {
+            "sectionCaption": "Performance & Limits",
             "title": "Download media",
             "type": "boolean",
             "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
-            "default": true
+            "default": true,
+            "groupCaption": "Resources",
+            "groupDescription": "Settings that help to disable downloading web page resources."
         },
         "downloadCss": {
             "title": "Download CSS",
@@ -153,22 +183,6 @@
             "maximum": 360,
             "unit": "secs"
         },
-        "customData": {
-            "title": "Custom data",
-            "type": "object",
-            "description": "This object will be available on pageFunction's context as customData.",
-            "default": {},
-            "prefill": {},
-            "editor": "json"
-        },
-        "initialCookies": {
-            "title": "Initial cookies",
-            "type": "array",
-            "description": "The provided cookies will be pre-set to all pages the scraper opens.",
-            "default": [],
-            "prefill": [],
-            "editor": "json"
-        },
         "waitUntil": {
             "title": "Navigation wait until",
             "type": "array",
@@ -177,33 +191,29 @@
             "prefill": ["networkidle2"],
             "editor": "json"
         },
-        "useChrome": {
-            "title": "Use Chrome",
+        "debugLog": {
+            "sectionCaption": "Debugging",
+            "title": "Debug log",
             "type": "boolean",
-            "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
+            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
             "default": false,
-            "groupCaption": "Browser masking options",
-            "groupDescription": "Settings that help mask as a real user and prevent scraper detection, but increase the chances of the scraper not working at all with some websites."
+            "groupCaption": "Enable logs",
+            "groupDescription": "Logs settings"
         },
-        "useStealth": {
-            "title": "Use Stealth",
+        "browserLog": {
+            "title": "Browser log",
             "type": "boolean",
-            "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
             "default": false
         },
-        "ignoreSslErrors": {
-            "title": "Ignore SSL errors",
-            "type": "boolean",
-            "description": "Scraper will ignore SSL certificate errors.",
-            "default": false,
-            "groupCaption": "Security options",
-            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
-        },
-        "ignoreCorsAndCsp": {
-            "title": "Ignore CORS and CSP",
-            "type": "boolean",
-            "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
-            "default": false
+        "customData": {
+            "sectionCaption": "Advanced",
+            "title": "Custom data",
+            "type": "object",
+            "description": "This object will be available on pageFunction's context as customData.",
+            "default": {},
+            "prefill": {},
+            "editor": "json"
         }
     },
     "required": ["startUrls", "pageFunction"]
