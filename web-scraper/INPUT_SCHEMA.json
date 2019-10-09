@@ -52,8 +52,22 @@
             "prefill": "async function pageFunction(context) {\n    // See README for context properties. If the syntax is unfamiliar see the link\n    // https://javascript.info/destructuring-assignment#object-destructuring\n    const { request, log, jQuery } = context;\n\n    // To be able to use jQuery as $, one needs save it into a variable\n    // and select the inject jQuery option. We've selected it for you.\n    const $ = jQuery;\n    const title = $('title').text();\n\n    // This is yet another new feature of Javascript called template strings.\n    // https://javascript.info/string#quotes\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n\n    // To save data just return an object with the requested properties.\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
+        "injectJQuery": {
+            "title": "jQuery",
+            "type": "boolean",
+            "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
+            "default": true,
+            "groupCaption": "Inject library",
+            "groupDescription": "Settings that help inject 3rd party libraries into scraper pageFunction."
+        },
+        "injectUnderscore": {
+            "title": "Underscore",
+            "type": "boolean",
+            "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
+            "default": false
+        },
         "proxyConfiguration": {
-            "sectionCaption": "Proxy configuration & Browser masking",
+            "sectionCaption": "Proxy and Browser Configuration",
             "title": "Proxy configuration",
             "type": "object",
             "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
@@ -97,23 +111,8 @@
             "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
         },
-        "injectJQuery": {
-            "sectionCaption": "jQuery & Underscore",
-            "title": "jQuery",
-            "type": "boolean",
-            "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
-            "default": true,
-            "groupCaption": "Inject",
-            "groupDescription": "Settings that help inject 3rd party libraries into scraper pageFunction."
-        },
-        "injectUnderscore": {
-            "title": "Underscore",
-            "type": "boolean",
-            "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
-            "default": false
-        },
         "downloadMedia": {
-            "sectionCaption": "Performance & Limits",
+            "sectionCaption": "Performance and Limits",
             "title": "Download media",
             "type": "boolean",
             "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
@@ -192,7 +191,7 @@
             "editor": "json"
         },
         "debugLog": {
-            "sectionCaption": "Debugging",
+            "sectionCaption": "Advanced",
             "title": "Debug log",
             "type": "boolean",
             "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
@@ -207,7 +206,6 @@
             "default": false
         },
         "customData": {
-            "sectionCaption": "Advanced",
             "title": "Custom data",
             "type": "object",
             "description": "This object will be available on pageFunction's context as customData.",
