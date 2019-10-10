@@ -66,7 +66,7 @@
             "editor": "javascript"
         },
         "proxyConfiguration": {
-            "sectionCaption": "Proxy and Browser Configuration",
+            "sectionCaption": "Proxy and browser configuration",
             "title": "Proxy configuration",
             "type": "object",
             "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
@@ -111,7 +111,7 @@
             "default": false
         },
         "downloadMedia": {
-            "sectionCaption": "Performance and Limits",
+            "sectionCaption": "Performance and limits",
             "title": "Download media",
             "type": "boolean",
             "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
