@@ -128,7 +128,7 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
         into the default key value store. Each snapshot overwrites the previous one and the function's
         invocations will also be throttled if invoked more than once in 2 seconds, to prevent abuse.
         So make sure you don't call it for every single request. You can find the screenshot under
-        the SNAPSHOT-SCREENSHOT key and the HTML under the SNAPSHOT-HTML key.
+        the SNAPSHOT-SCREENSHOT key and the HTML under the SNAPSHOT-BODY key.
     </td></tr>
     <tr><td><code>skipLinks</code></td><td></td></tr>
     <tr><td colspan="2">

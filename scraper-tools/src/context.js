@@ -60,9 +60,11 @@ class Context {
     }
 
     async saveSnapshot() {
+        const { response } = this;
         return browserTools.saveSnapshot({
             page: this.page,
-            $: this.$,
+            body: this.body,
+            contentType: response && response.headers ? response.headers['content-type'] : null,
         });
     }
 

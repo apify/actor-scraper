@@ -76,6 +76,10 @@ class CrawlerSetup {
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
+        // TODO: This is a temporary solution when we have multi-select in input schema we use it.
+        if (this.input.additionalMineTypes) {
+            this.input.additionalMineTypes = this.input.additionalMineTypes.split('\n').map(type => type.trim());
+        }
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -132,6 +136,7 @@ class CrawlerSetup {
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
+            additionalMineTypes: this.input.additionalMineTypes,
             autoscaledPoolOptions: {
                 maxConcurrency: this.input.maxConcurrency,
                 systemStatusOptions: {
@@ -190,7 +195,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, html, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -210,7 +215,11 @@ class CrawlerSetup {
             ),
             pageFunctionArguments: {
                 $,
-                html,
+                get html() {
+                    log.warning('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
+                    return body;
+                },
+                body,
                 autoscaledPool,
                 request,
                 response: {

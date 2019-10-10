@@ -41,7 +41,7 @@ exports.DEVTOOLS_TIMEOUT_SECS = 3600;
  */
 exports.SNAPSHOT = {
     KEYS: {
-        HTML: 'SNAPSHOT-HTML',
+        BODY: 'SNAPSHOT-BODY',
         SCREENSHOT: 'SNAPSHOT-SCREENSHOT',
     },
     TIMEOUT_SECS: 2,

@@ -146,16 +146,16 @@ const dumpConsole = (page, options = {}) => {
 let lastSnapshotTimestamp = 0;
 
 /**
- * Saves raw HTML and a screenshot to the default key value store
- * under the SNAPSHOT-HTML and SNAPSHOT-SCREENSHOT keys.
+ * Saves raw body and a screenshot to the default key value store
+ * under the SNAPSHOT-BODY and SNAPSHOT-SCREENSHOT keys.
  *
  * @param {Object} options
  * @param {Page} [options.page]
- * @param {Cheerio} [options.$]
+ * @param {Buffer|String|Object} [options.body]
+ * @param {String} [options.contentType]
  * @return {Promise}
  */
-const saveSnapshot = async ({ page, $ }) => {
-    if (!page && !$) throw new Error('One of parameters "page" or "$" must be provided.');
+const saveSnapshot = async ({ page, body, contentType }) => {
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
@@ -165,17 +165,19 @@ const saveSnapshot = async ({ page, $ }) => {
     }
     lastSnapshotTimestamp = now;
 
-    if ($) {
-        await Apify.setValue(SNAPSHOT.KEYS.HTML, $.html(), { contentType: 'text/html' });
-    }
-    if (page) {
+    if (body && contentType) {
+        const rawBody = (typeof body === 'object') ? JSON.stringify(body) : body;
+        await Apify.setValue(SNAPSHOT.KEYS.BODY, rawBody, { contentType });
+    } else if (page) {
         const htmlP = page.content();
         const screenshotP = page.screenshot();
         const [html, screenshot] = await Promise.all([htmlP, screenshotP]);
         await Promise.all([
-            Apify.setValue(SNAPSHOT.KEYS.HTML, html, { contentType: 'text/html' }),
+            Apify.setValue(SNAPSHOT.KEYS.BODY, html, { contentType: 'text/html' }),
             Apify.setValue(SNAPSHOT.KEYS.SCREENSHOT, screenshot, { contentType: 'image/png' }),
         ]);
+    } else {
+        throw new Error('One of parameters "page" or "body" with "contentType" must be provided.');
     }
 };
 
