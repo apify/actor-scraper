@@ -5,7 +5,7 @@
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
-            "sectionCaption": "Basic",
+            "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
             "description": "URLs to start with",
@@ -61,7 +61,7 @@
             "editor": "proxy"
         },
         "maxRequestRetries": {
-            "sectionCaption": "Advanced",
+            "sectionCaption": "Advanced configuration",
             "title": "Max request retries",
             "type": "integer",
             "description": "Maximum number of times the request for the page will be retried in case of an error. Setting it to 0 means that the request will be attempted once and will not be retried if it fails.",

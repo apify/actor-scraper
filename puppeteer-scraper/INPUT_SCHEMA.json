@@ -5,7 +5,7 @@
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
-            "sectionCaption": "Basic",
+            "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
             "description": "URLs to start with",
@@ -190,7 +190,7 @@
             "editor": "json"
         },
         "debugLog": {
-            "sectionCaption": "Advanced",
+            "sectionCaption": "Advanced configuration",
             "title": "Debug log",
             "type": "boolean",
             "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
