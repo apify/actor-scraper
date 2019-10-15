@@ -65,6 +65,7 @@ class Context {
             page: this.page,
             body: this.body,
             contentType: response && response.headers ? response.headers['content-type'] : null,
+            json: this.json,
         });
     }
 

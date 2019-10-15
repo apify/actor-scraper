@@ -76,10 +76,6 @@ class CrawlerSetup {
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
-        // TODO: This is a temporary solution when we have multi-select in input schema we use it.
-        if (this.input.additionalMineTypes) {
-            this.input.additionalMineTypes = this.input.additionalMineTypes.split('\n').map(type => type.trim());
-        }
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -136,7 +132,7 @@ class CrawlerSetup {
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            additionalMineTypes: this.input.additionalMineTypes,
+            additionalMimeTypes: this.input.additionalMimeTypes,
             autoscaledPoolOptions: {
                 maxConcurrency: this.input.maxConcurrency,
                 systemStatusOptions: {
@@ -195,7 +191,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -216,10 +212,11 @@ class CrawlerSetup {
             pageFunctionArguments: {
                 $,
                 get html() {
-                    log.warning('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
-                    return body;
+                    log.deprecated('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
+                    return contentType.type === 'text/html' ? body : null;
                 },
                 body,
+                json,
                 autoscaledPool,
                 request,
                 response: {
@@ -238,10 +235,10 @@ class CrawlerSetup {
         /**
          * POST-PROCESSING
          */
-        // Enqueue more links if Pseudo URLs and a link selector are available,
+        // Enqueue more links if Pseudo URLs, a link selector and cheerio instance are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (!state.skipLinks) await this._handleLinks($, request);
+        if (!state.skipLinks && $) await this._handleLinks($, request);
 
         // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);

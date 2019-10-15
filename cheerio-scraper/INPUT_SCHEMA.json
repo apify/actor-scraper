@@ -117,12 +117,13 @@
             "maximum": 360,
             "unit": "secs"
         },
-        "additionalMineTypes": {
-            "title": "Additional mine types",
-            "type": "string",
-            "description": "By default text/html and application/xhtml+xml are supported. If you want to process additional mine types, you can specify them separated by a new line.",
-            "editor": "textarea",
-            "prefill": "application/json\napplication/xml"
+        "additionalMimeTypes": {
+            "title": "Additional mime types",
+            "type": "array",
+            "description": "By default text/html and application/xhtml+xml are supported.",
+            "editor": "json",
+            "default": [],
+            "prefill": []
         },
         "debugLog": {
             "title": "Debug log",

@@ -47,8 +47,8 @@ const context = {
     input, // Unaltered original input as parsed from the UI
     env, // Contains information about the run such as actorId or runId
     customData, // Value of the 'Custom data' scraper option.
-    html, // Raw HTML of the loaded page.
-    body, // Request body of loaded page.
+    body, // Request body of loaded page
+    json, // Available only if Content-Type header of the response is application/json
     
     // EXPOSED OBJECTS
     request, // Apify.Request object.

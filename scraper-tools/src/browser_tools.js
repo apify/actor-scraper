@@ -151,11 +151,12 @@ let lastSnapshotTimestamp = 0;
  *
  * @param {Object} options
  * @param {Page} [options.page]
- * @param {Buffer|String|Object} [options.body]
+ * @param {Buffer|String} [options.body]
  * @param {String} [options.contentType]
+ * @param {Object} [options.json]
  * @return {Promise}
  */
-const saveSnapshot = async ({ page, body, contentType }) => {
+const saveSnapshot = async ({ page, body, contentType, json }) => {
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
@@ -165,9 +166,10 @@ const saveSnapshot = async ({ page, body, contentType }) => {
     }
     lastSnapshotTimestamp = now;
 
-    if (body && contentType) {
-        const rawBody = (typeof body === 'object') ? JSON.stringify(body) : body;
-        await Apify.setValue(SNAPSHOT.KEYS.BODY, rawBody, { contentType });
+    if (json) {
+        await Apify.setValue(SNAPSHOT.KEYS.BODY, json);
+    } else if (body && contentType) {
+        await Apify.setValue(SNAPSHOT.KEYS.BODY, body, { contentType });
     } else if (page) {
         const htmlP = page.content();
         const screenshotP = page.screenshot();
@@ -177,7 +179,7 @@ const saveSnapshot = async ({ page, body, contentType }) => {
             Apify.setValue(SNAPSHOT.KEYS.SCREENSHOT, screenshot, { contentType: 'image/png' }),
         ]);
     } else {
-        throw new Error('One of parameters "page" or "body" with "contentType" must be provided.');
+        throw new Error('One of parameters "page" or "json" or "body" with "contentType" must be provided.');
     }
 };
 
