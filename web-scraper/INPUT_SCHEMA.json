@@ -18,7 +18,8 @@
             "title": "Use request queue",
             "type": "boolean",
             "description": "If enabled, the scraper will enable adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from the <b>Page function</b>. Usage of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
-            "default": true
+            "default": true,
+            "groupCaption": "Options"
         },
         "keepUrlFragments": {
             "title": "Keep URL fragments",
@@ -48,21 +49,21 @@
         "pageFunction": {
             "title": "Page function",
             "type": "string",
-            "description": "JavaScript function that is executed on every crawled web page. Use it to extract data from the page, perform actions or enqueue new URLs to crawl.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+            "description": "JavaScript (ES6) function that is executed on every web page loaded. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
             "prefill": "async function pageFunction(context) {\n    // See README for context properties. If the syntax is unfamiliar see the link\n    // https://javascript.info/destructuring-assignment#object-destructuring\n    const { request, log, jQuery } = context;\n\n    // To be able to use jQuery as $, one needs save it into a variable\n    // and select the inject jQuery option. We've selected it for you.\n    const $ = jQuery;\n    const title = $('title').text();\n\n    // This is yet another new feature of Javascript called template strings.\n    // https://javascript.info/string#quotes\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n\n    // To save data just return an object with the requested properties.\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "injectJQuery": {
             "title": "jQuery",
             "type": "boolean",
-            "description": "If enabled, the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library will be injected into each page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <code>Page function</code>.",
+            "description": "If enabled, the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <code>Page function</code>.",
             "default": true,
             "groupCaption": "Injected libraries"
         },
         "injectUnderscore": {
             "title": "Underscore",
             "type": "boolean",
-            "description": "If enabled, the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library will be injected into each page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <code>Page function</code>.",
+            "description": "If enabled, the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <code>Page function</code>.",
             "default": false
         },
         "proxyConfiguration": {
