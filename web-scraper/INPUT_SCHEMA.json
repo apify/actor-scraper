@@ -8,7 +8,7 @@
             "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
-            "description": "A static list of URLs to crawl. To add new URLs dynamically during the crawl, see the <b>Use request queue</b> option.",
+            "description": "A static list of URLs to crawl. To be able to add new URLs to crawl on the fly, enable the <b>Use request queue</b> option.",
             "prefill": [
                 { "url": "https://apify.com" }
             ],
@@ -17,8 +17,15 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "The request queue lets you add new URLs to crawl on the fly, e.g. for recursive crawling of websites. Usage of the request queue has some overheads, so only enable this option if you want to use the <b>Pseudo-URLs</b> and <b>Link selector</b> options, or call <code>context.enqueueRequest()</code> from your <b>Page function</b>.",
+            "description": "The request queue lets you add new URLs to crawl on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from your <b>Page function</b>. Usage of the request queue has some overheads, so only enable this option if you want to add URLs dynamically.",
             "default": true
+        },
+        "linkSelector": {
+            "title": "Link selector",
+            "type": "string",
+            "description": "CSS selector to find <code>&lt;a href='?'&gt;</code> links to new web pages that will be enqueued to crawl. Leave empty to ignore all links. This only has effect if the <b>Use request queue</b> option is enabled.",
+            "editor": "textfield",
+            "prefill": "a[href]"
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
@@ -32,17 +39,10 @@
                 }
             ]
         },
-        "linkSelector": {
-            "title": "Link selector",
-            "type": "string",
-            "description": "CSS selector to find <code>&lt;a href='?'&gt;</code> links to new web pages that will be enqueued to crawl. Leave empty to ignore all links. This only has effect if the <b>Use request queue</b> option is enabled.",
-            "editor": "textfield",
-            "prefill": "a[href]"
-        },
         "keepUrlFragments": {
             "title": "Keep URL fragments",
             "type": "boolean",
-            "description": "Indicates that URL fragment identifiers (i.e. <code>http://example.com/page#<b>this-guy-here</b></code>) should be considered when checking whether a page has already been visited. Typically, URL fragments are used as internal page anchors and therefore they should be ignored because they don't represent separate pages. However, many AJAX-based website nowadays use URL fragment to represent page parameters; in such cases, this option should be enabled.",
+            "description": "Indicates that URL fragment identifiers (i.e. <code>http://example.com/page#<b>this-guy-here</b></code>) should be considered when checking whether a page has already been crawled. Typically, URL fragments are used as internal page anchors and therefore they should be ignored because they don't represent separate pages. However, many AJAX-based website nowadays use URL fragment to represent page parameters; in such cases, this option should be enabled.",
             "default": false
         },
         "pageFunction": {
