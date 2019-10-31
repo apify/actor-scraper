@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>step by step tutorial</a> to help you with the basics.\n\nIf you get stuck and it seems that you can no longer progress with the Web Scraper, try <a href='https://apify.com/docs/scraping/tutorial/puppeteer-scraper' target='_blank' rel='noopener'>Puppeteer Scraper</a>. It's a more powerful tool.",
+    "description": "Web scraper loads <b>Start URLs</b> in Chrome browser and executes <b>Page function</b> on each of the pages to extract data from it. To dynamically add new URLs on the fly, enable the <b>Use request queue</b> option and either set <b>Link selector</b> and <b>Pseudo-URLs</b> to tell the scraper which page links it should follow, or manually enqueue new links in <b>Page function</b>. For more information, see actor <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in Apify documentation.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
@@ -17,7 +17,7 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "If enabled, the scraper will enable adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from the <b>Page function</b>. Usage of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
+            "description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
             "default": true,
             "groupCaption": "Options"
         },
@@ -49,28 +49,27 @@
         "pageFunction": {
             "title": "Page function",
             "type": "string",
-            "description": "JavaScript (ES6) function that is executed on every web page loaded. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+            "description": "JavaScript (ES6) function that is executed by the web browser in the context of every loaded page. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
             "prefill": "// The page function accepts a single argument: the \"context\" object.\n// For a complete list of its properties and functions,\n// see https://apify.com/apify/web-scraper#page-function \nasync function pageFunction(context) {\n    // jQuery library is handy for finding DOM elements and extracing data from them.\n    // To use it, make sure the \"Injected libraries -> jQuery\" option.\n    const $ = context.jQuery;\n    const pageTitle = $('title').text();\n\n    // The log.info() function \n    context.log.info(`URL: ${context.request.url} TITLE: ${title}`);\n\n    // The returned object is stored to dataset with scraper results\n    // To save data just return an object with the requested properties.\n    return {\n        url: context.request.url,\n        pageTitle\n    };\n}",
             "editor": "javascript"
         },
         "injectJQuery": {
-            "title": "jQuery",
+            "title": "Inject jQuery",
             "type": "boolean",
-            "description": "If enabled, the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <code>Page function</code>.",
-            "default": true,
-            "groupCaption": "Injected libraries"
+            "description": "If enabled, the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <b>Page function</b>.",
+            "default": true
         },
         "injectUnderscore": {
-            "title": "Underscore",
+            "title": "Inject Underscore.js",
             "type": "boolean",
-            "description": "If enabled, the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <code>Page function</code>.",
+            "description": "If enabled, the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library will be injected into a web page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <b>Page function</b>.",
             "default": false
         },
         "proxyConfiguration": {
             "sectionCaption": "Proxy and browser configuration",
             "title": "Proxy configuration",
             "type": "object",
-            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#proxy-configuration' target='_blank' rel='noopener'>Link selector</a> in README.",
+            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
             "prefill": { "useApifyProxy": false },
             "default": {},
             "editor": "proxy"
