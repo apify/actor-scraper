@@ -8,7 +8,7 @@
             "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
-            "description": "A static list of URLs to crawl. To be able to add new URLs to crawl on the fly, enable the <b>Use request queue</b> option.",
+            "description": "A static list of URLs to scrape. In order to be able to add new URLs on the fly, enable the <b>Use request queue</b> option.",
             "prefill": [
                 { "url": "https://apify.com" }
             ],
@@ -17,20 +17,26 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "The request queue lets you add new URLs to crawl on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from your <b>Page function</b>. Usage of the request queue has some overheads, so only enable this option if you want to add URLs dynamically.",
+            "description": "If enabled, the scraper will enable adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> from the <b>Page function</b>. Usage of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
             "default": true
+        },
+        "keepUrlFragments": {
+            "title": "Keep URL fragments",
+            "type": "boolean",
+            "description": "Indicates that URL fragments (i.e. <code>http://example.com<b>#fragment</b></code>) should be considered when checking whether a page has already been crawled or not. Typically, URL fragments are used as internal page anchors and therefore they should be ignored, because they don't represent separate pages. However, some single-page websites might use URL fragments to represent page parameters; in such a case, this option should be enabled.",
+            "default": false
         },
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "A CSS selector for <code>&lt;a&gt;</code> elements on the page, whose links (from the <code>href</code> attribute) are to be automatically added to the crawling queue. This setting only applies if the <b>Use request queue</b> option is enabled. To filter which links are added to the queue, use the <b>Pseudo-URLs</b> setting.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> in README.",
+            "description": "A CSS selector for <code>&lt;a&gt;</code> elements on the page whose links (the <code>href</code> attribute) are to be automatically added to the crawling queue. This setting only applies if the <b>Use request queue</b> option is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> setting.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> in README.",
             "editor": "textfield",
             "prefill": "a[href]"
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Filters which links matching the <b>Link selector</b> are added to the crawling queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if the <b>Use request queue</b> option is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
+            "description": "Filters which links found by the <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if the <b>Use request queue</b> option is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
@@ -38,12 +44,6 @@
                     "purl": "https://apify.com[(/[\\w-]+)?]"
                 }
             ]
-        },
-        "keepUrlFragments": {
-            "title": "Keep URL fragments",
-            "type": "boolean",
-            "description": "Indicates that URL fragments (i.e. <code>http://example.com/page<b>#this-guy-here</b></code>) should be considered when checking whether a page has already been crawled or not. Typically, URL fragments are used as internal page anchors and therefore they should be ignored, because they don't represent separate pages. However, some single-page websites might use URL fragments to represent page parameters; in such a case, this option should be enabled.",
-            "default": false
         },
         "pageFunction": {
             "title": "Page function",
@@ -77,7 +77,7 @@
         "initialCookies": {
             "title": "Initial cookies",
             "type": "array",
-            "description": "A JSON array with cookies that will be set to every Chrome browser tab opened, in the format accepted by Puppeteer's <a href='https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagesetcookiecookies' target='_blank' rel='noopener'><code>Page.setCookie()</code></a> function. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
+            "description": "A JSON array with cookies that will be set to every Chrome browser tab opened, in the format accepted by Puppeteer's <a href='https://pptr.dev/#?product=Puppeteer&show=api-pagesetcookiecookies' target='_blank' rel='noopener'><code>Page.setCookie()</code></a> function. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
             "default": [],
             "prefill": [],
             "editor": "json"
