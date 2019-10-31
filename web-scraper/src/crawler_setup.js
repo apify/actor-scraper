@@ -1,5 +1,7 @@
 const Apify = require('apify');
 const _ = require('underscore');
+const httpProxy = require('http-proxy');
+const url = require('url');
 const {
     tools,
     browserTools,
@@ -41,6 +43,9 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {Object} customData
  * @property {Object} initialCookies
  */
+
+let currentDebugPort = 4322;
+let proxy;
 
 /**
  * Holds all the information necessary for constructing a crawler
@@ -137,6 +142,7 @@ class CrawlerSetup {
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
+            maxConcurrency: 1,
             // maxOpenPagesPerInstance: use default,
             // retireInstanceAfterRequestCount: use default,
             // instanceKillerIntervalMillis: use default,
@@ -148,6 +154,39 @@ class CrawlerSetup {
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 devtools: this.devtools,
+                headless: false,
+            },
+            launchPuppeteerFunction: async (launchPuppeteerOptions) => {
+                launchPuppeteerOptions.args = [`--remote-debugging-port=${++currentDebugPort}`, '--user-data-dir=remote-profile'];
+
+                const browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
+
+                if (proxy) proxy.close();
+                proxy = httpProxy.createServer({
+                    target: {
+                        host: 'localhost',
+                        port: currentDebugPort,
+                    },
+                    ws: true,
+                }).listen(4321);
+
+                // Intercept requests.
+                proxy.on('proxyReq', async (proxyReq, req, res) => {
+                    // We need Chrome to think that it's on localhost otherwise it throws an error...
+                    proxyReq.setHeader('Host', 'localhost');
+
+                    // ...but then Chrome things it's running on localhost so we need to change websocket
+                    // host in URL to be correct.
+                    if (req.url.includes('ws=localhost')) {
+                        const containerHost = url.parse(process.env.APIFY_CONTAINER_URL).host;
+                        const newUrl = req.url.replace('ws=localhost', `wss=${containerHost}`);
+
+                        res.writeHead(301, { Location: newUrl });
+                        res.end();
+                    }
+                });
+
+                return browser;
             },
         };
 
