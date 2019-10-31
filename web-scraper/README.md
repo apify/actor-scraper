@@ -1,4 +1,4 @@
-# Apify Web Scraper
+# Experimental version of [Apify Web Scraper](https://apify.com/apify/web-scraper) with Chrome debugger integrated
 
 <!-- toc -->
 
@@ -47,14 +47,14 @@ const context = {
     input, // Unaltered original input as parsed from the UI
     env, // Contains information about the run such as actorId or runId
     customData, // Value of the 'Custom data' scraper option.
-    
+
     // EXPOSED OBJECTS
     request, // Apify.Request object.
     response, // Response object holding the status code and headers.
     globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
-    log, // Reference to Apify.utils.log 
+    log, // Reference to Apify.utils.log
     underscoreJs, // A reference to the Underscore _ object (if Inject Underscore was used).
-    
+
     // EXPOSED FUNCTIONS
     setValue, // Reference to the Apify.setValue() function.
     getValue, // Reference to the Apify.getValue() function.
@@ -63,7 +63,7 @@ const context = {
     skipLinks, // Prevents enqueueing more links via Pseudo URLs on the current page.
     enqueueRequest, // Adds a page to the request queue.
     jQuery, // A reference to the jQuery $ function (if Inject JQuery was used).
-    
+
 }
 ```
 ## `context`
@@ -127,7 +127,7 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
         If you use a <code>number</code>, such as <code>await waitFor(1000)</code>, it will wait for the provided
         number of milliseconds. The other option is using a CSS selector <code>string</code>
         which will make the function wait until the given selector appears in the page. The final option
-        is to use a <code>Function</code>. In that case, it will wait until the provided function returns 
+        is to use a <code>Function</code>. In that case, it will wait until the provided function returns
         <code>true</code>.
     <tr><td><code>saveSnapshot</code></td><td></td></tr>
     <tr><td colspan="2">

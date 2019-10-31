@@ -187,7 +187,12 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
-            launchPuppeteerFunction: async (launchPuppeteerOptions) => {
+        };
+
+        if (this.input.chromeDebugger) {
+            console.log('Starting Chrome debugger! Scraper will run with a single browser on concurrency 1.');
+            options.puppeteerPoolOptions.useLiveView = false;
+            options.launchPuppeteerFunction = async (launchPuppeteerOptions) => {
                 launchPuppeteerOptions.args = [`--remote-debugging-port=${++currentDebugPort}`, '--user-data-dir=remote-profile'];
 
                 const browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
@@ -218,8 +223,8 @@ class CrawlerSetup {
                 });
 
                 return browser;
-            },
-        };
+            };
+        }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
 
