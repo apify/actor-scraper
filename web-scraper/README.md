@@ -36,6 +36,92 @@ to walk you through creating your first scraping task step by step.
 ## Input
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
+## Start URLs
+
+The **Start URLs** (`startUrls`) field represent the list of URLs of the first pages that the crawler will open.
+Optionally, each URL can be associated with a custom label that can be referenced from
+your JavaScript code to determine which page is currently open
+(see <a href="#request-object">Request object</a> for details).
+Each URL must start with either a `http://` or `https://` protocol prefix!
+
+Note that it is possible to instruct the crawler to load a URL using a HTTP POST request
+simply by suffixing it with a `[POST]` marker, optionally followed by
+POST data (e.g. `http://www.example.com[POST]<wbr>key1=value1&key2=value2`).
+By default, POST requests are sent with
+the `Content-Type: application/x-www-form-urlencoded` header.
+
+Maximum label length is 100 characters and maximum URL length is 2000 characters.
+
+## Link selector
+
+The **Link selector** (`linkSelector`) field contains a CSS selector used to find links to other web pages.
+On each page, the crawler clicks all DOM elements matching this selector
+and then monitors whether the page generates a navigation request.
+If a navigation request is detected, the crawler checks whether it matches
+<a href="#pseudo-urls">Pseudo-URLs</a>,
+invokes <a href="#intercept-request-function">Intercept request function</a>,
+cancels the request and then continues clicking the next matching elements.
+By default, new crawlers are created with a safe CSS selector:
+
+```
+a:not([rel=nofollow])
+```
+
+In order to reach more pages, you might want to use a wider CSS selector, such as:
+
+```
+a:not([rel=nofollow]), input, button, [onclick]:not([rel=nofollow])
+```
+
+
+Be careful - clicking certain DOM elements can cause
+<b>unexpected and potentially harmful side effects</b>.
+For example, by clicking buttons, you might submit forms, flag comments, etc.
+In principle, the safest option is to narrow the CSS selector to as few elements as possible,
+which also makes the crawler run much faster.
+
+Leave this field empty if you do not want the crawler to click any elements and only open
+<a href="#start-urls">Start URLs</a>
+or pages enqueued using <code>enqueuePage()</code>.
+
+
+## Pseudo-URLs
+
+The **Pseudo-URLs** (`pseudoPurls`) input field specifies which pages will be visited by the crawler using
+the so-called <i>pseudo-URLs</i> (PURL)
+format. PURL is simply a URL with special directives enclosed in `[]` brackets.
+Currently, the only supported directive is `[regexp]`, which defines
+a JavaScript-style regular expression to match against the URL.
+
+For example, a PURL `http://www.example.com/pages/[(\w|-)*]` will match all of the
+following URLs:
+
+- `http://www.example.com/pages/`
+- `http://www.example.com/pages/my-awesome-page`
+- `http://www.example.com/pages/something`
+
+If either `[` or `]` is part of the normal query string,
+it must be encoded as `[\x5B]` or `[\x5D]`, respectively. For example,
+the following PURL:
+
+```
+http://www.example.com/search?do[\x5B]load[\x5D]=1
+```
+
+will match the URL:
+
+```
+http://www.example.com/search?do[load]=1
+```
+
+Optionally, each PURL can be associated with a custom label that can be referenced from
+your JavaScript code to determine which page is currently open
+(see <a href="#request-object">Request object</a> for details).
+
+Note that you don't need to use this setting at all,
+because you can completely control which pages the crawler will access
+by calling `context.enqueuePage()` inside the <a href="#page-function">Page function</a>.
+
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
 manipulate the visited pages and extract data as needed. It is invoked with a `context` object
