@@ -208,7 +208,7 @@
         "chromeDebugger": {
             "title": "Chrome debugger [experimental]",
             "type": "boolean",
-            "description": "Experimental implementation of Chrome debugger. In this mode the scraper will run with single browser on concurrency 1. You can place <code>debug;</code> into your page function to set up a debugger breakpoint.",
+            "description": "Experimental implementation of Chrome debugger. In this mode the scraper will run with single browser on concurrency 1. You can place <code>debugger;</code> into your page function to set up a debugger breakpoint.",
             "default": false
         },
         "customData": {

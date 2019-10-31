@@ -13,6 +13,8 @@ const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
+const CHROME_DEBUGGER_PORT = 4322;
+
 const { utils: { log, puppeteer } } = Apify;
 
 /**
@@ -48,9 +50,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
  */
-
-let currentDebugPort = 4322;
-let proxy;
 
 /**
  * Holds all the information necessary for constructing a crawler
@@ -122,6 +121,7 @@ class CrawlerSetup {
         this.requestQueue = null;
         this.dataset = null;
         this.keyValueStore = null;
+        this.proxy = null;
         this.initPromise = this._initializeAsync();
     }
 
@@ -167,10 +167,6 @@ class CrawlerSetup {
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            // maxOpenPagesPerInstance: use default,
-            // retireInstanceAfterRequestCount: use default,
-            // instanceKillerIntervalMillis: use default,
-            // killInstanceAfterMillis: use default,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             puppeteerPoolOptions: {
@@ -192,22 +188,23 @@ class CrawlerSetup {
         if (this.input.chromeDebugger) {
             console.log('Starting Chrome debugger! Scraper will run with a single browser on concurrency 1.');
             options.puppeteerPoolOptions.useLiveView = false;
+            options.puppeteerPoolOptions.retireInstanceAfterRequestCount = 1000000;
             options.launchPuppeteerFunction = async (launchPuppeteerOptions) => {
-                launchPuppeteerOptions.args = [`--remote-debugging-port=${++currentDebugPort}`, '--user-data-dir=remote-profile'];
+                launchPuppeteerOptions.args = [`--remote-debugging-port=${CHROME_DEBUGGER_PORT}`, '--user-data-dir=remote-profile'];
 
                 const browser = await Apify.launchPuppeteer(launchPuppeteerOptions);
 
-                if (proxy) proxy.close();
-                proxy = httpProxy.createServer({
+                if (this.proxy) proxy.close();
+                this.proxy = httpProxy.createServer({
                     target: {
                         host: 'localhost',
-                        port: currentDebugPort,
+                        port: CHROME_DEBUGGER_PORT,
                     },
                     ws: true,
                 }).listen(4321);
 
                 // Intercept requests.
-                proxy.on('proxyReq', async (proxyReq, req, res) => {
+                this.proxy.on('proxyReq', async (proxyReq, req, res) => {
                     // We need Chrome to think that it's on localhost otherwise it throws an error...
                     proxyReq.setHeader('Host', 'localhost');
 
