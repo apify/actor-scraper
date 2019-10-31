@@ -23,14 +23,14 @@
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector to find <code>&lt;a href='?'&gt;</code> links to new web pages that will be enqueued to crawl. Leave empty to ignore all links. This only has effect if the <b>Use request queue</b> option is enabled.",
+            "description": "A CSS selector for <code>&lt;a&gt;</code> elements on the page, whose links (from the <code>href</code> attribute) are to be automatically added to the crawling queue. This setting only has effect if the <b>Use request queue</b> option is enabled. To filter which links are added to the queue, use the <b>Pseudo-URLs</b> setting.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.",
             "editor": "textfield",
             "prefill": "a[href]"
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Specifies patterns of URLs of pages to crawl. Put regular expressions in [ ] brackets, e.g. <code>http://www.example.com/[.*]</code>   Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links. Omitting the Pseudo-URLs will cause the scraper to enqueue all links matched by the Link selector.",
+            "description": "Filter which links matching the <b>Link selector</b> are added to the crawling queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only has effect if the <b>Use request queue</b> option is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
