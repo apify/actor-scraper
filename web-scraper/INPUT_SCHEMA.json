@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Web scraper loads <b>Start URLs</b> in Chrome browser and executes <b>Page function</b> on each of the pages to extract data from it. To dynamically add new URLs on the fly, enable the <b>Use request queue</b> option and either set <b>Link selector</b> and <b>Pseudo-URLs</b> to tell the scraper which page links it should follow, or manually enqueue new links in <b>Page function</b>. For more information, see actor <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in Apify documentation.",
+    "description": "Web Scraper loads <b>Start URLs</b> in Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, enable the <b>Use request queue</b> option and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow, or manually enqueue new links in <b>Page function</b>. For more information, see actor <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
