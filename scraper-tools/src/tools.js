@@ -17,11 +17,11 @@ const randomBytes = promisify(crypto.randomBytes);
  * @param {string} funcString
  * @return {Function}
  */
-const evalPageFunctionOrThrow = (funcString) => {
+const evalFunctionOrThrow = (funcString) => {
     let func;
 
     try {
-        func = vm.runInThisContext(funcString);
+        func = vm.runInThisContext(`(${funcString})`);
     } catch (err) {
         throw new Error(`Compilation of pageFunction failed.\n${err.message}\n${err.stack.substr(err.stack.indexOf('\n'))}`);
     }
@@ -162,7 +162,7 @@ const logPerformance = (request, title, hrtime) => {
 };
 
 module.exports = {
-    evalPageFunctionOrThrow,
+    evalFunctionOrThrow,
     checkInputOrThrow,
     ensureMetaData,
     createDatasetPayload,

@@ -1,5 +1,4 @@
 const { inspect } = require('util');
-const _ = require('underscore');
 const Apify = require('apify');
 
 const tools = require('./tools');
@@ -18,35 +17,6 @@ const { utils: { log } } = Apify;
 const wrapPageFunction = (pageFunctionString, namespace) => {
     return `if (typeof window['${namespace}'] !== 'object') window['${namespace}'] = {}; 
     window['${namespace}'].pageFunction = ${pageFunctionString}`;
-};
-
-/**
- * Function to be executed in a browser context to add a toJSON
- * function to Error objects. This enables them to be stringified
- * correctly when crossing Browser-Node boundary.
- *
- * @param {Page} page
- * @return {Promise}
- */
-const maybeAddErrorToJson = async (page) => {
-    /* eslint-disable no-extend-native */
-    return page.evaluateOnNewDocument(() => {
-        if (!('toJSON' in Error.prototype)) {
-            Object.defineProperty(Error.prototype, 'toJSON', {
-                value() {
-                    const alt = {};
-
-                    Object.getOwnPropertyNames(this).forEach(function (name) {
-                        alt[name] = this[name];
-                    }, this);
-
-                    return alt;
-                },
-                configurable: true,
-                writable: true,
-            });
-        }
-    });
 };
 
 /**
@@ -179,10 +149,13 @@ let lastSnapshotTimestamp = 0;
  * Saves raw HTML and a screenshot to the default key value store
  * under the SNAPSHOT-HTML and SNAPSHOT-SCREENSHOT keys.
  *
- * @param {Page} page
+ * @param {Object} options
+ * @param {Page} [options.page]
+ * @param {Cheerio} [options.$]
  * @return {Promise}
  */
-const saveSnapshot = async (page) => {
+const saveSnapshot = async ({ page, $ }) => {
+    if (!page && !$) throw new Error('One of parameters "page" or "$" must be provided.');
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
@@ -192,18 +165,22 @@ const saveSnapshot = async (page) => {
     }
     lastSnapshotTimestamp = now;
 
-    const htmlP = page.content();
-    const screenshotP = page.screenshot();
-    const [html, screenshot] = await Promise.all([htmlP, screenshotP]);
-    await Promise.all([
-        Apify.setValue(SNAPSHOT.KEYS.HTML, html, { contentType: 'text/html' }),
-        Apify.setValue(SNAPSHOT.KEYS.SCREENSHOT, screenshot, { contentType: 'image/png' }),
-    ]);
+    if ($) {
+        await Apify.setValue(SNAPSHOT.KEYS.HTML, $.html(), { contentType: 'text/html' });
+    }
+    if (page) {
+        const htmlP = page.content();
+        const screenshotP = page.screenshot();
+        const [html, screenshot] = await Promise.all([htmlP, screenshotP]);
+        await Promise.all([
+            Apify.setValue(SNAPSHOT.KEYS.HTML, html, { contentType: 'text/html' }),
+            Apify.setValue(SNAPSHOT.KEYS.SCREENSHOT, screenshot, { contentType: 'image/png' }),
+        ]);
+    }
 };
 
 module.exports = {
     wrapPageFunction,
-    maybeAddErrorToJson,
     createBrowserHandle,
     createBrowserHandlesForObject,
     dumpConsole,

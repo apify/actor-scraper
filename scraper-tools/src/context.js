@@ -1,10 +1,9 @@
 const Apify = require('apify');
 const browserTools = require('./browser_tools');
-
-const { utils: { log } } = Apify;
+const { META_KEY } = require('./consts');
 
 const setup = Symbol('crawler-setup');
-const state = Symbol('request-state');
+const internalState = Symbol('request-internal-state');
 
 /**
  * Context represents everything that is available to the user
@@ -16,49 +15,83 @@ const state = Symbol('request-state');
  * but should not be exposed to the user thus they are hidden
  * using a Symbol to prevent the user from easily accessing
  * and manipulating them.
+ *
+ * @param {Object} options
+ * @param {Object} options.crawlerSetup
+ * @param {Object} options.pageFunctionArguments
  */
 class Context {
-    constructor(crawlerSetup, pageFunctionArguments) {
+    /* eslint-disable class-methods-use-this */
+    constructor(options) {
+        const {
+            crawlerSetup,
+            pageFunctionArguments,
+        } = options;
+
         // Private
         this[setup] = crawlerSetup;
-        this[state] = {
+        this[internalState] = {
             skipLinks: false,
-            skipOutput: false,
         };
 
-        // Public
-        this.input = crawlerSetup.rawInput;
+        this.Apify = Apify;
+        this.input = JSON.parse(crawlerSetup.rawInput);
         this.env = Object.assign({}, crawlerSetup.env);
         this.customData = crawlerSetup.customData;
-
-        this.saveSnapshot = () => browserTools.saveSnapshot(pageFunctionArguments.page);
-        this.log = log;
         this.globalStore = crawlerSetup.globalStore;
-        this.requestList = crawlerSetup.requestList;
-        this.requestQueue = crawlerSetup.requestQueue;
-        this.dataset = crawlerSetup.dataset;
-        this.keyValueStore = crawlerSetup.keyValueStore;
-        this.client = Apify.client;
-        this.Apify = Apify;
+        this.log = Apify.utils.log;
 
+        // Page function arguments are directly passed from CrawlerSetup
+        // and differ between Puppeteer and Cheerio Scrapers.
         Object.assign(this, pageFunctionArguments);
+
+        // Bind this to allow destructuring off context in pageFunction.
+        this.saveSnapshot = this.saveSnapshot.bind(this);
+        this.skipLinks = this.skipLinks.bind(this);
+        this.enqueueRequest = this.enqueueRequest.bind(this);
     }
 
-    skipLinks() {
-        log.debug('Skipping links.');
-        this[state].skipLinks = true;
+    async getValue(...args) {
+        return Apify.getValue(...args);
     }
 
-    skipOutput() {
-        log.debug('Skipping output.');
-        this[state].skipOutput = true;
+    async setValue(...args) {
+        return Apify.setValue(...args);
     }
 
-    enqueuePage(newRequest) {
-        if (!this[setup].input.useRequestQueue) {
+    async saveSnapshot() {
+        return browserTools.saveSnapshot({
+            page: this.page,
+            $: this.$,
+        });
+    }
+
+    async skipLinks() {
+        this[internalState].skipLinks = true;
+    }
+
+    async enqueueRequest(requestOpts = {}, options = {}) {
+        if (!this[setup].useRequestQueue) {
             throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
         }
-        return this.requestQueue.addRequest(newRequest);
+
+        const defaultRequestOpts = {
+            useExtendedUniqueKey: true,
+            keepUrlFragment: this.input.keepUrlFragments,
+        };
+
+        const newRequest = { ...defaultRequestOpts, ...requestOpts };
+
+        const defaultUserData = {
+            [META_KEY]: {
+                parentRequestId: this.request.id || this.request.uniqueKey,
+                depth: this.request.userData[META_KEY].depth + 1,
+            },
+        };
+
+        newRequest.userData = { ...defaultUserData, ...requestOpts.userData };
+
+        return this[setup].requestQueue.addRequest(newRequest, options);
     }
 }
 
@@ -66,14 +99,13 @@ class Context {
  * Creates a Context by passing all arguments to its constructor
  * and returns it, along with a reference to its state object.
  *
- * @param {CrawlerSetup} crawlerSetup
- * @param {Object} pageFunctionArguments
+ * @param {Object} contextOptions
  * @returns {{{context: Context, state: Object}}}
  */
-exports.createContext = (crawlerSetup, pageFunctionArguments) => {
-    const context = new Context(crawlerSetup, pageFunctionArguments);
+exports.createContext = (contextOptions) => {
+    const context = new Context(contextOptions);
     return {
         context,
-        state: context[state],
+        state: context[internalState],
     };
 };

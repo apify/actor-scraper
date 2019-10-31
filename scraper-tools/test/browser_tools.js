@@ -2,39 +2,13 @@ const fs = require('fs-extra');
 const path = require('path');
 const { expect } = require('chai');
 const sinon = require('sinon');
-const _ = require('underscore');
 const Apify = require('apify');
 
-const tools = require('../src/tools');
 const browserTools = require('../src/browser_tools');
-const { META_KEY } = require('../src/consts');
 
 const { utils: { log } } = Apify;
 
-
 const LOCAL_STORAGE_DIR = path.join(__dirname, 'tmp');
-
-const PAGE_CONTENT = `
-<html>
-    <head>
-        <title>Example</title>
-    </head>
-    <body>
-        <p>
-            The ships hung in the sky, much the <a class="click" href="https://example.com/a/b/first">way that</a> bricks don't.
-        </p>
-        <ul>
-            <li>These aren't the Droids you're looking for</li>
-            <li><a href="https://example.com/a/second">I'm sorry, Dave. I'm afraid I can't do that.</a></li>
-            <li><a class="click" href="https://example.com/a/b/third">I'm sorry, Dave. I'm afraid I can't do that.</a></li>
-        </ul>
-        <a class="click" href="https://another.com/a/fifth">The Greatest Science Fiction Quotes Of All Time</a>
-        <p>
-            Don't know, I don't know such stuff. I just do eyes, ju-, ju-, just eyes... just genetic design,
-            just eyes. You Nexus, huh? I design your <a class="click" href="http://cool.com/">eyes</a>.
-        </p>
-    </body>
-</html>`;
 
 describe('browserTools.', () => {
     let browser;

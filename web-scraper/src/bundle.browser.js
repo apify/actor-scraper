@@ -88,12 +88,13 @@ module.exports = (apifyNamespace) => {
                 this.customData = crawlerSetup.customData;
                 this.response = pageFunctionArguments.response;
                 this.request = pageFunctionArguments.request;
-                // Functions are not converted so we need to add this one
-                Reflect.defineProperty(this.request, 'doNotRetry', {
-                    value(message) {
-                        // this refers to request instance!
-                        this.noRetry = true;
-                        if (message) throw new Error(message);
+                // Functions are not converted so we need to add them this way
+                // to not be enumerable and thus not polluting the object.
+                Reflect.defineProperty(this.request, 'pushErrorMessage', {
+                    value(errorOrMessage) {
+                        // It's a simplified fake of the original function.
+                        const msg = (errorOrMessage && errorOrMessage.message) || `${errorOrMessage}`;
+                        this.errorMessages.push(msg);
                     },
                     enumerable: false,
                 });
@@ -133,11 +134,29 @@ module.exports = (apifyNamespace) => {
                 return global[handle]();
             }
 
-            async enqueueRequest(request, options = {}) {
+            async enqueueRequest(requestOpts = {}, options = {}) {
                 if (!this[setup].useRequestQueue) {
                     throw new Error('Input parameter "useRequestQueue" must be set to true to be able to enqueue new requests.');
                 }
-                return this[internalState].requestQueue.addRequest(request, options);
+
+                const defaultRequestOpts = {
+                    useExtendedUniqueKey: true,
+                    keepUrlFragment: this.input.keepUrlFragments,
+                };
+
+                const newRequest = { ...defaultRequestOpts, ...requestOpts };
+
+                const metaKey = this[setup].META_KEY;
+                const defaultUserData = {
+                    [metaKey]: {
+                        parentRequestId: this.request.id || this.request.uniqueKey,
+                        depth: this.request.userData[metaKey].depth + 1,
+                    },
+                };
+
+                newRequest.userData = { ...defaultUserData, ...requestOpts.userData };
+
+                return this[internalState].requestQueue.addRequest(newRequest, options);
             }
 
             async waitFor(selectorOrNumberOrFunction, options = {}) {
@@ -151,13 +170,14 @@ module.exports = (apifyNamespace) => {
 
             async _waitForSelector(selector, options = {}) {
                 try {
-                    return this._poll(() => {
+                    await this._poll(() => {
                         return !!global.document.querySelector(selector);
                     }, options);
                 } catch (err) {
-                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                    if (/timeout of \d+ms exceeded/.test(err.message)) {
                         throw new Error(`Timeout Error: waiting for selector failed: ${err.message}`);
                     }
+                    throw err;
                 }
             }
 
@@ -167,11 +187,12 @@ module.exports = (apifyNamespace) => {
 
             async _waitForFunction(predicate, options = {}) {
                 try {
-                    return this._poll(predicate, options);
+                    await this._poll(predicate, options);
                 } catch (err) {
-                    if (/timeout \d+ms exceeded/.test(err.message)) {
+                    if (/timeout of \d+ms exceeded/.test(err.message)) {
                         throw new Error(`Timeout Error: waiting for function failed: ${err.message}`);
                     }
+                    throw err;
                 }
             }
 
@@ -187,7 +208,7 @@ module.exports = (apifyNamespace) => {
                     const pollTimeout = setTimeout(handler, pollingIntervalMillis);
                     setTimeout(() => {
                         clearTimeout(pollTimeout);
-                        return reject(new Error(`timeout ${timeoutMillis}ms exceeded`));
+                        return reject(new Error(`timeout of ${timeoutMillis}ms exceeded.`));
                     }, timeoutMillis);
                 });
             }

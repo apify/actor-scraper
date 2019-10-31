@@ -1,6 +1,6 @@
 {
-  "name": "@mnmkng/scraper-tools",
-  "version": "0.0.6",
+  "name": "@apify/scraper-tools",
+  "version": "0.1.2",
   "description": "Tools shared by Apify actor-scrapers.",
   "main": "src/main.js",
   "dependencies": {
@@ -8,10 +8,10 @@
     "underscore": "^1.9.1"
   },
   "peerDependencies": {
-    "apify": "^0.12.1"
+    "apify": "^0.15.2"
   },
   "devDependencies": {
-    "apify": "^0.11.8",
+    "apify": "^0.15.2",
     "@types/fs-extra": "^5.0.4",
     "@types/puppeteer": "^1.10.0",
     "@types/underscore": "^1.8.9",
@@ -26,17 +26,16 @@
     "fs-extra": "^7.0.1",
     "markdown-toc": "^1.2.0",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0",
+    "nyc": "^14.1.1",
     "sinon": "^7.1.1"
   },
   "scripts": {
-    "start": "node main.js",
     "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
     "lint": "eslint src test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apifytech/actor-crawler"
+    "url": "https://github.com/apifytech/actor-scraper"
   },
   "author": {
     "name": "Apify",
@@ -48,7 +47,7 @@
     "Ondra Urban <ondra@apify.com>"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/apifytech/actor-crawler",
+  "homepage": "https://github.com/apifytech/actor-scraper",
   "files": [
     "src",
     "index.js"

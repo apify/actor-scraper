@@ -1,29 +1,29 @@
 {
   "name": "actor-puppeteer-scraper",
   "version": "1.0.0",
-  "description": "Crawl web pages using headless Chrome and Puppeteer",
+  "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "apify": "^0.11.8",
-    "@mnmkng/scraper-tools": "^0.0.3",
+    "@apify/scraper-tools": "^0.1.2",
+    "apify": "^0.16.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/puppeteer": "^1.10.0",
-    "@types/underscore": "^1.8.9",
+    "@types/puppeteer": "^1.19.0",
+    "@types/underscore": "^1.9.2",
     "chai": "^4.2.0",
-    "eslint": "^5.8.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint": "^6.1.0",
+    "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-react": "^7.14.3",
     "fs-extra": "^7.0.1",
     "markdown-toc": "^1.2.0",
-    "mocha": "^5.2.0",
-    "nyc": "^13.1.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
     "sinon": "^7.1.1"
   },
   "scripts": {
@@ -35,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apifytech/actor-crawler"
+    "url": "https://github.com/apifytech/actor-scraper"
   },
   "author": {
     "name": "Apify",
@@ -47,5 +47,5 @@
     "Ondra Urban <ondra@apify.com>"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/apifytech/actor-crawler"
+  "homepage": "https://github.com/apifytech/actor-scraper"
 }
