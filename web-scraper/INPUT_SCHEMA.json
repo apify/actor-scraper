@@ -1,14 +1,14 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href=\"https://apify.com/docs/scraping/tutorial/introduction\" target=\"_blank\">step by step tutorial</a> to help you with the basics.\n\nIf you get stuck and it seems that you can no longer progress with the Web Scraper, try <a href=\"https://apify.com/docs/scraping/tutorial/puppeteer-scraper\" target=\"_blank\">Puppeteer Scraper</a>. It's a more powerful tool.",
+    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>step by step tutorial</a> to help you with the basics.\n\nIf you get stuck and it seems that you can no longer progress with the Web Scraper, try <a href='https://apify.com/docs/scraping/tutorial/puppeteer-scraper' target='_blank' rel='noopener'>Puppeteer Scraper</a>. It's a more powerful tool.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
             "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
-            "description": "URLs to start with",
+            "description": "A static list of URLs to crawl. To add new URLs dynamically during the crawl, see the <b>Use request queue</b> option.",
             "prefill": [
                 { "url": "https://apify.com" }
             ],
@@ -17,13 +17,13 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
+            "description": "The request queue lets you add new URLs to crawl on the fly, e.g. for recursive crawling of websites. Usage of the request queue has some overheads, so only enable this option if you want to use the <b>Pseudo-URLs</b> and <b>Link selector</b> options, or call <code>context.enqueueRequest()</code> from your <b>Page function</b>.",
             "default": true
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links. Omitting the Pseudo-URLs will cause the scraper to enqueue all links matched by the Link selector.",
+            "description": "Specifies patterns of URLs of pages to crawl. Put regular expressions in [ ] brackets, e.g. <code>http://www.example.com/[.*]</code>   Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links. Omitting the Pseudo-URLs will cause the scraper to enqueue all links matched by the Link selector.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
@@ -35,42 +35,41 @@
         "linkSelector": {
             "title": "Link selector",
             "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>. Leave empty to ignore all links.",
+            "description": "CSS selector to find <code>&lt;a href='?'&gt;</code> links to new web pages that will be enqueued to crawl. Leave empty to ignore all links. This only has effect if the <b>Use request queue</b> option is enabled.",
             "editor": "textfield",
-            "prefill": "a"
+            "prefill": "a[href]"
         },
         "keepUrlFragments": {
             "title": "Keep URL fragments",
             "type": "boolean",
-            "description": "URL fragments (the parts of URL after a <code>#</code>) are not considered when the scraper determines whether a URL has already been visited. This means that when adding URLs such as <code>https://example.com/#foo</code> and <code>https://example.com/#bar</code>, only the first will be visited. Turn this option on to tell the scraper to visit both.",
+            "description": "Indicates that URL fragment identifiers (i.e. <code>http://example.com/page#<b>this-guy-here</b></code>) should be considered when checking whether a page has already been visited. Typically, URL fragments are used as internal page anchors and therefore they should be ignored because they don't represent separate pages. However, many AJAX-based website nowadays use URL fragment to represent page parameters; in such cases, this option should be enabled.",
             "default": false
         },
         "pageFunction": {
             "title": "Page function",
             "type": "string",
-            "description": "Function executed for each request",
+            "description": "JavaScript function that is executed on every crawled web page. Use it to extract data from the page, perform actions or enqueue new URLs to crawl.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function'>Page function</a> in actor README.",
             "prefill": "async function pageFunction(context) {\n    // See README for context properties. If the syntax is unfamiliar see the link\n    // https://javascript.info/destructuring-assignment#object-destructuring\n    const { request, log, jQuery } = context;\n\n    // To be able to use jQuery as $, one needs save it into a variable\n    // and select the inject jQuery option. We've selected it for you.\n    const $ = jQuery;\n    const title = $('title').text();\n\n    // This is yet another new feature of Javascript called template strings.\n    // https://javascript.info/string#quotes\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n\n    // To save data just return an object with the requested properties.\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
         "injectJQuery": {
             "title": "jQuery",
             "type": "boolean",
-            "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
+            "description": "If enabled, the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code>.",
             "default": true,
-            "groupCaption": "Inject library",
-            "groupDescription": "Settings that help inject 3rd party libraries into scraper pageFunction."
+            "groupCaption": "Inject library"
         },
         "injectUnderscore": {
             "title": "Underscore",
             "type": "boolean",
-            "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
+            "description": "If enabled, the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code>.",
             "default": false
         },
         "proxyConfiguration": {
             "sectionCaption": "Proxy and browser configuration",
             "title": "Proxy configuration",
             "type": "object",
-            "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
+            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.",
             "prefill": { "useApifyProxy": false },
             "default": {},
             "editor": "proxy"
@@ -78,7 +77,7 @@
         "initialCookies": {
             "title": "Initial cookies",
             "type": "array",
-            "description": "The provided cookies will be pre-set to all pages the scraper opens.",
+            "description": "A JSON array with cookies that will be set to every Chrome browser tab opened, in the format accepted by Puppeteer's <a href='https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagesetcookiecookies' target='_blank' rel='noopener'><code>Page.setCookie()</code></a> function. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
             "default": [],
             "prefill": [],
             "editor": "json"
@@ -86,15 +85,14 @@
         "useChrome": {
             "title": "Use Chrome",
             "type": "boolean",
-            "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
+            "description": "If enabled, the scraper will use a real Chrome browser instead of Chromium bundled with Puppeteer. This option may help bypass certain anti-scraping protections, but might make the scraper unstable. Use at your own risk \uD83D\uDE42",
             "default": false,
-            "groupCaption": "Browser masking",
-            "groupDescription": "Settings that help mask as a real user and prevent scraper detection, but increase the chances of the scraper not working at all with some websites."
+            "groupCaption": "Browser masking"
         },
         "useStealth": {
-            "title": "Use Stealth",
+            "title": "Use stealth mode",
             "type": "boolean",
-            "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "description": "If enabled, the scraper will apply various browser emulation techniques to match a real user as closely as possible, in order to bypass around certain anti-scraping protections. This feature works best in conjunction with the <b>Use Chrome</b> option, but it also carries a risk of making the scraper unstable.",
             "default": false
         },
         "ignoreSslErrors": {
@@ -102,13 +100,12 @@
             "type": "boolean",
             "description": "Scraper will ignore SSL certificate errors.",
             "default": false,
-            "groupCaption": "Security",
-            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
+            "groupCaption": "Security"
         },
         "ignoreCorsAndCsp": {
             "title": "Ignore CORS and CSP",
             "type": "boolean",
-            "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
+            "description": "Scraper will ignore Content Security Policy (CSP) and Cross-Origin Resource Sharing (CORS) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
             "default": false
         },
         "downloadMedia": {
@@ -167,25 +164,25 @@
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
-            "description": "Maximum time the scraper will allow a web page to load in seconds.",
+            "description": "Maximum time the scraper will allow a web page to load, in seconds.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
-            "unit": "secs"
+            "unit": "seconds"
         },
         "pageFunctionTimeoutSecs": {
             "title": "Page function timeout",
             "type": "integer",
-            "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
+            "description": "Maximum time the scraper will wait for the page function to execute, in seconds.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
-            "unit": "secs"
+            "unit": "seconds"
         },
         "waitUntil": {
             "title": "Navigation wait until",
             "type": "array",
-            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>. <a href=\"https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options\" target=\"_blank\">See Puppeteer docs</a>.",
+            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>. <a href='https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options' target='_blank'>See Puppeteer docs</a>.",
             "default": ["networkidle2"],
             "prefill": ["networkidle2"],
             "editor": "json"
