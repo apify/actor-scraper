@@ -20,20 +20,61 @@
 
 <!-- tocstop -->
 
-## How it works
-Web Scraper is a ready-made solution for scraping the web using the Chrome browser. It takes away all
-the work necessary to set up a browser for crawling, controls the browser automatically and produces
-machine readable results in several common formats.
+Web Scraper is a generic ready-made actor for crawling arbitrary websites 
+and extracting structured data from the web pages using a few lines of JavaScript code.
+The actor can either be configured and run manually in a user interface, or programmatically using API.
+The extracted data are stored in a dataset, from where they can exported to various formats,
+such as JSON, XML, Excel or CSV.
 
-Underneath, it uses the [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library to control
-the browser, but you don't need to worry about that. Using a simple web UI and a little of basic
+## Overview
+
+In order to start extracting structured data from a website, you only need two things.
+
+First, tell the scraper which web pages it
+should visit.
+The scraper starts with pages specified in <a href="#start-urls"><b>Start URLs</b></a>.
+You can either enter these URLs manually one by one, upload them in a CSV file or
+[link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet)
+document.
+To make the scraper automatically follow page links on the fly,
+enable the <b>Use request queue</b>
+and set <a href="#link-selector"><b>Link selector</b></a>
+and <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>.
+This is useful for recursive crawling of an entire website. 
+
+Second, you need to tell the scraper how to extract data from the web pages
+by providing <a href="#page-function"><b>Page function</b></a>.
+This is a JavaScript code that is executed on every web page visited.
+
+The crawler is a full-featured web browser which loads and interprets JavaScript and the code you provide is simply
+executed in the context of the pages it visits. This means that writing your data-extraction code is very similar
+to writing JavaScript code in front-end development, you can even use any client-side libraries such as
+<a href="http://jquery.com" target="_blank" rel="noopener">jQuery</a> or
+<a href="http://underscorejs.org" target="_blank" rel="noopener">Underscore.js</a>.
+
+More formally, the crawler repeats the following steps:
+
+<ol>
+    <li>Add each of the <a href="#start-urls">Start URLs</a> to the crawling queue.</li>
+    <li>Fetch the first URL from the queue and load it in the virtual browser.</li>
+    <li>Execute <a href="#page-function">Page function</a> on the loaded page and save its results.</li>
+    <li>Find all links from the page using <a href="#clickable-elements">Clickable elements</a> CSS selector.
+        If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a> and has not yet been enqueued, add it to the queue.</li>
+    <li>If there are more items in the queue, go to step 2, otherwise finish.</li>
+</ol>
+
+Under the hood, it uses the [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library to control
+the Chrome browser, but you don't need to worry about that. Using a simple web UI and a little of basic
 JavaScript, you can tweak it to serve almost any scraping need.
 
+
 ## Getting Started
-If you're new to scraping or Apify, be sure to [visit our tutorial](https://apify.com/docs/scraping/web-scraper-tutorial)
+
+If you're new to web scraping or Apify, be sure to [visit our tutorial](https://apify.com/docs/scraping/web-scraper-tutorial)
 to walk you through creating your first scraping task step by step.
 
 ## Input
+
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
 ## Start URLs
@@ -127,7 +168,7 @@ Page function is a single JavaScript function that enables the user to control t
 manipulate the visited pages and extract data as needed. It is invoked with a `context` object
 containing the following properties:
 
-```js
+```javascript
 const context = {
     // USEFUL DATA
     input, // Unaltered original input as parsed from the UI
@@ -141,7 +182,7 @@ const context = {
     log, // Reference to Apify.utils.log 
     underscoreJs, // A reference to the Underscore _ object (if Inject Underscore was used).
     
-    // EXPOSED FUNCTIONS
+    // Function
     setValue, // Reference to the Apify.setValue() function.
     getValue, // Reference to the Apify.getValue() function.
     saveSnapshot, // Saves a screenshot and full HTML of the current page to the key value store.
@@ -152,7 +193,7 @@ const context = {
     
 }
 ```
-## `context`
+
 The following tables describe the `context` object in more detail.
 
 ### Data structures
