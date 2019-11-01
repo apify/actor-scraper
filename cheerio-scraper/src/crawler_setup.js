@@ -219,6 +219,7 @@ class CrawlerSetup {
                 json,
                 autoscaledPool,
                 request,
+                contentType,
                 response: {
                     status: response.statusCode,
                     headers: response.headers,

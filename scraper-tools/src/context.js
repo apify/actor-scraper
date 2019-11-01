@@ -1,4 +1,5 @@
 const Apify = require('apify');
+const contentTypeParser = require('content-type');
 const browserTools = require('./browser_tools');
 const { META_KEY } = require('./consts');
 
@@ -60,11 +61,12 @@ class Context {
     }
 
     async saveSnapshot() {
-        const { response } = this;
         return browserTools.saveSnapshot({
             page: this.page,
             body: this.body,
-            contentType: response && response.headers ? response.headers['content-type'] : null,
+            contentType: this.contentType
+                ? contentTypeParser.format(this.contentType)
+                : null,
             json: this.json,
         });
     }

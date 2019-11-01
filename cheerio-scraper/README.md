@@ -57,6 +57,7 @@ const context = {
     globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
     log, // Reference to Apify.utils.log
     Apify, // Reference to the full power of Apify SDK.
+    contentType, // Parsed Content-Type header
     
     // EXPOSED FUNCTIONS
     $, // Reference to Cheerio.
@@ -94,11 +95,21 @@ The following tables describe the `context` object in more detail.
         specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
         and its contents will be available under the <code>customData</code> context key.
     </td></tr>
-    <tr><td><code>html</code></td><td><code>string</code></td></tr>
+    <tr><td><code>body</code></td><td><code>string|Buffer</code></td></tr>
     <tr><td colspan="2">
-        This is the raw, unaltered HTML string as received from the target website. This is useful in cases
-        where Cheerio is unable to parse the HTML. The HTML returned from Cheerio also might be different,
-        with invalid tags removed, so use this property for debugging the differences.
+        This is the body from the target website. If the website is in HTML or XML format, it will be string contains HTML or XML content.
+        It will be buffer in other cases. If you need to process body as a string, you can use contentType object to set up right encoding to the string.<br>
+        <code>const stringBody = context.body.toString(context.contentType.charset)</code>
+    </td></tr>
+    <tr><td><code>json</code></td><td><code>Object</code></td></tr>
+    <tr><td colspan="2">
+        The parsed object from JSON string if the response contains the content type <code>application/json</code>
+    </td></tr>
+    <tr><td><code>contentType</code></td><td><code>Object</code></td></tr>
+    <tr><td colspan="2">
+        It contains object parsed from <code>Content-Type</code> header. It is parsed using content-type package. You can get mine type same as charset from it.<br>
+        <code>const mimeType = contentType.type</code><br>
+        For more details, you can check <a href="https://www.npmjs.com/package/content-type" target="_blank"><code>content-type package</code></a>.
     </td></tr>
 </tbody>
 </table>
