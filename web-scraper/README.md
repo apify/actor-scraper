@@ -20,64 +20,96 @@
 
 <!-- tocstop -->
 
-Web Scraper is a generic ready-made actor for crawling arbitrary websites 
-and extracting structured data from the web pages using a few lines of JavaScript code.
-The actor can either be configured and run manually in a user interface, or programmatically using API.
-The extracted data are stored in a dataset, from where they can exported to various formats,
-such as JSON, XML, Excel or CSV.
+Web Scraper is a generic easy-to-use actor for crawling arbitrary web pages
+and extracting structured data from them using a few lines of JavaScript code.
+It loads web pages in a full-featured Chrome browser,
+which renders dynamic content.
+Web Scraper can either be configured and run manually in a user interface, or programmatically using API.
+The extracted data is stored in a dataset, from where it can exported to various formats,
+such as JSON, XML, or CSV.
 
-## Overview
+If you're not familiar with web scraping or front-end web development,
+you might prefer to first
+read the <b>[Web scraping tutorial](https://apify.com/docs/scraping/web-scraper-tutorial)</b>
+in Apify documentation,
+which will walk you through all the steps and provide examples.
 
-In order to start extracting structured data from a website, you only need two things.
+## Usage
 
-First, tell the scraper which web pages it
-should visit.
-The scraper starts with pages specified in <a href="#start-urls"><b>Start URLs</b></a>.
+To get started with Web Scraper,
+you only need two things. First, tell the scraper which web pages
+it should load, and second, tell it how to extract data from each of the pages. 
+
+The scraper starts by loading pages specified in
+the <a href="#start-urls"><b>Start URLs</b></a> input setting.
 You can either enter these URLs manually one by one, upload them in a CSV file or
 [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet)
 document.
-To make the scraper automatically follow page links on the fly,
-enable the <b>Use request queue</b>
+Optionally, you can make the scraper follow page links on the fly.
+To do that, enable the <b>Use request queue</b> option
 and set <a href="#link-selector"><b>Link selector</b></a>
-and <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>.
-This is useful for recursive crawling of an entire website. 
+and/or <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>
+to tell the scraper which links it should follow.
+This is useful for recursive crawling of entire websites,
+e.g. to find all products in an online store.
 
-Second, you need to tell the scraper how to extract data from the web pages
-by providing <a href="#page-function"><b>Page function</b></a>.
-This is a JavaScript code that is executed on every web page visited.
+To tell the scraper how to extract data from web pages,
+you need to provide <a href="#page-function"><b>Page function</b></a>.
+It is a JavaScript code that is executed in the context
+of every web page loaded.
+Since the scraper uses the full-featured Chrome browser,
+writing Page function
+is equivalent to developing a front-end code
+and you can use client-side libraries such as
+<a href="http://jquery.com" target="_blank" rel="noopener">jQuery</a>.
 
-The crawler is a full-featured web browser which loads and interprets JavaScript and the code you provide is simply
-executed in the context of the pages it visits. This means that writing your data-extraction code is very similar
-to writing JavaScript code in front-end development, you can even use any client-side libraries such as
-<a href="http://jquery.com" target="_blank" rel="noopener">jQuery</a> or
-<a href="http://underscorejs.org" target="_blank" rel="noopener">Underscore.js</a>.
-
-More formally, the crawler repeats the following steps:
+In summary, Web Scraper works as follows:
 
 <ol>
-    <li>Add each of the <a href="#start-urls">Start URLs</a> to the crawling queue.</li>
-    <li>Fetch the first URL from the queue and load it in the virtual browser.</li>
+    <li>Add each of <a href="#start-urls">Start URLs</a> to the crawling queue.</li>
+    <li>Fetch the first URL from the queue and load it in Chrome browser.</li>
     <li>Execute <a href="#page-function">Page function</a> on the loaded page and save its results.</li>
-    <li>Find all links from the page using <a href="#clickable-elements">Clickable elements</a> CSS selector.
-        If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a> and has not yet been enqueued, add it to the queue.</li>
-    <li>If there are more items in the queue, go to step 2, otherwise finish.</li>
+    <li>Optionally, find all links from the page using <a href="#link-selector">Link selector</a>.
+        If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a>
+        and has not yet been enqueued, add it to the queue.</li>
+    <li>If there are more items in the queue, repeat step 2, otherwise finish.</li>
 </ol>
 
-Under the hood, it uses the [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library to control
-the Chrome browser, but you don't need to worry about that. Using a simple web UI and a little of basic
-JavaScript, you can tweak it to serve almost any scraping need.
+Web Scraper has a number of other configuration settings
+to improve performance, set cookies for login to websites,
+mask the web browser etc.
+See [Input configuration](#input-configuraton) below
+for the complete list of settings.
 
+## Limitations
 
-## Getting Started
+Web Scraper was designed to be generic and easy to use,
+and as such might not be an ideal solution if your primary concern
+is performance or flexibility.
 
-If you're new to web scraping or Apify, be sure to [visit our tutorial](https://apify.com/docs/scraping/web-scraper-tutorial)
-to walk you through creating your first scraping task step by step.
+The actor employs a full-featured Chrome web browser,
+which is resource-intensive and might be an overkill
+for websites that do not render the content dynamically
+using client-side JavaScript.
+To achieve better performance for scraping these sites,
+you might prefer to use
+**Cheerio Scraper** ([apify/cheerio-scaper](https://apify.com/apify/cheerio-scraper)),
+which downloads and processes raw HTML pages without overheads of
+a full web browser.
 
-## Input
+Web Scraper's **Page function** is executed in the context
+of the web page, and therefore it only supports client-side JavaScript code.
+If you need to run some server-side libraries or have more control
+of the Chrome browser using the underlying
+[Puppeteer](https://github.com/GoogleChrome/puppeteer/) library,
+you might prefer to use
+**Puppeteer Scraper** ([apify/puppeteer-scaper](https://apify.com/apify/cheerio-scraper)).
+
+## Input configuration
 
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
-## Start URLs
+### Start URLs
 
 The **Start URLs** (`startUrls`) field represent the list of URLs of the first pages that the crawler will open.
 Optionally, each URL can be associated with a custom label that can be referenced from
@@ -93,7 +125,7 @@ the `Content-Type: application/x-www-form-urlencoded` header.
 
 Maximum label length is 100 characters and maximum URL length is 2000 characters.
 
-## Link selector
+### Link selector
 
 The **Link selector** (`linkSelector`) field contains a CSS selector used to find links to other web pages.
 On each page, the crawler clicks all DOM elements matching this selector
@@ -126,7 +158,7 @@ Leave this field empty if you do not want the crawler to click any elements and 
 or pages enqueued using <code>enqueuePage()</code>.
 
 
-## Pseudo-URLs
+### Pseudo-URLs
 
 The **Pseudo-URLs** (`pseudoPurls`) input field specifies which pages will be visited by the crawler using
 the so-called <i>pseudo-URLs</i> (PURL)
@@ -163,7 +195,7 @@ Note that you don't need to use this setting at all,
 because you can completely control which pages the crawler will access
 by calling `context.enqueuePage()` inside the <a href="#page-function">Page function</a>.
 
-## Page function
+### Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
 manipulate the visited pages and extract data as needed. It is invoked with a `context` object
 containing the following properties:
@@ -331,7 +363,7 @@ scraper's Log by the provided **Debug log** input option.
 <a href="https://underscorejs.org/" target="_blank">Underscore</a> is a helper library.
 You can use it in your `pageFunction` if you use the **Inject Underscore** input option.
 
-## Output
+## Results
 Output is a dataset containing extracted data for each scraped page. To save data into
 the dataset, return an `Object` or an `Object[]` from the `pageFunction`.
 
@@ -374,3 +406,13 @@ The result will look like this:
   "title": "Web Scraping, Data Extraction and Automation - Apify"
 }
 ```
+
+
+## Other resources
+
+- [Web scraping tutorial](https://apify.com/docs/scraping)
+- **Cheerio Scraper** ([apify/cheerio-scaper](https://apify.com/apify/cheerio-scraper))
+- **Puppeteer Scraper** ([apify/puppeteer-scaper](https://apify.com/apify/puppeteer-scraper))
+- [Apify SDK](https://sdk.apify.com)
+
+
