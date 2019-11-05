@@ -132,6 +132,7 @@ class CrawlerSetup {
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
+            additionalMimeTypes: this.input.additionalMimeTypes,
             autoscaledPoolOptions: {
                 maxConcurrency: this.input.maxConcurrency,
                 systemStatusOptions: {
@@ -190,7 +191,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, html, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -210,9 +211,15 @@ class CrawlerSetup {
             ),
             pageFunctionArguments: {
                 $,
-                html,
+                get html() {
+                    log.deprecated('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
+                    return contentType.type === 'text/html' ? body : null;
+                },
+                body,
+                json,
                 autoscaledPool,
                 request,
+                contentType,
                 response: {
                     status: response.statusCode,
                     headers: response.headers,
@@ -229,10 +236,10 @@ class CrawlerSetup {
         /**
          * POST-PROCESSING
          */
-        // Enqueue more links if Pseudo URLs and a link selector are available,
+        // Enqueue more links if Pseudo URLs, a link selector and cheerio instance are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (!state.skipLinks) await this._handleLinks($, request);
+        if (!state.skipLinks && $) await this._handleLinks($, request);
 
         // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);

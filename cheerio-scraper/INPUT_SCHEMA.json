@@ -117,6 +117,14 @@
             "maximum": 360,
             "unit": "secs"
         },
+        "additionalMimeTypes": {
+            "title": "Additional mime types",
+            "type": "array",
+            "description": "By default text/html and application/xhtml+xml are supported.",
+            "editor": "json",
+            "default": [],
+            "prefill": []
+        },
         "debugLog": {
             "title": "Debug log",
             "type": "boolean",
