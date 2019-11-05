@@ -251,7 +251,9 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
 **Properties of the `context` object**
 
-All of the functions are `async` so make sure to use `await` with their invocations.
+**`customData: Object`**
+
+Test
 
 <table>
 <thead>
@@ -266,6 +268,10 @@ All of the functions are `async` so make sure to use `await` with their invocati
     </td></tr>
     <tr><td><code>enqueueRequest(request)</code></td><td><code>Function</code></td></tr>
     <tr><td colspan="2">
+      Enqueues.<br />
+      For example:<br />
+      <code>context.enqueueRequest({ url: 'https://www.example.com })</code>
+      c
         (request: Request|Object, options: Object)
         To enqueue a specific URL manually instead of automatically by a combination of a Link selector
         and a Pseudo URL, use the <code>enqueueRequest</code> function. It accepts a plain object as argument
