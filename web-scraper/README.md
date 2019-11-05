@@ -17,24 +17,18 @@ which will walk you through all the steps and provide examples.
 
 <!-- toc -->
 
-- [How it works](#how-it-works)
-- [Getting Started](#getting-started)
-- [Input](#input)
-- [Page function](#page-function)
-- [`context`](#context)
-  * [Data structures](#data-structures)
-  * [Functions](#functions)
-  * [Class instances and namespaces](#class-instances-and-namespaces)
-    + [Request](#request)
-    + [Response](#response)
-    + [Global Store](#global-store)
-    + [Log](#log)
-    + [Underscore](#underscore)
-- [Output](#output)
-  * [Dataset](#dataset)
+- [Usage](#usage)
+- [Limitations](#limitations)
+- [Input configuration](#input-configuration)
+  * [Start URLs](#start-urls)
+  * [Use request queue](#use-request-queue)
+  * [Link selector](#link-selector)
+  * [Pseudo-URLs](#pseudo-urls)
+  * [Page function](#page-function)
+- [Results](#results)
+- [Next steps](#next-steps)
 
 <!-- tocstop -->
-
 
 ## Usage
 
@@ -438,7 +432,9 @@ The result will look like this:
 ```
 
 
-## More resources
+## Next steps
+
+Congratulations! You've learned how Web Scraper works. You might also want to read about:
 
 - [Web scraping tutorial](https://apify.com/docs/scraping)
 - **Cheerio Scraper** ([apify/cheerio-scaper](https://apify.com/apify/cheerio-scraper))
