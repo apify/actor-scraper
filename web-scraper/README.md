@@ -239,7 +239,7 @@ whose properties are listed in the table below.
 Since the function is executed in the context of the web page, it can access the DOM,
 e.g. using the `window` or `document` global variables.
 
-The return value of the page function is an object representing the data extracted from the web page.
+The return value of the page function is an object (or an array of objects) representing the data extracted from the web page.
 The object must be stringify-able to JSON, i.e. it can only properties with basic types and no circular references.
 If you don't want to extract any data from the page and skip it in the results, simply return `null` or `undefined`.
 
@@ -249,7 +249,7 @@ To learn more about `async` functions,
 see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">Mozilla documentation</a>.
 
 
-**Properties of the `context` object:**
+**Properties of the `context` object**
 
 All of the functions are `async` so make sure to use `await` with their invocations.
 
@@ -390,29 +390,31 @@ All of the functions are `async` so make sure to use `await` with their invocati
 
 ## Results
 
-Output is a dataset containing extracted data for each scraped page. To save data into
-the dataset, return an `Object` or an `Object[]` from the `pageFunction`.
+The scraping results returned by [**Page function**](#page-function)
+are stored and in the default dataset associated with the actor run,
+from where you can export them to formats such as JSON, XML, CSV or Excel.
+For each object returned from the page function,
+Web Scraper pushes one record into the dataset,
+and extends it with metadata with some information about the web page where the results come from.
 
-For each of the scraped URLs, the dataset contains an object with results and some metadata.
-If you were scraping the HTML `<title>` of [Apify](https://apify.com/) and returning
-the following object from the `pageFunction`
+For example, if your Page function returned the following object:
 
 ```js
-return {
-  title: "Web Scraping, Data Extraction and Automation - Apify"
+{
+  message: "Hello world!"
 }
 ```
 
-it would look like this:
+The full object stored in the dataset will look as follows (in JSON format, including the metadata fields `#error` and `#debug`):
 
 ```json
 {
-  "title": "Web Scraping, Data Extraction and Automation - Apify",
+  "message": "Hello world!",
   "#error": false,
   "#debug": {
     "requestId": "fvwscO2UJLdr10B",
-    "url": "https://apify.com",
-    "loadedUrl": "https://apify.com/",
+    "url": "https://www.example.com/",
+    "loadedUrl": "https://www.example.com/",
     "method": "GET",
     "retryCount": 0,
     "errorMessages": null,
@@ -421,16 +423,25 @@ it would look like this:
 }
 ```
 
-You can remove the metadata (and results containing only metadata) from the results
-by selecting the **Clean items** option when downloading the dataset.
+To download the results, call the
+[Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
+API endpoint:
 
-The result will look like this:
-
-```json
-{
-  "title": "Web Scraping, Data Extraction and Automation - Apify"
-}
 ```
+https://api.apify.com/v2/datasets/[DATASET_ID]/items?format=json
+```
+
+where `[DATASET_ID]` is the ID of actor's run dataset,
+which you can find the Run object returned when starting the actor.
+Alternatively, you'll find the download links for the results in the Apify app.
+
+To skip the `#error` and `#debug` metadata fields from the results and otherwise empty result records,
+simply add the `clean=true` query parameter to the API URL,
+or select the  **Clean items** option when downloading the dataset in the user interface.
+
+To get the results in other formats, set `format` query parameter to `xml`, `xlsx`, `csv`, `html`, etc.
+For full details, see the [Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
+endpoint in Apify API reference.
 
 
 ## Additional resources
@@ -446,6 +457,8 @@ Congratulations! You've learned how Web Scraper works. You might also want to ch
 - [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
   An actor similar to Web Scraper, which provides a lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
+- [Actors documentation](https://apify.com/docs/actor) -
+  A documentation of the Apify Actors cloud computing platform.
 - [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most 
   popular web crawling and scraping library for Node.js.
 
