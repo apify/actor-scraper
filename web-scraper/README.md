@@ -9,8 +9,9 @@ such as JSON, XML, or CSV.
 
 If you're not familiar with web scraping or front-end web development,
 you might prefer to first
-read the [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
+read the general [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
 in Apify documentation,
+and then continue with the [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper) tutorial,
 which will walk you through all the steps and provide examples.
 
 ## Table of content
@@ -26,7 +27,7 @@ which will walk you through all the steps and provide examples.
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
 - [Results](#results)
-- [Next steps](#next-steps)
+- [Additional resources](#additional-resources)
 
 <!-- tocstop -->
 
@@ -432,13 +433,20 @@ The result will look like this:
 ```
 
 
-## Next steps
+## Additional resources
 
-Congratulations! You've learned how Web Scraper works. You might also want to read about:
+Congratulations! You've learned how Web Scraper works. You might also want to check these resources:
 
-- [Web scraping tutorial](https://apify.com/docs/scraping)
-- **Cheerio Scraper** ([apify/cheerio-scaper](https://apify.com/apify/cheerio-scraper))
-- **Puppeteer Scraper** ([apify/puppeteer-scaper](https://apify.com/apify/puppeteer-scraper))
-- [Apify SDK](https://sdk.apify.com)
+- [Web scraping tutorial](https://apify.com/docs/scraping) -
+  An introduction to web scraping with Apify.
+- [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
+  A step-by-step tutorial how to use Web Scraper, with a detailed explanation and examples.
+- [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`) -
+  A web scraping actor that downloads and processes pages in a raw HTML for a much higher performance. 
+- [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
+  An actor similar to Web Scraper, which provides a lower-level control of the underlying
+  [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
+- [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most 
+  popular web crawling and scraping library for Node.js.
 
 
