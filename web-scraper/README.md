@@ -257,9 +257,6 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   Since the input UI is fixed, it does not support adding of other fields that may be needed for all
   specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
   and its contents will be available under the <code>customData</code> context key.
-  ```ecmascript 6
-  wewefwef
-  ```
   
 - **`enqueueRequest(request, [options]): AsyncFunction`**
   
@@ -283,57 +280,101 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`env: Object`**
 
-  A map of all relevant values coming from `APIFY_` environment variables passed
-  by Apify platform to the actor run. You can use it e.g. to get actor run ID, check its timeout etc.
-  See the
+  A map of all relevant values passed down from the Apify platform via the `APIFY_` environment variables.
+  For example, you can find here information such as actor run ID, timeouts, allocted memory etc.
+  For the full list of available values, see
   <a href="https://sdk.apify.com/docs/api/apify#module_Apify.getEnv" target="_blank"><code>Apify.getEnv()</code></a>
-  function for a preview of the structure and full documentation.
+  function in Apify SDK.
+  
+  Example:
+  ```ecmascript 6
+  console.log(`Actor run ID: ${context.env.actorRunId}`);
+  ```
  
 - **`getValue(key): AsyncFunction`**
 
-  A map of all the relevant environment variables that you may want to use. See the
-  <a href="https://sdk.apify.com/docs/api/apify#apifygetenv-code-object-code" target="_blank"><code>Apify.getEnv()</code></a>
-  function for a preview of the structure and full documentation.
+  Gets a value from the default key-value store associated with the actor run.
+  The key-value store is useful for persisting various data, such as state objects, files etc.
+  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object" target="_blank"><code>Apify.getValue()</code></a>
+  function in Apify SDK.
+  
+  Example:
+  ```ecmascript 6
+  const value = await context.getValue('my-key');
+  console.dir(value);
+  ```
   
 - **`globalStore: Object`**
  
-  // Represents an in memory store that can be used to share data across pageFunction invocations.
-  `globalStore` represents an instance of a very simple in memory store that is not scoped to the individual
-  `pageFunction` invocation. This enables you to easily share global data such as API responses, tokens and other.
-  Since the stored data need to cross from the Browser to the Node.js process, it cannot be any kind of data,
-  but only JSON stringifiable objects. You cannot store DOM objects, functions, circular objects and so on.
-  `globalStore` supports the full
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" target="_blank">
-  <code>Map</code> API
-  </a>, with the following limitations:
-     - All methods of `globalStore` are `async`. Use `await`.
-     - Only `string` keys can be used and the values need to be JSON stringifiable.
-     - `map.forEach()` is not supported.
+  Represents an in-memory store that can be used to share data across Page function invocations,
+  such as state variables, API responses or other data.
+  The `globalStore` has equivalent interface as JavaScript's 
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" target="_blank"><code>Map</code></a> object,
+  with a few important differences: 
+  - All functions of `globalStore` are `async`. Use `await` when calling them.
+  - Keys must be strings, and values need to be JSON stringify-able.
+  - `forEach()` function is not supported.
+  
+  Note that the stored data is not persisted; if the actor run is restarted or migrated to another server,
+  the content of `globalStore` is reset. Therefore, never depened on a specific value to be present
+  in the store.
+  
+  Example:
+  ```ecmascript 6
+  let movies = await context.globalStore.get('cached-movies');
+  if (!movies) {
+    movies = await fetch('http://example.com/movies.json');
+    await context.globalStore.set('cached-movies', movies);
+  }
+  console.dir(movies);
+  ```
 
 - **`input: Object`**
 
-  // Unaltered original input as parsed from the UI
-  Input as it was received from the UI. Each <code>pageFunction</code> invocation gets a fresh
-  copy and you can not modify the input by changing the values in this object.
+  An object containing the actor run input, i.e. the Web Scraper's configuration.
+  Each page function invocation gets a fresh
+  copy of this object, so changing `input` values has no effect.
   
 - **`jQuery: Function`**
 
-  // A reference to the jQuery $ function (if Inject JQuery was used).
-  To make the DOM manipulation within the page easier, you may choose the Inject jQuery
-  option in the UI and all the crawled pages will have an instance of the
-  <a href="https://api.jquery.com/" target="_blank"><code>jQuery</code></a> library
-  available. However, since we do not want to modify the page in any way, we don't inject it
-  into the global <code>$</code> object as you may be used to, but instead we make it available
-  in <code>context</code>. Feel free to <code>const $ = context.jQuery</code> to get the familiar notation.
+  A reference to the <a href="https://api.jquery.com/" target="_blank"><code>jQuery</code></a> function,
+  which is extremely useful for DOM traversing, manipulation, querying and data extraction.
+  This field is only available if the **Inject jQuery** option is enabled.
+  
+  Typically, the jQuery object is registered under a global variable called <code>$</code>.
+  However, the web page might use this global variable for something else.
+  To avoid conflicts, the jQuery object is not registered globally
+  and is only available through the `context` object.
+  
+  Example:
+  ```ecmascript 6
+  const $ = context.jQuery;
+  const pageTitle = $('title').text();
+  ```
   
 - **`log: Object`**
 
-  // Reference to Apify.utils.log
-  `log` is a reference to
-  <a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>.
-  You can use any of the logging methods such as <code>log.info</code> or <code>log.exception</code>.
-  <code>log.debug</code> is special, because you can trigger visibility of those messages in the
-  scraper's Log by the provided **Debug log** input option.
+  An object containing logging functions,
+  with the same interface as provided by the 
+  <a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>
+  object in Apify SDK.
+  The log messages are written directly to the actor run's log, which is useful for monitoring and debugging.
+  Note that <code>log.debug()</code> only prints messages to log
+  if the **Enable debug log** input configuration option is set.
+  
+  Example:
+  ```ecmascript 6
+  const log = context.log;
+  log.debug('Debug message', { hello: 'world!' });
+  log.info('Information message', { someData: 123 });
+  log.warning('Warning message');
+  log.error('Error message', { details: 'This is bad!' });
+  try {
+    throw new Error('Not good!');
+  } catch (e) {
+    log.exception(e, 'Exception occurred', { details: 'This is really bad!' });
+  }
+  ```
   
 - **`request: Object`**
   
