@@ -2,17 +2,17 @@
 
 Web Scraper is a generic easy-to-use actor for crawling arbitrary web pages
 and extracting structured data from them using a few lines of JavaScript code.
-It loads web pages in the Chrome browser and renders dynamic content.
+The actor loads web pages in the Chrome browser and renders dynamic content.
 Web Scraper can either be configured and run manually in a user interface, or programmatically using API.
 The extracted data is stored in a dataset, from where it can exported to various formats,
 such as JSON, XML, or CSV.
 
-If you're not familiar with web scraping or front-end web development,
-you might prefer to first
-read the general [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
+If you're not familiar with web scraping or front-end web development in general,
+you might prefer to start
+with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
 in Apify documentation,
-and then continue with the [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper) tutorial,
-which will walk you through all the steps and provide examples.
+and then continue with [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper),
+a tutorial which will walk you through all the steps and provide number of examples.
 
 ## Table of content
 
@@ -39,11 +39,11 @@ it should load, and second, tell it how to extract data from each of the pages.
 
 The scraper starts by loading pages specified in
 the [**Start URLs**](#start-urls) input setting.
-Optionally, you can make it follow page links on the fly
+Optionally, you can make the scraper follow page links on the fly
 by enabling the [**Use request queue**](#use-request-queue) option.
 Then just set <a href="#link-selector"><b>Link selector</b></a>
 and/or <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>
-to tell the scraper which links it should follow.
+to tell the scraper which links it should add to the crawling queue.
 This is useful for recursive crawling of entire websites,
 e.g. to find all products in an online store.
 
@@ -64,18 +64,18 @@ In summary, Web Scraper works as follows:
 3. Execute <a href="#page-function">Page function</a> on the loaded page and save its results.
 4. Optionally, find all links from the page using <a href="#link-selector">Link selector</a>.
    If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a>
-   and has not yet been enqueued, add it to the queue.
+   and has not yet been seen, add it to the queue.
 5. If there are more items in the queue, repeat step 2, otherwise finish.
 
 Web Scraper has a number of other configuration settings
 to improve performance, set cookies for login to websites,
 mask the web browser etc.
-See [Input configuration](#input-configuraton) below
+See [Input configuration](#input-configuration) below
 for the complete list of settings.
 
 ## Limitations
 
-Web Scraper was designed to be generic and easy to use,
+Web Scraper is designed to be generic and easy to use,
 and as such might not be an ideal solution if your primary concern
 is performance or flexibility.
 
@@ -83,41 +83,41 @@ The actor employs a full-featured Chrome web browser,
 which is resource-intensive and might be an overkill
 for websites that do not render the content dynamically
 using client-side JavaScript.
-To achieve better performance for scraping these sites,
+To achieve better performance for scraping such sites,
 you might prefer to use
-**Cheerio Scraper** ([apify/cheerio-scaper](https://apify.com/apify/cheerio-scraper)),
+[**Cheerio Scraper**]((https://apify.com/apify/cheerio-scraper)) (`apify/cheerio-scaper`),
 which downloads and processes raw HTML pages without overheads of
 a full web browser.
 
-Web Scraper's **Page function** is executed in the context
-of the web page, and therefore it only supports a client-side JavaScript code.
+Since Web Scraper's **Page function** is executed in the context
+of the web page, it only supports a client-side JavaScript code.
 If you need to use some server-side libraries or have more control
 of the Chrome browser using the underlying
 [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library,
 you might prefer to use
-**Puppeteer Scraper** ([apify/puppeteer-scaper](https://apify.com/apify/cheerio-scraper)).
-For even more flexibility, you might develop
+[**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`).
+For even more flexibility and control, you might develop
 a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
 ## Input configuration
 
-On input, the Web Scraper actor accepts number of configuration options.
-They can be entered either manually in the user interface,
+On input, the Web Scraper actor accepts a number of configuration settings.
+These can be entered either manually in the user interface in [Apify app](https://my.apify.com),
 or programmatically in a JSON object using the [Apify API](https://apify.com/docs/api/v2#/reference/actors/run-collection/run-actor).
 For a complete list of input fields and their type, please see [Input](https://apify.com/apify/web-scraper?section=input-schema).
 
 ### Start URLs
 
-The **Start URLs** (`startUrls`) field represent the list of URLs
-of the first pages that the scraper will open.
+The **Start URLs** (`startUrls`) field represent the initial list of URLs
+of pages that the scraper will visit.
 You can either enter these URLs manually one by one, upload them in a CSV file or
 [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet)
 document.
 Each URL must start with either a `http://` or `https://` protocol prefix.
 
 Optionally, each URL can be associated with a custom user data - a JSON object that can be referenced from
-your JavaScript code in [**Page function**](#page-function) as <code>context.request.userData</code>.
-This is useful to determine which start URL is currently loaded
+your JavaScript code in [**Page function**](#page-function) under `context.request.userData`.
+This is useful to determine which start URL is currently loaded,
 in order to perform some page-specific actions.
 For example, when crawling an online store, you might want to perform different
 actions on a page listing the products vs. a product detail page.
@@ -132,15 +132,15 @@ in addition to the static list of [**Start URLs**](#start-urls).
 If the option is enabled, the scraper will support adding new URLs to scrape on the fly, either using the
 [**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options
 or by calling <code>context.enqueueRequest()</code>
-inside [**Page function**](#page-function). Use of the request queue has some overheads, so only enable this option
+inside [**Page function**](#page-function). Usage of the request queue has some overheads, so only enable this option
 if you need to add URLs dynamically.
 
 <!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
 ### Link selector
 
-The **Link selector** (`linkSelector`) field contains a CSS selector used to find links to other web pages,
-i.e. `<a>` elements with `href` attribute.
+The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages,
+i.e. `<a>` elements with the `href` attribute.
 This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled,
 otherwise it is ignored and no links are followed.
 
@@ -156,8 +156,8 @@ a[href]
 ```
 
 If <b>Link selector</b> is empty, the page links are ignored,
-and the scraper only loads pages that specified in [**Start URLs**](#start-urls)
-or that are manually added to the request queue by calling <code>context.enqueueRequest()</code>
+and the scraper only loads pages that were specified in [**Start URLs**](#start-urls)
+or that were manually added to the request queue by calling <code>context.enqueueRequest()</code>
 in [**Page function**](#page-function).
 
 ### Pseudo-URLs
@@ -167,11 +167,11 @@ what kind of URLs found by [**Link selector**](#link-selector) should be added t
 This setting only applies if the [**Use request queue**](#use-request-queue)
 option is enabled.
 
-A pseudo-URL (PURL) is simply a URL with special directives enclosed in `[]` brackets.
+A pseudo-URL is simply a URL with special directives enclosed in `[]` brackets.
 Currently, the only supported directive is `[regexp]`, which defines
 a JavaScript-style regular expression to match against the URL.
 
-For example, a PURL `http://www.example.com/pages/[(\w|-)*]` will match all of the
+For example, a pseudo-URL `http://www.example.com/pages/[(\w|-)*]` will match all of the
 following URLs:
 
 - `http://www.example.com/pages/`
@@ -180,7 +180,7 @@ following URLs:
 
 If either `[` or `]` is part of the normal query string,
 it must be encoded as `[\x5B]` or `[\x5D]`, respectively. For example,
-the following PURL:
+the following pseudo-URL:
 
 ```
 http://www.example.com/search?do[\x5B]load[\x5D]=1
@@ -192,9 +192,9 @@ will match the URL:
 http://www.example.com/search?do[load]=1
 ```
 
-Optionally, each PURL can be associated with a custom user data
+Optionally, each pseudo-URL can be associated with a user data
 that can be referenced from
-your [**Page function**] using `context.customData`
+your [**Page function**](#page-function) using `context.request.userData`
 to determine which kind of page is currently loaded in the browser.
 
 Note that you don't need to use the **Pseudo-URLs** setting at all,
@@ -205,8 +205,8 @@ by calling `context.enqueuePage()` from [**Page function**](#page-function).
 
 The **Page function** (`pageFunction`) field 
 contains a JavaScript function that is executed in the context
-of every page loaded by Web Scraper in the Chrome browser.
-The purpose of the page function is to extract
+of every page loaded in the Chrome browser.
+The purpose of this function is to extract
 data from the web page, manipulate the DOM by clicking elements,
 add new URLs to the request queue
 and otherwise control Web Scraper's operation.
@@ -242,7 +242,7 @@ Since the function is executed in the context of the web page, it can access the
 e.g. using the `window` or `document` global variables.
 
 The return value of the page function is an object (or an array of objects) representing the data extracted from the web page.
-The object must be stringify-able to JSON, i.e. it can only properties with basic types and no circular references.
+The return value must be stringify-able to JSON, i.e. it can only contain basic types and no circular references.
 If you don't want to extract any data from the page and skip it in the clean results, simply return `null` or `undefined`.
 
 The page function supports the JavaScript ES6 syntax and is asynchronous, which means you can use the <code>await</code>
@@ -254,14 +254,14 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
 - **`customData: Object`**
 
-  Contains the object provided in the **Custom data** (`customData`) input configuration option.
-  This is useful for passing various dynamic parameters or settings to your Web Scraper using API.
+  Contains the object provided in the **Custom data** (`customData`) input setting.
+  This is useful for passing dynamic parameters to your Web Scraper using API.
   
 - **`enqueueRequest(request, [options]): AsyncFunction`**
   
   Adds a new URL to the request queue, if it wasn't already there.
-  To use it, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise
-  the function throws an error.
+  To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise
+  an error will be thrown.
   The `request` parameter is an object containing details of the request,
   with properties such as `url`, `userData`, `headers` etc.
   For the full list of the supported properties, see the 
@@ -269,18 +269,20 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   documentation.
   
   The optional `options` parameter is an object with additional options.
-  Currently, it only supports `forefront` boolean flag. It's `true`,
-  the request is added to the beginngin of the queue. By default, it's added to the end.
+  Currently, it only supports the `forefront` boolean flag. If it's `true`,
+  the request is added to the beginning of the queue. By default, requests are added to the end.
   
   Example:
   ```ecmascript 6
   await context.enqueueRequest({ url: 'https://www.example.com' });
+  await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
   
 - **`env: Object`**
 
-  A map of all relevant values passed down from the Apify platform via the `APIFY_` environment variables.
-  For example, you can find here information such as actor run ID, timeouts, allocted memory etc.
+  A map of all relevant values passed down from the Apify platform to the actor run
+  via the `APIFY_` environment variables.
+  For example, you can find here information such as actor run ID, timeouts, actor run memory etc.
   For the full list of available values, see
   <a href="https://sdk.apify.com/docs/api/apify#module_Apify.getEnv" target="_blank"><code>Apify.getEnv()</code></a>
   function in Apify SDK.
