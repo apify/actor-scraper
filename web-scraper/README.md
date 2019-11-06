@@ -243,7 +243,7 @@ e.g. using the `window` or `document` global variables.
 
 The return value of the page function is an object (or an array of objects) representing the data extracted from the web page.
 The object must be stringify-able to JSON, i.e. it can only properties with basic types and no circular references.
-If you don't want to extract any data from the page and skip it in the results, simply return `null` or `undefined`.
+If you don't want to extract any data from the page and skip it in the clean results, simply return `null` or `undefined`.
 
 The page function supports the JavaScript ES6 syntax and is asynchronous, which means you can use the <code>await</code>
 keyword to wait for background operations to finish.
@@ -254,9 +254,8 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
 - **`customData: Object`**
 
-  Since the input UI is fixed, it does not support adding of other fields that may be needed for all
-  specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
-  and its contents will be available under the <code>customData</code> context key.
+  Contains the object provided in the **Custom data** (`customData`) input configuration option.
+  This is useful for passing various dynamic parameters or settings to your Web Scraper using API.
   
 - **`enqueueRequest(request, [options]): AsyncFunction`**
   
@@ -297,6 +296,8 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   The key-value store is useful for persisting various data, such as state objects, files etc.
   The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object" target="_blank"><code>Apify.getValue()</code></a>
   function in Apify SDK.
+  
+  Note that there is also the dual `context.setValue(key, value)` function.
   
   Example:
   ```ecmascript 6
@@ -344,7 +345,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   Typically, the jQuery object is registered under a global variable called <code>$</code>.
   However, the web page might use this global variable for something else.
   To avoid conflicts, the jQuery object is not registered globally
-  and is only available through the `context` object.
+  and is only available through the `context.jQuery` property.
   
   Example:
   ```ecmascript 6
@@ -378,61 +379,110 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`request: Object`**
   
-  // Apify.Request object
-  Apify uses a `request` object to represent metadata about the currently crawled page,
-  such as its URL or the number of retries. See the
-  <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
-  class for a preview of the structure and full documentation.
+  The `Request` object containing information about the currently loaded web page,
+  such as the URL, number of retries, a unique key etc.
+  For the full list of properties, see <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
+  in Apify SDK documentation.
   
 - **`response: Object`**
 
-  // Response object holding the status code and headers.
-  The `response` object is produced by Puppeteer. Currently, we only pass the HTTP status code
-  and the response headers to the `context`.
+  An object containing information about the HTTP response from the web server.
+  Currently, the object only contains the `status` and `headers` properties.
+  For example:
+  
+  ```
+  {
+    // HTTP status code
+    status: 200,
+    
+    // HTTP headers
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'date': 'Wed, 06 Nov 2019 16:01:53 GMT',
+      'cache-control': 'no-cache',
+      'content-encoding': 'gzip',
+    }
+  }
+  ```
   
 - **`saveSnapshot: AsyncFunction`**
     
-  // Saves a screenshot and full HTML of the current page to the key value store.
-  A helper function that enables saving a snapshot of the current page's HTML and its screenshot
-  into the default key value store. Each snapshot overwrites the previous one and the function's
-  invocations will also be throttled if invoked more than once in 2 seconds, to prevent abuse.
-  So make sure you don't call it for every single request. You can find the screenshot under
-  the SNAPSHOT-SCREENSHOT key and the HTML under the SNAPSHOT-HTML key.
+  Saves a screenshot and full HTML of the current page to the key-value store
+  associated with the actor run,
+  under the `SNAPSHOT-SCREENSHOT` and  `SNAPSHOT-HTML` keys, respectively.
+  This feature is useful when debugging your scraper.
+  
+  Note that each snapshot overwrites the previous one and the `saveSnapshot()`
+  calls are throttled to at most one call in 2 seconds,
+  in order to avoid excess usage of resources and slowdown of scraping.
   
 - **`setValue(key, data, options): AsyncFunction`**
-    
-  // Reference to the Apify.setValue() function.
-  To save data to the default key-value store, you can use the <code>setValue</code> function.
-  See the full documentation:
-  <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-code-promise-code" target="_blank">
-      <code>Apify.setValue()</code>
-  </a> function.
+
+  Sets a value to the default key-value store associated with the actor run.
+  The key-value store is useful for persisting various data, such as state objects, files etc.
+  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise" target="_blank"><code>Apify.setValue()</code></a>
+  function in Apify SDK.
+  
+  Note that there is also the dual `context.getValue(key)` function.
+  
+  Example:
+  ```ecmascript 6
+  await context.setValue('my-key', { hello: 'world' });
+  ```
   
 - **`skipLinks(): AsyncFunction`**
 
-  // Prevents enqueueing more links via Pseudo URLs on the current page.
-  With each invocation of the <code>pageFunction</code> the scraper attempts to extract
-  new URLs from the page using the Link selector and PseudoURLs provided in the input UI.
-  If you want to prevent this behavior in certain cases, call the <code>skipLinks</code>
-  function and no URLs will be added to the queue for the given page.
+  Calling this function ensures that page links going from the current page
+  will not be added to the request queue, even if they match [**Link selector**](#link-selector)
+  and/or [**Pseudo-URLs**](#pseudo-urls) settings.
+  This is useful to programmatically stop recursive crawling,
+  e.g. if you know there are no more interesting links on the current page to follow.
 
 - **`underscoreJs: Object`**
 
-  // A reference to the Underscore _ object (if Inject Underscore was used).
-  <a href="https://underscorejs.org/" target="_blank">Underscore</a> is a helper library.
-  You can use it in your `pageFunction` if you use the **Inject Underscore** input option.
+  A reference to the <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> object,
+  which provides various utility functions that you might find useful.
+  This field is only available if the **Inject Underscore.js** option is enabled.
+  
+  Typically, the Underscore.js object is registered under a global variable called <code>_</code>.
+  However, the web page might use this global variable for something else.
+  To avoid conflicts, the Underscore.js object is not registered globally
+  and is only available through the `context.underscoreJs` property.
+  
+  Example:
+  ```ecmascript 6
+  const _ = context.underscoreJs;
+  const text = _.escape('<b>Tango & Cash</b>');
+  ```
         
 - **`waitFor(task, options): AsyncFunction`**
 
-  waitFor(task: number|string|Function, options: Object)
-  // Helps with handling dynamic content by waiting for time, selector or function.
-  The <code>waitFor</code> function enables you to wait
-  for various events in the scraped page. The first argument determines its behavior.
-  If you use a <code>number</code>, such as <code>await waitFor(1000)</code>, it will wait for the provided
-  number of milliseconds. The other option is using a CSS selector <code>string</code>
-  which will make the function wait until the given selector appears in the page. The final option
-  is to use a <code>Function</code>. In that case, it will wait until the provided function returns 
-  <code>true</code>.
+  A helper function that waits either a specific amount of time (in milliseconds), 
+  for an element specified using a CSS selector to appear in the DOM
+  or for a provided function to return `true`.
+  This is useful for extracting data from web pages with a dynamic content,
+  where the content might be available at the time when `pageFunction` is called.
+  
+  The `options` parameter is an object with the following properties and default values:
+  ```ecmascript 6
+  {
+    // Maximum time to wait
+    timeoutMillis: 20000,
+  
+    // How often to check if the condition changes
+    pollingIntervalMillis: 50,
+  }
+  ```
+  
+  Example:
+  ```ecmascript 6
+  // Wait for selector
+  await context.waitFor('.foo');
+  // Wait for 1 second
+  await context.waitFor(1000);
+  // Wait for predicate
+  await context.waitFor(() => !!document.querySelector('.foo'), { timeoutMillis: 5000 });
+  ```
 
 ## Results
 
@@ -447,7 +497,7 @@ For example, if your Page function returned the following object:
 
 ```js
 {
-  message: "Hello world!"
+  message: 'Hello world!'
 }
 ```
 
