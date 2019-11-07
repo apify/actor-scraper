@@ -2,9 +2,9 @@
 
 Web Scraper is a generic easy-to-use actor for crawling arbitrary web pages
 and extracting structured data from them using a few lines of JavaScript code.
-The actor loads web pages in the Chrome browser and renders dynamic content.
-Web Scraper can either be configured and run manually in a user interface, or programmatically using API.
-The extracted data is stored in a dataset, from where it can exported to various formats,
+The actor loads web pages in the Chromium browser and renders dynamic content.
+Web Scraper can either be configured and run manually in a user interface, or programmatically using the API.
+The extracted data is stored in a dataset, from where it can be exported to various formats,
 such as JSON, XML, or CSV.
 
 If you're not familiar with web scraping or front-end web development in general,
@@ -12,7 +12,7 @@ you might prefer to start
 with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
 in Apify documentation,
 and then continue with [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper),
-a tutorial which will walk you through all the steps and provide number of examples.
+a tutorial which will walk you through all the steps and provide a number of examples.
 
 ## Table of content
 
@@ -59,14 +59,14 @@ by enabling the [**Use request queue**](#use-request-queue) option.
 Then just set <a href="#link-selector"><b>Link selector</b></a>
 and/or <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>
 to tell the scraper which links it should add to the crawling queue.
-This is useful for recursive crawling of entire websites,
+This is useful for the recursive crawling of entire websites,
 e.g. to find all products in an online store.
 
 To tell the scraper how to extract data from web pages,
 you need to provide <a href="#page-function"><b>Page function</b></a>.
-It is a JavaScript code that is executed in the context
+This is JavaScript code that is executed in the context
 of every web page loaded.
-Since the scraper uses the full-featured Chrome browser,
+Since the scraper uses the full-featured Chromium browser,
 writing Page function
 is equivalent to developing a front-end code
 and you can use client-side libraries such as
@@ -75,7 +75,7 @@ and you can use client-side libraries such as
 In summary, Web Scraper works as follows:
 
 1. Adds each of <a href="#start-urls">Start URLs</a> to the crawling queue.
-2. Fetches the first URL from the queue and load it in Chrome browser
+2. Fetches the first URL from the queue and load it in Chromium browser
 3. Executes <a href="#page-function">Page function</a> on the loaded page and saves its results.
 4. Optionally, finds all links from the page using <a href="#link-selector">Link selector</a>.
    If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a>
@@ -84,7 +84,7 @@ In summary, Web Scraper works as follows:
 
 Web Scraper has a number of other configuration settings
 to improve performance, set cookies for login to websites,
-mask the web browser etc.
+mask the web browser, etc.
 See [Input configuration](#input-configuration) below
 for the complete list of settings.
 
@@ -94,23 +94,23 @@ Web Scraper is designed to be generic and easy to use,
 and as such might not be an ideal solution if your primary concern
 is performance or flexibility.
 
-The actor employs a full-featured Chrome web browser,
-which is resource-intensive and might be an overkill
+The actor employs a full-featured Chromium web browser,
+which is resource-intensive and might be overkill
 for websites that do not render the content dynamically
 using client-side JavaScript.
 To achieve better performance for scraping such sites,
 you might prefer to use
-[**Cheerio Scraper**](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`),
-which downloads and processes raw HTML pages without overheads of
+[**Cheerio Scraper**](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scraper`),
+which downloads and processes raw HTML pages without the overheads of
 a full web browser.
 
 Since Web Scraper's **Page function** is executed in the context
-of the web page, it only supports a client-side JavaScript code.
+of the web page, it only supports client-side JavaScript code.
 If you need to use some server-side libraries or have more control
-of the Chrome browser using the underlying
+of the Chromium browser using the underlying
 [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library,
 you might prefer to use
-[**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`).
+[**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`).
 For even more flexibility and control, you might develop
 a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
@@ -130,9 +130,9 @@ You can either enter these URLs manually one by one, upload them in a CSV file o
 document.
 Each URL must start with either a `http://` or `https://` protocol prefix.
 
-Optionally, each URL can be associated with a custom user data - a JSON object that can be referenced from
+Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from
 your JavaScript code in [**Page function**](#page-function) under `context.request.userData`.
-This is useful to determine which start URL is currently loaded,
+This is useful for determining which start URL is currently loaded,
 in order to perform some page-specific actions.
 For example, when crawling an online store, you might want to perform different
 actions on a page listing the products vs. a product detail page.
@@ -207,7 +207,7 @@ will match the URL:
 http://www.example.com/search?do[load]=1
 ```
 
-Optionally, each pseudo-URL can be associated with a user data
+Optionally, each pseudo-URL can be associated with user data
 that can be referenced from
 your [**Page function**](#page-function) using `context.request.userData`
 to determine which kind of page is currently loaded in the browser.
@@ -220,7 +220,7 @@ by calling `context.enqueuePage()` from [**Page function**](#page-function).
 
 The **Page function** (`pageFunction`) field 
 contains a JavaScript function that is executed in the context
-of every page loaded in the Chrome browser.
+of every page loaded in the Chromium browser.
 The purpose of this function is to extract
 data from the web page, manipulate the DOM by clicking elements,
 add new URLs to the request queue
@@ -230,7 +230,7 @@ Example:
 
 ```ecmascript 6
 async function pageFunction(context) {
-    // jQuery is handy for finding DOM elements and extracing data from them.
+    // jQuery is handy for finding DOM elements and extracting data from them.
     // To use it, make sure to enable the "Inject jQuery" option.
     const $ = context.jQuery;
     const pageTitle = $('title').text();
@@ -297,7 +297,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
   A map of all relevant values set by the Apify platform to the actor run
   via the `APIFY_` environment variables.
-  For example, you can find here information such as actor run ID, timeouts, actor run memory etc.
+  For example, you can find here information such as actor run ID, timeouts, actor run memory, etc.
   For the full list of available values, see
   <a href="https://sdk.apify.com/docs/api/apify#module_Apify.getEnv" target="_blank"><code>Apify.getEnv()</code></a>
   function in Apify SDK.
@@ -310,7 +310,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 - ##### **`getValue(key): AsyncFunction`**
 
   Gets a value from the default key-value store associated with the actor run.
-  The key-value store is useful for persisting named data records, such as state objects, files etc.
+  The key-value store is useful for persisting named data records, such as state objects, files, etc.
   The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object" target="_blank"><code>Apify.getValue()</code></a>
   function in Apify SDK.
   
@@ -377,7 +377,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   <a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>
   object in Apify SDK.
   The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
-  Note that <code>log.debug()</code> only prints messages to log
+  Note that <code>log.debug()</code> only prints messages to the log
   if the **Enable debug log** input setting is set.
   
   Example:
@@ -397,7 +397,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 - ##### **`request: Object`**
   
   An object containing information about the currently loaded web page,
-  such as the URL, number of retries, a unique key etc.
+  such as the URL, number of retries, a unique key, etc.
   Its properties are equivalent to the <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
   object in Apify SDK.
   
@@ -436,7 +436,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 - ##### **`setValue(key, data, options): AsyncFunction`**
 
   Sets a value to the default key-value store associated with the actor run.
-  The key-value store is useful for persisting named data records, such as state objects, files etc.
+  The key-value store is useful for persisting named data records, such as state objects, files, etc.
   The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise" target="_blank"><code>Apify.setValue()</code></a>
   function in Apify SDK.
     
@@ -504,11 +504,11 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 ## Results
 
 The scraping results returned by [**Page function**](#page-function)
-are stored and in the default dataset associated with the actor run,
+are stored in the default dataset associated with the actor run,
 from where you can export them to formats such as JSON, XML, CSV or Excel.
 For each object returned by [**Page function**](#page-function),
 Web Scraper pushes one record into the dataset,
-and extends it with metadata such the URL of the web page where the results come from.
+and extends it with metadata such as the URL of the web page where the results come from.
 
 For example, if your page function returned the following object:
 
@@ -545,8 +545,8 @@ API endpoint:
 https://api.apify.com/v2/datasets/[DATASET_ID]/items?format=json
 ```
 
-where `[DATASET_ID]` is the ID of actor's run dataset,
-which you can find the Run object returned when starting the actor.
+where `[DATASET_ID]` is the ID of the actor's run dataset,
+in which you can find the Run object returned when starting the actor.
 Alternatively, you'll find the download links for the results in the Apify app.
 
 To skip the `#error` and `#debug` metadata fields from the results
@@ -567,14 +567,14 @@ You might also want to see these other resources:
 - [Web scraping tutorial](https://apify.com/docs/scraping) -
   An introduction to web scraping with Apify.
 - [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
-  A step-by-step tutorial how to use Web Scraper, with a detailed explanation and examples.
+  A step-by-step tutorial on how to use Web Scraper, with a detailed explanation and examples.
 - [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`) -
-  Another web scraping actor that downloads and processes pages in a raw HTML for a much higher performance. 
+  Another web scraping actor that downloads and processes pages in raw HTML for much higher performance. 
 - [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
-  An actor similar to Web Scraper, which provides a lower-level control of the underlying
+  An actor similar to Web Scraper, which provides lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
 - [Actors documentation](https://apify.com/docs/actor) -
-  A documentation of the Apify Actors cloud computing platform.
+  Documentation for the Apify Actors cloud computing platform.
 - [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most 
   popular web crawling and scraping library for Node.js.
 
