@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Web Scraper loads <b>Start URLs</b> in Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow, or manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
+    "description": "Web Scraper loads <b>Start URLs</b> in the Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow, or manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
@@ -24,7 +24,7 @@
         "keepUrlFragments": {
             "title": "URL #fragments identify unique pages",
             "type": "boolean",
-            "description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
+            "description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
             "default": false
         },
         "linkSelector": {
