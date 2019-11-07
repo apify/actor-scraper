@@ -228,7 +228,7 @@ and otherwise control Web Scraper's operation.
 
 Example:
 
-```ecmascript 6
+```javascript
 async function pageFunction(context) {
     // jQuery is handy for finding DOM elements and extracting data from them.
     // To use it, make sure to enable the "Inject jQuery" option.
@@ -288,7 +288,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   the request is added to the beginning of the queue. By default, requests are added to the end.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   await context.enqueueRequest({ url: 'https://www.example.com' });
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
@@ -303,7 +303,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   function in Apify SDK.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   console.log(`Actor run ID: ${context.env.actorRunId}`);
   ```
  
@@ -317,7 +317,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   To set the value, use the dual function `context.setValue(key, value)`.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   const value = await context.getValue('my-key');
   console.dir(value);
   ```
@@ -338,7 +338,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   in the store.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   let movies = await context.globalStore.get('cached-movies');
   if (!movies) {
     movies = await fetch('http://example.com/movies.json');
@@ -365,7 +365,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   and is only available through the `context.jQuery` property.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   const $ = context.jQuery;
   const pageTitle = $('title').text();
   ```
@@ -381,7 +381,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   if the **Enable debug log** input setting is set.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   const log = context.log;
   log.debug('Debug message', { hello: 'world!' });
   log.info('Information message', { all: 'good' });
@@ -443,7 +443,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   To get the value, use the dual function `context.getValue(key)`.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   await context.setValue('my-key', { hello: 'world' });
   ```
   
@@ -467,7 +467,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   and is only available through the `context.underscoreJs` property.
   
   Example:
-  ```ecmascript 6
+  ```javascript
   const _ = context.underscoreJs;
   const text = _.escape('<strong>Tango & Cash</strong>');
   ```
@@ -481,7 +481,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   where the content might be available at the time when page function is called.
   
   The `options` parameter is an object with the following properties and default values:
-  ```ecmascript 6
+  ```javascript
   {
     // Maximum time to wait
     timeoutMillis: 20000,
@@ -492,7 +492,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   ```
   
   Example:
-  ```ecmascript 6
+  ```javascript
   // Wait for selector
   await context.waitFor('.foo');
   // Wait for 1 second
