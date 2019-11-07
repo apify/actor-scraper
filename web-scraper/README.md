@@ -280,7 +280,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`env: Object`**
 
-  A map of all relevant values passed down from the Apify platform to the actor run
+  A map of all relevant values set by the Apify platform to the actor run
   via the `APIFY_` environment variables.
   For example, you can find here information such as actor run ID, timeouts, actor run memory etc.
   For the full list of available values, see
@@ -295,11 +295,11 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 - **`getValue(key): AsyncFunction`**
 
   Gets a value from the default key-value store associated with the actor run.
-  The key-value store is useful for persisting various data, such as state objects, files etc.
+  The key-value store is useful for persisting named data records, such as state objects, files etc.
   The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object" target="_blank"><code>Apify.getValue()</code></a>
   function in Apify SDK.
   
-  Note that there is also the dual `context.setValue(key, value)` function.
+  To set the value, use the dual function `context.setValue(key, value)`.
   
   Example:
   ```ecmascript 6
@@ -309,17 +309,17 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`globalStore: Object`**
  
-  Represents an in-memory store that can be used to share data across Page function invocations,
-  such as state variables, API responses or other data.
-  The `globalStore` has equivalent interface as JavaScript's 
+  Represents an in-memory store that can be used to share data across page function invocations,
+  e.g. state variables, API responses or other data.
+  The `globalStore` object has an equivalent interface as JavaScript's 
   <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" target="_blank"><code>Map</code></a> object,
-  with a few important differences: 
-  - All functions of `globalStore` are `async`. Use `await` when calling them.
-  - Keys must be strings, and values need to be JSON stringify-able.
+  with a few important differences:
+  - All functions of `globalStore` are `async`; use `await` when calling them.
+  - Keys must be strings and values need to be JSON stringify-able.
   - `forEach()` function is not supported.
   
-  Note that the stored data is not persisted; if the actor run is restarted or migrated to another server,
-  the content of `globalStore` is reset. Therefore, never depened on a specific value to be present
+  Note that the stored data is not persisted. If the actor run is restarted or migrated to another worker server,
+  the content of `globalStore` is reset. Therefore, never depend on a specific value to be present
   in the store.
   
   Example:
@@ -336,15 +336,15 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
   An object containing the actor run input, i.e. the Web Scraper's configuration.
   Each page function invocation gets a fresh
-  copy of this object, so changing `input` values has no effect.
+  copy of the `input` object, so changing its properties has no effect.
   
 - **`jQuery: Function`**
 
-  A reference to the <a href="https://api.jquery.com/" target="_blank"><code>jQuery</code></a> function,
+  A reference to the <a href="https://api.jquery.com/" target="_blank"><code>jQuery</code></a> library,
   which is extremely useful for DOM traversing, manipulation, querying and data extraction.
   This field is only available if the **Inject jQuery** option is enabled.
   
-  Typically, the jQuery object is registered under a global variable called <code>$</code>.
+  Typically, the jQuery function is registered under a global variable called <code>$</code>.
   However, the web page might use this global variable for something else.
   To avoid conflicts, the jQuery object is not registered globally
   and is only available through the `context.jQuery` property.
@@ -361,15 +361,15 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   with the same interface as provided by the 
   <a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>
   object in Apify SDK.
-  The log messages are written directly to the actor run's log, which is useful for monitoring and debugging.
+  The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
   Note that <code>log.debug()</code> only prints messages to log
-  if the **Enable debug log** input configuration option is set.
+  if the **Enable debug log** input setting is set.
   
   Example:
   ```ecmascript 6
   const log = context.log;
   log.debug('Debug message', { hello: 'world!' });
-  log.info('Information message', { someData: 123 });
+  log.info('Information message', { all: 'good' });
   log.warning('Warning message');
   log.error('Error message', { details: 'This is bad!' });
   try {
@@ -381,15 +381,15 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`request: Object`**
   
-  The `Request` object containing information about the currently loaded web page,
+  An object containing information about the currently loaded web page,
   such as the URL, number of retries, a unique key etc.
-  For the full list of properties, see <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
-  in Apify SDK documentation.
+  Its properties are equivalent to the <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
+  object in Apify SDK.
   
 - **`response: Object`**
 
   An object containing information about the HTTP response from the web server.
-  Currently, the object only contains the `status` and `headers` properties.
+  Currently, it only contains the `status` and `headers` properties.
   For example:
   
   ```
@@ -407,7 +407,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   }
   ```
   
-- **`saveSnapshot: AsyncFunction`**
+- **`saveSnapshot(): AsyncFunction`**
     
   Saves a screenshot and full HTML of the current page to the key-value store
   associated with the actor run,
@@ -415,17 +415,17 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   This feature is useful when debugging your scraper.
   
   Note that each snapshot overwrites the previous one and the `saveSnapshot()`
-  calls are throttled to at most one call in 2 seconds,
-  in order to avoid excess usage of resources and slowdown of scraping.
+  calls are throttled to at most one call in two seconds,
+  in order to avoid excess consumption of resources and slowdown of the actor.
   
 - **`setValue(key, data, options): AsyncFunction`**
 
   Sets a value to the default key-value store associated with the actor run.
-  The key-value store is useful for persisting various data, such as state objects, files etc.
+  The key-value store is useful for persisting named data records, such as state objects, files etc.
   The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise" target="_blank"><code>Apify.setValue()</code></a>
   function in Apify SDK.
-  
-  Note that there is also the dual `context.getValue(key)` function.
+    
+  To get the value, use the dual function `context.getValue(key)`.
   
   Example:
   ```ecmascript 6
@@ -434,16 +434,16 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   
 - **`skipLinks(): AsyncFunction`**
 
-  Calling this function ensures that page links going from the current page
-  will not be added to the request queue, even if they match [**Link selector**](#link-selector)
+  Calling this function ensures that page links from the current page
+  will not be added to the request queue, even if they match the [**Link selector**](#link-selector)
   and/or [**Pseudo-URLs**](#pseudo-urls) settings.
   This is useful to programmatically stop recursive crawling,
   e.g. if you know there are no more interesting links on the current page to follow.
 
 - **`underscoreJs: Object`**
 
-  A reference to the <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> object,
-  which provides various utility functions that you might find useful.
+  A reference to the <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> library,
+  which provides various useful utility functions.
   This field is only available if the **Inject Underscore.js** option is enabled.
   
   Typically, the Underscore.js object is registered under a global variable called <code>_</code>.
@@ -454,7 +454,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   Example:
   ```ecmascript 6
   const _ = context.underscoreJs;
-  const text = _.escape('<b>Tango & Cash</b>');
+  const text = _.escape('<strong>Tango & Cash</strong>');
   ```
         
 - **`waitFor(task, options): AsyncFunction`**
@@ -463,7 +463,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   for an element specified using a CSS selector to appear in the DOM
   or for a provided function to return `true`.
   This is useful for extracting data from web pages with a dynamic content,
-  where the content might be available at the time when `pageFunction` is called.
+  where the content might be available at the time when page function is called.
   
   The `options` parameter is an object with the following properties and default values:
   ```ecmascript 6
@@ -491,11 +491,11 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 The scraping results returned by [**Page function**](#page-function)
 are stored and in the default dataset associated with the actor run,
 from where you can export them to formats such as JSON, XML, CSV or Excel.
-For each object returned from the page function,
+For each object returned by [**Page function**](#page-function),
 Web Scraper pushes one record into the dataset,
-and extends it with metadata with some information about the web page where the results come from.
+and extends it with metadata such the URL of the web page where the results come from.
 
-For example, if your Page function returned the following object:
+For example, if your page function returned the following object:
 
 ```js
 {
@@ -503,7 +503,8 @@ For example, if your Page function returned the following object:
 }
 ```
 
-The full object stored in the dataset will look as follows (in JSON format, including the metadata fields `#error` and `#debug`):
+The full object stored in the dataset will look as follows
+(in JSON format, including the metadata fields `#error` and `#debug`):
 
 ```json
 {
@@ -533,25 +534,27 @@ where `[DATASET_ID]` is the ID of actor's run dataset,
 which you can find the Run object returned when starting the actor.
 Alternatively, you'll find the download links for the results in the Apify app.
 
-To skip the `#error` and `#debug` metadata fields from the results and otherwise empty result records,
+To skip the `#error` and `#debug` metadata fields from the results
+and not include empty result records,
 simply add the `clean=true` query parameter to the API URL,
-or select the  **Clean items** option when downloading the dataset in the user interface.
+or select the  **Clean items** option when downloading the dataset in the Apify app.
 
-To get the results in other formats, set `format` query parameter to `xml`, `xlsx`, `csv`, `html`, etc.
-For full details, see the [Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
+To get the results in other formats, set the `format` query parameter to `xml`, `xlsx`, `csv`, `html`, etc.
+For more information, see [Datasets](https://apify.com/docs/storage#dataset) in documentation
+or the [Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
 endpoint in Apify API reference.
-
 
 ## Additional resources
 
-Congratulations! You've learned how Web Scraper works. You might also want to check these resources:
+Congratulations! You've learned how Web Scraper works.
+You might also want to see these other resources:
 
 - [Web scraping tutorial](https://apify.com/docs/scraping) -
   An introduction to web scraping with Apify.
 - [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
   A step-by-step tutorial how to use Web Scraper, with a detailed explanation and examples.
 - [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`) -
-  A web scraping actor that downloads and processes pages in a raw HTML for a much higher performance. 
+  Another web scraping actor that downloads and processes pages in a raw HTML for a much higher performance. 
 - [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
   An actor similar to Web Scraper, which provides a lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
