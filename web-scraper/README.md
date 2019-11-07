@@ -26,6 +26,21 @@ a tutorial which will walk you through all the steps and provide number of examp
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
+      - [**`customData: Object`**](#customdata-object)
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      - [**`env: Object`**](#env-object)
+      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`globalStore: Object`**](#globalstore-object)
+      - [**`input: Object`**](#input-object)
+      - [**`jQuery: Function`**](#jquery-function)
+      - [**`log: Object`**](#log-object)
+      - [**`request: Object`**](#request-object)
+      - [**`response: Object`**](#response-object)
+      - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
+      - [**`underscoreJs: Object`**](#underscorejs-object)
+      - [**`waitFor(task, options): AsyncFunction`**](#waitfortask-options-asyncfunction)
 - [Results](#results)
 - [Additional resources](#additional-resources)
 
@@ -59,13 +74,13 @@ and you can use client-side libraries such as
 
 In summary, Web Scraper works as follows:
 
-1. Add each of <a href="#start-urls">Start URLs</a> to the crawling queue.
-2. Fetch the first URL from the queue and load it in Chrome browser
-3. Execute <a href="#page-function">Page function</a> on the loaded page and save its results.
-4. Optionally, find all links from the page using <a href="#link-selector">Link selector</a>.
+1. Adds each of <a href="#start-urls">Start URLs</a> to the crawling queue.
+2. Fetches the first URL from the queue and load it in Chrome browser
+3. Executes <a href="#page-function">Page function</a> on the loaded page and saves its results.
+4. Optionally, finds all links from the page using <a href="#link-selector">Link selector</a>.
    If a link matches any of the <a href="#pseudo-urls">Pseudo-URLs</a>
-   and has not yet been seen, add it to the queue.
-5. If there are more items in the queue, repeat step 2, otherwise finish.
+   and has not yet been seen, adds it to the queue.
+5. If there are more items in the queue, repeats step 2, otherwise finishes.
 
 Web Scraper has a number of other configuration settings
 to improve performance, set cookies for login to websites,
@@ -85,7 +100,7 @@ for websites that do not render the content dynamically
 using client-side JavaScript.
 To achieve better performance for scraping such sites,
 you might prefer to use
-[**Cheerio Scraper**]((https://apify.com/apify/cheerio-scraper)) (`apify/cheerio-scaper`),
+[**Cheerio Scraper**](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`),
 which downloads and processes raw HTML pages without overheads of
 a full web browser.
 
@@ -250,14 +265,14 @@ keyword to wait for background operations to finish.
 To learn more about `async` functions,
 see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">Mozilla documentation</a>.
 
-#### Properties of the `context` object
+**Properties of the `context` object:**
 
-- **`customData: Object`**
+- ##### **`customData: Object`**
 
   Contains the object provided in the **Custom data** (`customData`) input setting.
   This is useful for passing dynamic parameters to your Web Scraper using API.
   
-- **`enqueueRequest(request, [options]): AsyncFunction`**
+- ##### **`enqueueRequest(request, [options]): AsyncFunction`**
   
   Adds a new URL to the request queue, if it wasn't already there.
   To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise
@@ -278,7 +293,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
   
-- **`env: Object`**
+- ##### **`env: Object`**
 
   A map of all relevant values set by the Apify platform to the actor run
   via the `APIFY_` environment variables.
@@ -292,7 +307,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   console.log(`Actor run ID: ${context.env.actorRunId}`);
   ```
  
-- **`getValue(key): AsyncFunction`**
+- ##### **`getValue(key): AsyncFunction`**
 
   Gets a value from the default key-value store associated with the actor run.
   The key-value store is useful for persisting named data records, such as state objects, files etc.
@@ -307,7 +322,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   console.dir(value);
   ```
   
-- **`globalStore: Object`**
+- ##### **`globalStore: Object`**
  
   Represents an in-memory store that can be used to share data across page function invocations,
   e.g. state variables, API responses or other data.
@@ -332,13 +347,13 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   console.dir(movies);
   ```
 
-- **`input: Object`**
+- ##### **`input: Object`**
 
   An object containing the actor run input, i.e. the Web Scraper's configuration.
   Each page function invocation gets a fresh
   copy of the `input` object, so changing its properties has no effect.
   
-- **`jQuery: Function`**
+- ##### **`jQuery: Function`**
 
   A reference to the <a href="https://api.jquery.com/" target="_blank"><code>jQuery</code></a> library,
   which is extremely useful for DOM traversing, manipulation, querying and data extraction.
@@ -355,7 +370,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   const pageTitle = $('title').text();
   ```
   
-- **`log: Object`**
+- ##### **`log: Object`**
 
   An object containing logging functions,
   with the same interface as provided by the 
@@ -379,14 +394,14 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   }
   ```
   
-- **`request: Object`**
+- ##### **`request: Object`**
   
   An object containing information about the currently loaded web page,
   such as the URL, number of retries, a unique key etc.
   Its properties are equivalent to the <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
   object in Apify SDK.
   
-- **`response: Object`**
+- ##### **`response: Object`**
 
   An object containing information about the HTTP response from the web server.
   Currently, it only contains the `status` and `headers` properties.
@@ -407,7 +422,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   }
   ```
   
-- **`saveSnapshot(): AsyncFunction`**
+- ##### **`saveSnapshot(): AsyncFunction`**
     
   Saves a screenshot and full HTML of the current page to the key-value store
   associated with the actor run,
@@ -418,7 +433,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   calls are throttled to at most one call in two seconds,
   in order to avoid excess consumption of resources and slowdown of the actor.
   
-- **`setValue(key, data, options): AsyncFunction`**
+- ##### **`setValue(key, data, options): AsyncFunction`**
 
   Sets a value to the default key-value store associated with the actor run.
   The key-value store is useful for persisting named data records, such as state objects, files etc.
@@ -432,7 +447,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   await context.setValue('my-key', { hello: 'world' });
   ```
   
-- **`skipLinks(): AsyncFunction`**
+- ##### **`skipLinks(): AsyncFunction`**
 
   Calling this function ensures that page links from the current page
   will not be added to the request queue, even if they match the [**Link selector**](#link-selector)
@@ -440,7 +455,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   This is useful to programmatically stop recursive crawling,
   e.g. if you know there are no more interesting links on the current page to follow.
 
-- **`underscoreJs: Object`**
+- ##### **`underscoreJs: Object`**
 
   A reference to the <a href="https://underscorejs.org/" target="_blank">Underscore.js</a> library,
   which provides various useful utility functions.
@@ -457,7 +472,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   const text = _.escape('<strong>Tango & Cash</strong>');
   ```
         
-- **`waitFor(task, options): AsyncFunction`**
+- ##### **`waitFor(task, options): AsyncFunction`**
 
   A helper function that waits either a specific amount of time (in milliseconds), 
   for an element specified using a CSS selector to appear in the DOM
