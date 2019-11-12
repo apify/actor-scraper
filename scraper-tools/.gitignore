@@ -5,3 +5,4 @@ node_modules
 coverage
 apify.json
 src/page_function.js
+package-lock.json
