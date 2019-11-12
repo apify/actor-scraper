@@ -3,7 +3,6 @@ const vm = require('vm');
 const path = require('path');
 const crypto = require('crypto');
 const { promisify } = require('util');
-const _ = require('underscore');
 const Ajv = require('ajv');
 const Apify = require('apify');
 
@@ -26,7 +25,7 @@ const evalFunctionOrThrow = (funcString) => {
         throw new Error(`Compilation of pageFunction failed.\n${err.message}\n${err.stack.substr(err.stack.indexOf('\n'))}`);
     }
 
-    if (!_.isFunction(func)) throw new Error('Input parameter "pageFunction" is not a function!');
+    if (typeof func !== 'function') throw new Error('Input parameter "pageFunction" is not a function!');
 
     return func;
 };
