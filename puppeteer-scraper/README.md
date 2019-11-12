@@ -31,8 +31,8 @@ almost anything. If using the Web Scraper does not cut it, Puppeteer Scraper is 
 so knowledge of Node.js and its paradigms is expected when working with the Puppeteer Scraper.
 
 If you need either a faster, or a simpler tool, see the 
-[Cheerio Scraper](https://www.apify.com/apify/cheerio-scraper) for speed,
-or [Web Scraper](https://www.apify.com/apify/web-scraper) for simplicity.
+[Cheerio Scraper](https://apify.com/apify/cheerio-scraper) for speed,
+or [Web Scraper](https://apify.com/apify/web-scraper) for simplicity.
 
 ## Input
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
