@@ -73,9 +73,9 @@ class CrawlerSetup {
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
-            throw new Error('Cannot enqueue links using Pseudo URLs without using a Request Queue. '
-                + 'Either select the "Use Request Queue" option to enable Request Queue or '
-                + 'remove your Pseudo URLs.');
+            throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
+                + 'Either enable the "Use request queue" option or '
+                + 'remove your Pseudo-URLs.');
         }
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');

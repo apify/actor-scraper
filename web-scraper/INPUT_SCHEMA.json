@@ -1,14 +1,14 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Use the following form to configure Web Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab. We also have a <a href=\"https://apify.com/docs/scraping/tutorial/introduction\" target=\"_blank\">step by step tutorial</a> to help you with the basics.\n\nIf you get stuck and it seems that you can no longer progress with the Web Scraper, try <a href=\"https://apify.com/docs/scraping/tutorial/puppeteer-scraper\" target=\"_blank\">Puppeteer Scraper</a>. It's a more powerful tool.",
+    "description": "Web Scraper loads <b>Start URLs</b> in the Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow, or manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
             "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
-            "description": "URLs to start with",
+            "description": "A static list of URLs to scrape. To be able to add new URLs on the fly, enable the <b>Use request queue</b> option.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a> in README.",
             "prefill": [
                 { "url": "https://apify.com" }
             ],
@@ -17,13 +17,27 @@
         "useRequestQueue": {
             "title": "Use request queue",
             "type": "boolean",
-            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
-            "default": true
+            "description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
+            "default": true,
+            "groupCaption": "Options"
+        },
+        "keepUrlFragments": {
+            "title": "URL #fragments identify unique pages",
+            "type": "boolean",
+            "description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
+            "default": false
+        },
+        "linkSelector": {
+            "title": "Link selector",
+            "type": "string",
+            "description": "A CSS selector saying which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> setting.<br><br>If <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> in README.",
+            "editor": "textfield",
+            "prefill": "a[href]"
         },
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
-            "description": "Pseudo-URLs to match links in the page that you want to enqueue. Combine with Link selector to tell the scraper where to find links. Omitting the Pseudo-URLs will cause the scraper to enqueue all links matched by the Link selector.",
+            "description": "Specifies what kind of URLs found by <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if the <b>Use request queue</b> option is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
             "editor": "pseudoUrls",
             "default": [],
             "prefill": [
@@ -32,45 +46,30 @@
                 }
             ]
         },
-        "linkSelector": {
-            "title": "Link selector",
-            "type": "string",
-            "description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>. Leave empty to ignore all links.",
-            "editor": "textfield",
-            "prefill": "a"
-        },
-        "keepUrlFragments": {
-            "title": "Keep URL fragments",
-            "type": "boolean",
-            "description": "URL fragments (the parts of URL after a <code>#</code>) are not considered when the scraper determines whether a URL has already been visited. This means that when adding URLs such as <code>https://example.com/#foo</code> and <code>https://example.com/#bar</code>, only the first will be visited. Turn this option on to tell the scraper to visit both.",
-            "default": false
-        },
         "pageFunction": {
             "title": "Page function",
             "type": "string",
-            "description": "Function executed for each request",
-            "prefill": "async function pageFunction(context) {\n    // See README for context properties. If the syntax is unfamiliar see the link\n    // https://javascript.info/destructuring-assignment#object-destructuring\n    const { request, log, jQuery } = context;\n\n    // To be able to use jQuery as $, one needs save it into a variable\n    // and select the inject jQuery option. We've selected it for you.\n    const $ = jQuery;\n    const title = $('title').text();\n\n    // This is yet another new feature of Javascript called template strings.\n    // https://javascript.info/string#quotes\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n\n    // To save data just return an object with the requested properties.\n    return {\n        url: request.url,\n        title\n    };\n}",
+            "description": "JavaScript (ES6) function that is executed in the context of every page loaded in the Chrome browser. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+            "prefill": "// The function accepts a single argument: the \"context\" object.\n// For a complete list of its properties and functions,\n// see https://apify.com/apify/web-scraper#page-function \nasync function pageFunction(context) {\n    // jQuery is handy for finding DOM elements and extracting data from them.\n    // To use it, make sure to enable the \"Inject jQuery\" option.\n    const $ = context.jQuery;\n    const pageTitle = $('title').text();\n\n    // Print some information to actor log\n    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);\n\n    // Manually add a new page to the queue for scraping.\n    // To make this work, make sure the \"Use request queue\" option is enabled.\n    context.enqueueRequest({ url: 'http://www.example.com' });\n\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n        url: context.request.url,\n        pageTitle\n    };\n}",
             "editor": "javascript"
         },
         "injectJQuery": {
-            "title": "jQuery",
+            "title": "Inject jQuery",
             "type": "boolean",
-            "description": "The jQuery library will be injected into each page. If the page already uses jQuery, conflicts may arise.",
-            "default": true,
-            "groupCaption": "Inject library",
-            "groupDescription": "Settings that help inject 3rd party libraries into scraper pageFunction."
+            "description": "If enabled, the scraper will inject the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the jQuery object (<code>$</code) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <b>Page function</b>.",
+            "default": true
         },
         "injectUnderscore": {
-            "title": "Underscore",
+            "title": "Inject Underscore.js",
             "type": "boolean",
-            "description": "The Underscore.js library will be injected into each page. If the page already uses Underscore.js (or other libraries that attach to '_', such as Lodash), conflicts may arise.",
+            "description": "If enabled, the scraper will inject the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the Underscore.js object (<code>_</code) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <b>Page function</b>.",
             "default": false
         },
         "proxyConfiguration": {
             "sectionCaption": "Proxy and browser configuration",
             "title": "Proxy configuration",
             "type": "object",
-            "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
+            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
             "prefill": { "useApifyProxy": false },
             "default": {},
             "editor": "proxy"
@@ -78,7 +77,7 @@
         "initialCookies": {
             "title": "Initial cookies",
             "type": "array",
-            "description": "The provided cookies will be pre-set to all pages the scraper opens.",
+            "description": "A JSON array with cookies that will be set to every Chrome browser tab opened before loading the page, in the format accepted by Puppeteer's <a href='https://pptr.dev/#?product=Puppeteer&show=api-pagesetcookiecookies' target='_blank' rel='noopener'><code>Page.setCookie()</code></a> function. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
             "default": [],
             "prefill": [],
             "editor": "json"
@@ -86,129 +85,122 @@
         "useChrome": {
             "title": "Use Chrome",
             "type": "boolean",
-            "description": "The scraper will use a real Chrome browser instead of a Chromium masking as Chrome. Using this option may help with bypassing certain anti-scraping protections, but risks that the scraper will be unstable or not work at all.",
+            "description": "If enabled, the scraper will use a real Chrome browser instead of Chromium bundled with Puppeteer. This option may help bypass certain anti-scraping protections, but might make the scraper unstable. Use at your own risk \uD83D\uDE42",
             "default": false,
-            "groupCaption": "Browser masking",
-            "groupDescription": "Settings that help mask as a real user and prevent scraper detection, but increase the chances of the scraper not working at all with some websites."
+            "groupCaption": "Browser masking"
         },
         "useStealth": {
-            "title": "Use Stealth",
+            "title": "Use stealth mode",
             "type": "boolean",
-            "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
+            "description": "If enabled, the scraper will apply various browser emulation techniques to match a real user's browser as closely as possible, in order to bypass around certain anti-scraping protections. This feature works best in conjunction with the <b>Use Chrome</b> option, but it also carries a risk of making the scraper unstable.",
             "default": false
         },
         "ignoreSslErrors": {
             "title": "Ignore SSL errors",
             "type": "boolean",
-            "description": "Scraper will ignore SSL certificate errors.",
+            "description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
             "default": false,
-            "groupCaption": "Security",
-            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
+            "groupCaption": "Security"
         },
         "ignoreCorsAndCsp": {
             "title": "Ignore CORS and CSP",
             "type": "boolean",
-            "description": "Scraper will ignore CSP (content security policy) and CORS (cross origin resource sharing) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from the scraper.",
+            "description": "If enabled, the scraper will ignore Content Security Policy (CSP) and Cross-Origin Resource Sharing (CORS) settings of visited pages and requested domains. This enables you to freely use XHR/Fetch to make HTTP requests from <b>Page function</b>.",
             "default": false
         },
         "downloadMedia": {
             "sectionCaption": "Performance and limits",
-            "title": "Download media",
+            "title": "Download media files",
             "type": "boolean",
-            "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
+            "description": "If enabled, the scraper will download media such as images, fonts, videos and sound files, as usual. Disabling this option might speed up the scrape, but certain websites could stop working correctly.",
             "default": true,
-            "groupCaption": "Resources",
-            "groupDescription": "Settings that help to disable downloading web page resources."
+            "groupCaption": "Page resources"
         },
         "downloadCss": {
-            "title": "Download CSS",
+            "title": "Download CSS files",
             "type": "boolean",
-            "description": "Scraper will download CSS stylesheets. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
+            "description": "If enabled, the scraper will download CSS files with stylesheets, as usual. Disabling this option may speed up the scrape, but certain websites could stop working correctly, and the live view will not look as cool.",
             "default": true
         },
         "maxRequestRetries": {
-            "title": "Max request retries",
+            "title": "Max page retries",
             "type": "integer",
-            "description": "Maximum number of times the request for the page will be retried in case of an error. Setting it to 0 means that the request will be attempted once and will not be retried if it fails.",
+            "description": "The maximum number of times the scraper will retry to load each web page on error, in case of a page load error or an exception thrown by <b>Page function</b>.<br><br>If set to <code>0</code>, the page will be considered failed right after the first error.",
             "minimum": 0,
-            "default": 3,
-            "unit": "retries"
+            "default": 3
         },
         "maxPagesPerCrawl": {
             "title": "Max pages per run",
             "type": "integer",
-            "description": "Maximum number of pages that the scraper will open. 0 means unlimited.",
+            "description": "The maximum number of pages that the scraper will load. The scraper will stop when this limit is reached. It's always a good idea to set this limit in order to prevent excess platform usage for misconfigured scrapers. Note that the actual number of pages loaded might be slightly higher than this value.<br><br>If set to <code>0</code>, there is no limit.",
             "minimum": 0,
-            "default": 0,
-            "unit": "pages"
+            "default": 0
         },
         "maxResultsPerCrawl": {
             "title": "Max result records",
             "type": "integer",
-            "description": "Maximum number of results that will be saved to dataset. The scraper will terminate afterwards. 0 means unlimited.",
+            "description": "The maximum number of records that will be saved to the resulting dataset. The scraper will stop when this limit is reached. <br><br>If set to <code>0</code>, there is no limit.",
             "minimum": 0,
-            "default": 0,
-            "unit": "results"
+            "default": 0
         },
         "maxCrawlingDepth": {
             "title": "Max crawling depth",
             "type": "integer",
-            "description": "Defines how many links away from the StartURLs will the scraper descend. 0 means unlimited.",
+            "description": "Specifies how many links away from <b>Start URLs</b> the scraper will descend. This value is a safeguard against infinite crawling depths for misconfigured scrapers. Note that pages added using <code>context.enqueuePage()</code> in <b>Page function</b> are not subject to the maximum depth constraint. <br><br>If set to <code>0</code>, there is no limit.",
             "minimum": 0,
             "default": 0
         },
         "maxConcurrency": {
             "title": "Max concurrency",
             "type": "integer",
-            "description": "Defines how many pages can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. Use this option to set a hard limit.",
+            "description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target website.",
             "minimum": 1,
             "default": 50
         },
         "pageLoadTimeoutSecs": {
             "title": "Page load timeout",
             "type": "integer",
-            "description": "Maximum time the scraper will allow a web page to load in seconds.",
+            "description": "The maximum amount of time the scraper will wait for a web page to load, in seconds. If the web page does not load in this timeframe, it is considered to have failed and will be retried (subject to <b>Max page retries</b>), similarly as with other page load errors.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
-            "unit": "secs"
+            "unit": "seconds"
         },
         "pageFunctionTimeoutSecs": {
             "title": "Page function timeout",
             "type": "integer",
-            "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
+            "description": "The maximum amount of time the scraper will wait for <b>Page function</b> to execute, in seconds. It's a good idea to set this limit, to ensure that unexpected behavior in page function will not get the scraper stuck.",
             "minimum": 1,
             "default": 60,
             "maximum": 360,
-            "unit": "secs"
+            "unit": "seconds"
         },
         "waitUntil": {
-            "title": "Navigation wait until",
+            "title": "Navigation waits until",
             "type": "array",
-            "description": "The scraper will wait until the selected events are triggered in the page before executing the page function. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>. <a href=\"https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options\" target=\"_blank\">See Puppeteer docs</a>.",
+            "description": "Contains a JSON array with names of page events to wait, before considering a web page fully loaded. The scraper will wait until <b>all</b> of the events are triggered in the web page before executing <b>Page function</b>. Available events are <code>domcontentloaded</code>, <code>load</code>, <code>networkidle2</code> and <code>networkidle0</code>.<br><br>For details, see <a href='https://pptr.dev/#?product=Puppeteer&show=api-pagegotourl-options' target='_blank' rel='noopener'><code>waitUntil</code> option</a> in Puppeteer's <code>Page.goto()</code> function documentation.",
             "default": ["networkidle2"],
             "prefill": ["networkidle2"],
             "editor": "json"
         },
         "debugLog": {
             "sectionCaption": "Advanced configuration",
-            "title": "Debug log",
+            "title": "Enable debug log",
             "type": "boolean",
-            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
+            "description": "If enabled, the actor log will include debug messages. Beware that this can be quite verbose. Use <code>context.log.debug('message')</code> to log your own debug messages from <b>Page function</b>.",
             "default": false,
-            "groupCaption": "Enable logs",
-            "groupDescription": "Logs settings"
+            "groupCaption": "Logging"
         },
         "browserLog": {
-            "title": "Browser log",
+            "title": "Enable browser log",
             "type": "boolean",
-            "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
+            "description": "If enabled, the actor log will include console messages produced by JavaScript executed by the web pages (e.g. using <code>console.log()</code>). Beware that this may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
             "default": false
         },
         "customData": {
             "title": "Custom data",
             "type": "object",
-            "description": "This object will be available on pageFunction's context as customData.",
+            "description": "A custom JSON object that is passed to <b>Page function</b> as <code>context.customData</code>. This setting is useful when invoking the scraper via API, in order to pass some arbitrary parameters to your code.",
             "default": {},
             "prefill": {},
             "editor": "json"
