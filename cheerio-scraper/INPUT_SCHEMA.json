@@ -61,14 +61,14 @@
             "editor": "proxy"
         },
         "prepareRequestFunction": {
+            "sectionCaption": "Advanced configuration",
             "title": "Prepare request function",
             "type": "string",
-            "description": "This function is executed before making a request to a given URL. It can be useful to do pre-processing, updating of headers or just setting cookies.",
+            "description": "This function is executed before making a request to a given URL. It can be useful to do pre-processing, updating of headers or just setting cookies. IMPORTANT: The return value of this function is irrelevant, you should modify the request instance in place.",
             "prefill": "async function preGotoFunction({ request, Apify }) {\n    /* add your logic here, if needed */\n}",
             "editor": "javascript"
         },
         "maxRequestRetries": {
-            "sectionCaption": "Advanced configuration",
             "title": "Max request retries",
             "type": "integer",
             "description": "Maximum number of times the request for the page will be retried in case of an error. Setting it to 0 means that the request will be attempted once and will not be retried if it fails.",

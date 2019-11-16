@@ -176,7 +176,7 @@ class CrawlerSetup {
 
         if (this.evaledPrepareRequestFunction) {
             try {
-                return this.evaledPrepareRequestFunction({ request, Apify });
+                await this.evaledPrepareRequestFunction({ request, Apify });
             } catch (err) {
                 log.error('User provided Prepare request function failed.');
                 throw err;
