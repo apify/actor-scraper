@@ -60,6 +60,13 @@
             "default": {},
             "editor": "proxy"
         },
+        "prepareRequestFunction": {
+            "title": "Prepare request function",
+            "type": "string",
+            "description": "This function is executed before making a request to a given URL. It can be useful to do pre-processing, updating of headers or just setting cookies.",
+            "prefill": "async function preGotoFunction({ request, Apify }) {\n    /* add your logic here, if needed */\n}",
+            "editor": "javascript"
+        },
         "maxRequestRetries": {
             "sectionCaption": "Advanced configuration",
             "title": "Max request retries",

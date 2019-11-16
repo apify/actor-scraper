@@ -23,6 +23,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
+ * @property {string} prepareRequestFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
  * @property {boolean} ignoreSslErrors
@@ -79,6 +80,9 @@ class CrawlerSetup {
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
+        if (this.input.prepareRequestFunction) {
+            this.evaledPrepareRequestFunction = tools.evalFunctionOrThrow(this.input.prepareRequestFunction);
+        }
 
         // Used to store data that persist navigations
         this.globalStore = new Map();
@@ -151,7 +155,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    _prepareRequestFunction({ request }) {
+    async _prepareRequestFunction({ request }) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)
@@ -168,6 +172,15 @@ class CrawlerSetup {
             Object.assign(request.headers, {
                 cookie: cookieHeaderValue,
             });
+        }
+
+        if (this.evaledPrepareRequestFunction) {
+            try {
+                return this.evaledPrepareRequestFunction({ request, Apify });
+            } catch (err) {
+                log.error('User provided Prepare request function failed.');
+                throw err;
+            }
         }
         return request;
     }
