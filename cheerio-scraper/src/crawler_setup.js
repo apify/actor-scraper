@@ -1,5 +1,6 @@
 const Apify = require('apify');
 const _ = require('underscore');
+const { CookieJar, Cookie } = require('tough-cookie');
 const {
     tools,
     createContext,
@@ -36,6 +37,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
  * @property {Array} initialCookies
+ * @property {boolean} useCookieJar
  */
 
 /**
@@ -74,9 +76,11 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
-        this.input.initialCookies.forEach((cookie) => {
+        this.initialCookies = this.input.initialCookies.map((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
+            return ({ key, name, value }) => `${key || name}=${value}`;
         });
+        if (this.input.useCookieJar) this.cookieJar = new CookieJar();
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -146,9 +150,13 @@ class CrawlerSetup {
                 },
             },
             requestOptions: {
-                jar: this.input.useCookieJar,
+                headers: {},
             },
         };
+
+        if (this.cookieJar) {
+            options.requestOptions.cookieJar = this.cookieJar;
+        }
 
         this.crawler = new Apify.CheerioCrawler(options);
 
@@ -165,14 +173,13 @@ class CrawlerSetup {
             }, {});
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) {
-            const cookieHeaderValue = this.input.initialCookies
-                .map(({ name, value }) => `${name}=${value}`)
-                .join('; ');
-            Object.assign(request.headers, {
-                cookie: cookieHeaderValue,
-            });
-        }
+        this.initialCookies.forEach((cookieString) => {
+            if (this.cookieJar) {
+                this.cookieJar.setCookieSync(cookieString, request.url);
+            } else {
+                request.headers.cookie = `${request.headers.cookie}; ${cookieString}`;
+            }
+        });
 
         if (this.evaledPrepareRequestFunction) {
             try {
