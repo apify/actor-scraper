@@ -78,7 +78,7 @@ class CrawlerSetup {
         });
         this.initialCookies = this.input.initialCookies.map((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
-            return ({ key, name, value }) => `${key || name}=${value}`;
+            return `${cookie.key || cookie.name}=${cookie.value}`;
         });
         if (this.input.useCookieJar) this.cookieJar = new CookieJar();
 
