@@ -177,7 +177,8 @@ class CrawlerSetup {
             if (this.cookieJar) {
                 this.cookieJar.setCookieSync(cookieString, request.url);
             } else {
-                request.headers.cookie = `${request.headers.cookie}; ${cookieString}`;
+                const existingCookies = request.headers.cookie ? `${request.headers.cookie}; ` : '';
+                request.headers.cookie = `${existingCookies}${cookieString}`;
             }
         });
 
