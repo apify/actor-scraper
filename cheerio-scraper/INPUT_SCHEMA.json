@@ -48,7 +48,7 @@
         "pageFunction": {
             "title": "Page function",
             "type": "string",
-            "description": "Function executed for each request",
+            "description": "This async function is executed for each request. It's sole argument is a context object. See the README for available properties.",
             "prefill": "async function pageFunction(context) {\n    const { $, request, log } = context;\n    const title = $('title').text();\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
             "editor": "javascript"
         },
@@ -64,7 +64,7 @@
             "sectionCaption": "Advanced configuration",
             "title": "Prepare request function",
             "type": "string",
-            "description": "This function is executed before making a request to a given URL. It can be useful to do pre-processing, updating of headers or just setting cookies. IMPORTANT: The return value of this function is irrelevant, you should modify the request instance in place.",
+            "description": "This async function is executed before making a request to a given URL. It's sole argument is an object with two properties: <code>{ request, Apify }</code>. It can be useful to do pre-processing, updating of headers or just setting cookies. IMPORTANT: The return value of this function is irrelevant, you should modify the request instance in place.",
             "prefill": "async function preGotoFunction({ request, Apify }) {\n    /* add your logic here, if needed */\n}",
             "editor": "javascript"
         },
