@@ -1,6 +1,7 @@
+const { URL } = require('url');
 const Apify = require('apify');
 const _ = require('underscore');
-const { CookieJar, Cookie } = require('tough-cookie');
+const { CookieJar } = require('tough-cookie');
 const {
     tools,
     createContext,
@@ -175,7 +176,8 @@ class CrawlerSetup {
         // Add initial cookies, if any.
         this.initialCookies.forEach((cookieString) => {
             if (this.cookieJar) {
-                this.cookieJar.setCookieSync(cookieString, request.url);
+                const { origin } = new URL(request.url);
+                this.cookieJar.setCookieSync(cookieString, origin);
             } else {
                 const existingCookies = request.headers.cookie ? `${request.headers.cookie}; ` : '';
                 request.headers.cookie = `${existingCookies}${cookieString}`;
