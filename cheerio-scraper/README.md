@@ -58,6 +58,7 @@ const context = {
     log, // Reference to Apify.utils.log
     Apify, // Reference to the full power of Apify SDK.
     contentType, // Parsed Content-Type header
+    cheerio, // The cheerio module itself.
     
     // EXPOSED FUNCTIONS
     $, // Reference to Cheerio.
@@ -97,19 +98,22 @@ The following tables describe the `context` object in more detail.
     </td></tr>
     <tr><td><code>body</code></td><td><code>string|Buffer</code></td></tr>
     <tr><td colspan="2">
-        This is the body from the target website. If the website is in HTML or XML format, it will be string contains HTML or XML content.
+        This is the body from the target website. If the website is in HTML or XML format, it will be a string that contains HTML or XML content.
         It will be buffer in other cases. If you need to process body as a string, you can use contentType object to set up right encoding to the string.<br>
-        <code>const stringBody = context.body.toString(context.contentType.charset)</code>
+        <code>const stringBody = context.body.toString(context.contentType.encoding)</code>
     </td></tr>
     <tr><td><code>json</code></td><td><code>Object</code></td></tr>
     <tr><td colspan="2">
         The parsed object from JSON string if the response contains the content type <code>application/json</code>
     </td></tr>
-    <tr><td><code>contentType</code></td><td><code>Object</code></td></tr>
+    <tr><td><code>contentType</code></td><td><code>{ type: string, encoding: string }</code></td></tr>
     <tr><td colspan="2">
-        It contains object parsed from <code>Content-Type</code> header. It is parsed using content-type package. You can get mine type same as charset from it.<br>
-        <code>const mimeType = contentType.type</code><br>
-        For more details, you can check <a href="https://www.npmjs.com/package/content-type" target="_blank"><code>content-type package</code></a>.
+        The <code>Content-Type</code> header parsed into an object with 2 properties, `type` and `encoding`.<br>
+        <pre><code>
+// Content-Type: application/json; charset=utf-8
+const mimeType = contentType.type // application/json
+const encoding = contentType.encoding // utf-8
+</code></pre><br>
     </td></tr>
 </tbody>
 </table>
@@ -225,6 +229,11 @@ for more information and all the available functions and classes.
 **Caution:** Since we're making the full SDK available, and Cheerio Scraper
 runs using the SDK, some edge case manipulations may lead to inconsistencies.
 Use `Apify` with caution and avoid making global changes unless you know what you're doing.
+
+#### Cheerio
+`cheerio` references the Cheerio module. What you'd get by running `require('cheerio')`.
+It is useful for calling cheerio.load() on pieces of HTML that you receive from non-HTML
+responses, such as JSON containing HTML properties.
 
 ## Output
 Output is a dataset containing extracted data for each scraped page. To save data into
