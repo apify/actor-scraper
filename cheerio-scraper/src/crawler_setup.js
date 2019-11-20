@@ -1,5 +1,6 @@
 const { URL } = require('url');
 const Apify = require('apify');
+const cheerio = require('cheerio');
 const _ = require('underscore');
 const { CookieJar } = require('tough-cookie');
 const {
@@ -247,6 +248,7 @@ class CrawlerSetup {
                     status: response.statusCode,
                     headers: response.headers,
                 },
+                cheerio,
             },
         };
         const { context, state } = createContext(contextOptions);

@@ -44,7 +44,8 @@ class Context {
 
         // Page function arguments are directly passed from CrawlerSetup
         // and differ between Puppeteer and Cheerio Scrapers.
-        Object.assign(this, pageFunctionArguments);
+        // We must use properties and descriptors not to trigger getters / setters.
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
 
         // Bind this to allow destructuring off context in pageFunction.
         this.saveSnapshot = this.saveSnapshot.bind(this);
