@@ -21,6 +21,8 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
+ * @property { boolean } injectJQuery
+ * @property { boolean } injectUnderscore
  * @property {string} pageFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
@@ -194,6 +196,10 @@ class CrawlerSetup {
                 urlPatterns: this.blockedUrlPatterns,
             });
         }
+        
+         // Inject selected libraries
+        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
+        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
 
         // Add initial cookies, if any.
         if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
