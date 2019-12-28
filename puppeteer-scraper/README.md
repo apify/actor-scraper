@@ -35,7 +35,8 @@ If you need either a faster, or a simpler tool, see the
 or [Web Scraper](https://apify.com/apify/web-scraper) for simplicity.
 
 ## Input
-Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
+Input is provided via the pre-configured UI. For more info on the available options, see the tooltips in the UI or <a href="https://github.com/apifytech/actor-scraper/blob/master/puppeteer-scraper/INPUT_SCHEMA.json" target="_blank">
+Input Schema</a>.
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
