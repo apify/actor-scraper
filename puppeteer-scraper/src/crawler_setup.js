@@ -27,6 +27,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} browserLog
  * @property {boolean} downloadMedia
  * @property {boolean} downloadCss
+ * @property {boolean} useLiveView
  * @property {number} maxRequestRetries
  * @property {number} maxPagesPerCrawl
  * @property {number} maxResultsPerCrawl
@@ -164,7 +165,7 @@ class CrawlerSetup {
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             puppeteerPoolOptions: {
-                useLiveView: true,
+                useLiveView: this.input.useLiveView,
                 recycleDiskCache: true,
             },
             launchPuppeteerOptions: {

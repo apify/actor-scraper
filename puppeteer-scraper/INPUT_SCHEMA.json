@@ -125,6 +125,12 @@
             "description": "Scraper will download CSS stylesheets. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
             "default": true
         },
+        "useLiveView": {
+            "title": "Use LiveView",
+            "type": "boolean",
+            "description": "Displays the first page of the browser. Disabling this may speed up the scrape.",
+            "default": true
+        },
         "maxRequestRetries": {
             "title": "Max request retries",
             "type": "integer",
