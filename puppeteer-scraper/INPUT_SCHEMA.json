@@ -51,6 +51,20 @@
             "description": "URL fragments (the parts of URL after a <code>#</code>) are not considered when the scraper determines whether a URL has already been visited. This means that when adding URLs such as <code>https://example.com/#foo</code> and <code>https://example.com/#bar</code>, only the first will be visited. Turn this option on to tell the scraper to visit both.",
             "default": false
         },
+              "injectJQuery": {
+            "title": "Inject jQuery",
+            "type": "boolean",
+            "nullable": true,
+            "description": "Indicates that the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code>.",
+            "default": true
+        },
+        "injectUnderscoreJs": {
+            "title": "Inject Underscore.js",
+            "type": "boolean",
+            "nullable": true,
+            "description": "Indicates that the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code>.",
+            "default": false
+        },
         "pageFunction": {
             "title": "Page function",
             "type": "string",
