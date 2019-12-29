@@ -187,16 +187,16 @@
             "title": "Page load timeout",
             "type": "integer",
             "description": "Maximum time the scraper will allow a web page to load in seconds.",
-            "minimum": 0,
-            "default": 600,
+            "minimum": 1,
+            "default": 86400,
             "unit": "secs"
         },
         "pageFunctionTimeoutSecs": {
             "title": "Page function timeout",
             "type": "integer",
             "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
-            "minimum": 0,
-            "default": 0,
+            "minimum": 1,
+            "default": 86400,
             "unit": "secs"
         },
         "waitUntil": {
