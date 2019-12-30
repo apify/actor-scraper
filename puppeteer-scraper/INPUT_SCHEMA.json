@@ -58,7 +58,41 @@
             "nullable": true,
             "description": "Indicates that the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library should be injected into each page before <b>Page function</b> is invoked so Underscore.js can be used within the Page.Evaluate() function. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code>.",
             "default": false
+        },        
+        "proxyConfiguration": {
+            "sectionCaption": "Proxy and browser configuration",
+            "title": "Proxy configuration",
+            "type": "object",
+            "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
+            "prefill": { "useApifyProxy": false },
+            "default": {},
+            "editor": "proxy"
         },
+        "ignoreSslErrors": {
+            "title": "Ignore SSL errors",
+            "type": "boolean",
+            "description": "Scraper will ignore SSL certificate errors.",
+            "default": true,
+            "groupCaption": "Security",
+            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
+        },
+        "debugLog": {
+            "sectionCaption": "Advanced configuration",
+            "title": "Debug log",
+            "type": "boolean",
+            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
+            "default": false,
+            "groupCaption": "Enable logs",
+            "groupDescription": "Logs settings"
+        },
+        "customData": {
+            "title": "Custom data",
+            "type": "object",
+            "description": "This object will be available on pageFunction's context as customData.",
+            "default": {},
+            "prefill": {},
+            "editor": "json"
+        },        
         "pageFunction": {
             "title": "Page function",
             "type": "string",
@@ -72,15 +106,6 @@
             "description": "This function is executed before navigation to a given URL. It can be useful to do pre-processing, changes to the page that allow bypassing anti-scraping protections or just setting cookies.",
             "prefill": "async function preGotoFunction({ request, page, Apify }) {\n    /* add your pre-navigation logic here, if needed */\n}",
             "editor": "javascript"
-        },
-        "proxyConfiguration": {
-            "sectionCaption": "Proxy and browser configuration",
-            "title": "Proxy configuration",
-            "type": "object",
-            "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
-            "prefill": { "useApifyProxy": false },
-            "default": {},
-            "editor": "proxy"
         },
         "initialCookies": {
             "title": "Initial cookies",
@@ -103,15 +128,7 @@
             "type": "boolean",
             "description": "The scraper will apply various browser emulation techniques to match a real user as closely as possible. This feature works best in conjunction with the Use Chrome option and also carries the risk of making the scraper unstable.",
             "default": false
-        },
-        "ignoreSslErrors": {
-            "title": "Ignore SSL errors",
-            "type": "boolean",
-            "description": "Scraper will ignore SSL certificate errors.",
-            "default": false,
-            "groupCaption": "Security",
-            "groupDescription": "Various options that help you disable browser security features such as HTTPS certificates and CORS."
-        },
+        },        
         "ignoreCorsAndCsp": {
             "title": "Ignore CORS and CSP",
             "type": "boolean",
@@ -200,29 +217,12 @@
             "default": ["networkidle2"],
             "prefill": ["networkidle2"],
             "editor": "json"
-        },
-        "debugLog": {
-            "sectionCaption": "Advanced configuration",
-            "title": "Debug log",
-            "type": "boolean",
-            "description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
-            "default": false,
-            "groupCaption": "Enable logs",
-            "groupDescription": "Logs settings"
-        },
+        },        
         "browserLog": {
             "title": "Browser log",
             "type": "boolean",
             "description": "Console messages from the Browser will be included in the log. This may result in the log being flooded by error messages, warnings and other messages of little value, especially with high concurrency.",
             "default": false
-        },
-        "customData": {
-            "title": "Custom data",
-            "type": "object",
-            "description": "This object will be available on pageFunction's context as customData.",
-            "default": {},
-            "prefill": {},
-            "editor": "json"
         }
     },
     "required": ["startUrls", "pageFunction"]
