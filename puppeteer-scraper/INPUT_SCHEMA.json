@@ -13,13 +13,7 @@
                 { "url": "https://apify.com" }
             ],
             "editor": "requestListSources"
-        },
-        "useRequestQueue": {
-            "title": "Use request queue",
-            "type": "boolean",
-            "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
-            "default": true
-        },
+        },        
         "pseudoUrls": {
             "title": "Pseudo-URLs",
             "type": "array",
@@ -51,18 +45,18 @@
             "description": "URL fragments (the parts of URL after a <code>#</code>) are not considered when the scraper determines whether a URL has already been visited. This means that when adding URLs such as <code>https://example.com/#foo</code> and <code>https://example.com/#bar</code>, only the first will be visited. Turn this option on to tell the scraper to visit both.",
             "default": false
         },
-              "injectJQuery": {
-            "title": "Inject jQuery",
+        "injectJQuery": {
+            "title": "Inject jQuery to work in Page.Evaluate()",
             "type": "boolean",
             "nullable": true,
-            "description": "Indicates that the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code>.",
+            "description": "Indicates that the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library should be injected into each page before <b>Page function</b> is invoked so jQuery can be used within the Page.Evaluate() function. Note that the jQuery object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code>. For more <a href='https://docs.apify.com/scraping/puppeteer-scraper#injecting-jquery' target='_blank' rel='noopener'>information</a> ",
             "default": true
         },
         "injectUnderscoreJs": {
-            "title": "Inject Underscore.js",
+            "title": "Inject Underscore.js to work in Page.Evaluate()",
             "type": "boolean",
             "nullable": true,
-            "description": "Indicates that the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library should be injected into each page before <b>Page function</b> is invoked. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code>.",
+            "description": "Indicates that the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library should be injected into each page before <b>Page function</b> is invoked so Underscore.js can be used within the Page.Evaluate() function. Note that the Underscore object will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code>.",
             "default": false
         },
         "pageFunction": {
@@ -129,7 +123,7 @@
             "title": "Download media",
             "type": "boolean",
             "description": "Scraper will download media such as images, fonts, videos and sounds. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
-            "default": true,
+            "default": false,
             "groupCaption": "Resources",
             "groupDescription": "Settings that help to disable downloading web page resources."
         },
@@ -137,13 +131,13 @@
             "title": "Download CSS",
             "type": "boolean",
             "description": "Scraper will download CSS stylesheets. Disabling this may speed up the scrape, but certain websites could stop working correctly.",
-            "default": true
+            "default": false
         },
         "useLiveView": {
             "title": "Use LiveView",
             "type": "boolean",
             "description": "Displays the first page of the browser. Disabling this may speed up the scrape.",
-            "default": true
+            "default": false
         },
         "maxRequestRetries": {
             "title": "Max request retries",
@@ -188,7 +182,7 @@
             "type": "integer",
             "description": "Maximum time the scraper will allow a web page to load in seconds.",
             "minimum": 1,
-            "default": 86400,
+            "default": 60,
             "unit": "secs"
         },
         "pageFunctionTimeoutSecs": {
@@ -196,7 +190,7 @@
             "type": "integer",
             "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
             "minimum": 1,
-            "default": 86400,
+            "default": 60,
             "unit": "secs"
         },
         "waitUntil": {
