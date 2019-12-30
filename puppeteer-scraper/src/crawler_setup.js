@@ -17,7 +17,6 @@ const { utils: { log, puppeteer } } = Apify;
  *
  * @typedef {Object} Input
  * @property {Object[]} startUrls
- * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
@@ -73,6 +72,9 @@ class CrawlerSetup {
          */
         this.input = input;
         this.env = Apify.getEnv();
+        
+        // always use RequestQueue - option removed from UI        
+        this.input.useRequestQueue = true;
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -157,7 +159,7 @@ class CrawlerSetup {
         const options = {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
-            requestQueue: this.requestQueue,
+            requestQueue: this.input.useRequestQueue,
             handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
