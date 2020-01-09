@@ -479,7 +479,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   for an element specified using a CSS selector to appear in the DOM
   or for a provided function to return `true`.
   This is useful for extracting data from web pages with a dynamic content,
-  where the content might be available at the time when page function is called.
+  where the content might not be available at the time when page function is called.
   
   The `options` parameter is an object with the following properties and default values:
   ```javascript
