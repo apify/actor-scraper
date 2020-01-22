@@ -234,7 +234,7 @@ async function pageFunction(context) {
     // jQuery is handy for finding DOM elements and extracting data from them.
     // To use it, make sure to enable the "Inject jQuery" option.
     const $ = context.jQuery;
-    const pageTitle = $('title').text();
+    const pageTitle = $('title').first().text();
 
     // Print some information to actor log
     context.log.info(`URL: ${context.request.url} TITLE: ${pageTitle}`);
@@ -368,7 +368,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   Example:
   ```javascript
   const $ = context.jQuery;
-  const pageTitle = $('title').text();
+  const pageTitle = $('title').first().text();
   ```
   
 - ##### **`log: Object`**
