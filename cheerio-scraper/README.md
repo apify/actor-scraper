@@ -15,6 +15,7 @@
     + [Global Store](#global-store)
     + [Log](#log)
     + [Apify](#apify)
+    + [Cheerio](#cheerio)
 - [Output](#output)
   * [Dataset](#dataset)
 
