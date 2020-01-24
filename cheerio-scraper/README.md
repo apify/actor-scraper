@@ -38,7 +38,8 @@ Input is provided via the pre-configured UI. See the tooltips for more info on t
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
-manipulate the visited pages and extract data as needed. It is invoked with a `context` object
+manipulate the visited pages and extract data as needed. The code runs in Node.js 10.
+The function is invoked with a `context` object
 containing the following properties:
 
 ```js
