@@ -58,7 +58,31 @@ and you can use client-side libraries such as
 ## Input configuration
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
+
 **Link selector**(`link-selector`)
+
+### Link selector
+
+The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages,
+i.e. `<a>` elements with the `href` attribute.
+This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled,
+otherwise it is ignored and no links are followed.
+
+On every page loaded, the scraper looks for all links matching **Link selector**,
+checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls),
+and if so then adds the URL to the request queue,
+so that it's loaded by the scraper later.
+
+By default, new scrapers are created with the following selector that matches all links:
+
+```
+a[href]
+```
+
+If <b>Link selector</b> is empty, the page links are ignored,
+and the scraper only loads pages that were specified in [**Start URLs**](#start-urls)
+or that were manually added to the request queue by calling <code>context.enqueueRequest()</code>
+in [**Page function**](#page-function).
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
