@@ -58,7 +58,7 @@ and you can use client-side libraries such as
 ## Input configuration
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
-**Link selector**(#link-selector)
+**Link selector**(`link-selector`)
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
