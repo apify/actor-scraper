@@ -41,15 +41,7 @@ it should load. Second, tell it how to extract data from each page.
 The scraper starts by loading the pages or documents specified in the [**Start URLs**](#start-urls) input box.
 Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
-To tell the scraper how to extract data from web pages,
-you need to provide <a href="#page-function"><b>Page function</b></a>.
-This is JavaScript code that is executed in the context
-of every web page loaded.
-Since the scraper uses the full-featured Chromium browser,
-writing Page function
-is equivalent to developing a front-end code
-and you can use client-side libraries such as
-<a href="http://jquery.com" target="_blank" rel="noopener">jQuery</a>.
+To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
 
 ## Limitations
 
@@ -57,32 +49,6 @@ and you can use client-side libraries such as
 
 ## Input configuration
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
-
-
-**Link selector**(`link-selector`)
-
-### Link selector
-
-The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages,
-i.e. `<a>` elements with the `href` attribute.
-This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled,
-otherwise it is ignored and no links are followed.
-
-On every page loaded, the scraper looks for all links matching **Link selector**,
-checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls),
-and if so then adds the URL to the request queue,
-so that it's loaded by the scraper later.
-
-By default, new scrapers are created with the following selector that matches all links:
-
-```
-a[href]
-```
-
-If <b>Link selector</b> is empty, the page links are ignored,
-and the scraper only loads pages that were specified in [**Start URLs**](#start-urls)
-or that were manually added to the request queue by calling <code>context.enqueueRequest()</code>
-in [**Page function**](#page-function).
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
