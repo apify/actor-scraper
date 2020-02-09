@@ -1,9 +1,22 @@
-# Apify Cheerio Scraper
+# Cheerio Scraper
+
+Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests. It allows the user to retrieve HTML pages, then parse and inspect the HTML using the [Cheerio](https://www.npmjs.com/package/cheerio) library. It is blazing fast.
+
+Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
+browser but instead constructs a DOM from a HTML string. It then provides the user an API to work with that DOM.
+
+Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
+
+If you're not familiar with web scraping or front-end web development in general,
+you might prefer to start with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial) from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/scraping/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
+
+## Table of Contents
 
 <!-- toc -->
 
-- [How it works](#how-it-works)
-- [Input](#input)
+- [Usage](#usage)
+- [Lmitations](#limitations)
+- [Input configuration](#input-configuration)
 - [Page function](#page-function)
 - [`context`](#context)
   * [Data structures](#data-structures)
@@ -20,20 +33,29 @@
 
 <!-- tocstop -->
 
-## How it works
+## Usage
 
-Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests to retrieve HTML pages
-and then parsing and inspecting the HTML using the [Cheerio](https://www.npmjs.com/package/cheerio) library.
-It's blazing fast.
+To get started with Cheerio Scraper, you only need two things. First, tell the scraper which web pages
+it should load. Second, tell it how to extract data from each page.
 
-Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library, that does not run in the
-browser, but instead constructs a DOM out of a HTML string and then provides the user with API to work with that
-DOM.
+The scraper starts by loading the pages or documents specified in the [**Start URLs**](#start-urls) input box.
+Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
-Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content.
-It can be as much as 20 times faster than using a full browser solution such as Puppeteer.
+To tell the scraper how to extract data from web pages,
+you need to provide <a href="#page-function"><b>Page function</b></a>.
+This is JavaScript code that is executed in the context
+of every web page loaded.
+Since the scraper uses the full-featured Chromium browser,
+writing Page function
+is equivalent to developing a front-end code
+and you can use client-side libraries such as
+<a href="http://jquery.com" target="_blank" rel="noopener">jQuery</a>.
 
-## Input
+## Limitations
+
+[to be filled in ]
+
+## Input configuration
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
 
 ## Page function
