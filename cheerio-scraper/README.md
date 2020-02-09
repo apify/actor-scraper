@@ -7,7 +7,7 @@ browser but instead constructs a DOM from a HTML string. It then provides the us
 
 Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
 
-If you're not familiar with web scraping or front-end web development in general,
+If you're unfamiliar with web scraping or front-end web development in general,
 you might prefer to start with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial) from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/scraping/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
 
 ## Table of Contents
