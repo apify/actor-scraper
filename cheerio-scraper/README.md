@@ -240,7 +240,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   const $ = cheerio.load('<h2 class="title">Hello world</h2>');
   ```
   
-- ##### **`$: Selector`**
+- ##### **`$: Function`**
 
   An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
 
