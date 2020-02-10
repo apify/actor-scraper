@@ -36,7 +36,6 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`response: Object`**](#response-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
-      - [**`waitFor(task, options): AsyncFunction`**](#waitfortask-options-asyncfunction)
 - [`context`](#context)
   * [Data structures](#data-structures)
   * [Functions](#functions)
