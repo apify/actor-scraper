@@ -153,12 +153,35 @@ async function pageFunction(context) {
 }
 ```
 
-The code runs in [Node.js 10](#https://nodejs.org/en/blog/release/v10.0.0/) and the function accepts a single argument, the `context` object, whose properties are listed in the table below.
+The code runs in [Node.js 10](#https://nodejs.org/en/blog/release/v10.0.0/) and the function accepts a single argument, the `context` object, whose properties are listed below.
 
 The return value of the page function is an object (or an array of objects) representing the data extracted from the web page. The return value must be stringify-able to JSON, i.e. it can only contain basic types and no circular references. If you prefer not to extract any data from the page and skip it in the clean results, simply return `null` or `undefined`.
 
 The **Page function** supports the JavaScript ES6 syntax and is asynchronous, which means you can use the `await` keyword to wait for background operations to finish. To learn more about `async` functions,
 visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+
+**Properties of the `context` object:**
+
+- ##### **`customData: Object`**
+
+  Contains the object provided in the **Custom data** (`customData`) input field.
+  This is useful for passing dynamic parameters to your Web Scraper using API.
+
+- ##### **`enqueueRequest(request, [options]): AsyncFunction`**
+  
+  Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
+
+  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, visit the [**`Request`**](#https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK documentation.
+  
+  The optional `options` parameter is an object with additional options. Currently, it only supports the `forefront` boolean flag. If `true`, the request is added to the beginning of the queue. By default, requests are added to the end.
+  
+  Example:
+  ```javascript
+  await context.enqueueRequest({ url: 'https://www.example.com' });
+  await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
+  ```
+  
+
 
 
 
