@@ -70,7 +70,7 @@
 		"maxRequestRetries": {
 			"title": "Max request retries",
 			"type": "integer",
-			"description": "Maximum number of times the request for the page will be retried in case of an error. Setting it to 0 means that the request will be attempted once and will not be retried if it fails.",
+			"description": "The maximum number of times the scraper will retry to load each web page on error, in case of a page load error or an exception thrown by the <b>Page function</b>.<br><br>If set to <code>0</code>, the page will be considered failed right after the first error.",
 			"minimum": 0,
 			"default": 3,
 			"unit": "retries"
