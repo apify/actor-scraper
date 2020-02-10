@@ -347,36 +347,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
 
 
-
-```js
-const context = {
-    // USEFUL DATA
-    input, // Unaltered original input as parsed from the UI
-    env, // Contains information about the run such as actorId or runId
-    customData, // Value of the 'Custom data' scraper option.
-    body, // Request body of loaded page
-    json, // Available only if Content-Type header of the response is application/json
-    
-    // EXPOSED OBJECTS
-    request, // Apify.Request object.
-    response, // Response object holding the status code and headers.
-    autoscaledPool, // Reference to the Apify.AutoscaledPool instance managing concurrency.
-    globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
-    log, // Reference to Apify.utils.log
-    Apify, // Reference to the full power of Apify SDK.
-    contentType, // Parsed Content-Type header
-    cheerio, // The cheerio module itself.
-    
-    // EXPOSED FUNCTIONS
-    $, // Reference to Cheerio.
-    setValue, // Reference to the Apify.setValue() function.
-    getValue, // Reference to the Apify.getValue() function.
-    saveSnapshot, // Saves the full HTML of the current page to the key value store.
-    skipLinks, // Prevents enqueueing more links via Pseudo URLs on the current page.
-    enqueueRequest, // Adds a page to the request queue.
-    
-}
-```
 ## `context`
 The following tables describe the `context` object in more detail.
 
