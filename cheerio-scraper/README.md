@@ -83,6 +83,22 @@ The **Use request queue** (`useRequestQueue`) option determines whether the scra
 
 <!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
+### Link selector
+
+The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages, i.e. `<a>` elements with the `href` attribute. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled, otherwise it is ignored and no links are followed.
+
+On every page loaded, the scraper looks for all links matching the **Link selector**. It checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls), and if so then adds the URL to the request queue, to be loaded by the scraper later.
+
+By default, new scrapers are created with the following selector that matches all links:
+
+```
+a[href]
+```
+
+If the **Link selector** is empty, page links are ignored, and the scraper only loads pages that were specified in the [**Start URLs**](#start-urls) input or that were manually added to the request queue by calling <code>context.enqueueRequest()</code> in the [**Page function**](#page-function).
+
+
+
 
 
 ## Page function
