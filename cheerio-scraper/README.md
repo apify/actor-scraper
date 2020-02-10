@@ -41,13 +41,6 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`Apify: Object`**](#apify-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
-  * [Class instances and namespaces](#class-instances-and-namespaces)
-    + [Request](#request)
-    + [Response](#response)
-    + [AutoscaledPool](#autoscaledpool)
-    + [Global Store](#global-store)
-    + [Log](#log)
-    + [Apify](#apify)
 - [Output](#output)
   * [Dataset](#dataset)
 
@@ -381,64 +374,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`skipLinks(): AsyncFunction`**
 
   Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
-
-
-### Class instances and namespaces
-The following are either class instances or namespaces, which is just a way of saying objects
-with functions on them.
-
-#### Request
-Apify uses a `request` object to represent metadata about the currently crawled page,
-such as its URL or the number of retries. See the
-<a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a>
-class for a preview of the structure and full documentation.
-
-#### Response
-The `response` object is produced by the HTTP call. Currently, we only pass the HTTP status code
-and the response headers to the `context`.
-
-```js
-{
-    status: Number,
-    headers: Object,
-}
-```
-
-#### AutoscaledPool
-A reference to the running instance of the `AutoscaledPool` class. See
-<a href="https://sdk.apify.com/docs/api/autoscaledpool" target="_blank">Apify SDK docs</a>
-for more information.
-
-#### Global Store
-`globalStore` represents an instance of a very simple in memory store that is not scoped to the individual
-`pageFunction` invocation. This enables you to easily share global data such as API responses, tokens and other.
-Since the stored data need to cross from the Browser to the Node.js process, it cannot be any kind of data,
-but only JSON stringifiable objects. You cannot store DOM objects, functions, circular objects and so on.
-
-`globalStore` in Cheerio Scraper is just a 
-<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map" target="_blank">
-<code>Map</code></a>.
-
-#### Log
-`log` is a reference to
-<a href="https://sdk.apify.com/docs/api/log" target="_blank"><code>Apify.utils.log</code></a>.
-You can use any of the logging methods such as <code>log.info</code> or <code>log.exception</code>.
-<code>log.debug</code> is special, because you can trigger visibility of those messages in the
-scraper's Log by the provided **Debug log** input option.
-
-#### Apify
-A reference to the full power of the Apify SDK. See
-<a href="https://sdk.apify.com/docs/api/apify" target="_blank">the docs</a>
-for more information and all the available functions and classes.
-
-**Caution:** Since we're making the full SDK available, and Cheerio Scraper
-runs using the SDK, some edge case manipulations may lead to inconsistencies.
-Use `Apify` with caution and avoid making global changes unless you know what you're doing.
-
-#### Cheerio
-`cheerio` references the Cheerio module. What you'd get by running `require('cheerio')`.
-It is useful for calling cheerio.load() on pieces of HTML that you receive from non-HTML
-responses, such as JSON containing HTML properties.
 
 ## Output
 Output is a dataset containing extracted data for each scraped page. To save data into
