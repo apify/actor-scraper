@@ -37,6 +37,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`log: Object`**](#log-object)
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
+      - [**`autoscaledPool: Object`**](#autoscaledpool-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
   * [Class instances and namespaces](#class-instances-and-namespaces)
@@ -357,6 +358,10 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
     }
   }
   ```
+
+- ##### **`AutoscaledPool: Object`**
+
+  Manages a pool of asynchronous resource-intensive tasks that are executed in parallel. The pool only starts new tasks if there is enough free CPU and memory available and the Javascript event loop is not blocked. For more information, see the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object in the Apify SDK.
 
 - ##### **`saveSnapshot(): AsyncFunction`**
     
