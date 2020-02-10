@@ -28,19 +28,21 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`customData: Object`**](#customdata-object)
       - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`json: Object`**](#json-object)
-      - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
-    
-      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
-      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
-      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
-      - [**`globalStore: Object`**](#globalstore-object)  
-      - [**`cheerio: Object`**](#cheerio-object)
-      - [**`$: Function`**](#$-function)
-      - [**`log: Object`**](#log-object)
+    + [**`Functions`**](#functions)
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
+      - [**`globalStore: Object`**](#globalstore-object)
+      - [**`log: Object`**](#log-object)
       - [**`Apify: Object`**](#apify-object)
+      - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
+      - [**`cheerio: Object`**](#cheerio-object)
+
+
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`$: Function`**](#$-function)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
 - [Output](#output)
@@ -208,6 +210,82 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   The parsed object from a JSON string if the response contains the content type `application/json`.
 
+#### **`Functions`**
+
+- ##### **`request: Object`**
+  
+  An object containing information about the currently loaded web page, such as the URL, number of retries, a unique key, etc. Its properties are equivalent to the [`Request`](https://sdk.apify.com/docs/api/request) object in the Apify SDK.
+  
+- ##### **`response: Object`**
+
+  An object containing information about the HTTP response from the web server. Currently, it only contains the `status` and `headers` properties. For example:
+  
+  ```
+  {
+    // HTTP status code
+    status: 200,
+    
+    // HTTP headers
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'date': 'Wed, 06 Nov 2019 16:01:53 GMT',
+      'cache-control': 'no-cache',
+      'content-encoding': 'gzip',
+    }
+  }
+  ```
+
+- ##### **`AutoscaledPool: Object`**
+
+  Manages a pool of asynchronous resource-intensive tasks that are executed in parallel. The pool only starts new tasks if there is enough free CPU and memory available and the Javascript event loop is not blocked. For more information, see the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object in the Apify SDK.
+
+- ##### **`globalStore: Object`**
+ 
+  Represents an in-memory store that can be used to share data across page function invocations, e.g. state variables, API responses, or other data. The `globalStore` object has an interface similar to JavaScript's [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) object, with a few important differences:
+  - All `globalStore` functions are `async`; use `await` when calling them.
+  - Keys must be strings and values must be JSON stringify-able.
+  - The `forEach()` function is not supported.
+  
+  Note that stored data is not persisted. If the actor run is restarted or migrated to another worker server,
+  the content of `globalStore` is reset. Therefore, never depend on a specific value to be present
+  in the store.
+  
+  Example:
+  ```javascript
+  let movies = await context.globalStore.get('cached-movies');
+  if (!movies) {
+    movies = await fetch('http://example.com/movies.json');
+    await context.globalStore.set('cached-movies', movies);
+  }
+  console.dir(movies);
+  ```
+
+- ##### **`log: Object`**
+
+  An object containing logging functions, with the same interface as provided by the 
+  [`Apify.utils.log`](https://sdk.apify.com/docs/api/log) object in the Apify SDK. The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
+  Note that `log.debug()` only logs messages if the **Debug log** input setting is set.
+  
+  Example:
+  ```javascript
+  const log = context.log;
+  log.debug('Debug message', { hello: 'world!' });
+  log.info('Information message', { all: 'good' });
+  log.warning('Warning message');
+  log.error('Error message', { details: 'This is bad!' });
+  try {
+    throw new Error('Not good!');
+  } catch (e) {
+    log.exception(e, 'Exception occurred', { details: 'This is really bad!' });
+  }
+  ```
+
+- ##### **`Apify: Object`**
+
+  A reference to the full power of the Apify SDK. See [`the docs`](https://sdk.apify.com/docs/api/apify) for more information and all the available functions and classes.
+
+  **Caution:** Since we're making the full SDK available, and Cheerio Scraper runs using the SDK, some edge case manipulations may lead to inconsistencies. Use `Apify` with caution and avoid making global changes unless you're confident.
+
 - ##### **`contentType: {type, encoding}`**
 
   The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
@@ -219,7 +297,17 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   const encoding = contentType.encoding // utf-8
   ```
 
+- ##### **`cheerio: Object`**
 
+  The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery. 
+
+  Example:
+  ```javascript
+  //The preferred method of loading the HTML
+  //It loads the HTML code as a string, returning a Cheerio instance
+  const cheerio = require('cheerio');
+  const $ = cheerio.load('<h2 class="title">Hello world</h2>');
+  ```
 
 
 
@@ -261,40 +349,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   await context.setValue('my-key', { hello: 'world' });
   ```
 
-- ##### **`globalStore: Object`**
- 
-  Represents an in-memory store that can be used to share data across page function invocations, e.g. state variables, API responses, or other data. The `globalStore` object has an interface similar to JavaScript's [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) object, with a few important differences:
-  - All `globalStore` functions are `async`; use `await` when calling them.
-  - Keys must be strings and values must be JSON stringify-able.
-  - The `forEach()` function is not supported.
-  
-  Note that stored data is not persisted. If the actor run is restarted or migrated to another worker server,
-  the content of `globalStore` is reset. Therefore, never depend on a specific value to be present
-  in the store.
-  
-  Example:
-  ```javascript
-  let movies = await context.globalStore.get('cached-movies');
-  if (!movies) {
-    movies = await fetch('http://example.com/movies.json');
-    await context.globalStore.set('cached-movies', movies);
-  }
-  console.dir(movies);
-  ```
-
- 
-- ##### **`cheerio: Object`**
-
-  The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery. 
-
-  Example:
-  ```javascript
-  //The preferred method of loading the HTML
-  //It loads the HTML code as a string, returning a Cheerio instance
-  const cheerio = require('cheerio');
-  const $ = cheerio.load('<h2 class="title">Hello world</h2>');
-  ```
-  
 - ##### **`$: Function`**
 
   An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
@@ -321,58 +375,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   //=> Horror Movie
   ```
 
-- ##### **`log: Object`**
-
-  An object containing logging functions, with the same interface as provided by the 
-  [`Apify.utils.log`](https://sdk.apify.com/docs/api/log) object in the Apify SDK. The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
-  Note that `log.debug()` only logs messages if the **Debug log** input setting is set.
-  
-  Example:
-  ```javascript
-  const log = context.log;
-  log.debug('Debug message', { hello: 'world!' });
-  log.info('Information message', { all: 'good' });
-  log.warning('Warning message');
-  log.error('Error message', { details: 'This is bad!' });
-  try {
-    throw new Error('Not good!');
-  } catch (e) {
-    log.exception(e, 'Exception occurred', { details: 'This is really bad!' });
-  }
-  ```
-  
-- ##### **`request: Object`**
-  
-  An object containing information about the currently loaded web page, such as the URL, number of retries, a unique key, etc. Its properties are equivalent to the [`Request`](https://sdk.apify.com/docs/api/request) object in the Apify SDK.
-  
-- ##### **`response: Object`**
-
-  An object containing information about the HTTP response from the web server. Currently, it only contains the `status` and `headers` properties. For example:
-  
-  ```
-  {
-    // HTTP status code
-    status: 200,
-    
-    // HTTP headers
-    headers: {
-      'content-type': 'text/html; charset=utf-8',
-      'date': 'Wed, 06 Nov 2019 16:01:53 GMT',
-      'cache-control': 'no-cache',
-      'content-encoding': 'gzip',
-    }
-  }
-  ```
-
-- ##### **`AutoscaledPool: Object`**
-
-  Manages a pool of asynchronous resource-intensive tasks that are executed in parallel. The pool only starts new tasks if there is enough free CPU and memory available and the Javascript event loop is not blocked. For more information, see the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object in the Apify SDK.
-
-- ##### **`Apify: Object`**
-
-  A reference to the full power of the Apify SDK. See [`the docs`](https://sdk.apify.com/docs/api/apify) for more information and all the available functions and classes.
-
-  **Caution:** Since we're making the full SDK available, and Cheerio Scraper runs using the SDK, some edge case manipulations may lead to inconsistencies. Use `Apify` with caution and avoid making global changes unless you're confident.
 
 - ##### **`saveSnapshot(): AsyncFunction`**
     
