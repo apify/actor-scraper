@@ -36,7 +36,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
       - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
-      
+    + [**`Class instances and namescapes`**](#class-instances-and-namescapes)
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
@@ -299,9 +299,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
 
-
-
-
+#### **`Class instances and namescapes`**
 
 - ##### **`request: Object`**
   
@@ -330,7 +328,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   Manages a pool of asynchronous resource-intensive tasks that are executed in parallel. The pool only starts new tasks if there is enough free CPU and memory available and the Javascript event loop is not blocked. For more information, see the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object in the Apify SDK.
 
-- ##### **`globalStore: Object`**
+- ##### **`Global Store: Object`**
  
   Represents an in-memory store that can be used to share data across page function invocations, e.g. state variables, API responses, or other data. The `globalStore` object has an interface similar to JavaScript's [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) object, with a few important differences:
   - All `globalStore` functions are `async`; use `await` when calling them.
