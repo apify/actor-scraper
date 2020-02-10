@@ -81,6 +81,7 @@ in the Apify documentation.
 
 The **Use request queue** (`useRequestQueue`) option determines whether the scraper will use a dynamic queue to manage URLs in addition to the static list of [**Start URLs**](#start-urls). If the option is enabled, the scraper will support adding new URLs to scrape on the fly, either using the [**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options or by calling <code>context.enqueueRequest()</code> inside the [**Page function**](#page-function). Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.
 
+<!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
 
 
