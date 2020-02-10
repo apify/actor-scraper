@@ -47,8 +47,8 @@
 		"pageFunction": {
 			"title": "Page function",
 			"type": "string",
-			"description": "This async function is executed for each request. It's sole argument is a context object. See the README for available properties.",
-			"prefill": "async function pageFunction(context) {\n    const { $, request, log } = context;\n    const title = $('title').first().text();\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    return {\n        url: request.url,\n        title\n    };\n}",
+			"description": "JavaScript (ES6) function that is executed in the context of every page loaded server-side. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+			"prefill": "// The function accepts a single argument: the \"context\" object.\n    // For a complete list of its properties and functions,\n   // see https://apify.com/apify/cheerio-scraper#page-function\n    async function pageFunction(context) {\n    //Pass a destructuring assignment of the necessary properties of the \"context\" object\n    const { $, request, log } = context;\n   const title = $('title').text();\n   //Print URL and title information to the context log\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n    url: request.url,\n    title\n    \n};\n    }",
 			"editor": "javascript"
 		},
 		"proxyConfiguration": {
