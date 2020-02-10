@@ -171,7 +171,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   
   Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
 
-  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, visit the [`Request`](#https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK documentation.
+  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, visit the [Request](#https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK documentation.
   
   The optional `options` parameter is an object with additional options. Currently, it only supports the `forefront` boolean flag. If `true`, the request is added to the beginning of the queue. By default, requests are added to the end.
   
