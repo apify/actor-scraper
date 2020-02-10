@@ -203,6 +203,17 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   console.dir(value);
   ```
 
+- ##### **`setValue(key, data, options): AsyncFunction`**
+
+  Sets a value to the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.setValue()`](https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise) function in the Apify SDK.
+    
+  To get the value, use the dual function `context.getValue(key)`.
+  
+  Example:
+  ```javascript
+  await context.setValue('my-key', { hello: 'world' });
+  ```
+
 - ##### **`globalStore: Object`**
  
   Represents an in-memory store that can be used to share data across page function invocations, e.g. state variables, API responses, or other data. The `globalStore` object has an interface similar to JavaScript's [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) object, with a few important differences:
