@@ -191,6 +191,20 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   console.log(`Actor run ID: ${context.env.actorRunId}`);
   ```
  
+- ##### **`getValue(key): AsyncFunction`**
+
+  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK documentation.
+  
+  To set the value, use the dual function `context.setValue(key, value)`.
+  
+  Example:
+  ```javascript
+  const value = await context.getValue('my-key');
+  console.dir(value);
+  ```
+
+
+
 
 
 
