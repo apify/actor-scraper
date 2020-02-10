@@ -29,6 +29,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`input: Object`**](#input-object)
+      - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`$: Function`**](#$-function)
       - [**`log: Object`**](#log-object)
@@ -252,6 +253,15 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`input: Object`**
 
   An object containing the actor run input, i.e. the Web Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
+
+- ##### **`body: String|Buffer`**
+
+  The body from the target web page. If the website is in HTML or XML format, it will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
+
+  Example:
+  ```javascript
+  const stringBody = context.body.toString(context.contentType.encoding)
+  ```
   
 - ##### **`cheerio: Object`**
 
@@ -346,9 +356,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
 
-
-## `context`
-The following tables describe the `context` object in more detail.
 
 ### Data structures
 <table>
