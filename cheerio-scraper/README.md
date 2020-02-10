@@ -30,6 +30,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`input: Object`**](#input-object)
       - [**`json: Object`**](#json-object)
+      - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
       - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`$: Function`**](#$-function)
@@ -267,7 +268,17 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`json: Object`**
 
   The parsed object from a JSON string if the response contains the content type `application/json`.
-    
+
+- ##### **`contentType: {type, encoding}`**
+
+  The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
+
+  Example:
+  ```javascript
+  // Content-Type: application/json; charset=utf-8
+  const mimeType = contentType.type // application/json
+  const encoding = contentType.encoding // utf-8
+  ```
   
 - ##### **`cheerio: Object`**
 
