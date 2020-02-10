@@ -22,16 +22,18 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
-      - [**`customData: Object`**](#customdata-object)
-      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
-      - [**`env: Object`**](#env-object)
-      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
-      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
-      - [**`globalStore: Object`**](#globalstore-object)
+    + [**`Data structures`**](#datastructures)
       - [**`input: Object`**](#input-object)
+      - [**`env: Object`**](#env-object)
+      - [**`customData: Object`**](#customdata-object)
+      - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`json: Object`**](#json-object)
       - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
-      - [**`body: String/Buffer`**](#body-string/buffer)
+    
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`globalStore: Object`**](#globalstore-object)  
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`$: Function`**](#$-function)
       - [**`log: Object`**](#log-object)
@@ -171,10 +173,56 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 **Properties of the `context` object:**
 
+- #### **`Data structures`**
+
+- ##### **`input: Object`**
+
+  An object containing the actor run input, i.e. the Web Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
+
+- ##### **`env: Object`**
+
+  A map of all relevant values set by the Apify platform to the actor run via the `APIFY_` environment variable. For example, here you can find information such as actor run ID, timeouts, actor run memory, etc.
+  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK.
+  
+  Example:
+  ```javascript
+  console.log(`Actor run ID: ${context.env.actorRunId}`);
+  ```
+
 - ##### **`customData: Object`**
 
   Contains the object provided in the **Custom data** (`customData`) input field.
   This is useful for passing dynamic parameters to your Web Scraper using API.
+
+
+- ##### **`body: String|Buffer`**
+
+  The body from the target web page. If the website is in HTML or XML format, it will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
+
+  Example:
+  ```javascript
+  const stringBody = context.body.toString(context.contentType.encoding)
+  ```
+
+- ##### **`json: Object`**
+
+  The parsed object from a JSON string if the response contains the content type `application/json`.
+
+- ##### **`contentType: {type, encoding}`**
+
+  The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
+
+  Example:
+  ```javascript
+  // Content-Type: application/json; charset=utf-8
+  const mimeType = contentType.type // application/json
+  const encoding = contentType.encoding // utf-8
+  ```
+
+
+
+
+
 
 - ##### **`enqueueRequest(request, [options]): AsyncFunction`**
   
@@ -189,17 +237,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   await context.enqueueRequest({ url: 'https://www.example.com' });
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
-  
-- ##### **`env: Object`**
 
-  A map of all relevant values set by the Apify platform to the actor run via the `APIFY_` environment variable. For example, here you can find information such as actor run ID, timeouts, actor run memory, etc.
-  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK.
-  
-  Example:
-  ```javascript
-  console.log(`Actor run ID: ${context.env.actorRunId}`);
-  ```
- 
 - ##### **`getValue(key): AsyncFunction`**
 
   Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK.
@@ -244,34 +282,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   console.dir(movies);
   ```
 
-- ##### **`input: Object`**
-
-  An object containing the actor run input, i.e. the Web Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
-
-- ##### **`body: String|Buffer`**
-
-  The body from the target web page. If the website is in HTML or XML format, it will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
-
-  Example:
-  ```javascript
-  const stringBody = context.body.toString(context.contentType.encoding)
-  ```
-
-- ##### **`json: Object`**
-
-  The parsed object from a JSON string if the response contains the content type `application/json`.
-
-- ##### **`contentType: {type, encoding}`**
-
-  The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
-
-  Example:
-  ```javascript
-  // Content-Type: application/json; charset=utf-8
-  const mimeType = contentType.type // application/json
-  const encoding = contentType.encoding // utf-8
-  ```
-  
+ 
 - ##### **`cheerio: Object`**
 
   The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery. 
