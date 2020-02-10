@@ -240,19 +240,28 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   const $ = cheerio.load('<h2 class="title">Hello world</h2>');
   ```
   
-- ##### **`$: Function`**
+- ##### **`$: Selector`**
 
-  This is the reference to the Cheerio module. 
-  
-  The only difference between the two is that Cheerio's selector method is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
+  An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
+
+  This selector method is the starting point for traversing and manipulating the document. Like `jQuery`, it's the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
 
   Example:
-  ```javascript
-  $('h2.title').text('Hello there!');
-  $('h2').addClass('welcome');
+  ```html
+  <ul id="movies">
+    <li class="terminator">Terminator</li>
+    <li class="commando">Commando</li>
+    <li class="conan">Conan</li>
+  </ul>
+  ```
 
-  $.html()
-  //=> <h2 class="title welcome">Hello there!</h2>
+  ```javascript
+  $('.movies', '#terminator').text()
+  //=> Terminator
+  $('ul .commando').attr('class')
+  //=> commando
+  $('li[class=conan]').html()
+  //=> Conan
   ```
 
 
