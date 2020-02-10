@@ -286,6 +286,29 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   }
   ```
   
+- ##### **`request: Object`**
+  
+  An object containing information about the currently loaded web page, such as the URL, number of retries, a unique key, etc. Its properties are equivalent to the [`Request`](https://sdk.apify.com/docs/api/request) object in the Apify SDK.
+  
+- ##### **`response: Object`**
+
+  An object containing information about the HTTP response from the web server. Currently, it only contains the `status` and `headers` properties. For example:
+  
+  ```
+  {
+    // HTTP status code
+    status: 200,
+    
+    // HTTP headers
+    headers: {
+      'content-type': 'text/html; charset=utf-8',
+      'date': 'Wed, 06 Nov 2019 16:01:53 GMT',
+      'cache-control': 'no-cache',
+      'content-encoding': 'gzip',
+    }
+  }
+  ```
+  
 
 
 ```js
