@@ -203,6 +203,27 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   console.dir(value);
   ```
 
+- ##### **`globalStore: Object`**
+ 
+  Represents an in-memory store that can be used to share data across page function invocations, e.g. state variables, API responses, or other data. The `globalStore` object has an interface similar to JavaScript's [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) object, with a few important differences:
+  - All `globalStore` functions are `async`; use `await` when calling them.
+  - Keys must be strings and values must be JSON stringify-able.
+  - the `forEach()` function is not supported.
+  
+  Note that stored data is not persisted. If the actor run is restarted or migrated to another worker server,
+  the content of `globalStore` is reset. Therefore, never depend on a specific value to be present
+  in the store.
+  
+  Example:
+  ```javascript
+  let movies = await context.globalStore.get('cached-movies');
+  if (!movies) {
+    movies = await fetch('http://example.com/movies.json');
+    await context.globalStore.set('cached-movies', movies);
+  }
+  console.dir(movies);
+  ```
+
 
 
 
