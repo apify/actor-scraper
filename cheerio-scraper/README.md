@@ -99,7 +99,7 @@ If the **Link selector** is empty, page links are ignored, and the scraper only 
 
 ### Pseudo-URLs
 
-The **Pseudo-URLs** (`pseudoUrls`) field specifies the kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled.
+The **Pseudo-URLs** (`pseudoUrls`) field specifies what kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled.
 
 A pseudo-URL is simply a URL with special directives enclosed in `[]` brackets. Currently, the only supported directive is `[regexp]`, which defines a JavaScript-style regular expression to match against the URL.
 
@@ -123,7 +123,9 @@ http://www.example.com/search?do[load]=1
 
 Optionally, each pseudo-URL can be associated with user data that can be referenced from your [**Page function**](#page-function) using `context.request.userData` to determine what kind of page is currently loaded in the browser.
 
-Note that you don't have to use the **Pseudo-URLs** setting at all, because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from the [**Page function**](#page-function).
+Note that you don't have to use the **Pseudo-URLs** setting at all because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from your [**Page function**](#page-function).
+
+
 
 
 ## Page function
