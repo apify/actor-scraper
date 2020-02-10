@@ -101,14 +101,14 @@
 		"maxConcurrency": {
 			"title": "Max concurrency",
 			"type": "integer",
-			"description": "Defines how many pages can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. Use this option to set a hard limit.",
+			"description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target website.",
 			"minimum": 1,
 			"default": 50
 		},
 		"pageLoadTimeoutSecs": {
 			"title": "Page load timeout",
 			"type": "integer",
-			"description": "Maximum time the scraper will allow a web page to load in seconds.",
+			"description": "The maximum amount of time the scraper will wait for a web page to load, in seconds. If the web page does not load in this timeframe, it is considered to have failed and will be retried (subject to <b>Max page retries</b>), similarly as with other page load errors.",
 			"minimum": 1,
 			"default": 60,
 			"maximum": 360,
