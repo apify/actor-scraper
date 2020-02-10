@@ -457,6 +457,55 @@ It accepts a JSON object with the following structure:
 }
 ```
 
+## Results
+
+The scraping results returned by [**Page function**](#page-function) are stored in the default dataset associated with the actor run, from where you can export them to formats such as JSON, XML, CSV or Excel.
+For each object returned by the [**Page function**](#page-function), Cheerio Scraper pushes one record into the dataset and extends it with metadata such as the URL of the web page where the results come from.
+
+For example, if your page function returned the following object:
+
+```js
+{
+  message: 'Hello world!'
+}
+```
+
+The full object stored in the dataset will look as follows
+(in JSON format, including the metadata fields `#error` and `#debug`):
+
+```json
+{
+  "title": "Hello world!",
+  "#error": false,
+  "#debug": {
+    "requestId": "fvwscO2UJLdr10B",
+    "url": "https://www.example.com/",
+    "loadedUrl": "https://www.example.com/",
+    "method": "GET",
+    "retryCount": 0,
+    "errorMessages": null,
+    "statusCode": 200
+  }
+}
+```
+
+To download the results, call the
+[Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
+API endpoint:
+
+```
+https://api.apify.com/v2/datasets/[DATASET_ID]/items?format=json
+```
+
+where `[DATASET_ID]` is the ID of the actor's run dataset, in which you can find the Run object returned when starting the actor. Alternatively, you'll find the download links for the results in the Apify app.
+
+To skip the `#error` and `#debug` metadata fields from the results and not include empty result records,
+simply add the `clean=true` query parameter to the API URL, or select the  **Clean items** option when downloading the dataset in the Apify app.
+
+To get the results in other formats, set the `format` query parameter to `xml`, `xlsx`, `csv`, `html`, etc.
+For more information, see [Datasets](https://apify.com/docs/storage#dataset) in documentation
+or the [Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
+endpoint in Apify API reference.
 
 
 ## Output
