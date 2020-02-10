@@ -230,7 +230,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   
 - ##### **`cheerio: Object`**
 
-  The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery.
+  The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery. 
 
   Example:
   ```javascript
@@ -244,7 +244,9 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
 
-  This selector method is the starting point for traversing and manipulating the document. Like `jQuery`, it's the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
+  This selector method is the starting point for traversing and manipulating the document. Like with `jQuery`, it is the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
+
+  For more information, see the [`Selectors`](https://github.com/cheeriojs/cheerio/#selectors) section in the Cheerio documentation.
 
   Example:
   ```html
