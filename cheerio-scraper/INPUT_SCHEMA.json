@@ -86,7 +86,7 @@
 		"maxResultsPerCrawl": {
 			"title": "Max result records",
 			"type": "integer",
-			"description": "Maximum number of results that will be saved to dataset. The scraper will terminate afterwards. 0 means unlimited.",
+			"description": "The maximum number of records that will be saved to the resulting dataset. The scraper will stop when this limit is reached. <br><br>If set to <code>0</code>, there is no limit.",
 			"minimum": 0,
 			"default": 0,
 			"unit": "results"
