@@ -130,9 +130,38 @@ Optionally, each pseudo-URL can be associated with user data that can be referen
 Note that you don't have to use the **Pseudo-URLs** setting at all because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from your [**Page function**](#page-function).
 
 ### Page function
-The Page function is a single JavaScript function that enables the user to control the Scraper's operation,
-manipulate the visited pages and extract data as needed. The code runs in Node.js 10.
-The function is invoked with a `context` object containing the following properties:
+
+The **Page function** (`pageFunction`) field contains a single JavaScript function that enables the user to extract data from the web page, manipulate the DOM by clicking elements, add new URLs to the request queue, and otherwise control Web Scraper's operation.
+
+Example:
+
+```javascript
+async function pageFunction(context) {
+    //Pass a destructuring assignment of the necessary properties of the **context** object
+    const { $, request, log } = context;
+    const title = $('title').text();
+
+    //Print URL and title information to the context log
+    log.info(`URL: ${request.url} TITLE: ${title}`);
+
+    // Return an object with the data extracted from the page.
+    // It will be stored to the resulting dataset.
+    return {
+        url: request.url,
+        title
+    };
+}
+```
+
+The code runs in [Node.js 10](#https://nodejs.org/en/blog/release/v10.0.0/) and the function accepts a single argument, the `context` object, whose properties are listed in the table below.
+
+The return value of the page function is an object (or an array of objects) representing the data extracted from the web page. The return value must be stringify-able to JSON, i.e. it can only contain basic types and no circular references. If you prefer not to extract any data from the page and skip it in the clean results, simply return `null` or `undefined`.
+
+The page function supports the JavaScript ES6 syntax and is asynchronous, which means you can use the `await` keyword to wait for background operations to finish. To learn more about `async` functions,
+visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function).
+
+
+
 
 ```js
 const context = {
