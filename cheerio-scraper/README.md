@@ -28,23 +28,24 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`customData: Object`**](#customdata-object)
       - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`json: Object`**](#json-object)
+      - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
     + [**`Functions`**](#functions)
+      - [**`$: Function`**](#$-function)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
+      - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`log: Object`**](#log-object)
       - [**`Apify: Object`**](#apify-object)
-      - [**`contentType: {type, encoding}`**](#contenttype-type-encoding)
       - [**`cheerio: Object`**](#cheerio-object)
 
 
-      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
-      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
-      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
-      - [**`$: Function`**](#$-function)
-      - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
-      - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
 - [Output](#output)
   * [Dataset](#dataset)
 
@@ -210,7 +211,97 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   The parsed object from a JSON string if the response contains the content type `application/json`.
 
+- ##### **`contentType: {type, encoding}`**
+
+  The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
+
+  Example:
+  ```javascript
+  // Content-Type: application/json; charset=utf-8
+  const mimeType = contentType.type // application/json
+  const encoding = contentType.encoding // utf-8
+  ```
+
 #### **`Functions`**
+
+- ##### **`$: Function`**
+
+  An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
+
+  This selector method is the starting point for traversing and manipulating the document. Like with `jQuery`, it is the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
+
+  For more information, see the [`Selectors`](https://github.com/cheeriojs/cheerio/#selectors) section in the Cheerio documentation.
+
+  Example:
+  ```html
+  <ul id="movies">
+    <li class="fun-movie">Fun Movie</li>
+    <li class="sad-movie">Sad Movie</li>
+    <li class="horror-movie">Horror Movie</li>
+  </ul>
+  ```
+
+  ```javascript
+  $('.movies', '#fun-movie').text()
+  //=> Fun Movie
+  $('ul .sad-movie').attr('class')
+  //=> sad-movie
+  $('li[class=horror-movie]').html()
+  //=> Horror Movie
+  ```
+
+- ##### **`setValue(key, data, options): AsyncFunction`**
+
+  Sets a value to the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.setValue()`](https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise) function in the Apify SDK.
+    
+  To get the value, use the dual function `context.getValue(key)`.
+  
+  Example:
+  ```javascript
+  await context.setValue('my-key', { hello: 'world' });
+  ```
+
+- ##### **`getValue(key): AsyncFunction`**
+
+  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK.
+  
+  To set the value, use the dual function `context.setValue(key, value)`.
+  
+  Example:
+  ```javascript
+  const value = await context.getValue('my-key');
+  console.dir(value);
+  ```
+
+- ##### **`saveSnapshot(): AsyncFunction`**
+    
+  Saves a screenshot and full HTML of the current page to the key-value store
+  associated with the actor run, under the `SNAPSHOT-SCREENSHOT` and  `SNAPSHOT-HTML` keys, respectively.
+  This feature is useful when debugging your scraper.
+  
+  Note that each snapshot overwrites the previous one and the `saveSnapshot()` calls are throttled to at most one call in two seconds, in order to avoid excess consumption of resources and slowdown of the actor.
+  
+- ##### **`skipLinks(): AsyncFunction`**
+
+  Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
+
+- ##### **`enqueueRequest(request, [options]): AsyncFunction`**
+  
+  Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
+
+  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, see the [`Request`](https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK.
+  
+  The optional `options` parameter is an object with additional options. Currently, it only supports the `forefront` boolean flag. If `true`, the request is added to the beginning of the queue. By default, requests are added to the end.
+  
+  Example:
+  ```javascript
+  await context.enqueueRequest({ url: 'https://www.example.com' });
+  await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
+  ```
+
+
+
+
 
 - ##### **`request: Object`**
   
@@ -286,17 +377,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   **Caution:** Since we're making the full SDK available, and Cheerio Scraper runs using the SDK, some edge case manipulations may lead to inconsistencies. Use `Apify` with caution and avoid making global changes unless you're confident.
 
-- ##### **`contentType: {type, encoding}`**
-
-  The `Content-Type` header parsed into an object with 2 properties, `type` and `encoding`.
-
-  Example:
-  ```javascript
-  // Content-Type: application/json; charset=utf-8
-  const mimeType = contentType.type // application/json
-  const encoding = contentType.encoding // utf-8
-  ```
-
 - ##### **`cheerio: Object`**
 
   The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery. 
@@ -311,82 +391,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 
 
-
-- ##### **`enqueueRequest(request, [options]): AsyncFunction`**
-  
-  Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
-
-  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, see the [`Request`](https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK.
-  
-  The optional `options` parameter is an object with additional options. Currently, it only supports the `forefront` boolean flag. If `true`, the request is added to the beginning of the queue. By default, requests are added to the end.
-  
-  Example:
-  ```javascript
-  await context.enqueueRequest({ url: 'https://www.example.com' });
-  await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
-  ```
-
-- ##### **`getValue(key): AsyncFunction`**
-
-  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK.
-  
-  To set the value, use the dual function `context.setValue(key, value)`.
-  
-  Example:
-  ```javascript
-  const value = await context.getValue('my-key');
-  console.dir(value);
-  ```
-
-- ##### **`setValue(key, data, options): AsyncFunction`**
-
-  Sets a value to the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.setValue()`](https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise) function in the Apify SDK.
-    
-  To get the value, use the dual function `context.getValue(key)`.
-  
-  Example:
-  ```javascript
-  await context.setValue('my-key', { hello: 'world' });
-  ```
-
-- ##### **`$: Function`**
-
-  An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
-
-  This selector method is the starting point for traversing and manipulating the document. Like with `jQuery`, it is the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
-
-  For more information, see the [`Selectors`](https://github.com/cheeriojs/cheerio/#selectors) section in the Cheerio documentation.
-
-  Example:
-  ```html
-  <ul id="movies">
-    <li class="fun-movie">Fun Movie</li>
-    <li class="sad-movie">Sad Movie</li>
-    <li class="horror-movie">Horror Movie</li>
-  </ul>
-  ```
-
-  ```javascript
-  $('.movies', '#fun-movie').text()
-  //=> Fun Movie
-  $('ul .sad-movie').attr('class')
-  //=> sad-movie
-  $('li[class=horror-movie]').html()
-  //=> Horror Movie
-  ```
-
-
-- ##### **`saveSnapshot(): AsyncFunction`**
-    
-  Saves a screenshot and full HTML of the current page to the key-value store
-  associated with the actor run, under the `SNAPSHOT-SCREENSHOT` and  `SNAPSHOT-HTML` keys, respectively.
-  This feature is useful when debugging your scraper.
-  
-  Note that each snapshot overwrites the previous one and the `saveSnapshot()` calls are throttled to at most one call in two seconds, in order to avoid excess consumption of resources and slowdown of the actor.
-  
-- ##### **`skipLinks(): AsyncFunction`**
-
-  Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
 
 ## Output
 Output is a dataset containing extracted data for each scraped page. To save data into
