@@ -16,7 +16,8 @@
 			"title": "Use request queue",
 			"type": "boolean",
 			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
-			"default": true
+			"default": true,
+			"groupCaption": "Options"
 		},
 		"pseudoUrls": {
 			"title": "Pseudo-URLs",
@@ -33,14 +34,14 @@
 		"linkSelector": {
 			"title": "Link selector",
 			"type": "string",
-			"description": "CSS selector matching elements with 'href' attributes that should be enqueued. To enqueue urls from <code><div class=\"my-class\" href=...></code> tags, you would enter <strong>div.my-class</strong>. Leave empty to ignore all links.",
+			"description": "A CSS selector saying which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> field.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see the <a href='https://apify.com/apify/web-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> README.",
 			"editor": "textfield",
-			"prefill": "a"
+			"prefill": "a[href]"
 		},
 		"keepUrlFragments": {
-			"title": "Keep URL fragments",
+			"title": "URL #fragments identify unique pages",
 			"type": "boolean",
-			"description": "URL fragments (the parts of URL after a <code>#</code>) are not considered when the scraper determines whether a URL has already been visited. This means that when adding URLs such as <code>https://example.com/#foo</code> and <code>https://example.com/#bar</code>, only the first will be visited. Turn this option on to tell the scraper to visit both.",
+			"description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
 			"default": false
 		},
 		"pageFunction": {
