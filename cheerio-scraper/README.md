@@ -308,6 +308,14 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
     }
   }
   ```
+
+- ##### **`saveSnapshot(): AsyncFunction`**
+    
+  Saves a screenshot and full HTML of the current page to the key-value store
+  associated with the actor run, under the `SNAPSHOT-SCREENSHOT` and  `SNAPSHOT-HTML` keys, respectively.
+  This feature is useful when debugging your scraper.
+  
+  Note that each snapshot overwrites the previous one and the `saveSnapshot()` calls are throttled to at most one call in two seconds, in order to avoid excess consumption of resources and slowdown of the actor.
   
 
 
