@@ -36,7 +36,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
       - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
-    + [**`Class instances and namescapes`**](#class-instances-and-namescapes)
+    + [**`Class instances and namespaces`**](#class-instances-and-namescapes)
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
@@ -298,7 +298,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
 
-#### **`Class instances and namescapes`**
+#### **`Class instances and namespaces`**
 
 - ##### **`request: Object`**
   
