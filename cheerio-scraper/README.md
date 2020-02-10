@@ -45,10 +45,8 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`Apify: Object`**](#apify-object)
       - [**`cheerio: Object`**](#cheerio-object)
 - [Proxy configuration](#proxy-configuration)
-
-
-- [Output](#output)
-  * [Dataset](#dataset)
+- [Results](#results)
+- [Additional resources](#additional-resources)
 
 <!-- tocstop -->
 
@@ -506,5 +504,23 @@ To get the results in other formats, set the `format` query parameter to `xml`, 
 For more information, see [Datasets](https://apify.com/docs/storage#dataset) in documentation
 or the [Get dataset items](https://apify.com/docs/api/v2#/reference/datasets/item-collection)
 endpoint in Apify API reference.
+
+## Additional resources
+
+Congratulations! You've learned how Web Scraper works.
+You might also want to see these other resources:
+
+- [Web scraping tutorial](https://apify.com/docs/scraping) -
+  An introduction to web scraping with Apify.
+- [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
+  A step-by-step tutorial on how to use Web Scraper, with a detailed explanation and examples.
+- [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`) -
+  Another web scraping actor that downloads and processes pages in raw HTML for much higher performance. 
+- [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
+  An actor similar to Web Scraper, which provides lower-level control of the underlying
+  [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
+- [Actors documentation](https://apify.com/docs/actor) -
+  Documentation for the Apify Actors cloud computing platform.
+- [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most popular web crawling and scraping library for Node.js.
 
 
