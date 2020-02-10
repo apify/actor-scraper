@@ -44,6 +44,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`log: Object`**](#log-object)
       - [**`Apify: Object`**](#apify-object)
       - [**`cheerio: Object`**](#cheerio-object)
+- [Proxy configuration](#proxy-configuration)
 
 
 - [Output](#output)
@@ -387,6 +388,74 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   const $ = cheerio.load('<h2 class="title">Hello world</h2>');
   ```
 
+## Proxy configuration
+
+The **Proxy configuration** (`proxyConfiguration`) option enables you to set
+proxies that will be used by the scraper in order to prevent its detection by target websites.
+You can use both the [Apify Proxy](https://apify.com/proxy) and custom HTTP or SOCKS5 proxy servers.
+
+The following table lists the available options of the proxy configuration setting:
+
+<table class="table table-bordered table-condensed">
+    <tbody>
+    <tr>
+        <th><b>None</b></td>
+        <td>
+            The scraper will not use any proxies.
+            All web pages will be loaded directly from IP addresses of Apify servers running on Amazon Web Services.
+        </td>
+    </tr>
+    <tr>
+        <th><b>Apify&nbsp;Proxy&nbsp;(automatic)</b></td>
+        <td>
+            The scraper will load all web pages using the <a href="https://apify.com/proxy">Apify Proxy</a>
+            in automatic mode. In this mode, the proxy uses all proxy groups that are available to the user. For each new web page it automatically selects the proxy that hasn't been used in the longest time for the specific hostname in order to reduce the chance of detection by the website.
+            You can view the list of available proxy groups on the <a href="https://my.apify.com/proxy" target="_blank" rel="noopener">Proxy</a> page in the app.
+        </td>
+    </tr>
+    <tr>
+        <th><b>Apify&nbsp;Proxy&nbsp;(selected&nbsp;groups)</b></td>
+        <td>
+            The scraper will load all web pages using the <a href="https://apify.com/proxy">Apify Proxy</a>
+            with specific groups of target proxy servers.
+        </td>
+    </tr>
+    <tr>
+        <th><b>Custom&nbsp;proxies</b></td>
+        <td>
+            <p>
+            The scraper will use a custom list of proxy servers.
+            The proxies must be specified in the <code>scheme://user:password@host:port</code> format.
+            Multiple proxies should be separated by a space or new line. The URL scheme can be either <code>http</code> or <code>socks5</code>. User and password might be omitted, but the port must always be present.
+            </p>
+            <p>
+                Example:
+            </p>
+            <pre><code class="language-none">http://bob:password@proxy1.example.com:8000
+            http://bob:password@proxy2.example.com:8000</code></pre>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+The proxy configuration can be set programmatically when calling the actor using the API
+by setting the `proxyConfiguration` field.
+It accepts a JSON object with the following structure:
+
+```javascript
+{
+    // Indicates whether to use the Apify Proxy or not.
+    "useApifyProxy": Boolean,
+
+    // Array of Apify Proxy groups, only used if "useApifyProxy" is true.
+    // If missing or null, the Apify Proxy will use automatic mode.
+    "apifyProxyGroups": String[],
+
+    // Array of custom proxy URLs, in "scheme://user:password@host:port" format.
+    // If missing or null, custom proxies are not used.
+    "proxyUrls": String[],
+}
+```
 
 
 
