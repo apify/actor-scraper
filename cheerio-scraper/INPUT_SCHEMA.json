@@ -63,7 +63,7 @@
 			"sectionCaption": "Advanced configuration",
 			"title": "Prepare request function",
 			"type": "string",
-			"description": "This async function is executed before making a request to a given URL. It's sole argument is an object with two properties: <code>{ request, Apify }</code>. It can be useful to do pre-processing, updating of headers or just setting cookies. IMPORTANT: The return value of this function is irrelevant, you should modify the request instance in place.",
+			"description": "This async function is executed before making a request to a given URL. Its sole argument is an object with two properties: <code>{ request, Apify }</code>. It can be useful for pre-processing, updating headers, or just setting cookies. IMPORTANT: The return value of this function is irrelevant, you should modify the request instance in place.",
 			"prefill": "async function preGotoFunction({ request, Apify }) {\n    /* add your logic here, if needed */\n}",
 			"editor": "javascript"
 		},
