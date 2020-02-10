@@ -224,12 +224,37 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   console.dir(movies);
   ```
 
+- ##### **`input: Object`**
+
+  An object containing the actor run input, i.e. the Web Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
+  
+- ##### **`cheerio: Object`**
+
+  The [`Cheerio`](https://cheerio.js.org) module. Being the server-side version of the [jQuery](https://jquery.com) library, Cheerio features a very similar API with nearly identical selector implementation. This means DOM traversing, manipulation, querying, and data extraction are just as easy as with jQuery.
+
+  Example:
+  ```javascript
+  //The preferred method of loading the HTML
+  const cheerio = require('cheerio');
+  const $ = cheerio.load('<h2 class="title">Hello world</h2>');
+  ```
+  
+- ##### **`$: Function`**
+
+  This is the reference to the Cheerio module. 
+  
+  The only difference between the two is that Cheerio's selector method is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
+
+  Example:
+  ```javascript
+  $('h2.title').text('Hello there!');
+  $('h2').addClass('welcome');
+
+  $.html()
+  //=> <h2 class="title welcome">Hello there!</h2>
+  ```
 
 
-
-
-
-<!-- Make sure to add a reference to CHEERIO!!! -->
 
 
 ```js
