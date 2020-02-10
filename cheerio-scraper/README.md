@@ -8,7 +8,7 @@ browser but instead constructs a DOM from a HTML string. It then provides the us
 Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
 
 If you're unfamiliar with web scraping or front-end web development in general,
-you might prefer to start with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial) from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/scraping/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
+you might prefer to start with the  [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial) from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/scraping/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
 
 ## Table of Contents
 
@@ -38,7 +38,7 @@ you might prefer to start with [**Web scraping tutorial**](https://apify.com/doc
 To get started with Cheerio Scraper, you only need two things. First, tell the scraper which web pages
 it should load. Second, tell it how to extract data from each page.
 
-The scraper starts by loading the pages or documents specified in the [**Start URLs**](#start-urls) input box.
+The scraper starts by loading the pages specified in the [**Start URLs**](#start-urls) input box.
 Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
 To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **Page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
@@ -66,7 +66,16 @@ Since Cheerio Scraper's **page function** is executed in the context of the serv
 
 As input, Cheerio Scraper actor accepts a number of configurations. These can be entered either manually in the user interface in the [Apify app](https://my.apify.com), or programmatically in a JSON object using the [Apify API](https://apify.com/docs/api/v2#/reference/actors/run-collection/run-actor). For a complete list of input fields and their types, please visit [Input](https://apify.com/apify/cheerio-scraper?section=input-schema).
 
+### Start URLs
 
+The **Start URLs** (`startUrls`) field represents the initial list of pages that the scraper will visit.
+You can either enter the URLs manually one by one, upload them in a CSV file, or [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet) document.
+Each URL must start with either a `http://` or `https://` protocol prefix.
+
+Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from
+your JavaScript code in the [**Page function**](#page-function) under `context.request.userData`.
+This is useful for determining which start URL is currently loaded, in order to perform some page-specific actions. For example, when crawling an online store, you might want to perform different actions on a page listing the products vs. a product detail page. For details, see the [**Web scraping tutorial**](https://apify.com/docs/scraping/tutorial/introduction#the-start-url)
+in the Apify documentation.
 
 
 ## Page function
