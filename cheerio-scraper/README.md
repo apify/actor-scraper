@@ -41,7 +41,19 @@ it should load. Second, tell it how to extract data from each page.
 The scraper starts by loading the pages or documents specified in the [**Start URLs**](#start-urls) input box.
 Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
-To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
+To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **Page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
+
+In summary, Cheerio Scraper works as follows:
+
+1. Adds each [Start URL](#start-urls) to the crawling queue.
+2. Fetches the first URL from the queue and constructs a DOM from the fetched HTML string.
+3. Executes the [**Page function**](#page-function) on the loaded page and saves its results.
+4. Optionally, finds all links from the page using the [**Link selector**](#link-selector).
+   If a link matches any of the [**Pseudo URLs**](#pseudo-urls) and has not yet been visited, adds it to the queue.
+5. If there are more items in the queue, repeats step 2, otherwise finishes.
+
+Cheerio Scraper has a number of advanced configuration settings to improve performance, set cookies for login to websites, limit the number of records, etc. 
+See [Advanced configuration](#advanced-configuration) below for the complete list of settings.
 
 ## Limitations
 
