@@ -270,7 +270,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   An object containing logging functions, with the same interface as provided by the 
   [`Apify.utils.log`](https://sdk.apify.com/docs/api/log) object in the Apify SDK documentation. The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
-  Note that `log.debug()` only prints messages to the log if the **Debug log** input setting is set.
+  Note that `log.debug()` only logs messages if the **Debug log** input setting is set.
   
   Example:
   ```javascript
