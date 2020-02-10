@@ -39,7 +39,6 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`response: Object`**](#response-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
-  * [Functions](#functions)
   * [Class instances and namespaces](#class-instances-and-namespaces)
     + [Request](#request)
     + [Response](#response)
@@ -371,66 +370,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
   Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
 
-
-### Functions
-The `context` object provides several helper functions that make scraping and saving data easier
-and more streamlined. All of the functions are `async` so make sure to use `await` with their invocations.
-
-<table>
-<thead>
-    <tr><td>Argument</td><td>Arguments</td></tr>
-</thead>
-<tbody>
-    <tr><td><code>$</code></td>
-    <td>
-        <a href="https://github.com/cheeriojs/cheerio#-selector-context-root-" target="_blank">
-            <code>selector, [context], [root]</code>
-        </a>
-    </td></tr>
-    <tr><td colspan="2">
-        Reference to the <a href="https://github.com/cheeriojs/cheerio" target="_blank">Cheerio</a>
-        function, which enables you to work with the page's HTML just as `jQuery` would.
-    </td></tr>
-    <tr><td><code>setValue</code></td><td><code>(key: string, data: Object, options: Object)</code></td></tr>
-    <tr><td colspan="2">
-        To save data to the default key-value store, you can use the <code>setValue</code> function.
-        See the full documentation:
-        <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-code-promise-code" target="_blank">
-            <code>Apify.setValue()</code>
-        </a> function.
-    </td></tr>
-    <tr><td><code>getValue</code></td><td><code>(key: string)</code></td></tr>
-    <tr><td colspan="2">
-        To read data from the default key-value store, you can use the <code>getValue</code> function.
-        See the full documentation:
-        <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-value-options-code-promise-code" target="_blank">
-            <code>Apify.getValue()</code>
-        </a> function.
-    </td></tr>
-    <tr><td><code>saveSnapshot</code></td><td></td></tr>
-    <tr><td colspan="2">
-        A helper function that enables saving a snapshot of the current page's HTML, as parsed by Cheerio,
-        into the default key value store. Each snapshot overwrites the previous one and the function's
-        invocations will also be throttled if invoked more than once in 2 seconds, to prevent abuse.
-        So make sure you don't call it for every single request. You can find the HTML under the SNAPSHOT-BODY key.
-    </td></tr>
-    <tr><td><code>skipLinks</code></td><td></td></tr>
-    <tr><td colspan="2">
-        With each invocation of the <code>pageFunction</code> the scraper attempts to extract
-        new URLs from the page using the Link selector and PseudoURLs provided in the input UI.
-        If you want to prevent this behavior in certain cases, call the <code>skipLinks</code>
-        function and no URLs will be added to the queue for the given page.
-    </td></tr>
-    <tr><td><code>enqueueRequest</code></td><td><code>(request: Request|Object, options: Object)</code></td></tr>
-    <tr><td colspan="2">
-        To enqueue a specific URL manually instead of automatically by a combination of a Link selector
-        and a Pseudo URL, use the <code>enqueueRequest</code> function. It accepts a plain object as argument
-        that needs to have the structure to construct a
-        <a href="https://sdk.apify.com/docs/api/request" target="_blank"><code>Request</code></a> object.
-        But frankly, you just need a URL: <code>{ url: 'https://www.example.com }</code>
-    </td></tr>
-</tbody>
-</table>
 
 ### Class instances and namespaces
 The following are either class instances or namespaces, which is just a way of saying objects
