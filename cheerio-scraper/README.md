@@ -38,7 +38,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
 To get started with Cheerio Scraper, you only need two things. First, tell the scraper which web pages
 it should load. Second, tell it how to extract data from each page.
 
-The scraper starts by loading the pages specified in the [**Start URLs**](#start-urls) input box.
+The scraper starts by loading the pages specified in the [**Start URLs**](#start-urls) field.
 Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
 To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **Page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
@@ -97,8 +97,33 @@ a[href]
 
 If the **Link selector** is empty, page links are ignored, and the scraper only loads pages that were specified in the [**Start URLs**](#start-urls) input or that were manually added to the request queue by calling `context.enqueueRequest()` in the [**Page function**](#page-function).
 
+### Pseudo-URLs
 
+The **Pseudo-URLs** (`pseudoUrls`) field specifies the kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled.
 
+A pseudo-URL is simply a URL with special directives enclosed in `[]` brackets. Currently, the only supported directive is `[regexp]`, which defines a JavaScript-style regular expression to match against the URL.
+
+For example, the pseudo-URL `http://www.example.com/pages/[(\w|-)*]` will match all of the following URLs:
+
+- `http://www.example.com/pages/`
+- `http://www.example.com/pages/my-awesome-page`
+- `http://www.example.com/pages/something`
+
+If either `[` or `]` is part of the normal query string, it must be encoded as `[\x5B]` or `[\x5D]`, respectively. For example, the following pseudo-URL:
+
+```
+http://www.example.com/search?do[\x5B]load[\x5D]=1
+```
+
+will match the URL:
+
+```
+http://www.example.com/search?do[load]=1
+```
+
+Optionally, each pseudo-URL can be associated with user data that can be referenced from your [**Page function**](#page-function) using `context.request.userData` to determine what kind of page is currently loaded in the browser.
+
+Note that you don't have to use the **Pseudo-URLs** setting at all, because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from the [**Page function**](#page-function).
 
 
 ## Page function
