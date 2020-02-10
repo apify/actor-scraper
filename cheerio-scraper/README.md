@@ -36,7 +36,6 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`response: Object`**](#response-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
-      - [**`underscoreJs: Object`**](#underscorejs-object)
       - [**`waitFor(task, options): AsyncFunction`**](#waitfortask-options-asyncfunction)
 - [`context`](#context)
   * [Data structures](#data-structures)
@@ -344,6 +343,10 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   
   Note that each snapshot overwrites the previous one and the `saveSnapshot()` calls are throttled to at most one call in two seconds, in order to avoid excess consumption of resources and slowdown of the actor.
   
+- ##### **`skipLinks(): AsyncFunction`**
+
+  Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
+
 
 
 ```js
