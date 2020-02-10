@@ -144,7 +144,7 @@ Note that you don't have to use the **Pseudo-URLs** setting at all because you c
 
 ### Page function
 
-The **Page function** (`pageFunction`) field contains a single JavaScript function that enables the user to extract data from the web page, manipulate the DOM by clicking elements, add new URLs to the request queue, and otherwise control Web Scraper's operation.
+The **Page function** (`pageFunction`) field contains a single JavaScript function that enables the user to extract data from the web page, manipulate the DOM by clicking elements, add new URLs to the request queue, and otherwise control Cheerio Scraper's operation.
 
 Example:
 
@@ -179,7 +179,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`input: Object`**
 
-  An object containing the actor run input, i.e. the Web Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
+  An object containing the actor run input, i.e. Cheerio Scraper's configuration. Each page function invocation gets a fresh copy of the `input` object, so changing its properties has no effect.
 
 - ##### **`env: Object`**
 
@@ -194,7 +194,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`customData: Object`**
 
   Contains the object provided in the **Custom data** (`customData`) input field.
-  This is useful for passing dynamic parameters to your Web Scraper using API.
+  This is useful for passing dynamic parameters to your Cheerio Scraper using API.
 
 
 - ##### **`body: String|Buffer`**
@@ -507,7 +507,7 @@ endpoint in Apify API reference.
 
 ## Additional resources
 
-Congratulations! You've learned how Web Scraper works.
+Congratulations! You've learned how Cheerio Scraper works.
 You might also want to see these other resources:
 
 - [Web scraping tutorial](https://apify.com/docs/scraping) -
