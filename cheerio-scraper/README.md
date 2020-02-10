@@ -251,19 +251,19 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   Example:
   ```html
   <ul id="movies">
-    <li class="terminator">Terminator</li>
-    <li class="commando">Commando</li>
-    <li class="conan">Conan</li>
+    <li class="fun-movie">Fun Movie</li>
+    <li class="sad-movie">Sad Movie</li>
+    <li class="horror-movie">Horror Movie</li>
   </ul>
   ```
 
   ```javascript
-  $('.movies', '#terminator').text()
-  //=> Terminator
-  $('ul .commando').attr('class')
-  //=> commando
-  $('li[class=conan]').html()
-  //=> Conan
+  $('.movies', '#fun-movie').text()
+  //=> Fun Movie
+  $('ul .sad-movie').attr('class')
+  //=> sad-movie
+  $('li[class=horror-movie]').html()
+  //=> Horror Movie
   ```
 
 
