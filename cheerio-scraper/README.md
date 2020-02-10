@@ -181,7 +181,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   await context.enqueueRequest({ url: 'https://www.example.com/first' }, { forefront: true });
   ```
   
-  - ##### **`env: Object`**
+- ##### **`env: Object`**
 
   A map of all relevant values set by the Apify platform to the actor run via the `APIFY_` environment variable. For example, here you can find information such as actor run ID, timeouts, actor run memory, etc.
   For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK documentation.
