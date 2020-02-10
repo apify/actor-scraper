@@ -22,7 +22,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
-    + [**`Data structures`**](#datastructures)
+    + [**`Data structures`**](#data-structures)
       - [**`input: Object`**](#input-object)
       - [**`env: Object`**](#env-object)
       - [**`customData: Object`**](#customdata-object)
@@ -173,7 +173,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 **Properties of the `context` object:**
 
-- #### **`Data structures`**
+#### **`Data structures`**
 
 - ##### **`input: Object`**
 
