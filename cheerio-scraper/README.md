@@ -1,6 +1,6 @@
 # Cheerio Scraper
 
-Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests. It allows the user to retrieve HTML pages, then parse and inspect the HTML using the [Cheerio](https://www.npmjs.com/package/cheerio) library. Fast.
+Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests. It allows the user to retrieve HTML pages, then parse and inspect the HTML using the [Cheerio](https://cheerio.js.org) library. Fast.
 
 Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
 browser but instead constructs a DOM from a HTML string. It then provides the user an API to work with that DOM.
@@ -45,7 +45,7 @@ it should load. Second, tell it how to extract data from each page.
 The scraper starts by loading the pages specified in the [**Start URLs**](#start-urls) field.
 Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
-To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **Page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://www.npmjs.com/package/cheerio).
+To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed in the context of every web page loaded. Since the scraper does not use the full browser, writing the **Page function** is equivalent to writing server-side code - it uses the server-side library [Cheerio](https://cheerio.js.org).
 
 In summary, Cheerio Scraper works as follows:
 
@@ -63,7 +63,7 @@ See [Advanced configuration](#advanced-configuration) below for the complete lis
 
 The actor does not employ a full-featured Chromium web browser, so will not be sufficient for websites that render their content dynamically using client-side Javascript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
 
-Since Cheerio Scraper's **page function** is executed in the context of the server, it only supports server-side JavaScript code. If you need to combine client- and server-side libraries using the underlying [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library, you might prefer to use
+Since Cheerio Scraper's **Page function** is executed in the context of the server, it only supports server-side JavaScript code. If you need to combine client- and server-side libraries using the underlying [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library, you might prefer to use
 [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). For even more flexibility and control, you might develop a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
 ## Input configuration
