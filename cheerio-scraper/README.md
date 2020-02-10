@@ -29,6 +29,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`input: Object`**](#input-object)
+      - [**`json: Object`**](#json-object)
       - [**`body: String/Buffer`**](#body-string/buffer)
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`$: Function`**](#$-function)
@@ -262,6 +263,11 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   ```javascript
   const stringBody = context.body.toString(context.contentType.encoding)
   ```
+
+- ##### **`json: Object`**
+
+  The parsed object from a JSON string if the response contains the content type `application/json`.
+    
   
 - ##### **`cheerio: Object`**
 
