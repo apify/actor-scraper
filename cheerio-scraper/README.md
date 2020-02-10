@@ -45,7 +45,10 @@ To tell the scraper how to extract data from web pages, you need to provide a [*
 
 ## Limitations
 
-[to be filled in ]
+The actor does not employ a full-featured Chromium web browser, so will not be sufficient for websites that render their content dynamically using client-side Javascript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
+
+Since Cheerio Scraper's **page function** is executed in the context of the server, it only supports server-side JavaScript code. If you need to combine client- and server-side libraries using the underlying [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library, you might prefer to use
+[**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). For even more flexibility and control, you might develop a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
 ## Input configuration
 Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
