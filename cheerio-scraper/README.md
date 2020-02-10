@@ -235,6 +235,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   Example:
   ```javascript
   //The preferred method of loading the HTML
+  //It loads the HTML code as a string, returning a Cheerio instance
   const cheerio = require('cheerio');
   const $ = cheerio.load('<h2 class="title">Hello world</h2>');
   ```
