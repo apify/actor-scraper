@@ -374,51 +374,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   Calling this function ensures that page links from the current page will not be added to the request queue, even if they match the [**Link selector**](#link-selector) and/or [**Pseudo-URLs**](#pseudo-urls) settings.  This is useful to programmatically stop recursive crawling, e.g. if you know there are no more interesting links on the current page to follow.
 
 
-### Data structures
-<table>
-<thead>
-    <tr><td>Argument</td><td>Type</td></tr>
-</thead>
-<tbody>
-    <tr><td><code>input</code></td><td><code>Object</code></td></tr>
-    <tr><td colspan="2">
-        Input as it was received from the UI. Each <code>pageFunction</code> invocation gets a fresh
-        copy and you can not modify the input by changing the values in this object.
-    </td></tr>
-    <tr><td><code>env</code></td><td><code>Object</code></td></tr>
-    <tr><td colspan="2">
-        A map of all the relevant environment variables that you may want to use. See the
-        <a href="https://sdk.apify.com/docs/api/apify#apifygetenv-code-object-code" target="_blank"><code>Apify.getEnv()</code></a>
-        function for a preview of the structure and full documentation.
-    </td></tr>
-    <tr><td><code>customData</code></td><td><code>Object</code></td></tr>
-    <tr><td colspan="2">
-        Since the input UI is fixed, it does not support adding of other fields that may be needed for all
-        specific use cases. If you need to pass arbitrary data to the scraper, use the Custom data input field
-        and its contents will be available under the <code>customData</code> context key.
-    </td></tr>
-    <tr><td><code>body</code></td><td><code>string|Buffer</code></td></tr>
-    <tr><td colspan="2">
-        This is the body from the target website. If the website is in HTML or XML format, it will be a string that contains HTML or XML content.
-        It will be buffer in other cases. If you need to process body as a string, you can use contentType object to set up right encoding to the string.<br>
-        <code>const stringBody = context.body.toString(context.contentType.encoding)</code>
-    </td></tr>
-    <tr><td><code>json</code></td><td><code>Object</code></td></tr>
-    <tr><td colspan="2">
-        The parsed object from JSON string if the response contains the content type <code>application/json</code>
-    </td></tr>
-    <tr><td><code>contentType</code></td><td><code>{ type: string, encoding: string }</code></td></tr>
-    <tr><td colspan="2">
-        The <code>Content-Type</code> header parsed into an object with 2 properties, `type` and `encoding`.<br>
-        <pre><code>
-// Content-Type: application/json; charset=utf-8
-const mimeType = contentType.type // application/json
-const encoding = contentType.encoding // utf-8
-</code></pre><br>
-    </td></tr>
-</tbody>
-</table>
-
 ### Functions
 The `context` object provides several helper functions that make scraping and saving data easier
 and more streamlined. All of the functions are `async` so make sure to use `await` with their invocations.
