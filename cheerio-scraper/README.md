@@ -17,7 +17,11 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
 - [Usage](#usage)
 - [Lmitations](#limitations)
 - [Input configuration](#input-configuration)
-- [Page function](#page-function)
+  * [Start URLs](#start-urls)
+  * [Use request queue](#use-request-queue)
+  * [Link selector](#link-selector)
+  * [Pseudo-URLs](#pseudo-urls)
+  * [Page function](#page-function)
 - [`context`](#context)
   * [Data structures](#data-structures)
   * [Functions](#functions)
@@ -125,14 +129,10 @@ Optionally, each pseudo-URL can be associated with user data that can be referen
 
 Note that you don't have to use the **Pseudo-URLs** setting at all because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from your [**Page function**](#page-function).
 
-
-
-
-## Page function
-Page function is a single JavaScript function that enables the user to control the Scraper's operation,
+### Page function
+The Page function is a single JavaScript function that enables the user to control the Scraper's operation,
 manipulate the visited pages and extract data as needed. The code runs in Node.js 10.
-The function is invoked with a `context` object
-containing the following properties:
+The function is invoked with a `context` object containing the following properties:
 
 ```js
 const context = {
