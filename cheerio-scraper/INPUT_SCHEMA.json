@@ -94,7 +94,7 @@
 		"maxCrawlingDepth": {
 			"title": "Max crawling depth",
 			"type": "integer",
-			"description": "Defines how many links away from the StartURLs will the scraper descend. 0 means unlimited.",
+			"description": "Specifies how many links away from the <b>Start URLs</b> the scraper will descend. This value is a safeguard against infinite crawling depths for misconfigured scrapers. Note that pages added using <code>context.enqueuePage()</code> in <b>Page function</b> are not subject to the maximum depth constraint. <br><br>If set to <code>0</code>, there is no limit.",
 			"minimum": 0,
 			"default": 0
 		},
