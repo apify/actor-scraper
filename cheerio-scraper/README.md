@@ -38,6 +38,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
+      - [**`Apify: Object`**](#apify-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
   * [Class instances and namespaces](#class-instances-and-namespaces)
@@ -362,6 +363,12 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`AutoscaledPool: Object`**
 
   Manages a pool of asynchronous resource-intensive tasks that are executed in parallel. The pool only starts new tasks if there is enough free CPU and memory available and the Javascript event loop is not blocked. For more information, see the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object in the Apify SDK.
+
+- ##### **`Apify: Object`**
+
+  A reference to the full power of the Apify SDK. See [`the docs`](https://sdk.apify.com/docs/api/apify) for more information and all the available functions and classes.
+
+  **Caution:** Since we're making the full SDK available, and Cheerio Scraper runs using the SDK, some edge case manipulations may lead to inconsistencies. Use `Apify` with caution and avoid making global changes unless you're confident.
 
 - ##### **`saveSnapshot(): AsyncFunction`**
     
