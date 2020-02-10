@@ -63,7 +63,11 @@ Since Cheerio Scraper's **page function** is executed in the context of the serv
 [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). For even more flexibility and control, you might develop a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
 ## Input configuration
-Input is provided via the pre-configured UI. See the tooltips for more info on the available options.
+
+As input, Cheerio Scraper actor accepts a number of configurations. These can be entered either manually in the user interface in the [Apify app](https://my.apify.com), or programmatically in a JSON object using the [Apify API](https://apify.com/docs/api/v2#/reference/actors/run-collection/run-actor). For a complete list of input fields and their types, please visit [Input](https://apify.com/apify/cheerio-scraper?section=input-schema).
+
+
+
 
 ## Page function
 Page function is a single JavaScript function that enables the user to control the Scraper's operation,
