@@ -171,7 +171,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   
   Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
 
-  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, see the [`Request`](https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK documentation.
+  The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, see the [`Request`](https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK.
   
   The optional `options` parameter is an object with additional options. Currently, it only supports the `forefront` boolean flag. If `true`, the request is added to the beginning of the queue. By default, requests are added to the end.
   
@@ -184,7 +184,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`env: Object`**
 
   A map of all relevant values set by the Apify platform to the actor run via the `APIFY_` environment variable. For example, here you can find information such as actor run ID, timeouts, actor run memory, etc.
-  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK documentation.
+  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK.
   
   Example:
   ```javascript
@@ -193,7 +193,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
  
 - ##### **`getValue(key): AsyncFunction`**
 
-  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK documentation.
+  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK.
   
   To set the value, use the dual function `context.setValue(key, value)`.
   
@@ -269,7 +269,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`log: Object`**
 
   An object containing logging functions, with the same interface as provided by the 
-  [`Apify.utils.log`](https://sdk.apify.com/docs/api/log) object in the Apify SDK documentation. The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
+  [`Apify.utils.log`](https://sdk.apify.com/docs/api/log) object in the Apify SDK. The log messages are written directly to the actor run log, which is useful for monitoring and debugging.
   Note that `log.debug()` only logs messages if the **Debug log** input setting is set.
   
   Example:
