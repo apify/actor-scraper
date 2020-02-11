@@ -162,7 +162,7 @@
 		"customData": {
 			"title": "Custom data",
 			"type": "object",
-			"description": "This object will be available on pageFunction's context as customData.",
+			"description": "A custom JSON object that is passed to the <b>Page function</b> as <code>context.customData</code>. This setting is useful when invoking the scraper via API, in order to pass some arbitrary parameters to your code.",
 			"default": {},
 			"prefill": {},
 			"editor": "json"
