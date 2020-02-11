@@ -156,14 +156,11 @@ class CrawlerSetup {
             },
             useSessionPool: true,
             sessionPoolOptions: {
-                sessionOptions: {}
+                sessionOptions: {
+                    maxUsageCount: this.input.maxUsageCount
+                }
             }
         };
-
-        if (this.input.maxUsageCount) {
-            options.sessionPoolOptions.sessionOptions.maxUsageCount = this.input.maxUsageCount;
-        }
-
 
         /*
         if (this.cookieJar) {
@@ -176,7 +173,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _prepareRequestFunction({ request }) {
+    async _prepareRequestFunction({ request, session}) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)
@@ -240,10 +237,10 @@ class CrawlerSetup {
         const aborted = await this._handleMaxResultsPerCrawl();
         if (aborted) return;
 
-        // setting initial cookies via session
+        // setting initial cookies
         if (this.initialCookies) {
             const url = new URL(request.url);
-            await session.setPuppeteerCookies(this.initialCookies, url)
+            session.setCookiesFromResponse(response)
         }
 
         // Setup and create Context.
@@ -261,7 +258,6 @@ class CrawlerSetup {
                 body,
                 json,
                 autoscaledPool,
-                session,
                 request,
                 contentType,
                 response: {
