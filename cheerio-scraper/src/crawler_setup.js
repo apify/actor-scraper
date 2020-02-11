@@ -82,7 +82,7 @@ class CrawlerSetup {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
             return `${cookie.key || cookie.name}=${cookie.value}`;
         });
-        if (this.input.useCookieJar) this.cookieJar = new CookieJar();
+        //if (this.input.useCookieJar) this.cookieJar = new CookieJar();
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -154,11 +154,24 @@ class CrawlerSetup {
             requestOptions: {
                 headers: {},
             },
+            useSessionPool: true,
+            sessionPoolOptions: {
+                sessionOptions: {}
+            }
         };
+
+        if (this.input.maxUsageCount) {
+            options.sessionPoolOptions.sessionOptions.maxUsageCount = this.input.maxUsageCount;
+        }
 
         if (this.cookieJar) {
             options.requestOptions.cookieJar = this.cookieJar;
         }
+
+        if (this.input.initialCookies) {
+
+        }
+
 
         this.crawler = new Apify.CheerioCrawler(options);
 
@@ -215,7 +228,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool, session }) {
         /**
          * PRE-PROCESSING
          */
@@ -226,6 +239,12 @@ class CrawlerSetup {
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl();
         if (aborted) return;
+
+        // setting initial cookies via session
+        if (this.initialCookies) {
+            const url = new URL(request.url);
+            await session.setPuppeteerCookies(this.initialCookies, url)
+        }
 
         // Setup and create Context.
         const contextOptions = {
@@ -242,6 +261,7 @@ class CrawlerSetup {
                 body,
                 json,
                 autoscaledPool,
+                session,
                 request,
                 contentType,
                 response: {
