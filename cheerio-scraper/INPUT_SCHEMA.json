@@ -132,9 +132,9 @@
 			"prefill": []
 		},
 		"debugLog": {
-			"title": "Debug log",
+			"title": "Enable debug log",
 			"type": "boolean",
-			"description": "Debug messages will be included in the log. Use <code>context.log.debug('message')</code> to log your own debug messages.",
+			"description": "If enabled, the actor log will include debug messages. Beware that this can be quite verbose. Use <code>context.log.debug('message')</code> to log your own debug messages from the <b>Page function</b>.",
 			"default": false,
 			"groupCaption": "Options",
 			"groupDescription": "Scraper settings"
@@ -142,7 +142,7 @@
 		"ignoreSslErrors": {
 			"title": "Ignore SSL errors",
 			"type": "boolean",
-			"description": "Scraper will ignore SSL certificate errors.",
+			"description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
 			"default": false
 		},
 		"useCookieJar": {
