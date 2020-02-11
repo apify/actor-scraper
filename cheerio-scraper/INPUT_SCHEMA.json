@@ -22,7 +22,7 @@
 		"pseudoUrls": {
 			"title": "Pseudo-URLs",
 			"type": "array",
-			"description": "Specifies what kind of URLs found by the <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if <b>Use request queue</b> is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
+			"description": "Specifies what kind of URLs found by the <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if <b>Use request queue</b> is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
 			"editor": "pseudoUrls",
 			"default": [],
 			"prefill": [
@@ -34,7 +34,7 @@
 		"linkSelector": {
 			"title": "Link selector",
 			"type": "string",
-			"description": "A CSS selector saying which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> field.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see the <a href='https://apify.com/apify/web-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> README.",
+			"description": "A CSS selector saying which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> field.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> README.",
 			"editor": "textfield",
 			"prefill": "a[href]"
 		},
@@ -101,7 +101,7 @@
 		"maxConcurrency": {
 			"title": "Max concurrency",
 			"type": "integer",
-			"description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target website.",
+			"description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target web page.",
 			"minimum": 1,
 			"default": 50
 		},
