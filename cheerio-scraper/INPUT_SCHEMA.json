@@ -126,7 +126,7 @@
 		"additionalMimeTypes": {
 			"title": "Additional mime types",
 			"type": "array",
-			"description": "By default text/html and application/xhtml+xml are supported. Note that while the default Accept header will allow any Content-Type to be received, HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional mime types and you're still receiving invalid responses, be sure to override the Accept header either in Start URL or in the Prepare request function.",
+			"description": "By default text/html and application/xhtml+xml are supported. Note that while the default Accept header will allow any Content-Type to be received, HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional mime types and you're still receiving invalid responses, be sure to override the <b>Accept header</b> setting either in <b>Start URLs</b> or in the <b>Prepare request function</b>.",
 			"editor": "json",
 			"default": [],
 			"prefill": []
