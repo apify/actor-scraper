@@ -512,7 +512,7 @@ You might also want to see these other resources:
 
 - [Web scraping tutorial](https://apify.com/docs/scraping) -
   An introduction to web scraping with Apify.
-- [Scraping with Cheerio Scraper](https://docs.apify.com/scraping/cheerio-scraper) (`apify/cheerio-scaper`) -
+- [Scraping with Cheerio Scraper](https://docs.apify.com/scraping/cheerio-scraper) -
   A step-by-step tutorial on how to use Cheerio Scraper, with a detailed explanation and examples. 
 - [Web Scraper](https://apify.com/apify/web-scraper) (`apify/web-scaper`) -
   Apify's basic tool for web crawling and scraping. It uses a full Chrome browser to render dynamic content.
