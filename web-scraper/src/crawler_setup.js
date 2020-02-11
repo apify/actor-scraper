@@ -284,9 +284,9 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // setting initial cookies
-        if (this.initialCookies) {
+        if (this.input.initialCookies) {
             const url = new URL(request.url);
-            await session.setPuppeteerCookies(this.initialCookies, url);
+            await session.setPuppeteerCookies(this.input.initialCookies, url);
         }
 
         // Abort the crawler if the maximum number of results was reached.
@@ -307,6 +307,7 @@ class CrawlerSetup {
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
+                    request: response.request
                 },
             },
         };
