@@ -176,6 +176,12 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
+            useSessionPool: true,
+            sessionPoolOptions: {
+                sessionOptions: {
+                    maxUsageCount: this.input.maxUsageCount
+                }
+            }
         };
 
         this.crawler = new Apify.PuppeteerCrawler(options);
