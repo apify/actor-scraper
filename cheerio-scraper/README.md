@@ -5,7 +5,7 @@ Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP r
 Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
 browser but instead constructs a DOM from a HTML string. It then provides the user an API to work with that DOM.
 
-Cheerio Scraper is ideal for scraping websites that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
+Cheerio Scraper is ideal for scraping web pages that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
 
 If you're unfamiliar with web scraping or front-end web development in general,
 you might prefer to start with the  [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial) from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/scraping/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
@@ -74,7 +74,7 @@ See [Advanced configuration](#advanced-configuration) below for the complete lis
 
 ## Limitations
 
-The actor does not employ a full-featured Chromium web browser, so will not be sufficient for websites that render their content dynamically using client-side JavaScript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
+The actor does not employ a full-featured Chromium web browser, so will not be sufficient for web pages that render their content dynamically using client-side JavaScript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
 
 Since Cheerio Scraper's **Page function** is executed in the context of the server, it only supports server-side JavaScript code. If you need to combine client- and server-side libraries using the underlying [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library, you might prefer to use
 [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). For even more flexibility and control, you might develop a new actor from scratch in Node.js using the [Apify SDK](https://sdk.apify.com).
@@ -199,7 +199,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`body: String|Buffer`**
 
-  The body from the target web page. If the website is in HTML or XML format, it will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
+  The body from the target web page. If the web page is in HTML or XML format, the `body` will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
 
   Example:
   ```javascript
@@ -389,7 +389,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 ## Proxy configuration
 
 The **Proxy configuration** (`proxyConfiguration`) option enables you to set
-proxies that will be used by the scraper in order to prevent its detection by target websites.
+proxies that will be used by the scraper in order to prevent its detection by target web pages.
 You can use both the [Apify Proxy](https://apify.com/proxy) and custom HTTP or SOCKS5 proxy servers.
 
 The following table lists the available options of the proxy configuration setting:
@@ -407,7 +407,7 @@ The following table lists the available options of the proxy configuration setti
         <th><b>Apify&nbsp;Proxy&nbsp;(automatic)</b></td>
         <td>
             The scraper will load all web pages using the <a href="https://apify.com/proxy">Apify Proxy</a>
-            in automatic mode. In this mode, the proxy uses all proxy groups that are available to the user. For each new web page it automatically selects the proxy that hasn't been used in the longest time for the specific hostname in order to reduce the chance of detection by the website.
+            in automatic mode. In this mode, the proxy uses all proxy groups that are available to the user. For each new web page it automatically selects the proxy that hasn't been used in the longest time for the specific hostname in order to reduce the chance of detection by the web page.
             You can view the list of available proxy groups on the <a href="https://my.apify.com/proxy" target="_blank" rel="noopener">Proxy</a> page in the app.
         </td>
     </tr>
