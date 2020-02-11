@@ -112,16 +112,16 @@
 			"minimum": 1,
 			"default": 60,
 			"maximum": 360,
-			"unit": "secs"
+			"unit": "seconds"
 		},
 		"pageFunctionTimeoutSecs": {
 			"title": "Page function timeout",
 			"type": "integer",
-			"description": "Maximum time the scraper will wait for the page function to execute in seconds.",
+			"description": "The maximum amount of time the scraper will wait for the <b>Page function</b> to execute, in seconds. It's a good idea to set this limit, to ensure that unexpected behavior in page function will not get the scraper stuck.",
 			"minimum": 1,
 			"default": 60,
 			"maximum": 360,
-			"unit": "secs"
+			"unit": "seconds"
 		},
 		"additionalMimeTypes": {
 			"title": "Additional mime types",
