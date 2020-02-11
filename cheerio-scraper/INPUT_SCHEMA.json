@@ -1,7 +1,7 @@
 {
 	"title": "Cheerio Scraper Input",
 	"type": "object",
-	"description": "Cheerio Scraper loads <b>Start URLs</b> server-side using Node.js. It executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, manually enqueue new links in the <b>Page function</b>. For details, see the actor's <a href='https://apify.com/apify/cheerio-scraper' target='_blank' rel='noopener'>README</a> or the <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
+	"description": "Cheerio Scraper parses the HTML returned from raw HTTP requests to construct a DOM, which can then be inspected using the <a href='https://cheerio.js.org' target='_blank' rel='noopener'>Cheerio</a> library. Data is extracted by executing the <b>Page function</b> on each page. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, manually enqueue new links in the <b>Page function</b>. For details, see the actor's <a href='https://apify.com/apify/cheerio-scraper' target='_blank' rel='noopener'>README</a> or the <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in the Apify documentation.",
 	"schemaVersion": 1,
 	"properties": {
 		"startUrls": {
