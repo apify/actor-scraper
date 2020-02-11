@@ -8,21 +8,21 @@
 			"sectionCaption": "Basic configuration",
 			"title": "Start URLs",
 			"type": "array",
-			"description": "A static list of URLs to scrape. To be able to add new URLs on the fly, enable the <b>Use request queue</b> option.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a>section in README.",
+			"description": "A static list of URLs to scrape. To be able to add new URLs on the fly, enable the <b>Use request queue</b> option.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a>section in the Cheerio scraper's README.",
 			"prefill": [ { "url": "https://apify.com" } ],
 			"editor": "requestListSources"
 		},
 		"useRequestQueue": {
 			"title": "Use request queue",
 			"type": "boolean",
-			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
+			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
 			"default": true,
 			"groupCaption": "Options"
 		},
 		"pseudoUrls": {
 			"title": "Pseudo-URLs",
 			"type": "array",
-			"description": "Specifies what kind of URLs found by the <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if <b>Use request queue</b> is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
+			"description": "Specifies what kind of URLs found by the <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with <b>regular expressions</b> enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. This setting only applies if <b>Use request queue</b> is enabled.<br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
 			"editor": "pseudoUrls",
 			"default": [],
 			"prefill": [
@@ -34,27 +34,27 @@
 		"linkSelector": {
 			"title": "Link selector",
 			"type": "string",
-			"description": "A CSS selector saying which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> field.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> README.",
+			"description": "A CSS selector stating which links on the page (<code>&lt;a&gt;</code> elements with <code>href</code> attribute) shall be followed and added to the request queue. This setting only applies if <b>Use request queue</b> is enabled. To filter the links added to the queue, use the <b>Pseudo-URLs</b> field.<br><br>If the <b>Link selector</b> is empty, the page links are ignored.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#link-selector' target='_blank' rel='noopener'>Link selector</a> Cheerio Scrapers' README.",
 			"editor": "textfield",
 			"prefill": "a[href]"
 		},
 		"keepUrlFragments": {
 			"title": "URL #fragments identify unique pages",
 			"type": "boolean",
-			"description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
+			"description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such cases, this option should be enabled.",
 			"default": false
 		},
 		"pageFunction": {
 			"title": "Page function",
 			"type": "string",
-			"description": "JavaScript (ES6) function that is executed in the context of every page loaded server-side. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+			"description": "A JavaScript (ES6) function that is executed in the context of every page loaded server-side. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in Cheerio Scraper's README.",
 			"prefill": "// The function accepts a single argument: the \"context\" object.\n    // For a complete list of its properties and functions,\n   // see https://apify.com/apify/cheerio-scraper#page-function\n    async function pageFunction(context) {\n    //Pass a destructuring assignment of the necessary properties of the \"context\" object\n    const { $, request, log } = context;\n   const title = $('title').text();\n   //Print URL and title information to the context log\n    log.info(`URL: ${request.url} TITLE: ${title}`);\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n    url: request.url,\n    title\n    \n};\n    }",
 			"editor": "javascript"
 		},
 		"proxyConfiguration": {
 			"title": "Proxy configuration",
 			"type": "object",
-			"description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
+			"description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in Cheerio Scraper's README.",
 			"prefill": { "useApifyProxy": false },
 			"default": {},
 			"editor": "proxy"
