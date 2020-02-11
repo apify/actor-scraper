@@ -164,14 +164,12 @@ class CrawlerSetup {
             options.sessionPoolOptions.sessionOptions.maxUsageCount = this.input.maxUsageCount;
         }
 
+
+        /*
         if (this.cookieJar) {
             options.requestOptions.cookieJar = this.cookieJar;
         }
-
-        if (this.input.initialCookies) {
-
-        }
-
+        */
 
         this.crawler = new Apify.CheerioCrawler(options);
 
@@ -187,6 +185,7 @@ class CrawlerSetup {
                 return newHeaders;
             }, {});
 
+        /*
         // Add initial cookies, if any.
         this.initialCookies.forEach((cookieString) => {
             if (this.cookieJar) {
@@ -197,6 +196,7 @@ class CrawlerSetup {
                 request.headers.cookie = `${existingCookies}${cookieString}`;
             }
         });
+        */
 
         if (this.evaledPrepareRequestFunction) {
             try {
