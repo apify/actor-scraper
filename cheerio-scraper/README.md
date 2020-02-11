@@ -514,7 +514,7 @@ You might also want to see these other resources:
   An introduction to web scraping with Apify.
 - [Scraping with Cheerio Scraper](https://docs.apify.com/scraping/cheerio-scraper) (`apify/cheerio-scaper`) -
   A step-by-step tutorial on how to use Cheerio Scraper, with a detailed explanation and examples. 
-- [Web Scraper](https://apify.com/apify/web-scraper) -
+- [Web Scraper](https://apify.com/apify/web-scraper) (`apify/web-scaper`) -
   Apify's basic tool for web crawling and scraping. It uses a full Chrome browser to render dynamic content.
 - [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
   An actor similar to Web Scraper, which provides lower-level control of the underlying
