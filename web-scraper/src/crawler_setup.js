@@ -177,7 +177,15 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
+            useSessionPool: true,
+            sessionPoolOptions: {
+                sessionOptions: {
+                    maxUsageCount: this.input.maxUsageCount
+                }
+            }
         };
+
+
 
         this.crawler = new Apify.PuppeteerCrawler(options);
 
@@ -205,7 +213,7 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        //if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -263,7 +271,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool, session }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);
@@ -274,6 +282,12 @@ class CrawlerSetup {
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
+
+        // setting initial cookies
+        if (this.initialCookies) {
+            const url = new URL(request.url);
+            await session.setPuppeteerCookies(this.initialCookies, url);
+        }
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
@@ -289,6 +303,7 @@ class CrawlerSetup {
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,
+                session,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
