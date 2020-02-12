@@ -1,6 +1,6 @@
 # Cheerio Scraper
 
-Cheerio Scraper is a ready-made solution for crawling the web using plain HTTP requests. It allows the user to retrieve HTML pages, then parse and inspect the HTML using the [Cheerio](https://cheerio.js.org) library. Fast.
+Cheerio Scraper is a ready-made solution for crawling web sites using plain HTTP requests. It retrieves the HTML pages, parses them using the [Cheerio](https://cheerio.js.org) Node.js library and lets you extract any data from them. Fast.
 
 Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
 browser but instead constructs a DOM from a HTML string. It then provides the user an API to work with that DOM.
@@ -212,9 +212,8 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   const Apify = require('apify');
   ```
   
-  **Caution:** Since we're making the full SDK available, and Cheerio Scraper runs using the SDK,
-  some edge case manipulations may lead to inconsistencies. Use `Apify` with caution and avoid
-  making global changes unless you know what you're doing.
+  **Caution:** Since the Cheerio Scraper itself runs using the Apify SDK,
+  you should use `Apify` property with caution and avoid making global changes to it, since it can affect the run of scraper itself.
 
 - ##### **`autoscaledPool: Object`**
 

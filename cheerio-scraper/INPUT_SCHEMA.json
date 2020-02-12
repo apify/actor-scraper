@@ -1,7 +1,7 @@
 {
 	"title": "Cheerio Scraper Input",
 	"type": "object",
-	"description": "Cheerio Scraper loads <b>Start URLs</b> using raw HTTP requests, parses the HTML using the <a href='https://cheerio.js.org' target='_blank' rel='noopener noreferrer'>Cheerio</a> library and then and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, you can manually enqueue new links in the <b>Page function</b>. For details, see the actor's <a href='https://apify.com/apify/cheerio-scraper' target='_blank' rel='noopener'>README</a> or the <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in the Apify documentation.",
+	"description": "Cheerio Scraper loads <b>Start URLs</b> using raw HTTP requests, parses the HTML using the <a href='https://cheerio.js.org' target='_blank' rel='noopener noreferrer'>Cheerio</a> library and then executes <b>Page function</b> for each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, you can manually enqueue new links in the <b>Page function</b>. For details, see the actor's <a href='https://apify.com/apify/cheerio-scraper' target='_blank' rel='noopener'>README</a> or the <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in the Apify documentation.",
 	"schemaVersion": 1,
 	"properties": {
 		"startUrls": {
@@ -47,7 +47,7 @@
 		"pageFunction": {
 			"title": "Page function",
 			"type": "string",
-			"description": "A JavaScript (Node.js 12) function that is executed for every page loaded server-side. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
+			"description": "A JavaScript function that is executed for every page loaded server-side in Node.js 12. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see the <a href='https://apify.com/apify/cheerio-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
 			"prefill": "async function pageFunction(context) {\n    const { $, request, log } = context;\n\n    // The \"$\" property contains the Cheerio object which is useful\n    // for querying DOM elements and extracting data from them.\n    const pageTitle = $('title').first().text();\n\n    // The \"request\" property contains various information about the web page loaded. \n    const url = request.url;\n    \n    // Use \"log\" object to print information to actor log.\n    log.info('Page scraped', { url, pageTitle });\n\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n        url,\n        pageTitle\n    };\n}",
 			"editor": "javascript"
 		},
@@ -124,7 +124,7 @@
 			"unit": "seconds"
 		},
 		"additionalMimeTypes": {
-			"title": "Additional mime types",
+			"title": "Additional MIME types",
 			"type": "array",
 			"description": "By default, Cheerio Scraper supports the <code>text/html</code> and <code>application/xhtml+xml</code> content types. Note that while the default <code>Accept</code> HTTP header will allow any content type to be received, HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME types and you're still receiving invalid responses, be sure to override the <code>Accept</code> HTTP header setting either in <b>Start URLs</b> or in the <b>Prepare request function</b>.",
 			"editor": "json",
@@ -154,7 +154,7 @@
 		"initialCookies": {
 			"title": "Initial cookies",
 			"type": "array",
-			"description": "A JSON array with cookies that will be send with every HTTP request made by the Cheerio Scraper, in the format accepted by <a href='https://www.npmjs.com/package/cookiejar' target='_blank' rel='noopener noreferrer'>CookieJar</a> NPM package. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
+			"description": "A JSON array with cookies that will be send with every HTTP request made by the Cheerio Scraper, in the format accepted by the <a href='https://www.npmjs.com/package/tough-cookie' target='_blank' rel='noopener noreferrer'>tough-cookie</a> NPM package. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
 			"default": [],
 			"prefill": [],
 			"editor": "json"
