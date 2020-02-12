@@ -177,7 +177,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 **Properties of the `context` object:**
 
-
 - ##### **`$: Function`**
 
   An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
@@ -390,6 +389,8 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   }
   ```
 
+<!-- TODO: We're missing more detailed description for prepareRequestFunction, what is it good for?
+Give some example, also better prefill -->
 
 ## Proxy configuration
 
