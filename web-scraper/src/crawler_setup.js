@@ -285,7 +285,7 @@ class CrawlerSetup {
 
         // setting initial cookies
         if (this.input.initialCookies) {
-            await session.setPuppeteerCookies(this.input.initialCookies, request.url);
+            session.setPuppeteerCookies(this.input.initialCookies, request.url);
         }
 
         // Abort the crawler if the maximum number of results was reached.
