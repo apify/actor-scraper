@@ -283,7 +283,7 @@ class CrawlerSetup {
         // is present on every request.
         tools.ensureMetaData(request);
 
-        // setting initial cookies
+        // setting initial cookies if any
         if (this.input.initialCookies) {
             session.setPuppeteerCookies(this.input.initialCookies, request.url);
         }
@@ -302,7 +302,6 @@ class CrawlerSetup {
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,
-                session,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
