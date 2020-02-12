@@ -5,13 +5,13 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.9",
-    "apify": "^0.17.0",
+    "apify": "^0.19.1",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@apify/eslint-config": "^0.0.3",
     "@types/fs-extra": "^5.0.4",
-    "@types/puppeteer": "^1.19.0",
+    "@types/puppeteer": "^2.0.0",
     "@types/underscore": "^1.9.2",
     "chai": "^4.2.0",
     "eslint": "^6.1.0",
