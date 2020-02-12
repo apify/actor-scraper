@@ -305,6 +305,7 @@ class CrawlerSetup {
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
+                    request: response && response.request().headers()
                 },
             },
         };
