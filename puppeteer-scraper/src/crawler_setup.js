@@ -180,6 +180,7 @@ class CrawlerSetup {
             sessionPoolOptions: {
                 sessionOptions: {
                     maxUsageCount: this.input.maxUsageCount
+
                 }
             }
         };
@@ -189,7 +190,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         // Attach a console listener to get all logs from Browser context.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
@@ -200,8 +201,10 @@ class CrawlerSetup {
             });
         }
 
-        // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        // setting initial cookies if any via session pool
+        if (this.input.initialCookies) {
+            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -242,7 +245,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool, session }) {
         /**
          * PRE-PROCESSING
          */
@@ -253,6 +256,8 @@ class CrawlerSetup {
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
+
+        const cookies = session.getPuppeteerCookies(request.url);
 
         // Setup and create Context.
         const contextOptions = {
@@ -268,6 +273,7 @@ class CrawlerSetup {
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
+                    cookies,
                 },
             },
         };
