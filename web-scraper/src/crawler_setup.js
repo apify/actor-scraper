@@ -186,13 +186,12 @@ class CrawlerSetup {
         };
 
 
-
         this.crawler = new Apify.PuppeteerCrawler(options);
 
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
@@ -213,7 +212,9 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        //if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        if (this.input.initialCookies) {
+            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -283,10 +284,7 @@ class CrawlerSetup {
         // is present on every request.
         tools.ensureMetaData(request);
 
-        // setting initial cookies if any
-        if (this.input.initialCookies) {
-            session.setPuppeteerCookies(this.input.initialCookies, request.url);
-        }
+        const cookies = session.getPuppeteerCookies(request.url);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
@@ -304,8 +302,8 @@ class CrawlerSetup {
                 request,
                 response: {
                     status: response && response.status(),
-                    headers: response && response.headers(),
-                    request: response && response.request().headers()
+                    headers: response && response.headers()
+                    cookies,
                 },
             },
         };
