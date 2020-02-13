@@ -71,6 +71,33 @@ See [Advanced configuration](#advanced-configuration) below for the complete lis
 
 Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheeriocrawler) class
 from the Apify SDK. If you'd like to learn more about the inner workings of the scraper, see the respective documentation.
+
+## Content types
+
+By default, Cheerio Scraper only processes web pages with the `text/html`
+and `application/xhtml+xml` MIME content types (as reported by the `Content-Type` HTTP header),
+and skips pages with other content types.
+If you want the crawler to process other content types,
+use the **Additional MIME types** (`additionalMimeTypes`) input option.
+
+Note that while the default `Accept` HTTP header will allow any content type to be received,
+HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME
+types and you're still receiving invalid responses, be sure to override the `Accept`
+HTTP header setting in the requests from the scraper,
+either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the **Prepare request function**.
+
+The web pages with various content types are parsed differently and
+thus the `context` parameter of the [**Page function**](#page-function) will have different values:
+
+| **Content types**  | [`context.body`](#body-stringbuffer) | [`context.$`](#-function)  | [`context.json`](#json-object)
+|------------|---|---|---|
+| `text/html`, `application/xhtml+xml` or `application/xml` | `String`  | `Function`  |`null`
+| `application/json` |  `String` | `null`  | `Object`
+| Other |  `Buffer` | `null`  | `null`
+
+The `Content-Type` HTTP header of the web page is parsed using the
+<a href="https://www.npmjs.com/package/content-type" target="_blank">content-type</a> NPM package
+and the result is stored in the [`context.contentType`](#contenttype-object) object.
  
 
 ## Limitations
@@ -189,10 +216,10 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`$: Function`**
 
-  A reference to the [Cheerio](https://cheerio.js.org/) module's function representing the root scope of the DOM
+  A reference to the [Cheerio](https://cheerio.js.org/)'s function representing the root scope of the DOM
   of the current HTML page.
   
-  This function is the starting point for traversing and manipulating the DOM document.
+  This function is the starting point for traversing the DOM document and extracting data from it.
   Like with [jQuery](https://jquery.com/), it is the primary method for selecting elements in the document,
   but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library,
   which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
@@ -238,7 +265,10 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`body: String|Buffer`**
 
-  The body from the target web page. If the web page is in HTML or XML format, the `body` will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
+  The body from the target web page. If the web page is in HTML or XML format, the `body` will be a string that contains the HTML or XML content.
+  In other cases, the `body` with be a [Buffer](https://nodejs.org/api/buffer.html).
+  If you need to process the `body` as a string, you can use the information from `contentType` property to convert
+  the binary data into a string.
 
   Example:
   ```javascript
