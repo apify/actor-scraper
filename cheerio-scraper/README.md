@@ -69,12 +69,49 @@ In summary, Cheerio Scraper works as follows:
 Cheerio Scraper has a number of advanced configuration settings to improve performance, set cookies for login to websites, limit the number of records, etc. 
 See [Advanced configuration](#advanced-configuration) below for the complete list of settings.
 
+Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheeriocrawler) class
+from the Apify SDK. If you'd like to learn more about the inner workings of the scraper, see the respective documentation.
+
+## Content types
+
+By default, Cheerio Scraper only processes web pages with the `text/html`
+and `application/xhtml+xml` MIME content types (as reported by the `Content-Type` HTTP header),
+and skips pages with other content types.
+If you want the crawler to process other content types,
+use the **Additional MIME types** (`additionalMimeTypes`) input option.
+
+Note that while the default `Accept` HTTP header will allow any content type to be received,
+HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME
+types and you're still receiving invalid responses, be sure to override the `Accept`
+HTTP header setting in the requests from the scraper,
+either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the **Prepare request function**.
+
+The web pages with various content types are parsed differently and
+thus the `context` parameter of the [**Page function**](#page-function) will have different values:
+
+| **Content types**  | [`context.body`](#body-stringbuffer) | [`context.$`](#-function)  | [`context.json`](#json-object)
+|------------|---|---|---|
+| `text/html`, `application/xhtml+xml` or `application/xml` | `String`  | `Function`  |`null`
+| `application/json` |  `String` | `null`  | `Object`
+| Other |  `Buffer` | `null`  | `null`
+
+The `Content-Type` HTTP header of the web page is parsed using the
+<a href="https://www.npmjs.com/package/content-type" target="_blank">content-type</a> NPM package
+and the result is stored in the [`context.contentType`](#contenttype-object) object.
+ 
+
 ## Limitations
 
 The actor does not employ a full-featured web browser such as Chromium or Firefox, so it will not be sufficient for web pages that render their content dynamically using client-side JavaScript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
 
 Since Cheerio Scraper's **Page function** is executed in the context of the server, it only supports server-side code running in Node.js. If you need to combine client- and server-side libraries in Chromium using the [Puppeteer](https://github.com/GoogleChrome/puppeteer/) library, you might prefer to use
 [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). For even more flexibility and control, you might develop a new actor from scratch in Node.js using the [Apify SDK](https://sdk.apify.com).
+
+In the [**Page function**](#page-function) and **Prepare request function**,
+you can only use NPM modules that are already installed in this actor.
+If you require other modules for your scraping, you'll need to develop a completely new actor.
+You can use the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheeriocrawler) class
+from Apify SDK to get most of the functionality of Cheerio Scraper out of the box.
 
 ## Input configuration
 
@@ -179,11 +216,15 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`$: Function`**
 
-  An instance of the Cheerio module, the `selector` searches within the `context` scope, which searches within the `root` scope. The `selector` and `context` can be a string expression, DOM Element, array of DOM elements, or a `cheerio` object. Meanwhile, the `root` is typically the HTML document string.
+  A reference to the [Cheerio](https://cheerio.js.org/)'s function representing the root scope of the DOM
+  of the current HTML page.
+  
+  This function is the starting point for traversing the DOM document and extracting data from it.
+  Like with [jQuery](https://jquery.com/), it is the primary method for selecting elements in the document,
+  but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library,
+  which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
 
-  This selector method is the starting point for traversing and manipulating the document. Like with `jQuery`, it is the primary method for selecting elements in the document, but unlike jQuery it is built on top of the [`css-select`](https://www.npmjs.com/package/css-select) library, which implements most of the [`Sizzle`](https://github.com/jquery/sizzle/wiki) selectors.
-
-  For more information, see the [`Selectors`](https://github.com/cheeriojs/cheerio/#selectors) section in the Cheerio documentation.
+  For more information, see the [Cheerio](https://cheerio.js.org/) documentation.
 
   Example:
   ```html
@@ -195,11 +236,11 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   ```
 
   ```javascript
-  $('.movies', '#fun-movie').text()
+  $('.movies', '#fun-movie').text();
   //=> Fun Movie
-  $('ul .sad-movie').attr('class')
+  $('ul .sad-movie').attr('class');
   //=> sad-movie
-  $('li[class=horror-movie]').html()
+  $('li[class=horror-movie]').html();
   //=> Horror Movie
   ```
 
@@ -224,7 +265,10 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`body: String|Buffer`**
 
-  The body from the target web page. If the web page is in HTML or XML format, the `body` will be a string that contains HTML or XML content. In other cases, the `body` with be a Buffer. If you need to process the `body` as a string, you can use the `contentType` object to set up encoding for the string.
+  The body from the target web page. If the web page is in HTML or XML format, the `body` will be a string that contains the HTML or XML content.
+  In other cases, the `body` with be a [Buffer](https://nodejs.org/api/buffer.html).
+  If you need to process the `body` as a string, you can use the information from `contentType` property to convert
+  the binary data into a string.
 
   Example:
   ```javascript
