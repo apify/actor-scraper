@@ -1,8 +1,6 @@
-const { URL } = require('url');
 const Apify = require('apify');
 const cheerio = require('cheerio');
 const _ = require('underscore');
-const { CookieJar } = require('tough-cookie');
 const {
     tools,
     createContext,
@@ -40,6 +38,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {Object} customData
  * @property {Array} initialCookies
  * @property {boolean} useCookieJar
+ * @property {number} rotateProxyAfterRequests
  */
 
 /**
@@ -78,11 +77,12 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
-        this.initialCookies = this.input.initialCookies.map((cookie) => {
+        this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
-            return `${cookie.key || cookie.name}=${cookie.value}`;
         });
-        //if (this.input.useCookieJar) this.cookieJar = new CookieJar();
+        if (this.input.rotateProxyAfterRequests && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+            throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
+        }
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -157,16 +157,10 @@ class CrawlerSetup {
             useSessionPool: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.input.maxUsageCount
+                    maxUsageCount: this.input.rotateProxyAfterRequests
                 }
             }
         };
-
-        /*
-        if (this.cookieJar) {
-            options.requestOptions.cookieJar = this.cookieJar;
-        }
-        */
 
         this.crawler = new Apify.CheerioCrawler(options);
 
@@ -182,18 +176,11 @@ class CrawlerSetup {
                 return newHeaders;
             }, {});
 
-        /*
+
         // Add initial cookies, if any.
-        this.initialCookies.forEach((cookieString) => {
-            if (this.cookieJar) {
-                const { origin } = new URL(request.url);
-                this.cookieJar.setCookieSync(cookieString, origin);
-            } else {
-                const existingCookies = request.headers.cookie ? `${request.headers.cookie}; ` : '';
-                request.headers.cookie = `${existingCookies}${cookieString}`;
-            }
-        });
-        */
+        if (this.input.initialCookies) {
+            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        }
 
         if (this.evaledPrepareRequestFunction) {
             try {
@@ -236,12 +223,6 @@ class CrawlerSetup {
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl();
         if (aborted) return;
-
-        // setting initial cookies
-        if (this.initialCookies) {
-            const url = new URL(request.url);
-            session.setCookiesFromResponse(response)
-        }
 
         // Setup and create Context.
         const contextOptions = {
