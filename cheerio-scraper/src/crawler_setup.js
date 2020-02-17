@@ -67,17 +67,6 @@ class CrawlerSetup {
         this.input = input;
         this.env = Apify.getEnv();
 
-        // solving proxy rotation settings
-            switch (this.input.proxyRotation) {
-                case "UNTIL-FAILURE":
-                    this.proxyRotation = 1000;
-                    break;
-                case "PER-REQUEST":
-                    this.proxyRotation = 1;
-                    break;
-                default:
-                    this.proxyRotation = undefined;
-            }
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -92,6 +81,19 @@ class CrawlerSetup {
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
+
+        // solving proxy rotation settings
+        switch (this.input.proxyRotation) {
+            case "UNTIL-FAILURE":
+                this.proxyRotation = 1000;
+                break;
+            case "PER-REQUEST":
+                this.proxyRotation = 1;
+                break;
+            default:
+                this.proxyRotation = undefined;
+        }
+
         if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
             throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
         }
