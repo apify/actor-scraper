@@ -173,11 +173,21 @@
       "editor": "json"
     },
     "rotateProxyAfterRequests": {
-      "title": "Rotate proxy after number of requests",
-      "type": "integer",
-      "description": "This number indicates how many times the session is going to be used, before it is thrown away.",
-      "default": 0,
-      "editor": "number"
+      "title": "Rotate proxy after requests",
+      "type": "string",
+      "description": "This property indicates how the session is going to be used, before it is thrown away.",
+      "default": "useRecommendedSettings",
+      "editor": "select",
+      "enum": [
+        "useRecomendedSettings",
+        "oneReqestPerProxy",
+        "useProxyUntilFailure"
+      ],
+      "enumTitles": {
+        "useRecomendedSettings": "Use recommended settings",
+        "oneReqestPerProxy": "One request per each proxy",
+        "useProxyUntilFailure": "Use proxy until failure"
+      }
     }
   },
   "required": []
