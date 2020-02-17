@@ -45,6 +45,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} useStealth
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
+ * @property {string} proxyRotation
  */
 
 /**
@@ -91,6 +92,21 @@ class CrawlerSetup {
                 throw new Error('Navigation wait until events must be valid. See tooltip.');
             }
         });
+        // solving proxy rotation settings
+        switch (this.input.proxyRotation) {
+            case "UNTIL-FAILURE":
+                this.proxyRotation = 1000;
+                break;
+            case "PER-REQUEST":
+                this.proxyRotation = 1;
+                break;
+            default:
+                this.proxyRotation = undefined;
+        }
+
+        if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+            throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
+        }
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
         // Used to store page specific data.
@@ -178,9 +194,10 @@ class CrawlerSetup {
                 args,
             },
             useSessionPool: true,
+            persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.input.maxUsageCount
+                    maxUsageCount: this.proxyRotation
                 }
             }
         };
@@ -284,8 +301,6 @@ class CrawlerSetup {
         // is present on every request.
         tools.ensureMetaData(request);
 
-        const cookies = session.getPuppeteerCookies(request.url);
-
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
@@ -302,8 +317,7 @@ class CrawlerSetup {
                 request,
                 response: {
                     status: response && response.status(),
-                    headers: response && response.headers()
-                    cookies,
+                    headers: response && response.headers(),
                 },
             },
         };
