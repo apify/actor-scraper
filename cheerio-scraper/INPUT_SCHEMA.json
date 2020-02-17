@@ -173,22 +173,22 @@
       "editor": "json"
     },
     "rotateProxyAfterRequests": {
-      "title": "Rotate proxy after requests",
+      "title": "Rotate proxy settings",
       "type": "string",
-      "description": "This property indicates how the session is going to be used, before it is thrown away.",
-      "default": "useRecommendedSettings",
+      "description": "This property indicates how the proxies are going to be used, before it is thrown away.",
+      "default": "",
       "editor": "select",
       "enum": [
-        "useRecomendedSettings",
-        "oneReqestPerProxy",
+        "useRecommendedSettings",
+        "oneProxyPerRequest",
         "useProxyUntilFailure"
       ],
-      "enumTitles": {
-        "useRecomendedSettings": "Use recommended settings",
-        "oneReqestPerProxy": "One request per each proxy",
-        "useProxyUntilFailure": "Use proxy until failure"
-      }
-    }
-  },
+      "enumTitles": [
+        "Use recommended settings",
+        "One proxy per each request",
+        "Use the proxy until failure"
+      ]
+    },
   "required": []
+  }
 }
