@@ -46,3 +46,13 @@ exports.SNAPSHOT = {
     },
     TIMEOUT_SECS: 2,
 };
+
+/**
+ * Proxy rotation settings values that are use for setting proxy maximal usage count.
+ * @type {{ "UNTIL-FAILURE": number,  "PER-REQUEST": number, "RECOMMENDED": undefined}}
+ */
+exports.PROXY_ROTATION = {
+    "UNTIL-FAILURE": 1000,
+    "PER-REQUEST": 1,
+    "RECOMMENDED": undefined
+};
