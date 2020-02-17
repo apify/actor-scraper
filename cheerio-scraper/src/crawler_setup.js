@@ -38,7 +38,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {Object} customData
  * @property {Array} initialCookies
  * @property {boolean} useCookieJar
- * @property {number} rotateProxyAfterRequests
+ * @property {string} proxyRotation
  */
 
 /**
@@ -67,6 +67,18 @@ class CrawlerSetup {
         this.input = input;
         this.env = Apify.getEnv();
 
+        // solving proxy rotation settings
+            switch (this.input.proxyRotation) {
+                case "UNTIL-FAILURE":
+                    this.proxyRotation = 1000;
+                    break;
+                case "PER-REQUEST":
+                    this.proxyRotation = 1;
+                    break;
+                default:
+                    this.proxyRotation = undefined;
+            }
+
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
             throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
@@ -80,9 +92,10 @@ class CrawlerSetup {
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
         });
-        if (this.input.rotateProxyAfterRequests && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+        if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
             throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
         }
+
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -158,7 +171,7 @@ class CrawlerSetup {
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.input.rotateProxyAfterRequests
+                    maxUsageCount: this.proxyRotation
                 }
             }
         };
