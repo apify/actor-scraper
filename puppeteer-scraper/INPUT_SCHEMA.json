@@ -212,14 +212,6 @@
             "prefill": {},
             "editor": "json"
         },
-        "maxUsageCount": {
-            "title": "Count of maximum session usage",
-            "type": "integer",
-            "description": "This number indicates how many times the session is going to be used, before it is thrown away.",
-            "default": 50,
-            "editor": "number",
-            "prefill": 50
-        },
         "proxyRotation": {
             "title": "Proxy rotation",
             "type": "string",
