@@ -43,6 +43,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} ignoreCorsAndCsp
  * @property {string} preGotoFunction
  * @property {string} clickableElementsSelector
+ * @property {string} proxyRotation
  */
 
 /**
@@ -89,6 +90,21 @@ class CrawlerSetup {
                 throw new Error('Navigation wait until events must be valid. See tooltip.');
             }
         });
+        // solving proxy rotation settings
+        switch (this.input.proxyRotation) {
+            case "UNTIL-FAILURE":
+                this.proxyRotation = 1000;
+                break;
+            case "PER-REQUEST":
+                this.proxyRotation = 1;
+                break;
+            default:
+                this.proxyRotation = undefined;
+        }
+
+        if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+            throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
+        }
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -177,10 +193,10 @@ class CrawlerSetup {
                 args,
             },
             useSessionPool: true,
+            persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.input.maxUsageCount
-
+                    maxUsageCount: this.proxyRotation
                 }
             }
         };
@@ -201,7 +217,7 @@ class CrawlerSetup {
             });
         }
 
-        // setting initial cookies if any via session pool
+        // setting initial cookies, if any.
         if (this.input.initialCookies) {
             session.setPuppeteerCookies(this.input.initialCookies, request.url);
         }
@@ -245,7 +261,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool, session }) {
+    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -256,8 +272,6 @@ class CrawlerSetup {
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
-
-        const cookies = session.getPuppeteerCookies(request.url);
 
         // Setup and create Context.
         const contextOptions = {
@@ -272,8 +286,7 @@ class CrawlerSetup {
                 request,
                 response: {
                     status: response && response.status(),
-                    headers: response && response.headers(),
-                    cookies,
+                    headers: response && response.headers()
                 },
             },
         };
