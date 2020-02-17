@@ -1,7 +1,7 @@
 {
     "title": "Web Scraper Input",
     "type": "object",
-    "description": "Web Scraper loads <b>Start URLs</b> in the Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow, or manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in documentation.",
+    "description": "Web Scraper loads <b>Start URLs</b> in the Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, you can manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in the Apify documentation.",
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
@@ -153,7 +153,7 @@
         "maxConcurrency": {
             "title": "Max concurrency",
             "type": "integer",
-            "description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target website.",
+            "description": "Specified the maximum number of pages that can be processed by the scraper in parallel. The scraper automatically increases and decreases concurrency based on available system resources. This option enables you to set an upper limit, for example to reduce the load on a target web server.",
             "minimum": 1,
             "default": 50
         },

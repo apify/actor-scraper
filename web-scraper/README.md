@@ -408,7 +408,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   Currently, it only contains the `status` and `headers` properties.
   For example:
   
-  ```
+  ```javascript
   {
     // HTTP status code
     status: 200,
@@ -419,7 +419,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
       'date': 'Wed, 06 Nov 2019 16:01:53 GMT',
       'cache-control': 'no-cache',
       'content-encoding': 'gzip',
-    }
+    },
   }
   ```
   
