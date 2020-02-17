@@ -155,6 +155,7 @@ class CrawlerSetup {
                 headers: {},
             },
             useSessionPool: true,
+            persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
                     maxUsageCount: this.input.rotateProxyAfterRequests
