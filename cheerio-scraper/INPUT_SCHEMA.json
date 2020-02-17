@@ -176,10 +176,8 @@
       "title": "Rotate proxy after number of requests",
       "type": "integer",
       "description": "This number indicates how many times the session is going to be used, before it is thrown away.",
-      "default": 50,
-      "editor": "number",
-      "prefill": 50,
-      "minimum": 1
+      "default": 0,
+      "editor": "number"
     }
   },
   "required": []
