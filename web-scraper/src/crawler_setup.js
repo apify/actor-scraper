@@ -208,7 +208,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
+    async _gotoFunction({ request, page }) {
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
@@ -229,9 +229,7 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies) {
-            session.setPuppeteerCookies(this.input.initialCookies, request.url);
-        }
+        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -289,7 +287,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool, session }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);

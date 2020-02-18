@@ -217,10 +217,8 @@ class CrawlerSetup {
             });
         }
 
-        // setting initial cookies, if any.
-        if (this.input.initialCookies) {
-            session.setPuppeteerCookies(this.input.initialCookies, request.url);
-        }
+        // Add initial cookies, if any.
+        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
