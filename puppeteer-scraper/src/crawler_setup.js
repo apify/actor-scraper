@@ -4,7 +4,7 @@ const {
     tools,
     browserTools,
     createContext,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
@@ -91,18 +91,9 @@ class CrawlerSetup {
             }
         });
         // solving proxy rotation settings
-        switch (this.input.proxyRotation) {
-            case "UNTIL-FAILURE":
-                this.proxyRotation = 1000;
-                break;
-            case "PER-REQUEST":
-                this.proxyRotation = 1;
-                break;
-            default:
-                this.proxyRotation = undefined;
-        }
+        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
 
-        if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
             throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
         }
 
@@ -196,7 +187,7 @@ class CrawlerSetup {
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.proxyRotation
+                    maxUsageCount: this.maxSessionUsageCount
                 }
             }
         };
@@ -206,7 +197,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
+    async _gotoFunction({ request, page }) {
         // Attach a console listener to get all logs from Browser context.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
