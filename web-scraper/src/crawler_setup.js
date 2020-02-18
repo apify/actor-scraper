@@ -4,7 +4,7 @@ const contentType = require('content-type');
 const {
     tools,
     browserTools,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION },
 } = require('@apify/scraper-tools');
 
 const GlobalStore = require('./global_store');
@@ -93,18 +93,9 @@ class CrawlerSetup {
             }
         });
         // solving proxy rotation settings
-        switch (this.input.proxyRotation) {
-            case "UNTIL-FAILURE":
-                this.proxyRotation = 1000;
-                break;
-            case "PER-REQUEST":
-                this.proxyRotation = 1;
-                break;
-            default:
-                this.proxyRotation = undefined;
-        }
+        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
 
-        if (this.proxyRotation && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
             throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
         }
         tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -197,7 +188,7 @@ class CrawlerSetup {
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.proxyRotation
+                    maxUsageCount: this.maxSessionUsageCount
                 }
             }
         };
