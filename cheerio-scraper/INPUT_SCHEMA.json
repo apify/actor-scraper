@@ -171,7 +171,7 @@
 			"title": "Proxy rotation",
 			"type": "string",
 			"description": "This property indicates how the proxies are going to be used, before it is thrown away. IMPORTANT: This functionality is not guaranteed if you do not have enough proxies to use.",
-			"default": "useRecommendedSettings",
+			"default": "RECOMMENDED",
 			"editor": "select",
 			"enum": [
 				"RECOMMENDED",
