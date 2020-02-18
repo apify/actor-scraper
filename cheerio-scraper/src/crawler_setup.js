@@ -4,11 +4,11 @@ const _ = require('underscore');
 const {
     tools,
     createContext,
-    constants: { META_KEY },
+    constants: { META_KEY, PROXY_ROTATION },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
-const CONSTS = require('../../scraper-tools/src/consts');
+
 
 const { utils: { log } } = Apify;
 
@@ -84,7 +84,7 @@ class CrawlerSetup {
         });
 
         // solving proxy rotation settings
-        this.maxSessionUsageCount = CONSTS.PROXY_ROTATION[this.input.proxyRotation];
+        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
 
         if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
             throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
