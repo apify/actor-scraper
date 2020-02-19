@@ -96,7 +96,7 @@ class CrawlerSetup {
         this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
 
         if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('It is possible to set proxies rotation only if Apify proxy is used.');
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either "automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
         }
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
@@ -193,6 +193,9 @@ class CrawlerSetup {
             }
         };
 
+        if (this.input.proxyRotation === "UNTIL-FAILURE") {
+            options.sessionPoolOptions.maxPoolSize = 1;
+        }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
 
