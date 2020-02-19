@@ -193,7 +193,7 @@ class CrawlerSetup {
             }
         };
 
-        if (this.input.proxyRotation === "UNTIL-FAILURE") {
+        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
 
