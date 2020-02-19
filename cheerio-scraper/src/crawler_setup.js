@@ -1,15 +1,14 @@
-const { URL } = require('url');
 const Apify = require('apify');
 const cheerio = require('cheerio');
 const _ = require('underscore');
-const { CookieJar } = require('tough-cookie');
 const {
     tools,
     createContext,
-    constants: { META_KEY },
+    constants: { META_KEY, PROXY_ROTATION },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
+
 
 const { utils: { log } } = Apify;
 
@@ -40,6 +39,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {Object} customData
  * @property {Array} initialCookies
  * @property {boolean} useCookieJar
+ * @property {string} proxyRotation
  */
 
 /**
@@ -68,6 +68,7 @@ class CrawlerSetup {
         this.input = input;
         this.env = Apify.getEnv();
 
+
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
             throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
@@ -78,11 +79,16 @@ class CrawlerSetup {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
         });
-        this.initialCookies = this.input.initialCookies.map((cookie) => {
+        this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) throw new Error('The initialCookies Array must only contain Objects.');
-            return `${cookie.key || cookie.name}=${cookie.value}`;
         });
-        if (this.input.useCookieJar) this.cookieJar = new CookieJar();
+
+        // solving proxy rotation settings
+        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
+
+        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either "automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
+        }
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
@@ -154,10 +160,17 @@ class CrawlerSetup {
             requestOptions: {
                 headers: {},
             },
+            useSessionPool: true,
+            persistCookiesPerSession: true,
+            sessionPoolOptions: {
+                sessionOptions: {
+                    maxUsageCount: this.maxSessionUsageCount
+                }
+            }
         };
 
-        if (this.cookieJar) {
-            options.requestOptions.cookieJar = this.cookieJar;
+        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
+            options.sessionPoolOptions.maxPoolSize = 1;
         }
 
         this.crawler = new Apify.CheerioCrawler(options);
@@ -165,7 +178,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _prepareRequestFunction({ request }) {
+    async _prepareRequestFunction({ request, session}) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)
@@ -174,16 +187,11 @@ class CrawlerSetup {
                 return newHeaders;
             }, {});
 
+
         // Add initial cookies, if any.
-        this.initialCookies.forEach((cookieString) => {
-            if (this.cookieJar) {
-                const { origin } = new URL(request.url);
-                this.cookieJar.setCookieSync(cookieString, origin);
-            } else {
-                const existingCookies = request.headers.cookie ? `${request.headers.cookie}; ` : '';
-                request.headers.cookie = `${existingCookies}${cookieString}`;
-            }
-        });
+        if (this.input.initialCookies) {
+            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        }
 
         if (this.evaledPrepareRequestFunction) {
             try {
