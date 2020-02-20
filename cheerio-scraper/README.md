@@ -15,6 +15,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
 <!-- toc -->
 
 - [Usage](#usage)
+- [Content types](#content-types)
 - [Limitations](#limitations)
 - [Input configuration](#input-configuration)
   * [Start URLs](#start-urls)

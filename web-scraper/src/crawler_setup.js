@@ -4,7 +4,7 @@ const contentType = require('content-type');
 const {
     tools,
     browserTools,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
 
 const GlobalStore = require('./global_store');
@@ -93,10 +93,11 @@ class CrawlerSetup {
             }
         });
         // solving proxy rotation settings
-        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either "automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
+                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
         }
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
@@ -188,12 +189,12 @@ class CrawlerSetup {
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.maxSessionUsageCount
-                }
-            }
+                    maxUsageCount: this.maxSessionUsageCount,
+                },
+            },
         };
 
-        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
+        if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
 

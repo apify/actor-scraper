@@ -4,7 +4,7 @@ const {
     tools,
     browserTools,
     createContext,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
@@ -91,10 +91,11 @@ class CrawlerSetup {
             }
         });
         // solving proxy rotation settings
-        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either "automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
+                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
         }
 
         // Functions need to be evaluated.
@@ -187,12 +188,12 @@ class CrawlerSetup {
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.maxSessionUsageCount
-                }
-            }
+                    maxUsageCount: this.maxSessionUsageCount,
+                },
+            },
         };
 
-        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
+        if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
 
@@ -279,7 +280,7 @@ class CrawlerSetup {
                 request,
                 response: {
                     status: response && response.status(),
-                    headers: response && response.headers()
+                    headers: response && response.headers(),
                 },
             },
         };

@@ -4,7 +4,7 @@ const _ = require('underscore');
 const {
     tools,
     createContext,
-    constants: { META_KEY, PROXY_ROTATION },
+    constants: { META_KEY, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
@@ -84,10 +84,11 @@ class CrawlerSetup {
         });
 
         // solving proxy rotation settings
-        this.maxSessionUsageCount = PROXY_ROTATION[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either "automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
+                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
         }
 
         // Functions need to be evaluated.
@@ -157,16 +158,13 @@ class CrawlerSetup {
                     maxEventLoopOverloadedRatio: MAX_EVENT_LOOP_OVERLOADED_RATIO,
                 },
             },
-            requestOptions: {
-                headers: {},
-            },
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 sessionOptions: {
-                    maxUsageCount: this.maxSessionUsageCount
-                }
-            }
+                    maxUsageCount: this.maxSessionUsageCount,
+                },
+            },
         };
 
         if (this.input.proxyRotation === 'UNTIL-FAILURE') {
@@ -178,7 +176,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _prepareRequestFunction({ request, session}) {
+    async _prepareRequestFunction({ request, session }) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)

@@ -48,11 +48,23 @@ exports.SNAPSHOT = {
 };
 
 /**
- * Proxy rotation settings values that are use for setting proxy maximal usage count.
- * @type {{ "UNTIL-FAILURE": number,  "PER-REQUEST": number, "RECOMMENDED": undefined}}
+ * Enum values used in the Proxy Rotation (proxyRotation) input option.
+ * Make sure those are always in sync!
+ * @type {{RECOMMENDED: 'RECOMMENDED', PER_REQUEST: 'PER_REQUEST', UNTIL_FAILURE: 'UNTIL_FAILURE'}}
  */
-exports.PROXY_ROTATION = {
-    "UNTIL-FAILURE": 1000,
-    "PER-REQUEST": 1,
-    "RECOMMENDED": undefined
+const PROXY_ROTATION_NAMES = {
+    UNTIL_FAILURE: 'UNTIL_FAILURE',
+    PER_REQUEST: 'PER_REQUEST',
+    RECOMMENDED: 'RECOMMENDED',
+};
+exports.PROXY_ROTATION_NAMES = PROXY_ROTATION_NAMES;
+
+/**
+ * Max usage counts of a Session per different available proxy rotations.
+ * @type {{ "UNTIL_FAILURE": number,  "PER_REQUEST": number, "RECOMMENDED": undefined}}
+ */
+exports.SESSION_MAX_USAGE_COUNTS = {
+    [PROXY_ROTATION_NAMES.UNTIL_FAILURE]: 1000,
+    [PROXY_ROTATION_NAMES.PER_REQUEST]: 1,
+    [PROXY_ROTATION_NAMES.RECOMMENDED]: undefined,
 };

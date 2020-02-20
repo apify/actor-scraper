@@ -82,8 +82,8 @@
             "editor": "select",
             "enum": [
                 "RECOMMENDED",
-                "PER-REQUEST",
-                "UNTIL-FAILURE"
+                "PER_REQUEST",
+                "UNTIL_FAILURE"
             ],
             "enumTitles": [
                 "Use recommended settings",
