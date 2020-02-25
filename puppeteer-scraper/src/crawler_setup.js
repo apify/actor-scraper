@@ -44,6 +44,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} preGotoFunction
  * @property {string} clickableElementsSelector
  * @property {string} proxyRotation
+ * @property {string} sessionStoreName
  */
 
 /**
@@ -189,6 +190,7 @@ class CrawlerSetup {
             sessionPoolOptions: {
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
+                    persistStateKeyValueStoreId: this.input.sessionStoreName,
                 },
             },
         };
@@ -202,7 +204,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         // Attach a console listener to get all logs from Browser context.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
@@ -214,7 +216,28 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        //if (this.input.initialCookies.length)
+        if (this.input.initialCookies) {
+            log.info(`These initial cookies: ${this.input.initialCookies} are in the input.`);
+            const sessionCookies = session.getPuppeteerCookies(request.url);
+
+            log.info(`These cookies: ${this.input.initialCookies} are set in the session.`);
+
+            if (!(sessionCookies && sessionCookies.length)) {
+                let cookiesToSet = this.input.initialCookies;
+
+                cookiesToSet.map(initialCookie => {
+                    sessionCookies.find(sessionCookie =>
+                        !(sessionCookie.name === initialCookie.name &&
+                            sessionCookie.value === initialCookie.value));
+                });
+                log.info(`These cookies: ${cookiesToSet} are going to be set to the session and page.`);
+                // setting cookies that are not already on session
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+                // setting cookies to page
+                await page.setCookie(...cookiesToSet);
+            }
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -255,7 +278,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool, session }) {
         /**
          * PRE-PROCESSING
          */
@@ -263,6 +286,13 @@ class CrawlerSetup {
         // is present on every request.
         tools.ensureMetaData(request);
 
+        // checking if cookies are already set on session
+        const alreadySetCookies = session.getPuppeteerCookies(request.url);
+        log.info(`These cookies: ${alreadySetCookies} are set on the session.`);
+        const pageAlreadySetCookies = await page.cookies(request.url);
+        log.info(`These cookies: ${pageAlreadySetCookies} are set on the page.`);
+
+        
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
