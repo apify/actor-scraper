@@ -218,10 +218,10 @@ class CrawlerSetup {
         // Add initial cookies, if any.
         //if (this.input.initialCookies.length)
         if (this.input.initialCookies) {
-            log.info(`These initial cookies: ${this.input.initialCookies} are in the input.`);
+            log.info(`These initial cookies: are in the input.`, this.input.initialCookies);
             const sessionCookies = session.getPuppeteerCookies(request.url);
 
-            log.info(`These cookies: ${this.input.initialCookies} are set in the session.`);
+            log.info(`These cookies are set in the session.`, sessionCookies);
 
             if (!(sessionCookies && sessionCookies.length)) {
                 let cookiesToSet = this.input.initialCookies;
@@ -231,7 +231,7 @@ class CrawlerSetup {
                         !(sessionCookie.name === initialCookie.name &&
                             sessionCookie.value === initialCookie.value));
                 });
-                log.info(`These cookies: ${cookiesToSet} are going to be set to the session and page.`);
+                log.info(`These cookies are going to be set to the session and page.`, cookiesToSet);
                 // setting cookies that are not already on session
                 session.setPuppeteerCookies(cookiesToSet, request.url);
                 // setting cookies to page
@@ -288,11 +288,11 @@ class CrawlerSetup {
 
         // checking if cookies are already set on session
         const alreadySetCookies = session.getPuppeteerCookies(request.url);
-        log.info(`These cookies: ${alreadySetCookies} are set on the session.`);
+        log.info(`These cookies are set on the session.`, alreadySetCookies);
         const pageAlreadySetCookies = await page.cookies(request.url);
-        log.info(`These cookies: ${pageAlreadySetCookies} are set on the page.`);
+        log.info(`These cookies are set on the page.`, pageAlreadySetCookies);
 
-        
+
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
         if (aborted) return;
