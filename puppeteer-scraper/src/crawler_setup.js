@@ -4,12 +4,12 @@ const {
     tools,
     browserTools,
     createContext,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
+    constants: {META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES},
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
 
-const { utils: { log, puppeteer } } = Apify;
+const {utils: {log, puppeteer}} = Apify;
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -143,7 +143,7 @@ class CrawlerSetup {
 
         // Dataset
         this.dataset = await Apify.openDataset();
-        const { itemsCount } = await this.dataset.getInfo();
+        const {itemsCount} = await this.dataset.getInfo();
         this.pagesOutputted = itemsCount || 0;
 
         // KeyValueStore
@@ -204,7 +204,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
+    async _gotoFunction({request, page, session}) {
         // Attach a console listener to get all logs from Browser context.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
@@ -215,27 +215,17 @@ class CrawlerSetup {
             });
         }
 
+
         // Add initial cookies, if any.
-        //if (this.input.initialCookies.length)
-        if (this.input.initialCookies) {
-            log.info(`These initial cookies: are in the input.`, this.input.initialCookies);
-            const sessionCookies = session.getPuppeteerCookies(request.url);
-
-            log.info(`These cookies are set in the session.`, sessionCookies);
-
-            if (!(sessionCookies && sessionCookies.length)) {
-                let cookiesToSet = this.input.initialCookies;
-
-                cookiesToSet.map(initialCookie => {
-                    sessionCookies.find(sessionCookie =>
-                        !(sessionCookie.name === initialCookie.name &&
-                            sessionCookie.value === initialCookie.value));
-                });
-                log.info(`These cookies are going to be set to the session and page.`, cookiesToSet);
-                // setting cookies that are not already on session
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                log.info("There are some cookies to set, setting cookies:", cookiesToSet);
+                // setting initial cookies that are not already in the session and page
                 session.setPuppeteerCookies(cookiesToSet, request.url);
-                // setting cookies to page
                 await page.setCookie(...cookiesToSet);
+            } else {
+                log.info("All cookies are set correctly");
             }
         }
 
@@ -245,7 +235,7 @@ class CrawlerSetup {
         // Enable pre-processing before navigation is initiated.
         if (this.evaledPreGotoFunction) {
             try {
-                await this.evaledPreGotoFunction({ request, page, Apify });
+                await this.evaledPreGotoFunction({request, page, Apify});
             } catch (err) {
                 log.error('User provided Pre goto function failed.');
                 throw err;
@@ -259,7 +249,7 @@ class CrawlerSetup {
         });
     }
 
-    _handleFailedRequestFunction({ request }) {
+    _handleFailedRequestFunction({request}) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
@@ -278,20 +268,13 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool, session }) {
+    async _handlePageFunction({request, response, page, puppeteerPool, autoscaledPool}) {
         /**
          * PRE-PROCESSING
          */
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
-
-        // checking if cookies are already set on session
-        const alreadySetCookies = session.getPuppeteerCookies(request.url);
-        log.info(`These cookies are set on the session.`, alreadySetCookies);
-        const pageAlreadySetCookies = await page.cookies(request.url);
-        log.info(`These cookies are set on the page.`, pageAlreadySetCookies);
-
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
@@ -314,7 +297,7 @@ class CrawlerSetup {
                 },
             },
         };
-        const { context, state } = createContext(contextOptions);
+        const {context, state} = createContext(contextOptions);
 
         /**
          * USER FUNCTION INVOCATION
@@ -368,10 +351,10 @@ class CrawlerSetup {
         };
 
         if (this.input.linkSelector) {
-            await Apify.utils.enqueueLinks({ ...enqueueOptions, ...{ selector: this.input.linkSelector } });
+            await Apify.utils.enqueueLinks({...enqueueOptions, ...{selector: this.input.linkSelector}});
         }
         if (this.input.clickableElementsSelector) {
-            await Apify.utils.puppeteer.enqueueLinksByClickingElements({ ...enqueueOptions, ...{ selector: this.input.clickableElementsSelector } });
+            await Apify.utils.puppeteer.enqueueLinksByClickingElements({...enqueueOptions, ...{selector: this.input.clickableElementsSelector}});
         }
     }
 
