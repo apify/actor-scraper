@@ -76,6 +76,12 @@
 				"Use one proxy until failure"
 			]
 		},
+		"sessionPoolName": {
+			"title": "Session pool name",
+			"type": "string",
+			"description": "Sessions are going to persist their states under this name in Key value store.",
+			"editor": "textfield"
+		},
 		"prepareRequestFunction": {
 			"sectionCaption": "Advanced configuration",
 			"title": "Prepare request function",
@@ -160,12 +166,6 @@
 			"title": "Ignore SSL errors",
 			"type": "boolean",
 			"description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
-			"default": false
-		},
-		"useCookieJar": {
-			"title": "(UNSTABLE) Save cookies",
-			"type": "boolean",
-			"description": "The scraper will use a cookie jar to persist cookies between requests. This is a temporary solution and the feature is UNSTABLE, meaning that it will most likely be removed in the future and replaced with a different API. Use at your own risk.",
 			"default": false
 		},
 		"initialCookies": {
