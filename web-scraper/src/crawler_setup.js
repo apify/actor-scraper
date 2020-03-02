@@ -10,6 +10,7 @@ const {
 const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
+const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -46,6 +47,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
  * @property {string} proxyRotation
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -188,6 +190,8 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
+                persistStateKeyValueStoreId: SESSION_STORE_NAME,
+                persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
@@ -203,7 +207,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
@@ -224,7 +228,17 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                log.info("There are some cookies to set, setting cookies:", cookiesToSet);
+                // setting initial cookies that are not already in the session and page
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+                await page.setCookie(...cookiesToSet);
+            } else {
+                log.info("All cookies are set correctly");
+            }
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
@@ -282,7 +296,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool, session }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);
@@ -293,6 +307,10 @@ class CrawlerSetup {
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
+
+        // cookies check
+        const sessionCookies = session.getPuppeteerCookies(request.url);
+        log.info("HP function - session Cookies are:", sessionCookies);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);

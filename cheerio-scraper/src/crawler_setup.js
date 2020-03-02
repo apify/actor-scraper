@@ -13,6 +13,7 @@ const SCHEMA = require('../INPUT_SCHEMA');
 const { utils: { log } } = Apify;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
+const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -40,6 +41,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {Array} initialCookies
  * @property {boolean} useCookieJar
  * @property {string} proxyRotation
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -161,6 +163,8 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
+                persistStateKeyValueStoreId: SESSION_STORE_NAME,
+                persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
@@ -187,8 +191,15 @@ class CrawlerSetup {
 
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies) {
-            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                log.info("There are some cookies to set, setting cookies:", cookiesToSet);
+                // setting initial cookies that are not already in the session and page
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+            } else {
+                log.info("All cookies are set correctly");
+            }
         }
 
         if (this.evaledPrepareRequestFunction) {
@@ -221,13 +232,17 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool, session }) {
         /**
          * PRE-PROCESSING
          */
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
+
+        // cookies check
+        const sessionCookies = session.getPuppeteerCookies(request.url);
+        log.info("HP function - session Cookies are:", sessionCookies);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl();

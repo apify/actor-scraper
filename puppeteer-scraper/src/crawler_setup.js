@@ -8,6 +8,7 @@ const {
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
+const SESSION_STORE_NAME = 'APIFY-PUPPETEER-SCRAPER-SESSION-STORE';
 
 const {utils: {log, puppeteer}} = Apify;
 
@@ -44,7 +45,7 @@ const {utils: {log, puppeteer}} = Apify;
  * @property {string} preGotoFunction
  * @property {string} clickableElementsSelector
  * @property {string} proxyRotation
- * @property {string} sessionStoreName
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -188,9 +189,10 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
+                persistStateKeyValueStoreId: SESSION_STORE_NAME,
+                persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
-                    persistStateKeyValueStoreId: this.input.sessionStoreName,
                 },
             },
         };
@@ -268,13 +270,17 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({request, response, page, puppeteerPool, autoscaledPool}) {
+    async _handlePageFunction({request, response, page, puppeteerPool, autoscaledPool, session}) {
         /**
          * PRE-PROCESSING
          */
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
+
+        // cookies check
+        const sessionCookies = session.getPuppeteerCookies(request.url);
+        log.info("HP function - session Cookies are:", sessionCookies);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
