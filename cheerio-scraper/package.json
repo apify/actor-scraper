@@ -4,7 +4,7 @@
 	"description": "Crawl web pages using HTTP requests and Cheerio",
 	"main": "src/main.js",
 	"dependencies": {
-		"@apify/scraper-tools": "^0.1.12",
+		"@apify/scraper-tools": "^0.1.13",
 		"apify": "^0.19.1",
 		"tough-cookie": "^3.0.1",
 		"underscore": "^1.9.1"
