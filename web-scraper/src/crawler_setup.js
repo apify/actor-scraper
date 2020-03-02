@@ -231,12 +231,9 @@ class CrawlerSetup {
         if (this.input.initialCookies && this.input.initialCookies.length) {
             const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
             if (cookiesToSet && cookiesToSet.length) {
-                log.info("There are some cookies to set, setting cookies:", cookiesToSet);
                 // setting initial cookies that are not already in the session and page
                 session.setPuppeteerCookies(cookiesToSet, request.url);
                 await page.setCookie(...cookiesToSet);
-            } else {
-                log.info("All cookies are set correctly");
             }
         }
 
@@ -296,7 +293,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool, session }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);
@@ -307,10 +304,6 @@ class CrawlerSetup {
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
-
-        // cookies check
-        const sessionCookies = session.getPuppeteerCookies(request.url);
-        log.info("HP function - session Cookies are:", sessionCookies);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
