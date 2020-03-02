@@ -4,7 +4,7 @@ const _ = require('underscore');
 const {
     tools,
     createContext,
-    constants: { META_KEY, SESSION_MAX_USAGE_COUNTS },
+    constants: { META_KEY, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
@@ -171,7 +171,7 @@ class CrawlerSetup {
             },
         };
 
-        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
+        if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
 
@@ -194,11 +194,8 @@ class CrawlerSetup {
         if (this.input.initialCookies && this.input.initialCookies.length) {
             const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
             if (cookiesToSet && cookiesToSet.length) {
-                log.info("There are some cookies to set, setting cookies:", cookiesToSet);
                 // setting initial cookies that are not already in the session and page
                 session.setPuppeteerCookies(cookiesToSet, request.url);
-            } else {
-                log.info("All cookies are set correctly");
             }
         }
 
@@ -232,17 +229,13 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool, session }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request);
-
-        // cookies check
-        const sessionCookies = session.getPuppeteerCookies(request.url);
-        log.info("HP function - session Cookies are:", sessionCookies);
 
         // Abort the crawler if the maximum number of results was reached.
         const aborted = await this._handleMaxResultsPerCrawl();
