@@ -95,10 +95,10 @@
         "Use one proxy until failure"
       ]
     },
-    "sessionStoreName": {
-      "title": "Session Store Name",
+    "sessionPoolName": {
+      "title": "Session pool name",
       "type": "string",
-      "description": "Name or Id of KeyValueStore where the session is stored. Setting this value allows your scraper to use one session across all the requests in your task run.",
+      "description": "Sessions are going to persist their states under this name in Key value store.",
       "editor": "textfield"
     },
     "initialCookies": {
@@ -244,7 +244,5 @@
       "editor": "json"
     }
   },
-  "required": [
-    "pageFunction"
-  ]
+  "required": []
 }

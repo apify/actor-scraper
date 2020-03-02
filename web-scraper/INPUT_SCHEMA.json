@@ -91,6 +91,12 @@
                 "Use one proxy until failure"
             ]
         },
+        "sessionPoolName": {
+            "title": "Session pool name",
+            "type": "string",
+            "description": "Sessions are going to persist their states under this name in Key value store.",
+            "editor": "textfield"
+        },
         "initialCookies": {
             "title": "Initial cookies",
             "type": "array",
