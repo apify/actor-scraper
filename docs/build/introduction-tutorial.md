@@ -212,7 +212,7 @@ The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/r
 When a Pseudo URL is set, the scraper attempts to enqueue matching links on each page it visits. `skipLinks()` is used to tell the scraper that we don't want this to happen on the current page.
 
 #### `context.log`
-`log` is used for printing messages to the console. You may be tempted to use `console.log()`, but this will not work, unless you turn on the **Browser log** option. `log.info()` should be used for general messages, but you can also use `log.debug()` for messages that will only be shown when you turn on the **Debug log** option. [See the docs for more info](https://sdk.apify.com/docs/api/log).
+`log` is used for printing messages to the console. You may be tempted to use `console.log()`, but this will not work unless you turn on the **Browser log** option. `log.info()` should be used for general messages, but you can also use `log.debug()` for messages that will only be shown when you turn on the **Debug log** option. [See the docs for more info](https://sdk.apify.com/docs/api/log).
 
 #### Return value of the `pageFunction`
 The `pageFunction` may only return nothing, `null`, `Object` or `Object[]`. If an `Object` is returned, it will be saved as a single result. Returning an `Array` of `Objects` will save each item in the array as a result.
