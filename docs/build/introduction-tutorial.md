@@ -70,10 +70,10 @@ We want to create a scraper that scrapes all the actors (i.e. not crawlers, our 
    2. **Unique identifier** - Such as `apify/web-scraper`.
    4. **Title** - The title visible in the actor's detail page.
    5. **Description** - The actor's description.
-   6. **Last run date**- When the actor was last run.
+   6. **Last run date** - When the actor was last run.
    7. **Number of runs** - How many times the actor was run.
 
-Some of this information may be scraped directly from the listing pages, but for the rest, we will need to visit all detail pages of all the actors.
+Some of this information may be scraped directly from the listing pages, but for the rest, we will need to visit the detail pages of all the actors.
 
 ### The Start URL
 Let's start with something simple. In the INPUT tab of the task we have, we'll change the Start URL from `https://apify.com`. This will tell the scraper to start by opening a different URL. You can add more Start URLs or even use a file with a list of thousands of them, but in this case, we'll be good with just one.
