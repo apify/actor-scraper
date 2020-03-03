@@ -163,7 +163,7 @@ Save it as your Link selector. If you're wondering how we figured this out, just
 By the time we finish, you'll know why we used this selector, too.
 
 ### Test run
-We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
+Now that we've added some configuration, it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and the **Page function** as it is. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
 
 ### The `pageFunction`
 The Page function is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create the `pageFunction`, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are Developer Tools in browsers, DevTools.
