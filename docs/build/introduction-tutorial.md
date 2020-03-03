@@ -286,8 +286,7 @@ async function pageFunction(context) {
 ```
 
 Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking 
-the **Clean items** card, or by going to the **DATASET** tab. Click **Preview data** again (and check Clean data,
- if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
+the **Result dataset** card, or by going to the **DATASET** tab. Click **Preview data** (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
 
 ## Choosing sides
 Up until now, everything has been the same for all the Apify scrapers. Whether you're using `apify/web-scraper`,
