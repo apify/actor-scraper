@@ -163,7 +163,7 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
-                persistStateKeyValueStoreId: SESSION_STORE_NAME,
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,

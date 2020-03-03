@@ -4,13 +4,14 @@ const {
     tools,
     browserTools,
     createContext,
-    constants: {META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES},
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
+
 const SESSION_STORE_NAME = 'APIFY-PUPPETEER-SCRAPER-SESSION-STORE';
 
-const {utils: {log, puppeteer}} = Apify;
+const { utils: { log, puppeteer } } = Apify;
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -144,7 +145,7 @@ class CrawlerSetup {
 
         // Dataset
         this.dataset = await Apify.openDataset();
-        const {itemsCount} = await this.dataset.getInfo();
+        const { itemsCount } = await this.dataset.getInfo();
         this.pagesOutputted = itemsCount || 0;
 
         // KeyValueStore
@@ -189,7 +190,7 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
-                persistStateKeyValueStoreId: SESSION_STORE_NAME,
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
@@ -206,7 +207,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({request, page, session}) {
+    async _gotoFunction({ request, page, session }) {
         // Attach a console listener to get all logs from Browser context.
         if (this.input.browserLog) browserTools.dumpConsole(page);
 
@@ -234,7 +235,7 @@ class CrawlerSetup {
         // Enable pre-processing before navigation is initiated.
         if (this.evaledPreGotoFunction) {
             try {
-                await this.evaledPreGotoFunction({request, page, Apify});
+                await this.evaledPreGotoFunction({ request, page, Apify });
             } catch (err) {
                 log.error('User provided Pre goto function failed.');
                 throw err;
@@ -248,7 +249,7 @@ class CrawlerSetup {
         });
     }
 
-    _handleFailedRequestFunction({request}) {
+    _handleFailedRequestFunction({ request }) {
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(`Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`);
@@ -267,7 +268,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({request, response, page, puppeteerPool, autoscaledPool}) {
+    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
         /**
          * PRE-PROCESSING
          */
@@ -296,7 +297,7 @@ class CrawlerSetup {
                 },
             },
         };
-        const {context, state} = createContext(contextOptions);
+        const { context, state } = createContext(contextOptions);
 
         /**
          * USER FUNCTION INVOCATION
@@ -350,10 +351,10 @@ class CrawlerSetup {
         };
 
         if (this.input.linkSelector) {
-            await Apify.utils.enqueueLinks({...enqueueOptions, ...{selector: this.input.linkSelector}});
+            await Apify.utils.enqueueLinks({ ...enqueueOptions, ...{ selector: this.input.linkSelector } });
         }
         if (this.input.clickableElementsSelector) {
-            await Apify.utils.puppeteer.enqueueLinksByClickingElements({...enqueueOptions, ...{selector: this.input.clickableElementsSelector}});
+            await Apify.utils.puppeteer.enqueueLinksByClickingElements({ ...enqueueOptions, ...{ selector: this.input.clickableElementsSelector } });
         }
     }
 

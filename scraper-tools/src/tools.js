@@ -175,7 +175,7 @@ const getMissingCookiesFromSession = (session, cookies, url) => {
     return cookies.filter((c) => {
         const sessionHasCookie = sessionCookies.some(sc => sc.name === c.name);
         return !sessionHasCookie;
-    })
+    });
 };
 
 module.exports = {
@@ -188,5 +188,5 @@ module.exports = {
     maybeLoadPageFunctionFromDisk,
     createError,
     logPerformance,
-    getMissingCookiesFromSession
+    getMissingCookiesFromSession,
 };
