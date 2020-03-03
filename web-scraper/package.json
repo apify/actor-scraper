@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
-    "apify": "^0.19.1",
+    "apify": "^0.20.0",
     "content-type": "^1.0.4",
     "underscore": "^1.9.1"
   },
