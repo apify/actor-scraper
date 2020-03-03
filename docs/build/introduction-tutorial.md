@@ -78,7 +78,7 @@ Some of this information may be scraped directly from the listing pages, but for
 ### The Start URL
 Let's start with something simple. In the INPUT tab of the task we have, we'll change the Start URL from `https://apify.com`. This will tell the scraper to start by opening a different URL. You can add more Start URLs or even use a file with a list of thousands of them, but in this case, we'll be good with just one.
 
-How do we choose the new Start URL? The goal is to scrape all actors in the store and the store is available at [https://apify.com/store](https://apify.com/store) so we choose this URL as our Start URL.
+How do we choose the new Start URL? The goal is to scrape all actors in the store, which is available at [https://apify.com/store](https://apify.com/store), so we choose this URL as our Start URL.
 
 ```
 https://apify.com/store
