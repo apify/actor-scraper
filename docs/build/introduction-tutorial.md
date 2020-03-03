@@ -141,17 +141,17 @@ where the scraper should look for URLs. And by looking for URLs we mean finding 
 For example, to enqueue URLs from `<div class="my-class" href=...>` tags, you would enter `'div.my-class'`.
 
 What's the connection to Pseudo URLs? Well, first, all the URLs found in the elements that match the link selector
-are collected. Then, Pseudo URLs are used to filter those URLs an enqueue only the ones that match the Pseudo URL
+are collected. Then, Pseudo URLs are used to filter those URLs and enqueue only the ones that match the Pseudo URL
 structure. Simple.
 
-To scrape all the actors in store, we should use the Link selector to further filter the links that our Pseudo URL matches.
+To scrape all the actors in the store, we should use the Link selector to further filter the links that match our Pseudo URL.
 For example, we're not interested in the following URL:
 
 ```
 https://apify.com/docs/actor
 ```
 
-Even though it matches our Pseudo URL, it's not a link to an actor, but a link to documenation. To prevent links like those
+Even though it matches our Pseudo URL, it's not a link to an actor, but a link to documenation. To prevent links like this
 from being visited, we should specify a Link selector that filters them out. For now, let us just tell you that the Link selector
 you're looking for is:
 
@@ -160,7 +160,7 @@ div.item > a
 ```
 
 Save it as your Link selector. If you're wondering how we figured this out, just follow along with the tutorial.
-By the time we finish, you'll know why we used this selector too.
+By the time we finish, you'll know why we used this selector, too.
 
 ### Test run
 We've added some configuration, so it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and **Page function** the same. You should see in the log that the scraper first visits the Start URL and then several of the actor details, matching the Pseudo URL.
