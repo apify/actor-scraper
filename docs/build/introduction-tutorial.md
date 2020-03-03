@@ -18,7 +18,7 @@ Depending on how you arrived at this tutorial, you may already have your first t
 ### Running a task
 You are now in the INPUT tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages, such as `https://apify.com/contact` and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
 
-Scroll down to the `Performance and limits` section and set the `Max pages per run` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that the crawler works.
+Scroll down to the `Performance and limits` section and set the `Max pages per run` option to `10`. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that the actor works.
 
 > It also helps with keeping your compute unit (CU) consumption low. Just to get an idea, the free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
 
@@ -58,7 +58,7 @@ Webhooks are a feature that help keep you aware of what's happening with your ta
 You can find all the task runs and their detail pages here. Every time you start a task, it will appear here in the list. All runs of your task including their results will be stored here for the data retention period, [which you can find under your plan](https://apify.com/pricing).
 
 ### API
-The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
+The API tab gives you a quick overview of all the available API calls in case you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
 
 ## Scraping theory
 Since this is a tutorial, we'll be scraping our own website. A great candidate for some scraping practice is the [Apify Store](https://apify.com/store). It's a page that uses modern web technologies and displays a lot of different items in various categories, just like an online store, a typical scraping target, would.
