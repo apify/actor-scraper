@@ -237,13 +237,12 @@ Now that we're familiar with all the pieces in the puzzle, we'll quickly take a 
 or in other words, what the scraper actually does when it scrapes. It's quite straightforward.
 
 The scraper
- 1. Visits the first **Start URL** and waits for the page to load.
- 2. Executes the `pageFunction`.
- 3. Finds all the elements matching the **Link selector** and extracts their `href` attributes (URLs).
- 4. Uses the **Pseudo URLs** to filter the extracted URLs and throws away those that don't match.
- 5. Enqueues the matching URLs to the end of the crawling queue.
- 6. Closes the page and selects a new URL to visit, either from the Start URLs if there are any left,
-    or from the beginning of the crawling queue.
+ 1. visits the first **Start URL** and waits for the page to load;
+ 2. executes the `pageFunction`;
+ 3. finds all the elements matching the **Link selector** and extracts their `href` attributes (URLs);
+ 4. uses the **Pseudo URLs** to filter the extracted URLs and throws away those that don't match;
+ 5. enqueues the matching URLs to the end of the crawling queue;
+ 6. closes the page and selects a new URL to visit, either from the Start URLs if there are any left, or from the beginning of the crawling queue.
     
 > When you're not using the request queue, the scraper just repeats steps 1 and 2. You would not use the request queue when you already know all the URLs you want to visit. For example, when you have a pre-existing list of a thousand URLs that you uploaded as a text file. Or when scraping just a single URL. 
 
