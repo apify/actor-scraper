@@ -29,7 +29,7 @@ After clicking **Save & Run**, the window will change to the run detail. Here, y
 
 > Feel free to browse through the various new tabs: LOG, INFO, INPUT and other, but for the sake of brevity, we will not explain all their features in this tutorial.
 
-Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Clean items** to see the results of the scrape. This takes you to the DATASET tab, where you can display or download the results in various formats. For now, just click the blue **Preview data** button. Voila, the scraped data.
+Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Result dataset** to see the results of the scrape. This takes you to the DATASET tab, where you can display or download the results in various formats. For now, just click the blue **Preview data** button. Voila, the scraped data.
 
 ![run detail](../img/the-run-detail.jpg "Viewing results in the run detail.")
 
