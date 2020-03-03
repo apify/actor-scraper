@@ -180,7 +180,7 @@ You'll see that the Element tab jumps to the first `<title>` element of the curr
 > For the sake of brevity, we won't go into the details of using the DevTools in this tutorial. If you're just starting out with DevTools, this [Google tutorial](https://developers.google.com/web/tools/chrome-devtools/) is a good place to begin.
 
 #### Understanding `context`
-The `pageFunction` has access to global variables, such as `window` or `document`, which are provided by the browser, but also to `context`, which is the single argument of the `pageFunction`. `context` carries a lot of useful information and helpful functions. A full reference can be found in the actor's README in the ACTOR INFO tab.
+The `pageFunction` has access to global variables such as `window` and `document`, which are provided by the browser, as well as to `context`, which is the `pageFunction`'s single argument. `context` carries a lot of useful information and helpful functions, which are described in the actor's README.
 
 #### New `pageFunction` boilerplate
 We know that we'll visit two kinds of pages, the list page (Start URL) and the detail pages (enqueued using the Pseudo URL). We want to enqueue links on the list page and scrape data on the detail page.
