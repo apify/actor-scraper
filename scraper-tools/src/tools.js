@@ -160,6 +160,24 @@ const logPerformance = (request, title, hrtime) => {
     log.perf(`${request.id} ${title} took ${Math.round(millis)} ms.`);
 };
 
+/**
+ * Accepts an array of cookies in a { name, value }
+ * format and finds if any of them are missing from
+ * the session cookies for a given URL.
+ *
+ * @param {Session} session
+ * @param {Array} cookies
+ * @param {String} url
+ * @return {Array}
+ */
+const getMissingCookiesFromSession = (session, cookies, url) => {
+    const sessionCookies = session.getPuppeteerCookies(url);
+    return cookies.filter((c) => {
+        const sessionHasCookie = sessionCookies.some(sc => sc.name === c.name);
+        return !sessionHasCookie;
+    });
+};
+
 module.exports = {
     evalFunctionOrThrow,
     checkInputOrThrow,
@@ -170,4 +188,5 @@ module.exports = {
     maybeLoadPageFunctionFromDisk,
     createError,
     logPerformance,
+    getMissingCookiesFromSession,
 };

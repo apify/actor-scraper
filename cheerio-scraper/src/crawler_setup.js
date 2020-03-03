@@ -4,7 +4,7 @@ const _ = require('underscore');
 const {
     tools,
     createContext,
-    constants: { META_KEY, SESSION_MAX_USAGE_COUNTS },
+    constants: { META_KEY, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
 const SCHEMA = require('../INPUT_SCHEMA');
@@ -13,6 +13,7 @@ const SCHEMA = require('../INPUT_SCHEMA');
 const { utils: { log } } = Apify;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
+const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -40,6 +41,7 @@ const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
  * @property {Array} initialCookies
  * @property {boolean} useCookieJar
  * @property {string} proxyRotation
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -161,13 +163,15 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
+                persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
             },
         };
 
-        if (this.input.proxyRotation === 'UNTIL-FAILURE') {
+        if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
 
@@ -187,8 +191,12 @@ class CrawlerSetup {
 
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies) {
-            session.setPuppeteerCookies(this.input.initialCookies, request.url);
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                // setting initial cookies that are not already in the session and page
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+            }
         }
 
         if (this.evaledPrepareRequestFunction) {
