@@ -13,7 +13,7 @@ Depending on how you arrived at this tutorial, you may already have your first t
 
 > This tutorial covers the use of **Web**, **Cheerio**, and **Puppeteer** scrapers, but a lot of the information here can be used with all actors. For this tutorial, we will select **Web Scraper**.
 
-![actor-selection](../img/actor-selection.jpg "Selecting the best actor")
+![actor-selection](../img/introduction-tutorial-screenshots/trying-it-out.png "Selecting the best actor")
 
 ### Running a task
 You are now in the INPUT tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some values pre-configured in the INPUT. It says that the task should visit `https://apify.com` and all its subpages, such as `https://apify.com/contact` and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
@@ -31,7 +31,7 @@ After clicking **Save & Run**, the window will change to the run detail. Here, y
 
 Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Result dataset** to see the results of the scrape. This takes you to the DATASET tab, where you can display or download the results in various formats. For now, just click the blue **Preview data** button. Voila, the scraped data.
 
-![run detail](../img/the-run-detail.jpg "Viewing results in the run detail.")
+![run detail](../img/introduction-tutorial-screenshots/run-detail.png "Viewing results in the run detail.")
 
 Good job! We've run our first task and got some results. Let's learn how to change the default configuration to scrape something more interesting than just the page's `<title>`.
 
@@ -92,7 +92,7 @@ We also need to somehow distinguish the Start URL from all the other URLs that t
 }
 ```
 
-![start url input](../img/the-start-url.jpg "Adding new Start URL.")
+![start url input](../img/introduction-tutorial-screenshots/start-url.png "Adding new Start URL.")
 
 ### Crawling the website with Pseudo URLs
 What is a Pseudo URL? Let me explain. Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use a certain pattern to describe this structure. And that's what a Pseudo URL is. A pattern that describes a URL structure.  By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
@@ -132,7 +132,7 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 }
 ```
 
-![pseudo url input](../img/making-a-pseudo-url.jpg "Adding new Pseudo URL.")
+![pseudo url input](../img/introduction-tutorial-screenshots/pseudo-url.png "Adding new Pseudo URL.")
 
 ### Filtering with a link selector
 Pseudo URLs are just one part of your URL matching arsenal. The other one is the **Link selector** which you can find
@@ -175,7 +175,7 @@ The DevTools window will pop up, and display a lot of, perhaps unfamiliar, infor
 
 You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is `Store`. It's always good practice to do your research using the DevTools before writing the `pageFunction` and running your task.
 
-![devtools](../img/using-devtools.jpg "Finding title element in DevTools.")
+![devtools](../img/introduction-tutorial-screenshots/using-devtools.png "Finding title element in DevTools.")
 
 > For the sake of brevity, we won't go into the details of using the DevTools in this tutorial. If you're just starting out with DevTools, this [Google tutorial](https://developers.google.com/web/tools/chrome-devtools/) is a good place to begin.
 
