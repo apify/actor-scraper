@@ -11,7 +11,7 @@ You can create 10 different **tasks** for 10 different websites, with very diffe
 ## Trying it out
 Depending on how you arrived at this tutorial, you may already have your first task created for the scraper of your choice. If not, the easiest way is to go to [Apify tasks](https://my.apify.com/tasks) and click the **Create a new task** button. This will present you with a list of actors to choose from. Once you select one of the actors, it will take you to its task configuration page.
 
-> This tutorial covers the use of **Web**, **Cheerio**, and **Puppeteer** scrapers, but a lot of the information here can be used with all actors.
+> This tutorial covers the use of **Web**, **Cheerio**, and **Puppeteer** scrapers, but a lot of the information here can be used with all actors. For this tutorial, we will select **Web Scraper**.
 
 ![actor-selection](../img/actor-selection.jpg "Selecting the best actor")
 
