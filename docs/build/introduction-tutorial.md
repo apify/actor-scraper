@@ -39,12 +39,12 @@ Good job! We've run our first task and got some results. Let's learn how to chan
 Before we jump into the scraping itself, let's just have a quick look at the user interface that's available to us.
 
 ### INPUT
-The INPUT tab is where we started and it's the place where you create your scraping configuration. The creator of the actor prepares the INPUT form so that you can easily tell the actor what to do. Feel free to check the tooltips of the various options to get a better idea of what they do. To display the tooltip, just click the name of any of the input fields.
+The INPUT tab is where we started and it's the place where you create your scraping configuration. The actor's creator prepares the INPUT form so that you can easily tell the actor what to do. Feel free to check the tooltips of the various options to get a better idea of what they do. To display the tooltip, just click the name of any of the input fields.
 
 > We will not go through all the available INPUT options in this tutorial. See the actor's README for detailed information.
 
 ### SETTINGS
-In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
+In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking Save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
 
 > Timeouts are there to prevent tasks from running forever. Always set a reasonable timeout to prevent a rogue task from eating up all your compute units.
 
