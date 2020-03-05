@@ -54,7 +54,7 @@ You can find all the task runs and their detail pages here. Every time you start
 ### WEBHOOKS
 Webhooks are a feature that help keep you aware of what's happening with your tasks. You can set them up to inform you when a task starts, finishes, fails and so on, or you can even use them to run more tasks, depending on the outcome of the original one. You can find the [documentation on webhooks here](https://apify.com/docs/webhooks).
 
-### ACTOR INFO
+### README
 Since tasks are just configurations for actors, this tab shows you all the information about the underlying actor, the Apify scraper of your choice. You can see the available versions and their READMEs and it's always a good idea to read an actor's README first before creating a task for it.
 
 ### API
