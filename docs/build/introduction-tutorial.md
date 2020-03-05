@@ -137,6 +137,15 @@ But it will not match pages we're not interested in, such as:
 ```
 https://apify.com/contact
 ```
+
+In addition, together with the filter we set up using the **Link selector**, the scraper will now avoid URLs such as:
+
+```
+https://apify.com/docs/actor
+```
+
+This is because even though it matches our Pseudo URL's format, the HTML element that contains it does not match the `div.item > a` element we specified in the Link selector.
+
 Let's use the above Pseudo URL in our task. We should also add a label as we did with our Start URL. This label will be added to all pages that were enqueued into the request queue using the given Pseudo URL.
 
 ```json
