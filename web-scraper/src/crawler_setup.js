@@ -11,6 +11,8 @@ const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
+const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
+
 const { utils: { log, puppeteer } } = Apify;
 
 /**
@@ -46,6 +48,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
  * @property {string} proxyRotation
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -188,6 +191,8 @@ class CrawlerSetup {
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
+                persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
@@ -203,7 +208,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
@@ -224,7 +229,14 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                // setting initial cookies that are not already in the session and page
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+                await page.setCookie(...cookiesToSet);
+            }
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);

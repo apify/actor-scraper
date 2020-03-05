@@ -76,6 +76,15 @@
 				"Use one proxy until failure"
 			]
 		},
+		"sessionPoolName": {
+			"title": "Session pool name",
+			"type": "string",
+			"description": "<b>Use only english alphanumeric characters dashes and underscores.</b> A session is a representation of a user. It has it's own IP and cookies which are then used together to emulate a real user. Usage of the sessions is controlled by the Proxy rotation option. By providing a session pool name, you enable sharing of those sessions across multiple actor runs. This is very useful when you need specific cookies for accessing the websites or when a lot of your proxies are already blocked. Instead of trying randomly, a list of working sessions will be saved and a new actor run can reuse those sessions. Note that the IP lock on sessions expires after 24 hours, unless the session is used again in that window.",
+			"editor": "textfield",
+			"minLength": 3,
+			"maxLength": 200,
+			"pattern": "[0-9A-z-]"
+		},
 		"prepareRequestFunction": {
 			"sectionCaption": "Advanced configuration",
 			"title": "Prepare request function",
@@ -160,12 +169,6 @@
 			"title": "Ignore SSL errors",
 			"type": "boolean",
 			"description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
-			"default": false
-		},
-		"useCookieJar": {
-			"title": "(UNSTABLE) Save cookies",
-			"type": "boolean",
-			"description": "The scraper will use a cookie jar to persist cookies between requests. This is a temporary solution and the feature is UNSTABLE, meaning that it will most likely be removed in the future and replaced with a different API. Use at your own risk.",
 			"default": false
 		},
 		"initialCookies": {
