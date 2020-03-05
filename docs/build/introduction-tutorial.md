@@ -1,5 +1,5 @@
 # Getting started with Apify scrapers
-Welcome to the getting started tutorial! It will walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a `pageFunction`, and finally download the scraped data as an Excel sheet, or in another format, such as JSON or CSV. But first, let's give you a brief introduction to Apify.
+Welcome to the getting started tutorial! It will walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a `pageFunction`, and finally download the scraped data either as an Excel sheet or in another format, such as JSON or CSV. But first, let's give you a brief introduction to web scraping with Apify.
 
 ## What is an Apify scraper
 It doesn't matter whether you arrived here from `apify/web-scraper`, `apify/puppeteer-scraper` or `apify/cheerio-scraper`.  All of them are **actors** and for now, let's just think of an **actor** as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations **tasks**.
@@ -44,7 +44,7 @@ The INPUT tab is where we started and it's the place where you create your scrap
 > We will not go through all the available INPUT options in this tutorial. See the actor's README for detailed information.
 
 ### SETTINGS
-In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking Save. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
+In the settings tab, you can set various options that are common to all tasks and not directly related to the scraping itself. Unless you've already changed the task's name, it's `my-task`, so why not try changing it to `my-first-scraper` and clicking **Save**. Below are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
 
 > Timeouts are there to prevent tasks from running forever. Always set a reasonable timeout to prevent a rogue task from eating up all your compute units.
 
@@ -55,7 +55,7 @@ You can find all the task runs and their detail pages here. Every time you start
 Webhooks are a feature that help keep you aware of what's happening with your tasks. You can set them up to inform you when a task starts, finishes, fails and so on, or you can even use them to run more tasks, depending on the outcome of the original one. You can find the [documentation on webhooks here](https://apify.com/docs/webhooks).
 
 ### README
-Since tasks are just configurations for actors, this tab shows you all the information about the underlying actor, the Apify scraper of your choice. You can see the available versions and their READMEs and it's always a good idea to read an actor's README first before creating a task for it.
+Since tasks are just configurations for actors, this tab shows you all the information about the underlying actor, the Apify scraper of your choice. You can see the available versions and their READMEs - it's always a good idea to read an actor's README first before creating a task for it.
 
 ### API
 The API tab gives you a quick overview of all the available API calls in case you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
