@@ -94,17 +94,7 @@ We also need to somehow distinguish the Start URL from all the other URLs that t
 
 ![start url input](../img/introduction-tutorial-screenshots/start-url.png "Adding new Start URL.")
 
-### Crawling the website with Pseudo URLs
-What is a Pseudo URL? Let me explain. Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use a certain pattern to describe this structure. And that's what a Pseudo URL is. A pattern that describes a URL structure.  By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
-
-Let's see an example. To find the pattern, open some of the actor details in the store. You'll find that the URLs are always structured the same:
-
-```
-https://apify.com/{OWNER}/{NAME}
-```
-Where only the `OWNER` and `NAME` changes. We can leverage this in a Pseudo URL.
-
-### Filtering with a link selector
+### Filtering with a Link selector
 The **Link selector**, together with **Pseudo URL**s, are your URL matching arsenal. The Link selector is a CSS selector and its purpose is to select the HTML elements where the scraper should look for URLs. And by looking for URLs, we mean finding the elements' 'href' attributes. For example, to enqueue URLs from `<div class="my-class" href=...>` tags, we would enter `'div.my-class'`.
 
 What's the connection to Pseudo URLs? Well, first, all the URLs found in the elements that match the Link selector are collected. Then, Pseudo URLs are used to filter through those URLs and enqueue only the ones that match the Pseudo URL structure. Simple.
@@ -116,6 +106,17 @@ div.item > a
 ```
 
 Save it as your Link selector. If you're wondering how we figured this out, just follow along with the tutorial. By the time we finish, you'll know why we used this selector, too.
+
+### Crawling the website with Pseudo URLs
+What is a Pseudo URL? Let me explain. Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use a certain pattern to describe this structure. And that's what a Pseudo URL is. A pattern that describes a URL structure.  By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
+
+Let's see an example. To find the pattern, open some of the actor details in the store. You'll find that the URLs are always structured the same:
+
+```
+https://apify.com/{OWNER}/{NAME}
+```
+
+Where only the `OWNER` and `NAME` changes. We can leverage this in a Pseudo URL.
 
 #### Making a Pseudo URL
 If you'd like to learn more about Pseudo URLs, [visit a quick tutorial in our docs](https://sdk.apify.com/docs/guides/getting-started#introduction-to-pseudo-urls), but for now, let's keep it simple. Pseudo URLs are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://regexone.com/) enclosed in brackets `[]`.
