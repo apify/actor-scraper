@@ -4,12 +4,14 @@ const contentType = require('content-type');
 const {
     tools,
     browserTools,
-    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS },
+    constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
 
 const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
+
+const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -45,6 +47,8 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} useStealth
  * @property {boolean} ignoreCorsAndCsp
  * @property {boolean} ignoreSslErrors
+ * @property {string} proxyRotation
+ * @property {string} sessionPoolName
  */
 
 /**
@@ -91,6 +95,13 @@ class CrawlerSetup {
                 throw new Error('Navigation wait until events must be valid. See tooltip.');
             }
         });
+        // solving proxy rotation settings
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
+
+        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
+            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
+                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
+        }
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
         // Used to store page specific data.
@@ -177,14 +188,27 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
+            useSessionPool: true,
+            persistCookiesPerSession: true,
+            sessionPoolOptions: {
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
+                persistStateKey: this.input.sessionPoolName,
+                sessionOptions: {
+                    maxUsageCount: this.maxSessionUsageCount,
+                },
+            },
         };
+
+        if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
+            options.sessionPoolOptions.maxPoolSize = 1;
+        }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
 
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page }) {
+    async _gotoFunction({ request, page, session }) {
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
@@ -205,7 +229,14 @@ class CrawlerSetup {
         }
 
         // Add initial cookies, if any.
-        if (this.input.initialCookies.length) await page.setCookie(...this.input.initialCookies);
+        if (this.input.initialCookies && this.input.initialCookies.length) {
+            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            if (cookiesToSet && cookiesToSet.length) {
+                // setting initial cookies that are not already in the session and page
+                session.setPuppeteerCookies(cookiesToSet, request.url);
+                await page.setCookie(...cookiesToSet);
+            }
+        }
 
         // Disable content security policy.
         if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
