@@ -185,6 +185,8 @@ The `pageFunction` has access to global variables such as `window` and `document
 #### New `pageFunction` boilerplate
 We know that we'll visit two kinds of pages, the list page (Start URL) and the detail pages (enqueued using the Pseudo URL). We want to enqueue links on the list page and scrape data on the detail page.
 
+Since we're not covering jQuery in this tutorial for the sake of brevity, replace the default boilerplate with the code below.
+
 ```js
 async function pageFunction(context) {
     const { request, log, skipLinks } = context;
