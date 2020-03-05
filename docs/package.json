@@ -4,10 +4,14 @@
     "description": "Documentation for scraper actors.",
     "main": "index.js",
     "scripts": {
-        "test": ""
+        "build": "node mustache.js"
     },
     "dependencies": {
         "mustache": "^3.0.1"
+    },
+    "devDependencies": {
+        "@apify/eslint-config": "^0.0.3",
+        "eslint": "^6.8.0"
     },
     "repository": {
         "type": "git",

@@ -589,14 +589,14 @@ async function pageFunction(context) {
                             .eq(1)
                             .attr('datetime'),
                     ),
-                ),
+                ).toISOString(),
                 runCount: Number(
                     $('ul.stats li:nth-of-type(3)')
                         .text()
                         .match(/\d+/)[0],
                 ),
             };
-        })
+        });
 
         return {
             url,
