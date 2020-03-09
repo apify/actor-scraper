@@ -5,7 +5,7 @@ you can easily use `jQuery` with Puppeteer Scraper too.
 
 ### Injecting jQuery
 To be able to use jQuery, we first need to introduce it to the browser. Fortunately, we have a helper function to
-do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteer.injectJQuery)
+do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteerinjectjquerypage)
 
 > Just a friendly warning. Injecting `jQuery` into a page may break the page itself, if it expects a specific version
 of `jQuery` to be available and you override it with an incompatible one. So, be careful.
