@@ -39,7 +39,6 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  * @property {number} pageFunctionTimeoutSecs
  * @property {Object} customData
  * @property {Array} initialCookies
- * @property {boolean} useCookieJar
  * @property {string} proxyRotation
  * @property {string} sessionPoolName
  */
