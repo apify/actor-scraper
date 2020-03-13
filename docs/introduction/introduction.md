@@ -258,28 +258,7 @@ const uniqueIdentifier = url.split('/').slice(-2).join('/');
 ### Test run 2
 We'll add our first data to the `pageFunction` and carry out a test run to see that everything works as expected.
 
-```js
-async function pageFunction(context) {
-    const { request, log, skipLinks } = context;
-    if (request.userData.label === 'START') {
-        log.info('Store opened!');
-        // Do some stuff later.
-    }
-    if (request.userData.label === 'DETAIL') {
-        const { url } = request;
-        log.info(`Scraping ${url}`);
-        await skipLinks();
-
-        // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
-
-        return {
-            url,
-            uniqueIdentifier,
-        }
-    }
-}
-```
+{{#code}}test-run-2.js{{/code}}
 
 Now **Save & Run** the task and once it finishes, check the results by going to the Dataset, either by clicking 
 the **Result dataset** card, or by going to the **DATASET** tab. Click **Preview data** (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
