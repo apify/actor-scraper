@@ -516,7 +516,7 @@ you can easily use `jQuery` with Puppeteer Scraper too.
 
 ### Injecting jQuery
 To be able to use jQuery, we first need to introduce it to the browser. Fortunately, we have a helper function to
-do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteer.injectJQuery)
+do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteerinjectjquerypage)
 
 > Just a friendly warning. Injecting `jQuery` into a page may break the page itself, if it expects a specific version
 of `jQuery` to be available and you override it with an incompatible one. So, be careful.
@@ -614,4 +614,4 @@ function to run the script in the context of the browser and the return value is
 ## Final word
 Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
 
-Finally, `apify/puppeteer-scraper` is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/gettingstarted). We think you'd like it!
+Finally, `apify/puppeteer-scraper` is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!
