@@ -8,9 +8,10 @@ const {
 } = require('@apify/scraper-tools');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
-const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
+const { startDebuggerServer } = require('./debugger/server');
 const SCHEMA = require('../INPUT_SCHEMA');
+const GlobalStore = require('./global_store');
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
 const RUN_TYPES = {
@@ -188,7 +189,10 @@ class CrawlerSetup {
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
-            // launchPuppeteerFunction: use default,
+            launchPuppeteerFunction: async (launchOpts) => {
+                if (this.isDevRun) await startDebuggerServer(process.env.APIFY_CONTAINER_PORT);
+                return Apify.launchPuppeteer(launchOpts);
+            },
             puppeteerPoolOptions: {
                 recycleDiskCache: true,
             },
@@ -213,6 +217,9 @@ class CrawlerSetup {
 
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
+        }
+        if (this.isDevRun) {
+            options.puppeteerPoolOptions.retireInstanceAfterRequestCount = Infinity;
         }
 
         this.crawler = new Apify.PuppeteerCrawler(options);

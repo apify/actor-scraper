@@ -5,6 +5,7 @@
     "schemaVersion": 1,
     "properties": {
         "runType": {
+            "sectionCaption": "Basic configuration",
             "title": "Run type",
             "type": "string",
             "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, opens pages one by one and enables debugging via Chrome DevTools. Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency.",
@@ -17,7 +18,6 @@
             ]
         },
         "startUrls": {
-            "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
             "description": "A static list of URLs to scrape. To be able to add new URLs on the fly, enable the <b>Use request queue</b> option.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a> in README.",
@@ -222,10 +222,12 @@
             "editor": "json"
         },
         "breakpointLocation": {
+            "sectionCaption": "Advanced configuration",
             "title": "Insert breakpoint",
             "type": "string",
             "description": "This property has no effect if Run type is set to PRODUCTION. When set to DEVELOPMENT it inserts a breakpoint at the selected location in every page the scraper visits. Execution of code stops at the breakpoint until manually resumed in the DevTools window accessible via Live View tab or Container URL. Additional breakpoints can be added by adding <code>debugger;</code> statements within your Page function.",
             "default": "NONE",
+            "prefill": "NONE",
             "editor": "select",
             "enum": [
                 "BEFORE_GOTO",
@@ -235,13 +237,12 @@
             ],
             "enumTitles": [
                 "Before navigation to URL",
-                "Before Page function",
-                "After Page function",
+                "Before Page function invocation",
+                "After Page function invocation",
                 "Nowhere. Break only on debugger; statements"
             ]
         },
         "debugLog": {
-            "sectionCaption": "Advanced configuration",
             "title": "Enable debug log",
             "type": "boolean",
             "description": "If enabled, the actor log will include debug messages. Beware that this can be quite verbose. Use <code>context.log.debug('message')</code> to log your own debug messages from <b>Page function</b>.",
