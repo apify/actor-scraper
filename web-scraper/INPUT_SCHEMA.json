@@ -4,6 +4,18 @@
     "description": "Web Scraper loads <b>Start URLs</b> in the Chrome browser and executes <b>Page function</b> on each page to extract data from it. To follow links and scrape additional pages, check <b>Use request queue</b> and set <b>Link selector</b> with <b>Pseudo-URLs</b> to specify which links to follow. Alternatively, you can manually enqueue new links in <b>Page function</b>. For details, see actor's <a href='https://apify.com/apify/web-scraper' target='_blank' rel='noopener'>README</a> or <a href='https://apify.com/docs/scraping/tutorial/introduction' target='_blank' rel='noopener'>Web scraping tutorial</a> in the Apify documentation.",
     "schemaVersion": 1,
     "properties": {
+        "runType": {
+            "title": "Run type",
+            "type": "string",
+            "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, opens pages one by one and enables debugging via Chrome DevTools. Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency.",
+            "default": "PRODUCTION",
+            "prefill": "DEVELOPMENT",
+            "editor": "select",
+            "enum": [
+                "DEVELOPMENT",
+                "PRODUCTION"
+            ]
+        },
         "startUrls": {
             "sectionCaption": "Basic configuration",
             "title": "Start URLs",
@@ -208,6 +220,25 @@
             "default": ["networkidle2"],
             "prefill": ["networkidle2"],
             "editor": "json"
+        },
+        "breakpointLocation": {
+            "title": "Insert breakpoint",
+            "type": "string",
+            "description": "This property has no effect if Run type is set to PRODUCTION. When set to DEVELOPMENT it inserts a breakpoint at the selected location in every page the scraper visits. Execution of code stops at the breakpoint until manually resumed in the DevTools window accessible via Live View tab or Container URL. Additional breakpoints can be added by adding <code>debugger;</code> statements within your Page function.",
+            "default": "NONE",
+            "editor": "select",
+            "enum": [
+                "BEFORE_GOTO",
+                "BEFORE_PAGE_FUNCTION",
+                "AFTER_PAGE_FUNCTION",
+                "NONE"
+            ],
+            "enumTitles": [
+                "Before navigation to URL",
+                "Before Page function",
+                "After Page function",
+                "Nowhere. Break only on debugger; statements"
+            ]
         },
         "debugLog": {
             "sectionCaption": "Advanced configuration",

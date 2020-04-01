@@ -6,7 +6,9 @@
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
     "apify": "^0.20.2",
+    "apify-shared": "^0.2.10",
     "content-type": "^1.0.4",
+    "http-proxy": "^1.18.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {

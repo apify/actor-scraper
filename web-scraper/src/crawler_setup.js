@@ -7,11 +7,23 @@ const {
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
 
+const { CHROME_DEBUGGER_PORT } = require('./consts');
 const GlobalStore = require('./global_store');
 const createBundle = require('./bundle.browser');
 const SCHEMA = require('../INPUT_SCHEMA');
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
+const RUN_TYPES = {
+    PRODUCTION: 'PRODUCTION',
+    DEVELOPMENT: 'DEVELOPMENT',
+};
+const BREAKPOINT_LOCATIONS = {
+    NONE: 'NONE',
+    BEFORE_GOTO: 'BEFORE_GOTO',
+    BEFORE_PAGE_FUNCTION: 'BEFORE_PAGE_FUNCTION',
+    AFTER_PAGE_FUNCTION: 'AFTER_PAGE_FUNCTION',
+};
+const MAX_CONCURRENCY_IN_DEVELOPMENT = 1;
 
 const { utils: { log, puppeteer } } = Apify;
 
@@ -20,6 +32,7 @@ const { utils: { log, puppeteer } } = Apify;
  * and IDE type check integration.
  *
  * @typedef {Object} Input
+ * @property {string} runType
  * @property {Object[]} startUrls
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
@@ -49,6 +62,7 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {boolean} ignoreSslErrors
  * @property {string} proxyRotation
  * @property {string} sessionPoolName
+ * @property {string} breakpointLocation
  */
 
 /**
@@ -119,8 +133,7 @@ class CrawlerSetup {
         }
         if (!this.input.downloadCss) this.blockedUrlPatterns.push('.css');
 
-        // Start Chromium with Debugger any time the page function includes the keyword.
-        this.devtools = this.input.pageFunction.includes('debugger;');
+        this.isDevRun = this.input.runType === RUN_TYPES.DEVELOPMENT;
 
         // Initialize async operations.
         this.crawler = null;
@@ -162,28 +175,27 @@ class CrawlerSetup {
 
         const args = [];
         if (this.input.ignoreCorsAndCsp) args.push('--disable-web-security');
+        if (this.isDevRun) args.push(`--remote-debugging-port=${CHROME_DEBUGGER_PORT}`);
 
         const options = {
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
-            handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
+            handlePageTimeoutSecs: this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             gotoFunction: this._gotoFunction.bind(this),
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
-            maxConcurrency: this.input.maxConcurrency,
+            maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             puppeteerPoolOptions: {
-                useLiveView: true,
                 recycleDiskCache: true,
             },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
-                devtools: this.devtools,
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
                 args,
@@ -209,12 +221,18 @@ class CrawlerSetup {
     }
 
     async _gotoFunction({ request, page, session }) {
+        let cdpClient;
+        if (this.isDevRun) {
+            cdpClient = await page.target().createCDPSession();
+            await cdpClient.send('Debugger.enable');
+        }
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
         const pageContext = {
             apifyNamespace: await tools.createRandomHash(),
             skipLinks: false,
+            cdpClient,
         };
         this.pageContexts.set(page, pageContext);
 
@@ -254,10 +272,13 @@ class CrawlerSetup {
         tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
 
 
+        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
+            await cdpClient.send('Debugger.pause');
+        }
         // Invoke navigation.
         const navStart = process.hrtime();
         const response = await puppeteer.gotoExtended(page, request, {
-            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+            timeout: (this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
             waitUntil: this.input.waitUntil,
         });
         await this._waitForLoadEventWhenXml(page, response);
@@ -331,6 +352,10 @@ class CrawlerSetup {
          * USER FUNCTION EXECUTION
          */
         tools.logPerformance(request, 'handlePageFunction PREPROCESSING', start);
+
+        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_PAGE_FUNCTION) {
+            await pageContext.cdpClient.send('Debugger.pause');
+        }
         const startUserFn = process.hrtime();
 
         const namespace = pageContext.apifyNamespace;
@@ -372,6 +397,9 @@ class CrawlerSetup {
 
         tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
         const finishUserFn = process.hrtime();
+        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_PAGE_FUNCTION) {
+            await pageContext.cdpClient.send('Debugger.pause');
+        }
 
         /**
          * POST-PROCESSING
