@@ -190,8 +190,9 @@ class CrawlerSetup {
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             launchPuppeteerFunction: async (launchOpts) => {
+                const browser = await Apify.launchPuppeteer(launchOpts);
                 if (this.isDevRun) await startDebuggerServer(process.env.APIFY_CONTAINER_PORT);
-                return Apify.launchPuppeteer(launchOpts);
+                return browser;
             },
             puppeteerPoolOptions: {
                 recycleDiskCache: true,

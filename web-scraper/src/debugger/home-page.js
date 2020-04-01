@@ -8,9 +8,13 @@ exports.renderHomePage = devtoolsUrl => `
     <meta property="og:title" content="Apify Web Scraper Debugger">
     <meta property="og:description" content="Debug your cloud scraper as if it were running on your own machine.">
     <style>
+        html {
+            height: 100%;
+        }
         body {
             margin: 0;
             font-family: "Courier", monospace;
+            height: 100%
         }
         .overlay {
             position: fixed;
