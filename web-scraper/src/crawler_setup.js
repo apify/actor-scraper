@@ -225,6 +225,7 @@ class CrawlerSetup {
 
         this.crawler = new Apify.PuppeteerCrawler(options);
 
+        if (this.isDevRun) logDevRunWarning();
         return this.crawler;
     }
 
@@ -562,3 +563,13 @@ class CrawlerSetup {
 }
 
 module.exports = CrawlerSetup;
+
+
+function logDevRunWarning() {
+    log.warning('*****************************************************************');
+    log.warning('*          Web Scraper is running in DEVELOPMENT MODE!          *');
+    log.warning('*  Concurrency is limited, timeouts are increased and debugger  *');
+    log.warning('*  is enabled. If you want full control and performance switch  *');
+    log.warning('*                    Run type to PRODUCTION!                    *');
+    log.warning('*****************************************************************');
+}
