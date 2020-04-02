@@ -13,8 +13,8 @@
             "prefill": "DEVELOPMENT",
             "editor": "select",
             "enum": [
-                "DEVELOPMENT",
-                "PRODUCTION"
+                "PRODUCTION",
+                "DEVELOPMENT"
             ]
         },
         "startUrls": {
@@ -230,16 +230,16 @@
             "prefill": "NONE",
             "editor": "select",
             "enum": [
+                "NONE",
                 "BEFORE_GOTO",
                 "BEFORE_PAGE_FUNCTION",
-                "AFTER_PAGE_FUNCTION",
-                "NONE"
+                "AFTER_PAGE_FUNCTION"
             ],
             "enumTitles": [
+                "Nowhere. Break only on debugger; statements",
                 "Before navigation to URL",
                 "Before Page function invocation",
-                "After Page function invocation",
-                "Nowhere. Break only on debugger; statements"
+                "After Page function invocation"
             ]
         },
         "debugLog": {
