@@ -36,6 +36,10 @@ exports.startDebuggerServer = async (port, restarts = 0) => {
         proxyReq.setHeader('Host', 'localhost');
     });
 
+    proxy.on('error', (err) => {
+        log.exception(err, 'Debugger proxy error:');
+    });
+
     const server = http.createServer(async (req, res) => {
         if (req.url === '/') {
             try {
