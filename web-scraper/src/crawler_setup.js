@@ -230,18 +230,12 @@ class CrawlerSetup {
     }
 
     async _gotoFunction({ request, page, session }) {
-        let cdpClient;
-        if (this.isDevRun) {
-            cdpClient = await page.target().createCDPSession();
-            await cdpClient.send('Debugger.enable');
-        }
         const start = process.hrtime();
 
         // Create a new page context with a new random key for Apify namespace.
         const pageContext = {
             apifyNamespace: await tools.createRandomHash(),
             skipLinks: false,
-            cdpClient,
         };
         this.pageContexts.set(page, pageContext);
 
@@ -281,8 +275,12 @@ class CrawlerSetup {
         tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
 
 
-        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
-            await cdpClient.send('Debugger.pause');
+        if (this.isDevRun) {
+            const cdpClient = await page.target().createCDPSession();
+            await cdpClient.send('Debugger.enable');
+            if (this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
+                await cdpClient.send('Debugger.pause');
+            }
         }
         // Invoke navigation.
         const navStart = process.hrtime();
@@ -363,7 +361,7 @@ class CrawlerSetup {
         tools.logPerformance(request, 'handlePageFunction PREPROCESSING', start);
 
         if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_PAGE_FUNCTION) {
-            await pageContext.cdpClient.send('Debugger.pause');
+            await page.evaluate(async () => { debugger; }); // eslint-disable-line no-debugger
         }
         const startUserFn = process.hrtime();
 
@@ -406,9 +404,6 @@ class CrawlerSetup {
 
         tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
         const finishUserFn = process.hrtime();
-        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.AFTER_PAGE_FUNCTION) {
-            await pageContext.cdpClient.send('Debugger.pause');
-        }
 
         /**
          * POST-PROCESSING
@@ -433,6 +428,10 @@ class CrawlerSetup {
 
         tools.logPerformance(request, 'handlePageFunction POSTPROCESSING', finishUserFn);
         tools.logPerformance(request, 'handlePageFunction EXECUTION', start);
+
+        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.AFTER_PAGE_FUNCTION) {
+            await page.evaluate(async () => { debugger; }); // eslint-disable-line no-debugger
+        }
     }
 
     async _handleMaxResultsPerCrawl(autoscaledPool) {

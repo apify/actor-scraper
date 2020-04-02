@@ -38,9 +38,14 @@ exports.startDebuggerServer = async (port, restarts = 0) => {
 
     const server = http.createServer(async (req, res) => {
         if (req.url === '/') {
-            const debuggerUrl = await createDebuggerUrl();
-            res.writeHead(200);
-            res.end(renderHomePage(debuggerUrl));
+            try {
+                const debuggerUrl = await createDebuggerUrl();
+                res.writeHead(200);
+                res.end(renderHomePage(debuggerUrl));
+            } catch (err) {
+                res.writeHead(500);
+                res.end(`Error: ${err.message}`);
+            }
         } else {
             proxy.web(req, res);
         }
