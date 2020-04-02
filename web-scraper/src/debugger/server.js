@@ -88,5 +88,6 @@ async function fetchDebuggerInfo(resource) {
 }
 
 function findPageUrl(list) {
-    return list[0].devtoolsFrontendUrl.replace(/^\/devtools\//, '');
+    const page = list.find(p => p.type === 'page' && p.url !== 'about:blank');
+    return page.devtoolsFrontendUrl.replace(/^\/devtools\//, '');
 }
