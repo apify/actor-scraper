@@ -406,7 +406,7 @@ class CrawlerSetup {
 
         tools.logPerformance(request, 'handlePageFunction USER FUNCTION', startUserFn);
         const finishUserFn = process.hrtime();
-        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_PAGE_FUNCTION) {
+        if (this.isDevRun && this.input.breakpointLocation === BREAKPOINT_LOCATIONS.AFTER_PAGE_FUNCTION) {
             await pageContext.cdpClient.send('Debugger.pause');
         }
 
@@ -566,10 +566,12 @@ module.exports = CrawlerSetup;
 
 
 function logDevRunWarning() {
-    log.warning('*****************************************************************');
-    log.warning('*          Web Scraper is running in DEVELOPMENT MODE!          *');
-    log.warning('*  Concurrency is limited, timeouts are increased and debugger  *');
-    log.warning('*  is enabled. If you want full control and performance switch  *');
-    log.warning('*                    Run type to PRODUCTION!                    *');
-    log.warning('*****************************************************************');
+    log.warning(`
+*****************************************************************
+*          Web Scraper is running in DEVELOPMENT MODE!          *
+*  Concurrency is limited, timeouts are increased and debugger  *
+*  is enabled. If you want full control and performance switch  *
+*                    Run type to PRODUCTION!                    *
+*****************************************************************
+`);
 }
