@@ -1,4 +1,5 @@
 const Apify = require('apify');
+const retry = require('async-retry');
 const { promisifyServerListen } = require('apify-shared/utilities');
 const http = require('http');
 const httpProxy = require('http-proxy');
@@ -66,17 +67,22 @@ function parseVersionHash(versionData) {
 }
 
 async function createDebuggerUrl() {
+    const [hash, devtoolsUrl] = await retry(fetchHashAndDevtoolsUrl, { retries: 5 });
+
+    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
+    const correctDevtoolsUrl = devtoolsUrl.replace(`ws=localhost:${CHROME_DEBUGGER_PORT}`, `wss=${containerHost}`);
+    return `https://chrome-devtools-frontend.appspot.com/serve_file/@${hash}/${correctDevtoolsUrl}&remoteFrontend=true`;
+}
+
+async function fetchHashAndDevtoolsUrl() {
     const [list, version] = await Promise.all([
         fetchDebuggerInfo('list'),
         fetchDebuggerInfo('version'),
     ]);
-
     const hash = parseVersionHash(version);
-
     const devtoolsFrontendUrl = findPageUrl(list);
-    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
-    const correctDevtoolsUrl = devtoolsFrontendUrl.replace(`ws=localhost:${CHROME_DEBUGGER_PORT}`, `wss=${containerHost}`);
-    return `https://chrome-devtools-frontend.appspot.com/serve_file/@${hash}/${correctDevtoolsUrl}&remoteFrontend=true`;
+    if (!devtoolsFrontendUrl) throw Error('Page not ready yet.');
+    return [hash, devtoolsFrontendUrl];
 }
 
 async function fetchDebuggerInfo(resource) {
@@ -89,5 +95,5 @@ async function fetchDebuggerInfo(resource) {
 
 function findPageUrl(list) {
     const page = list.find(p => p.type === 'page' && p.url !== 'about:blank');
-    return page.devtoolsFrontendUrl.replace(/^\/devtools\//, '');
+    return page && page.devtoolsFrontendUrl.replace(/^\/devtools\//, '');
 }
