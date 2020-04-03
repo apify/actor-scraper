@@ -14,7 +14,7 @@ const SCHEMA = require('../INPUT_SCHEMA');
 const GlobalStore = require('./global_store');
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
-const RUN_TYPES = {
+const RUN_MODES = {
     PRODUCTION: 'PRODUCTION',
     DEVELOPMENT: 'DEVELOPMENT',
 };
@@ -33,7 +33,7 @@ const { utils: { log, puppeteer } } = Apify;
  * and IDE type check integration.
  *
  * @typedef {Object} Input
- * @property {string} runType
+ * @property {string} runMode
  * @property {Object[]} startUrls
  * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
@@ -134,7 +134,7 @@ class CrawlerSetup {
         }
         if (!this.input.downloadCss) this.blockedUrlPatterns.push('.css');
 
-        this.isDevRun = this.input.runType === RUN_TYPES.DEVELOPMENT;
+        this.isDevRun = this.input.runMode === RUN_MODES.DEVELOPMENT;
 
         // Initialize async operations.
         this.crawler = null;

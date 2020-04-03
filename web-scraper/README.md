@@ -122,6 +122,20 @@ These can be entered either manually in the user interface in [Apify app](https:
 or programmatically in a JSON object using the [Apify API](https://apify.com/docs/api/v2#/reference/actors/run-collection/run-actor).
 For a complete list of input fields and their type, please see [Input](https://apify.com/apify/web-scraper?section=input-schema).
 
+### Run mode
+
+Run mode allows you to switch between two modes of operation for Web Scraper.
+
+**PRODUCTION** mode gives you full control and full performance. You should always
+switch Web Scraper to production mode once you're done making changes to your scraper.
+
+When starting to develop your Scraper, you want to be able to inspect what's happening
+in the browser and debug your code. You can do that with the scraper's **DEVELOPMENT**
+mode. It allows you to directly control the browser using Chrome DevTools.
+Open the Live View tab to access the DevTools. It will also limit concurrency and
+prevent timeouts to improve your DevTools experience. Other debugging related options
+can be configured in the **Advanced configuration** section.
+
 ### Start URLs
 
 The **Start URLs** (`startUrls`) field represent the initial list of URLs
