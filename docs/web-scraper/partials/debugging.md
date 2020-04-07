@@ -6,7 +6,7 @@ Web scraping can be tricky, so it's common to run into issues while coding your 
 
 To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the INPUT section. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the Run mode to PRODUCTION.
 
-![setting the run mode](../../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
+![setting the run mode](../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
 
 Now, debugging wouldn't be debugging without breakpoints. Use the `debugger` command in your [Page function](https://docs.apify.com/scraping/getting-started#the-pagefunction) wherever you need to set one.
 
@@ -34,7 +34,7 @@ Additionally, use the **Advanced configuration** menu to set breakpoints outside
 
 Once you've set your input and breakpoints, click the **Save & Run** button to try the debugger for yourself. To let you know you're in development mode, the LOG will display the following banner.
 
-![development log example](../../img/debugging-log.jpg "The log shows a banner to tell you you're in development mode.")
+![development log example](../img/debugging-log.jpg "The log shows a banner to tell you you're in development mode.")
 
 Over in the Live View tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your Page function, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
 
