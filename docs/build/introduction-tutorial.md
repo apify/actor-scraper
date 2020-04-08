@@ -160,10 +160,10 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 ### Test run
 Now that we've added some configuration, it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and the **Page function** as it is. You should see in the log that the scraper first visits the Start URL and then several of the actor details matching the Pseudo URL.
 
-### The `pageFunction`
+## The `pageFunction`
 The Page function is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create the `pageFunction`, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are Developer Tools in browsers, DevTools.
 
-#### Using DevTools
+### Using DevTools
 Open the [store page](https://apify.com/store) in the Chrome browser (or use any other browser, just note that the DevTools may differ slightly) and open the DevTools, either by right-clicking on the page and selecting `Inspect` or by pressing `F12`.
 
 The DevTools window will pop up and display a lot of, perhaps unfamiliar, information. Don't worry about that too much - just open the Elements tab (the one with the page's HTML). The Elements tab allows you to browse the structure of the page and search within it using the search tool. You can open the search tool by pressing `CTRL+F` or `CMD+F`. Try typing `<title>` into the search bar.
@@ -174,10 +174,10 @@ You'll see that the Element tab jumps to the first `<title>` element of the curr
 
 > For the sake of brevity, we won't go into the details of using the DevTools in this tutorial. If you're just starting out with DevTools, this [Google tutorial](https://developers.google.com/web/tools/chrome-devtools/) is a good place to begin.
 
-#### Understanding `context`
+### Understanding `context`
 The `pageFunction` has access to global variables such as `window` and `document`, which are provided by the browser, as well as to `context`, which is the `pageFunction`'s single argument. `context` carries a lot of useful information and helpful functions, which are described in the actor's README.
 
-#### New `pageFunction` boilerplate
+### New `pageFunction` boilerplate
 We know that we'll visit two kinds of pages, the list page (Start URL) and the detail pages (enqueued using the Pseudo URL). We want to enqueue links on the list page and scrape data on the detail page.
 
 Since we're not covering jQuery in this tutorial for the sake of brevity, replace the default boilerplate with the code below.
@@ -202,16 +202,16 @@ async function pageFunction(context) {
 
 This may seem like a lot of new information, but it's all connected to our earlier configuration.
 
-#### `context.request`
+### `context.request`
 The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the Start URL and the Pseudo URL, we gave them a `label`. We're now using them in the `pageFunction` to distinguish between the store page and the detail pages.
 
-#### `context.skipLinks()`
+### `context.skipLinks()`
 When a Pseudo URL is set, the scraper attempts to enqueue matching links on each page it visits. `skipLinks()` is used to tell the scraper that we don't want this to happen on the current page.
 
-#### `context.log`
+### `context.log`
 `log` is used for printing messages to the console. You may be tempted to use `console.log()`, but this will not work unless you turn on the **Browser log** option. `log.info()` should be used for general messages, but you can also use `log.debug()` for messages that will only be shown when you turn on the **Debug log** option. [See the docs for more info](https://sdk.apify.com/docs/api/log).
 
-#### Return value of the `pageFunction`
+### Return value of the `pageFunction`
 The `pageFunction` may only return nothing, `null`, `Object` or `Object[]`. If an `Object` is returned, it will be saved as a single result. Returning an `Array` of `Objects` will save each item in the array as a result.
 
 The scraping results are saved in Dataset (one of the tabs in the run console, as you may remember). It behaves like a table. Each item is a row in the table and its properties are its columns. Returning the following `Object`:
@@ -229,7 +229,7 @@ will produce the following table:
 | ----- | --- |
 | Web Scraping, Data Extraction and Automation - Apify | https://apify.com |
 
-### Scraper Lifecycle
+## Scraper Lifecycle
 Now that we're familiar with all the pieces in the puzzle, we'll quickly take a look at the scraper lifecycle,
 or in other words, what the scraper actually does when it scrapes. It's quite straightforward.
 

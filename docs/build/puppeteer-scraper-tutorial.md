@@ -39,7 +39,7 @@ Now that's out of the way, let's open one of the actor detail pages in the Store
 > If you're wondering why we're using `apify/web-scraper` as an example instead of `puppeteer-scraper`,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!
 
-## Quick recap
+### Quick recap
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
