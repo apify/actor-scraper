@@ -324,7 +324,7 @@ already loaded and we're just waiting for the page to re-render so waiting for `
 that the button is not there. We don't want to stall the scraper for `20` seconds just to make sure that there's
 no button.
 
-### [](#pagination-page-function) Plugging it into the `pageFunction`
+### [](#pagination-page-function) Plugging it into the Page function
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`. 
 Remember the `// Do some stuff later` comment? Let's replace it. And don't forget to destructure the `waitFor()`
 function on the first line.

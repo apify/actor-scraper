@@ -88,7 +88,7 @@ how to route those requests.
 >If you're wondering how we know the structure of the URL, see the [Getting started
 with Apify Scrapers](intro-scraper-tutorial) tutorial again.
 
-### [](#pagination-page-function) Plugging it into the `pageFunction`
+### [](#pagination-page-function) Plugging it into the Page function
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it.
 
