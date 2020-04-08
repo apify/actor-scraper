@@ -1,32 +1,36 @@
 ## Debugging 
 
-Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **Live View** tab.
+Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **LIVE VIEW** tab.
 
 > The debugger is optimized to work with Google Chrome. It will still work with Firefox but for best results, we suggest using Chrome.
 
-To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the INPUT section. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the Run mode to PRODUCTION.
+To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the [INPUT](https://apify.com/apify/web-scraper?section=input-schema) section. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the Run mode to PRODUCTION.
 
 ![setting the run mode](../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
 
-Now, debugging wouldn't be debugging without breakpoints. Use the `debugger` command in your [Page function](https://docs.apify.com/scraping/getting-started#the-pagefunction) wherever you need to set one.
+Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/scraping/getting-started#the-pagefunction) wherever you need to set one.
 
 ```javascript
 async function pageFunction(context) {
-    const $ = context.jQuery;
-    const pageTitle = $('title').first().text();
-    
-	debugger;
+    const { request, log, skipLinks, jQuery: $, waitFor } = context;
+    if (request.userData.label === 'START') {
+        log.info('Store opened!');
+        let timeoutMillis; // undefined
 
-    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);
+        debugger;
 
-    context.enqueueRequest({ url: 'http://www.example.com' });
-    
-	debugger;
+        const buttonSelector = 'div.show-more > button';
+        while (true) {
+                // ...
+            }
+            log.info('Clicking the "Show more" button.');
 
-    return {
-        url: context.request.url,
-        pageTitle
-    };
+            debugger;
+
+            $(buttonSelector).click();
+        }
+    }
+    // ...
 }
 ```
 
@@ -36,10 +40,10 @@ Once you've set your input and breakpoints, click the **Save & Run** button to t
 
 ![development log example](../img/debugging-log.jpg "The log shows a banner to tell you you're in development mode.")
 
-Over in the Live View tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your Page function, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
+Over in the LIVE VIEW tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your Page function, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
 
-Thinking of which, the **Console** tab allows you to execute statements in the context of your Page function. This means even fewer `console.log`s when checking if your values are of the right type and less tab-hopping when looking for that special selector.
+Thinking of which, the **Console** tab allows you to execute statements in the context of your Page function. This means even fewer `console.log`s when checking if your values are of the right type and less tab-hopping when looking for that special [selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
 
-Take some time to play around with all the available options. If you're unfamiliar with debuggers in general, make sure to read [this article](https://developers.google.com/web/tools/chrome-devtools/javascript/reference#stepping) about stepping through your code.
+Take some time to play around with all the available options. If you're unfamiliar with debuggers and their controls, make sure to read [this article](https://developers.google.com/web/tools/chrome-devtools/javascript/reference#stepping) about stepping through your code.
 
 When you're finished with the debugging, don't forget to set your actor's **Run mode** to PRODUCTION.
