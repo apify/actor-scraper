@@ -199,7 +199,7 @@ async function pageFunction(context) {
 }
 ```
 
-### [](#test-run-3) Test run 3
+### [](#test-run) Test run
 As always, try hitting that **Save & Run** button  and visit 
 the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!
