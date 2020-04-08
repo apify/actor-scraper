@@ -24,7 +24,7 @@ await page.waitFor('.bad-class', { timeout: 5000 });
 
 With those tools, you should be able to handle any dynamic content the website throws at you.
 
-### How to paginate
+### [](#how-to-paginate)  How to paginate
 With the theory out of the way, this should be pretty easy. The algorithm is a loop: 
 
    1. Wait for the **Show more** button.
@@ -101,7 +101,7 @@ already loaded and we're just waiting for the page to re-render so waiting for `
 that the button is not there. We don't want to stall the scraper for `30` seconds just to make sure that there's
 no button.
 
-### Plugging it into the `pageFunction`
+### [](#pagination-page-function) Plugging it into the `pageFunction`
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`. 
 Remember the `// Do some stuff later` comment? Let's replace it.
 

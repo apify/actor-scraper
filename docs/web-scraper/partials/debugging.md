@@ -1,4 +1,4 @@
-## Debugging 
+## [](#debugging) Debugging 
 
 Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **LIVE VIEW** tab.
 

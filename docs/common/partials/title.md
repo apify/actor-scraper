@@ -1,4 +1,4 @@
-### Title
+### [](#title) Title
 ![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.

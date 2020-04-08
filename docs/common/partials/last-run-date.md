@@ -1,4 +1,4 @@
-### Last run date
+### [](#last-run-date) Last run date
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
 
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")

@@ -1,4 +1,4 @@
-## Getting to know our tools
+## [](#our-tools) Getting to know our tools
 In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial,
 we've confirmed that the scraper works as expected, so now it's time to add more data to the results.
 

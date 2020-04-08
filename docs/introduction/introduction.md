@@ -160,7 +160,7 @@ Let's use the above Pseudo URL in our task. We should also add a label as we did
 ### [](#test-run) Test run
 Now that we've added some configuration, it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and the **Page function** as it is. You should see in the log that the scraper first visits the Start URL and then several of the actor details matching the Pseudo URL.
 
-## [](#page-function) The `pageFunction`
+## [](#page-function) The Page function
 The Page function is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create the `pageFunction`, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are Developer Tools in browsers, DevTools.
 
 ### [](#devtools) Using DevTools
@@ -177,7 +177,7 @@ You'll see that the Element tab jumps to the first `<title>` element of the curr
 ### [](#context) Understanding `context`
 The `pageFunction` has access to global variables such as `window` and `document`, which are provided by the browser, as well as to `context`, which is the `pageFunction`'s single argument. `context` carries a lot of useful information and helpful functions, which are described in the actor's README.
 
-### [](#boilerplate) New `pageFunction` boilerplate
+### [](#page-function-boilerplate) New Page function boilerplate
 We know that we'll visit two kinds of pages, the list page (Start URL) and the detail pages (enqueued using the Pseudo URL). We want to enqueue links on the list page and scrape data on the detail page.
 
 Since we're not covering jQuery in this tutorial for the sake of brevity, replace the default boilerplate with the code below.
@@ -211,7 +211,7 @@ When a Pseudo URL is set, the scraper attempts to enqueue matching links on each
 ### [](#log) `context.log`
 `log` is used for printing messages to the console. You may be tempted to use `console.log()`, but this will not work unless you turn on the **Browser log** option. `log.info()` should be used for general messages, but you can also use `log.debug()` for messages that will only be shown when you turn on the **Debug log** option. [See the docs for more info](https://sdk.apify.com/docs/api/log).
 
-### [](#returns) Return value of the `pageFunction`
+### [](#page-function-returns) Return value of the Page function
 The `pageFunction` may only return nothing, `null`, `Object` or `Object[]`. If an `Object` is returned, it will be saved as a single result. Returning an `Array` of `Objects` will save each item in the array as a result.
 
 The scraping results are saved in Dataset (one of the tabs in the run console, as you may remember). It behaves like a table. Each item is a row in the table and its properties are its columns. Returning the following `Object`:

@@ -1,4 +1,4 @@
-## Pagination
+## [](#pagination) Pagination
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
@@ -13,7 +13,7 @@ with Cheerio? We don't have a browser to do it and we only have the HTML of the 
 answer is that we can't click a button. Does that mean that we cannot get the data at all? Usually not,
 but it requires some clever DevTools-Fu.
 
-### Analyzing the page
+### [](#page-analysis) Analyzing the page
 While with `apify/web-scraper` and `apify/puppeteer-scraper`, we could get away with simply clicking a button,
 with `apify/cheerio-scraper` we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
@@ -31,7 +31,7 @@ Now, this is interesting. It seems that we've only received two images after cli
 data. This means that the data about actors must already be available in the page and the Show more button only
 displays it. This is good news.
 
-### Finding the actors
+### [](#find-actors) Finding the actors
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
 is `apify/web-scraper` so let's try using the search tool in the Elements tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
@@ -59,7 +59,7 @@ so you might already be wondering, can I just make one request to the store to g
 and then parse it out and be done with it in a single request? Yes you can! And that's the power
 of clever page analysis.
 
-### Using the data to enqueue all actor details
+### [](#using-data) Using the data to enqueue all actor details
 We don't really need to go to all the actor details now, but for the sake of practice, let's imagine we only found
 actor names such as `cheerio-scraper` and their owners, such as `apify` in the data. We will use this information
 to construct URLs that will take us to the actor detail pages and enqueue those URLs into the request queue.
@@ -88,7 +88,7 @@ how to route those requests.
 >If you're wondering how we know the structure of the URL, see the [Getting started
 with Apify Scrapers](intro-scraper-tutorial) tutorial again.
 
-### Plugging it into the `pageFunction`
+### [](#pagination-page-function) Plugging it into the `pageFunction`
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it.
 

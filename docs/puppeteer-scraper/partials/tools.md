@@ -1,4 +1,4 @@
-## Getting to know our tools
+## [](#our-tools) Getting to know our tools
 In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
@@ -13,7 +13,7 @@ you'll need to visit its [documentation](https://pptr.dev/) and really dive deep
 it in a nice, manageable UI. It provides almost all of its features in a format that is much easier to grasp
 when first trying to scrape using Puppeteer.
 
-### Web Scraper differences
+### [](#differences) Web Scraper differences
 At first glance, it may seem like Web Scraper and Puppeteer Scraper are almost the same. Well, they are.
 In fact, Web Scraper uses Puppeteer underneath. The difference is the amount of control they give you.
 Where Web Scraper only gives you access to in-browser JavaScript and the `pageFunction` is executed

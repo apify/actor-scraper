@@ -1,4 +1,4 @@
-## Pagination
+## [](#pagination) Pagination
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
@@ -7,7 +7,7 @@ one needs to click the orange **Show more** button at the very bottom of the lis
 that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
-### Waiting for dynamic content
+###[](#waiting-for-content) Waiting for dynamic content
 Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Store is a JavaScript
 application (as many, if not most modern websites are), the button might not exist in the page when the scraper
 runs the `pageFunction`.

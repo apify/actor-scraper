@@ -2,7 +2,7 @@
 
 {{> tools}}
 
-{{> quick-recap}}
+{{> build-page-function}}
 
 {{> title}}
 
