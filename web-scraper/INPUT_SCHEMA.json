@@ -68,13 +68,13 @@
         "injectJQuery": {
             "title": "Inject jQuery",
             "type": "boolean",
-            "description": "If enabled, the scraper will inject the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the jQuery object (<code>$</code) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <b>Page function</b>.",
+            "description": "If enabled, the scraper will inject the <a href='http://jquery.com' target='_blank' rel='noopener'>jQuery</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the jQuery object (<code>$</code>) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.jQuery</code> in <b>Page function</b>.",
             "default": true
         },
         "injectUnderscore": {
             "title": "Inject Underscore.js",
             "type": "boolean",
-            "description": "If enabled, the scraper will inject the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the Underscore.js object (<code>_</code) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <b>Page function</b>.",
+            "description": "If enabled, the scraper will inject the <a href='http://underscorejs.org' target='_blank' rel='noopener'>Underscore.js</a> library into every web page loaded, before <b>Page function</b> is invoked. Note that the Underscore.js object (<code>_</code>) will not be registered into global namespace in order to avoid conflicts with libraries used by the web page. It can only be accessed through <code>context.underscoreJs</code> in <b>Page function</b>.",
             "default": false
         },
         "proxyConfiguration": {
