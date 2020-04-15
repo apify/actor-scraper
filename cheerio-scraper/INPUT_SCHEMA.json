@@ -52,6 +52,7 @@
 			"editor": "javascript"
 		},
 		"proxyConfiguration": {
+			"sectionCaption": "Proxy and HTTP configuration",
 			"title": "Proxy configuration",
 			"type": "object",
 			"description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
@@ -85,15 +86,50 @@
 			"maxLength": 200,
 			"pattern": "[0-9A-z-]"
 		},
+		"initialCookies": {
+			"title": "Initial cookies",
+			"type": "array",
+			"description": "A JSON array with cookies that will be send with every HTTP request made by the Cheerio Scraper, in the format accepted by the <a href='https://www.npmjs.com/package/tough-cookie' target='_blank' rel='noopener noreferrer'>tough-cookie</a> NPM package. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
+			"default": [],
+			"prefill": [],
+			"editor": "json"
+		},
 		"prepareRequestFunction": {
-			"sectionCaption": "Advanced configuration",
 			"title": "Prepare request function",
 			"type": "string",
 			"description": "A JavaScript (Node.js 12) function that is executed before making a request to a given URL. Its sole argument is an object with two properties: <code>{ request, Apify }</code>. It can be used for pre-processing, updating headers, or just setting cookies.<br><br><b>IMPORTANT:</b> The return value of this function is irrelevant, you should modify the request instance in place.",
 			"prefill": "async function prepareRequest({ request, Apify }) {\n    /* add your logic here, if needed */\n}",
 			"editor": "javascript"
 		},
+		"additionalMimeTypes": {
+			"title": "Additional MIME types",
+			"type": "array",
+			"description": "A JSON array specifying additional MIME content types of web pages to support. By default, Cheerio Scraper supports the <code>text/html</code> and <code>application/xhtml+xml</code> content types, and skips all other resources. For details, see <a href='https://apify.com/apify/cheerio-scraper#content-types' target='_blank' rel='noopener'>Content types</a> in README.",
+			"editor": "json",
+			"default": [],
+			"prefill": []
+		},
+		"suggestResponseEncoding": {
+			"title": "Suggest response encoding",
+			"type": "string",
+			"description": "The scraper automatically determines response encoding from the response headers. If the headers are invalid or information is missing, malformed responses may be produced. Use the Suggest response encoding option to provide a fall-back encoding to the Scraper for cases where it could not be determined.",
+			"editor": "textfield"
+		},
+		"forceResponseEncoding": {
+			"title": "Force response encoding",
+			"type": "boolean",
+			"description": "If enabled, the suggested response encoding will be used even if a valid response encoding is provided by the target website. Use this only when you've inspected the responses thoroughly and are sure that they are the ones doing it wrong.",
+			"default": false
+		},
+		"ignoreSslErrors": {
+			"title": "Ignore SSL errors",
+			"type": "boolean",
+			"description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
+			"default": false,
+			"groupCaption": "Security"
+		},
 		"maxRequestRetries": {
+			"sectionCaption": "Advanced configuration",
 			"title": "Max request retries",
 			"type": "integer",
 			"description": "The maximum number of times the scraper will retry to load each web page on error, in case of a page load error or an exception thrown by the <b>Page function</b>.<br><br>If set to <code>0</code>, the page will be considered failed right after the first error.",
@@ -149,35 +185,12 @@
 			"maximum": 360,
 			"unit": "seconds"
 		},
-		"additionalMimeTypes": {
-			"title": "Additional MIME types",
-			"type": "array",
-			"description": "A JSON array specifying additional MIME content types of web pages to support. By default, Cheerio Scraper supports the <code>text/html</code> and <code>application/xhtml+xml</code> content types, and skips all other resources. For details, see <a href='https://apify.com/apify/cheerio-scraper#content-types' target='_blank' rel='noopener'>Content types</a> in README.",
-			"editor": "json",
-			"default": [],
-			"prefill": []
-		},
 		"debugLog": {
 			"title": "Enable debug log",
 			"type": "boolean",
 			"description": "If enabled, the actor log will include debug messages. Beware that this can be quite verbose. Use <code>context.log.debug('message')</code> to log your own debug messages from the <b>Page function</b>.",
 			"default": false,
-			"groupCaption": "Options",
-			"groupDescription": "Scraper settings"
-		},
-		"ignoreSslErrors": {
-			"title": "Ignore SSL errors",
-			"type": "boolean",
-			"description": "If enabled, the scraper will ignore SSL/TLS certificate errors. Use at your own risk.",
-			"default": false
-		},
-		"initialCookies": {
-			"title": "Initial cookies",
-			"type": "array",
-			"description": "A JSON array with cookies that will be send with every HTTP request made by the Cheerio Scraper, in the format accepted by the <a href='https://www.npmjs.com/package/tough-cookie' target='_blank' rel='noopener noreferrer'>tough-cookie</a> NPM package. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
-			"default": [],
-			"prefill": [],
-			"editor": "json"
+			"groupCaption": "Logging"
 		},
 		"customData": {
 			"title": "Custom data",

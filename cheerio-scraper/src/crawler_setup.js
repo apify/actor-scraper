@@ -41,6 +41,8 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  * @property {Array} initialCookies
  * @property {string} proxyRotation
  * @property {string} sessionPoolName
+ * @property {string} suggestResponseEncoding
+ * @property {boolean} forceResponseEncoding
  */
 
 /**
@@ -172,6 +174,14 @@ class CrawlerSetup {
 
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
+        }
+
+        if (this.input.suggestResponseEncoding) {
+            if (this.input.forceResponseEncoding) {
+                options.forceResponseEncoding = this.input.suggestResponseEncoding;
+            } else {
+                options.suggestResponseEncoding = this.input.suggestResponseEncoding;
+            }
         }
 
         this.crawler = new Apify.CheerioCrawler(options);
