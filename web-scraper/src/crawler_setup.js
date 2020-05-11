@@ -1,15 +1,16 @@
 const Apify = require('apify');
 const _ = require('underscore');
+const { URL } = require('url');
 const contentType = require('content-type');
 const {
     tools,
     browserTools,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
+const DevToolsServer = require('devtools-server');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
 const createBundle = require('./bundle.browser');
-const { startDebuggerServer } = require('./debugger/server');
 const SCHEMA = require('../INPUT_SCHEMA');
 const GlobalStore = require('./global_store');
 
@@ -191,7 +192,15 @@ class CrawlerSetup {
             proxyUrls: this.input.proxyConfiguration.proxyUrls,
             launchPuppeteerFunction: async (launchOpts) => {
                 const browser = await Apify.launchPuppeteer(launchOpts);
-                if (this.isDevRun) await startDebuggerServer(process.env.APIFY_CONTAINER_PORT);
+                if (this.isDevRun) {
+                    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
+                    const devToolsServer = new DevToolsServer({
+                        containerHost,
+                        devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
+                        chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+                    });
+                    await devToolsServer.start();
+                }
                 return browser;
             },
             puppeteerPoolOptions: {

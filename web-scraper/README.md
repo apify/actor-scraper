@@ -21,6 +21,7 @@ a tutorial which will walk you through all the steps and provide a number of exa
 - [Usage](#usage)
 - [Limitations](#limitations)
 - [Input configuration](#input-configuration)
+  * [Run mode](#run-mode)
   * [Start URLs](#start-urls)
   * [Use request queue](#use-request-queue)
   * [Link selector](#link-selector)
