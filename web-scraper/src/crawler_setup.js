@@ -294,7 +294,7 @@ class CrawlerSetup {
         // Invoke navigation.
         const navStart = process.hrtime();
         const response = await puppeteer.gotoExtended(page, request, {
-            timeout: (this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+            timeout: this.input.pageLoadTimeoutSecs * 1000,
             waitUntil: this.input.waitUntil,
         });
         await this._waitForLoadEventWhenXml(page, response);
