@@ -172,11 +172,11 @@ class CrawlerSetup {
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
             puppeteerPoolOptions: {
                 useLiveView: true,
                 recycleDiskCache: true,
+                proxyUrls: this.input.proxyConfiguration.proxyUrls,
             },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),

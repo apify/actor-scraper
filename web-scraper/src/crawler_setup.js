@@ -189,7 +189,6 @@ class CrawlerSetup {
             maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            proxyUrls: this.input.proxyConfiguration.proxyUrls,
             launchPuppeteerFunction: async (launchOpts) => {
                 const browser = await Apify.launchPuppeteer(launchOpts);
                 if (this.isDevRun) {
@@ -205,6 +204,7 @@ class CrawlerSetup {
             },
             puppeteerPoolOptions: {
                 recycleDiskCache: true,
+                proxyUrls: this.input.proxyConfiguration.proxyUrls,
             },
             launchPuppeteerOptions: {
                 ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
