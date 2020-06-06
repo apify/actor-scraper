@@ -1,5 +1,4 @@
 const Apify = require('apify');
-const _ = require('underscore');
 const { URL } = require('url');
 const contentType = require('content-type');
 const {
@@ -202,12 +201,11 @@ class CrawlerSetup {
                 }
                 return browser;
             },
+            proxyConfiguration: this.input.proxyConfiguration,
             puppeteerPoolOptions: {
                 recycleDiskCache: true,
-                proxyUrls: this.input.proxyConfiguration.proxyUrls,
             },
             launchPuppeteerOptions: {
-                ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 useChrome: this.input.useChrome,
@@ -349,11 +347,15 @@ class CrawlerSetup {
 
         // Setup Context and pass the configuration down to Browser.
         const contextOptions = {
-            crawlerSetup: Object.assign(
-                _.pick(this, ['rawInput', 'env']),
-                _.pick(this.input, ['customData', 'useRequestQueue', 'injectJQuery', 'injectUnderscore']),
-                { META_KEY },
-            ),
+            crawlerSetup: {
+                rawInput: this.rawInput,
+                env: this.env,
+                customData: this.input.customData,
+                useRequestQueue: this.input.useRequestQueue,
+                injectJQuery: this.input.injectJQuery,
+                injectUnderscore: this.input.injectUnderscore,
+                META_KEY,
+            },
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,

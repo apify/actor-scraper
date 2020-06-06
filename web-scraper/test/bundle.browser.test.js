@@ -1,4 +1,3 @@
-const { expect } = require('chai');
 const Apify = require('apify');
 const createBundle = require('../src/bundle.browser');
 
@@ -7,10 +6,10 @@ const NAMESPACE = 'Apify';
 describe('Bundle', () => {
     let browser;
     let page;
-    before(async () => {
+    beforeAll(async () => {
         browser = await Apify.launchPuppeteer({ headless: true });
     });
-    after(async () => {
+    afterAll(async () => {
         await browser.close();
     });
     beforeEach(async () => {
@@ -42,7 +41,7 @@ describe('Bundle', () => {
                 window.contextInstance = window[namespace].createContext(contextOptions);
             }, NAMESPACE, CONTEXT_OPTIONS);
         });
-        describe('waitFor', async () => {
+        describe('waitFor', () => {
             it('should work with a number', async () => {
                 const millis = await page.evaluate(async () => {
                     const ctx = window.contextInstance;
@@ -50,7 +49,7 @@ describe('Bundle', () => {
                     await ctx.waitFor(10);
                     return Date.now() - start;
                 });
-                expect(millis).to.be.above(9);
+                expect(millis).toBeGreaterThan(9);
             });
             it('should work with a selector', async () => {
                 const millis = await page.evaluate(async () => {
@@ -64,7 +63,7 @@ describe('Bundle', () => {
                     await ctx.waitFor('#very-unique-id');
                     return Date.now() - start;
                 });
-                expect(millis).to.be.above(9);
+                expect(millis).toBeGreaterThan(9);
             });
             it('should work with a function', async () => {
                 const millis = await page.evaluate(async () => {
@@ -77,7 +76,7 @@ describe('Bundle', () => {
                     await ctx.waitFor(() => done);
                     return Date.now() - start;
                 });
-                expect(millis).to.be.above(9);
+                expect(millis).toBeGreaterThan(9);
             });
         });
     });

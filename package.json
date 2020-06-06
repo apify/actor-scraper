@@ -1,0 +1,24 @@
+{
+  "name": "actor-scraper",
+  "version": "0.0.1",
+  "description": "This repository houses all of Apify generic actors that are used for simplified scraping using a pre-defined, schema validated UI input instead of the typical JSON input used in other actors.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ignore-path .gitignore */src/* */test/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apifytech/act-crawler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/apifytech/act-crawler/issues"
+  },
+  "homepage": "https://github.com/apifytech/act-crawler#readme",
+  "dependencies": {
+    "@apify/eslint-config": "0.0.3",
+    "eslint": "^7.2.0"
+  }
+}
