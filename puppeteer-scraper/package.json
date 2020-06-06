@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
-    "apify": "beta"
+    "apify": "^0.21.0"
   },
   "devDependencies": {
     "@types/puppeteer": "^3.0.0",
