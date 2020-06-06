@@ -5,20 +5,15 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
-    "apify": "^0.20.4",
-    "underscore": "^1.9.1"
+    "apify": "^0.21.0"
   },
   "devDependencies": {
-    "@apify/eslint-config": "^0.0.3",
-    "@types/puppeteer": "^2.0.0",
-    "@types/underscore": "^1.9.2",
-    "eslint": "^6.1.0",
+    "@types/puppeteer": "^3.0.0",
     "markdown-toc": "^1.2.0"
   },
   "scripts": {
     "start": "node main.js",
     "build-toc": "./node_modules/.bin/markdown-toc README.md -i",
-    "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
     "prepare": "npm run build-toc",
     "lint": "eslint src test"
   },

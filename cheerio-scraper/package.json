@@ -5,12 +5,9 @@
 	"main": "src/main.js",
 	"dependencies": {
 		"@apify/scraper-tools": "^0.1.13",
-		"apify": "^0.20.4",
-		"underscore": "^1.9.1"
+		"apify": "^0.21.0"
 	},
 	"devDependencies": {
-		"@apify/eslint-config": "^0.0.3",
-		"eslint": "^6.7.1",
 		"markdown-toc": "^1.2.0"
 	},
 	"peerDependencies": {

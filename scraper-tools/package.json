@@ -11,13 +11,11 @@
     "apify": ">=0.17.0"
   },
   "devDependencies": {
-    "@apify/eslint-config": "^0.0.3",
     "@types/fs-extra": "^5.0.4",
     "@types/puppeteer": "^1.20.2",
     "@types/underscore": "^1.9.3",
     "apify": ">=0.19.0",
     "chai": "^4.2.0",
-    "eslint": "^5.8.0",
     "fs-extra": "^7.0.1",
     "markdown-toc": "^1.2.0",
     "mocha": "^5.2.0",
