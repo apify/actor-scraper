@@ -167,7 +167,7 @@ class CrawlerSetup {
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
             // launchPuppeteerFunction: use default,
-            proxyConfiguration: this.input.proxyConfiguration,
+            proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
             puppeteerPoolOptions: {
                 useLiveView: true,
                 recycleDiskCache: true,

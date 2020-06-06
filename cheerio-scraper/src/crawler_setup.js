@@ -135,7 +135,7 @@ class CrawlerSetup {
         await this.initPromise;
 
         const options = {
-            proxyConfiguration: this.input.proxyConfiguration,
+            proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
