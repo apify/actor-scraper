@@ -11,11 +11,13 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
-                timeoutMillis = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await waitFor(buttonSelector, { timeoutMillis });
+                // 2 sec timeout after the first.
+                timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button",\n we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -23,19 +25,29 @@ async function pageFunction(context) {
         }
     }
 
-    async function handleDetail({ request, log, skipLinks, jQuery: $ }) {
+    async function handleDetail({
+        request,
+        log,
+        skipLinks,
+        jQuery: $
+    }) {
+
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
+            description: $('header p[class^=Text__Paragraph]')
+                .text(),
             lastRunDate: new Date(
                 Number(
                     $('time')

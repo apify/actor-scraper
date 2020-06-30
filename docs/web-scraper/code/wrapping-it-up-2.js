@@ -1,5 +1,6 @@
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $ } = context; // use jQuery as $
+    // use jQuery as $
+    const { request, log, skipLinks, jQuery: $ } = context;
 
     if (request.userData.label === 'START') {
         log.info('Store opened!');
@@ -11,13 +12,17 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
+            description: $('header p[class^=Text__Paragraph]')
+                .text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
