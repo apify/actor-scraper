@@ -86,7 +86,8 @@ while (true) {
         timeout = 2000;
     } catch (err) {
         // Ignore the timeout error.
-        log.info('Could not find the "Show more button",\n we\'ve reached the end.');
+        log.info(`Could not find the "Show more button",
+            we\'ve reached the end.`);
         break;
     }
     log.info('Clicking the "Show more" button.');
