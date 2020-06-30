@@ -12,8 +12,7 @@ async function pageFunction(context) {
 
         for (const item of data.props.pageProps.items) {
             const { name, username } = item;
-            const actorDetailUrl = `https://apify.com/
-                ${username}/${name}`;
+            const actorDetailUrl = `https://apify.com/${username}/${name}`;
             await context.enqueueRequest({
                 url: actorDetailUrl,
                 userData: {
