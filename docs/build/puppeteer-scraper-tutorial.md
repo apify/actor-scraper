@@ -94,7 +94,9 @@ description, we choose the `<p>` tag that has a `class` that starts with `Text__
 ```js
 const title = await page
     .$eval('header h1', (el => el.textContent));
-const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
+const description = await page
+    .$eval('header p[class^=Text__Paragraph]',
+        (el => el.textContent));
 
 return {
     title,
@@ -110,9 +112,13 @@ The DevTools tell us that the `lastRunDate` can be found in the second of the tw
 ```js
 const title = await page
     .$eval('header h1', (el => el.textContent));
-const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
+const description = await page
+    .$eval('header p[class^=Text__Paragraph]',
+        (el => el.textContent));
 
-const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page
+    .$$eval('time', (els) => els[1]
+        .getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
 return {
@@ -141,15 +147,18 @@ a complex selector and then do a transformation on the result.
 ```js
 const title = await page
     .$eval('header h1', (el => el.textContent));
-const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
+const description = await page
+    .$eval('header p[class^=Text__Paragraph]',
+        (el => el.textContent));
 
 const lastRunTimestamp = await page
     .$$eval('time', (els) => els[1]
-    .getAttribute('datetime'));
+        .getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
 const runCountText = await page
-    .$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+    .$eval('ul.stats li:nth-of-type(3)',
+        (el => el.textContent));
 const runCount = Number(runCountText.match(/\d+/)[0]);
 
 return {
@@ -173,16 +182,25 @@ const { url } = request;
 
 // ...
 
-const uniqueIdentifier = url.split('/').slice(-2).join('/');
+const uniqueIdentifier = url
+    .split('/')
+    .slice(-2)
+    .join('/');
 
 const title = await page
     .$eval('header h1', (el => el.textContent));
-const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
+const description = await page
+    .$eval('header p[class^=Text__Paragraph]',
+        (el => el.textContent));
 
-const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page
+    .$$eval('time', (els) => els[1]
+        .getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
-const runCountText = await page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+const runCountText = await page
+    .$eval('ul.stats li:nth-of-type(3)',
+        (el => el.textContent));
 const runCount = Number(runCountText.match(/\d+/)[0]);
 
 return {
@@ -199,7 +217,8 @@ All we need to do now is add this to our `pageFunction`:
 
 ```js
 async function pageFunction(context) {
-    const { request, log, skipLinks, page } = context; // page is Puppeteer's page
+    // page is Puppeteer's page
+    const { request, log, skipLinks, page } = context;
 
     if (request.userData.label === 'START') {
         log.info('Store opened!');
@@ -211,16 +230,35 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         // Get attributes in parallel to speed up the process.
         const titleP = page
             .$eval('header h1', (el => el.textContent));
-        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
-        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+        const descriptionP = page
+            .$eval('header p[class^=Text__Paragraph]',
+                (el => el.textContent));
+        const lastRunTimestampP = page
+            .$$eval('time', (els) => els[1]
+                .getAttribute('datetime'));
+        const runCountTextP = page
+            .$eval('ul.stats li:nth-of-type(3)',
+                (el => el.textContent));
 
-        const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
+        const [
+            title,
+            description,
+            lastRunTimestamp,
+            runCountText
+        ] = await Promise.all([
+            titleP,
+            descriptionP,
+            lastRunTimestampP,
+            runCountTextP
+        ]);
 
         const lastRunDate = new Date(Number(lastRunTimestamp));
         const runCount = Number(runCountText.match(/\d+/)[0]);
@@ -281,9 +319,13 @@ returns `true`.
 in the Puppeteer documentation.
 
 ```js
-await page.waitFor(2000); // Waits for 2 seconds.
-await page.waitFor('#my-id'); // Waits until an element with id "my-id" appears in the page.
-await page.waitFor(() => !!window.myObject); // Waits until a "myObject" variable appears on the window object.
+// Waits for 2 seconds.
+await page.waitFor(2000);
+// Waits until an element with id "my-id" appears in the page.
+await page.waitFor('#my-id');
+// Waits until a "myObject" variable appears
+// on the window object.
+await page.waitFor(() => !!window.myObject);
 ```
 
 The selector may never be found and the function might never return `true`, so the `page.waitFor()` function also has
@@ -348,11 +390,13 @@ const buttonSelector = 'div.show-more > button';
 while (true) {
     log.info('Waiting for the "Show more" button.');
     try {
-        await page.waitFor(buttonSelector, { timeout }); // Default timeout first time.
-        timeout = 2000; // 2 sec timeout after the first.
+        // Default timeout first time.
+        await page.waitFor(buttonSelector, { timeout });
+        // 2 sec timeout after the first.
+        timeout = 2000;
     } catch (err) {
         // Ignore the timeout error.
-        log.info('Could not find the "Show more button", we\'ve reached the end.');
+        log.info('Could not find the "Show more button",\n we\'ve reached the end.');
         break;
     }
     log.info('Clicking the "Show more" button.');
@@ -417,19 +461,25 @@ async function pageFunction(context) {
             .$eval('header h1', (el => el.textContent));
         const descriptionP = page
             .$eval('header p[class^=Text__Paragraph]',
-            (el => el.textContent));
+                (el => el.textContent));
         const lastRunTimestampP = page
             .$$eval('time', (els) => els[1]
-            .getAttribute('datetime'));
+                .getAttribute('datetime'));
         const runCountTextP = page
             .$eval('ul.stats li:nth-of-type(3)',
-            (el => el.textContent));
+                (el => el.textContent));
 
-        const [title,
+        const [
+            title,
             description,
             lastRunTimestamp,
-            runCountText] = await Promise
-                .all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
+            runCountText
+        ] = await Promise.all([
+            titleP,
+            descriptionP,
+            lastRunTimestampP,
+            runCountTextP
+        ]);
 
         const lastRunDate = new Date(Number(lastRunTimestamp));
         const runCount = Number(runCountText.match(/\d+/)[0]);
@@ -488,11 +538,13 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await page.waitFor(buttonSelector, { timeout }); // Default timeout first time.
-                timeout = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await page.waitFor(buttonSelector, { timeout });
+                // 2 sec timeout after the first.
+                timeout = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button",\n we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -500,21 +552,44 @@ async function pageFunction(context) {
         }
     }
 
-    async function handleDetail({ request, log, skipLinks, page }) {
+    async function handleDetail({
+        request,
+        log,
+        skipLinks,
+        page
+    }) {
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('header h1', (el => el.textContent));
+        const titleP = page
+            .$eval('header h1', (el => el.textContent));
         const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
-        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+        const lastRunTimestampP = page
+            .$$eval('time', (els) => els[1]
+                .getAttribute('datetime'));
+        const runCountTextP = page
+            .$eval('ul.stats li:nth-of-type(3)',
+                (el => el.textContent));
 
-        const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
+        const [
+            title,
+            description,
+            lastRunTimestamp,
+            runCountText
+        ] = await Promise.all([
+            titleP,
+            descriptionP,
+            lastRunTimestampP,
+            runCountTextP
+        ]);
 
         const lastRunDate = new Date(Number(lastRunTimestamp));
         const runCount = Number(runCountText.match(/\d+/)[0]);
@@ -586,7 +661,7 @@ async function pageFunction(context) {
                 await page.waitFor(buttonSelector, { timeout });
                 timeout = 2000;
             } catch (err) {
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button",\n we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -594,20 +669,31 @@ async function pageFunction(context) {
         }
     }
 
-    async function handleDetail({ request, log, skipLinks, page, Apify }) { // <-------- Destructure Apify.
-        await Apify.utils.puppeteer.injectJQuery(page); // <-------- Inject jQuery.
+    async function handleDetail({
+        request,
+        log,
+        skipLinks,
+        page,
+        Apify }) { // <--- Destructure Apify
+        await Apify.utils.puppeteer
+            .injectJQuery(page); // <--- Inject jQuery
 
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
-        const results = await page.evaluate(() => { // <-------- Use jQuery only inside page.evaluate (inside browser).
+        // Use jQuery only inside page.evaluate (inside browser)
+        const results = await page.evaluate(() => {
             return {
                 title: $('header h1').text(),
-                description: $('header p[class^=Text__Paragraph]').text(),
+                description: $('header p[class^=Text__Paragraph]')
+                    .text(),
                 lastRunDate: new Date(
                     Number(
                         $('time')
@@ -626,7 +712,8 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-            ...results, // <-------- Add results from browser to output.
+            ...results, // <--- Add results
+            // from browser to output.
         };
     }
 }

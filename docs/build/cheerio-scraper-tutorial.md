@@ -287,10 +287,9 @@ const data = JSON.parse(dataJson);
 
 for (const item of data.props.pageProps.items) {
     const { name, username } = item;
-    const actorDetailUrl = `https://apify.com/
-        ${username}/${name}`;
-    await context.enqquest({
-        url: actorl,
+    const actorDetailUrl = `https://apify.com/${username}/${name}`;
+    await context.enqueueRequest({
+        url: actorDetailUrl,
         userData: {
             // Don't forget the label.
             label: 'DETAIL',
@@ -321,7 +320,8 @@ async function pageFunction(context) {
 
         for (const item of data.props.pageProps.items) {
             const { name, username } = item;
-            const actorDetailUrl = `https://apify.com/${username}/${name}`;
+            const actorDetailUrl = `https://apify.com/
+                ${username}/${name}`;
             await context.enqueueRequest({
                 url: actorDetailUrl,
                 userData: {
@@ -336,13 +336,17 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
+            description: $('header p[class^=Text__Paragraph]')
+                .text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -406,7 +410,8 @@ async function pageFunction(context) {
 
         for (const item of data.props.pageProps.items) {
             const { name, username } = item;
-            const actorDetailUrl = `https://apify.com/${username}/${name}`;
+            const actorDetailUrl = `https://apify.com/
+                ${username}/${name}`;
             await context.enqueueRequest({
                 url: actorDetailUrl,
                 userData: {
@@ -422,13 +427,17 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
+            description: $('header p[class^=Text__Paragraph]')
+                .text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
