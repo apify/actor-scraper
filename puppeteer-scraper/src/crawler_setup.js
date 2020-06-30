@@ -1,5 +1,4 @@
 const Apify = require('apify');
-const _ = require('underscore');
 const {
     tools,
     browserTools,
@@ -96,11 +95,6 @@ class CrawlerSetup {
         // solving proxy rotation settings
         this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
-        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
-                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
-        }
-
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
         if (this.input.preGotoFunction) {
@@ -172,14 +166,13 @@ class CrawlerSetup {
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            proxyUrls: this.input.proxyConfiguration.proxyUrls,
             // launchPuppeteerFunction: use default,
+            proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
             puppeteerPoolOptions: {
                 useLiveView: true,
                 recycleDiskCache: true,
             },
             launchPuppeteerOptions: {
-                ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 devtools: this.devtools,
@@ -282,10 +275,14 @@ class CrawlerSetup {
 
         // Setup and create Context.
         const contextOptions = {
-            crawlerSetup: Object.assign(
-                _.pick(this, ['rawInput', 'env', 'globalStore', 'requestQueue']),
-                _.pick(this.input, ['customData', 'useRequestQueue']),
-            ),
+            crawlerSetup: {
+                rawInput: this.rawInput,
+                env: this.env,
+                globalStore: this.globalStore,
+                requestQueue: this.requestQueue,
+                customData: this.input.customData,
+                useRequestQueue: this.input.useRequestQueue,
+            },
             pageFunctionArguments: {
                 page,
                 autoscaledPool,

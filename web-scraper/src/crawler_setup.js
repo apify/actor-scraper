@@ -1,15 +1,15 @@
 const Apify = require('apify');
-const _ = require('underscore');
+const { URL } = require('url');
 const contentType = require('content-type');
 const {
     tools,
     browserTools,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
 } = require('@apify/scraper-tools');
+const DevToolsServer = require('devtools-server');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
 const createBundle = require('./bundle.browser');
-const { startDebuggerServer } = require('./debugger/server');
 const SCHEMA = require('../INPUT_SCHEMA');
 const GlobalStore = require('./global_store');
 
@@ -113,10 +113,6 @@ class CrawlerSetup {
         // solving proxy rotation settings
         this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
-        if (this.maxSessionUsageCount && this.input.proxyConfiguration && !input.proxyConfiguration.useApifyProxy) {
-            throw new Error('Setting other than "Recommended" proxy rotation is allowed only when Apify Proxy is used in either '
-                + '"automatic" or "selected proxy groups" mode. Custom proxies are automatically rotated one by one.');
-        }
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
         // Used to store page specific data.
@@ -188,17 +184,24 @@ class CrawlerSetup {
             maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            proxyUrls: this.input.proxyConfiguration.proxyUrls,
             launchPuppeteerFunction: async (launchOpts) => {
                 const browser = await Apify.launchPuppeteer(launchOpts);
-                if (this.isDevRun) await startDebuggerServer(process.env.APIFY_CONTAINER_PORT);
+                if (this.isDevRun) {
+                    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
+                    const devToolsServer = new DevToolsServer({
+                        containerHost,
+                        devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
+                        chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+                    });
+                    await devToolsServer.start();
+                }
                 return browser;
             },
+            proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
             puppeteerPoolOptions: {
                 recycleDiskCache: true,
             },
             launchPuppeteerOptions: {
-                ...(_.omit(this.input.proxyConfiguration, 'proxyUrls')),
                 ignoreHTTPSErrors: this.input.ignoreSslErrors,
                 defaultViewport: DEFAULT_VIEWPORT,
                 useChrome: this.input.useChrome,
@@ -285,7 +288,7 @@ class CrawlerSetup {
         // Invoke navigation.
         const navStart = process.hrtime();
         const response = await puppeteer.gotoExtended(page, request, {
-            timeout: (this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+            timeout: this.input.pageLoadTimeoutSecs * 1000,
             waitUntil: this.input.waitUntil,
         });
         await this._waitForLoadEventWhenXml(page, response);
@@ -340,11 +343,15 @@ class CrawlerSetup {
 
         // Setup Context and pass the configuration down to Browser.
         const contextOptions = {
-            crawlerSetup: Object.assign(
-                _.pick(this, ['rawInput', 'env']),
-                _.pick(this.input, ['customData', 'useRequestQueue', 'injectJQuery', 'injectUnderscore']),
-                { META_KEY },
-            ),
+            crawlerSetup: {
+                rawInput: this.rawInput,
+                env: this.env,
+                customData: this.input.customData,
+                useRequestQueue: this.input.useRequestQueue,
+                injectJQuery: this.input.injectJQuery,
+                injectUnderscore: this.input.injectUnderscore,
+                META_KEY,
+            },
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,

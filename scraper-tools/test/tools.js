@@ -1,5 +1,4 @@
 const { expect } = require('chai');
-const _ = require('underscore');
 const Apify = require('apify');
 
 const tools = require('../src/tools');
