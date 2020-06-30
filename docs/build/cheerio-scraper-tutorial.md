@@ -138,13 +138,17 @@ const { url } = request;
 
 // ...
 
-const uniqueIdentifier = url.split('/').slice(-2).join('/');
+const uniqueIdentifier = url
+    .split('/')
+    .slice(-2)
+    .join('/');
 
 return {
     url,
     uniqueIdentifier,
     title: $('header h1').text(),
-    description: $('header p[class^=Text__Paragraph]').text(),
+    description: $('header p[class^=Text__Paragraph]')
+        .text(),
     lastRunDate: new Date(
         Number(
             $('time')
@@ -164,7 +168,8 @@ All we need to do now is add this to our `pageFunction`:
 
 ```js
 async function pageFunction(context) {
-    const { request, log, skipLinks, $ } = context; // $ is Cheerio
+    // $ is Cheerio
+    const { request, log, skipLinks, $ } = context;
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         // Do some stuff later.
@@ -175,13 +180,17 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
+            description: $('header p[class^=Text__Paragraph]')
+                .text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -271,17 +280,20 @@ actor names such as `cheerio-scraper` and their owners, such as `apify` in the d
 to construct URLs that will take us to the actor detail pages and enqueue those URLs into the request queue.
 
 ```js
-// We're not in DevTools anymore, so we use Cheerio to get the data.
+// We're not in DevTools anymore,
+// so we use Cheerio to get the data.
 const dataJson = $('#__NEXT_DATA__').text();
 const data = JSON.parse(dataJson);
 
 for (const item of data.props.pageProps.items) {
     const { name, username } = item;
-    const actorDetailUrl = `https://apify.com/${username}/${name}`;
-    await context.enqueueRequest({
-        url: actorDetailUrl,
+    const actorDetailUrl = `https://apify.com/
+        ${username}/${name}`;
+    await context.enqquest({
+        url: actorl,
         userData: {
-            label: 'DETAIL', // Don't forget the label.
+            // Don't forget the label.
+            label: 'DETAIL',
         }
     });
 }
