@@ -71,7 +71,8 @@ And as we already know, there's only one.
 
 ```js
 // Using Puppeteer
-const title = await page.$eval('header h1', (el => el.textContent));
+const title = await page
+    .$eval('header h1', (el => el.textContent));
 
 return {
     title,
@@ -91,7 +92,8 @@ description, we choose the `<p>` tag that has a `class` that starts with `Text__
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
 ```js
-const title = await page.$eval('header h1', (el => el.textContent));
+const title = await page
+    .$eval('header h1', (el => el.textContent));
 const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 return {
@@ -106,7 +108,8 @@ The DevTools tell us that the `lastRunDate` can be found in the second of the tw
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
 
 ```js
-const title = await page.$eval('header h1', (el => el.textContent));
+const title = await page
+    .$eval('header h1', (el => el.textContent));
 const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
@@ -136,13 +139,17 @@ And so we're finishing up with the `runCount`. There's no specific element like 
 a complex selector and then do a transformation on the result.
 
 ```js
-const title = await page.$eval('header h1', (el => el.textContent));
+const title = await page
+    .$eval('header h1', (el => el.textContent));
 const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
-const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
+const lastRunTimestamp = await page
+    .$$eval('time', (els) => els[1]
+    .getAttribute('datetime'));
 const lastRunDate = new Date(Number(lastRunTimestamp));
 
-const runCountText = await page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+const runCountText = await page
+    .$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
 const runCount = Number(runCountText.match(/\d+/)[0]);
 
 return {
@@ -168,7 +175,8 @@ const { url } = request;
 
 const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
-const title = await page.$eval('header h1', (el => el.textContent));
+const title = await page
+    .$eval('header h1', (el => el.textContent));
 const description = await page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
 
 const lastRunTimestamp = await page.$$eval('time', (els) => els[1].getAttribute('datetime'));
@@ -206,7 +214,8 @@ async function pageFunction(context) {
         const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('header h1', (el => el.textContent));
+        const titleP = page
+            .$eval('header h1', (el => el.textContent));
         const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
         const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
         const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
@@ -378,11 +387,13 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await page.waitFor(buttonSelector, { timeout }); // Default timeout first time.
-                timeout = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await page.waitFor(buttonSelector, { timeout });
+                // 2 sec timeout after the first.
+                timeout = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button",\n we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -396,15 +407,29 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         // Get attributes in parallel to speed up the process.
-        const titleP = page.$eval('header h1', (el => el.textContent));
-        const descriptionP = page.$eval('header p[class^=Text__Paragraph]', (el => el.textContent));
-        const lastRunTimestampP = page.$$eval('time', (els) => els[1].getAttribute('datetime'));
-        const runCountTextP = page.$eval('ul.stats li:nth-of-type(3)', (el => el.textContent));
+        const titleP = page
+            .$eval('header h1', (el => el.textContent));
+        const descriptionP = page
+            .$eval('header p[class^=Text__Paragraph]',
+            (el => el.textContent));
+        const lastRunTimestampP = page
+            .$$eval('time', (els) => els[1]
+            .getAttribute('datetime'));
+        const runCountTextP = page
+            .$eval('ul.stats li:nth-of-type(3)',
+            (el => el.textContent));
 
-        const [title, description, lastRunTimestamp, runCountText] = await Promise.all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
+        const [title,
+            description,
+            lastRunTimestamp,
+            runCountText] = await Promise
+                .all([titleP, descriptionP, lastRunTimestampP, runCountTextP]);
 
         const lastRunDate = new Date(Number(lastRunTimestamp));
         const runCount = Number(runCountText.match(/\d+/)[0]);
