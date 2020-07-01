@@ -2,7 +2,8 @@ async function pageFunction(context) {
     const { request,
         log,
         skipLinks,
-        jQuery: $, waitFor
+        jQuery: $,
+        waitFor
     } = context;
 
     if (request.userData.label === 'START') {
