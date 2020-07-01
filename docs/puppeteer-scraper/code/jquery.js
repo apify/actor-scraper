@@ -23,14 +23,17 @@ async function pageFunction(context) {
         }
     }
 
-    async function handleDetail({
-        request,
-        log,
-        skipLinks,
-        page,
-        Apify }) { // <--- Destructure Apify
-        await Apify.utils.puppeteer
-            .injectJQuery(page); // <--- Inject jQuery
+    async function handleDetail(context) {
+        const {
+            request,
+            log,
+            skipLinks,
+            page,
+            Apify
+        } = context;
+
+        // Inject jQuery
+        await Apify.utils.puppeteer.injectJQuery(page);
 
         const { url } = request;
         log.info(`Scraping ${url}`);
@@ -65,8 +68,8 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-            ...results, // <--- Add results
-            // from browser to output.
+            // Add results from browser to output
+            ...results,
         };
     }
 }
