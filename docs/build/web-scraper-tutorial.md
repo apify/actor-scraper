@@ -184,8 +184,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -315,8 +314,8 @@ while (true) {
         timeoutMillis = 2000;
     } catch (err) {
         // Ignore the timeout error.
-        log.info(`Could not find the "Show more button",
-            we\'ve reached the end.`);
+        log.info('Could not find the "Show more button", '
+            + 'we\'ve reached the end.');
         break;
     }
     log.info('Clicking the "Show more" button.');
@@ -347,7 +346,8 @@ async function pageFunction(context) {
     const { request,
         log,
         skipLinks,
-        jQuery: $, waitFor
+        jQuery: $,
+        waitFor
     } = context;
 
     if (request.userData.label === 'START') {
@@ -363,8 +363,8 @@ async function pageFunction(context) {
                 timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info(`Could not find the "Show more button",
-                    we\'ve reached the end.`);
+                log.info('Could not find the "Show more button", '
+                    + 'we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -387,8 +387,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -431,7 +430,8 @@ async function pageFunction(context) {
     const { request,
         log,
         skipLinks,
-        jQuery: $, waitFor
+        jQuery: $,
+        waitFor
     } = context;
     
     if (request.userData.label === 'START') {
@@ -509,8 +509,8 @@ async function pageFunction(context) {
                 timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info(`Could not find the "Show more button",
-                    we\'ve reached the end.`);
+                log.info('Could not find the "Show more button", '
+                    + 'we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -539,8 +539,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')

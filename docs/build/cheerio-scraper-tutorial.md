@@ -147,8 +147,7 @@ return {
     url,
     uniqueIdentifier,
     title: $('header h1').text(),
-    description: $('header p[class^=Text__Paragraph]')
-        .text(),
+    description: $('header p[class^=Text__Paragraph]').text(),
     lastRunDate: new Date(
         Number(
             $('time')
@@ -189,8 +188,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -344,8 +342,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
@@ -434,8 +431,7 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]')
-                .text(),
+            description: $('header p[class^=Text__Paragraph]').text(),
             lastRunDate: new Date(
                 Number(
                     $('time')
