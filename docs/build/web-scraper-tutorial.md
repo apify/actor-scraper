@@ -162,7 +162,8 @@ All we need to do now is add this to our `pageFunction`:
 
 ```js
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $ } = context; // use jQuery as $
+    // use jQuery as $
+    const { request, log, skipLinks, jQuery: $ } = context;
 
     if (request.userData.label === 'START') {
         log.info('Store opened!');
@@ -174,7 +175,10 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
@@ -233,9 +237,14 @@ or a function to execute. It will stop waiting once the time elapses, the select
 returns `true`.
 
 ```js
-await waitFor(2000); // Waits for 2 seconds.
-await waitFor('#my-id'); // Waits until an element with id "my-id" appears in the page.
-await waitFor(() => !!window.myObject); // Waits until a "myObject" variable appears on the window object.
+// Waits for 2 seconds.
+await waitFor(2000);
+// Waits until an element with id "my-id" appears 
+// in the page.
+await waitFor('#my-id');
+// Waits until a "myObject" variable appears
+// on the window object.
+await waitFor(() => !!window.myObject);
 ```
 
 The selector may never be found and the function might never return `true`, so the `waitFor()` function also has
@@ -299,11 +308,14 @@ const buttonSelector = 'div.show-more > button';
 while (true) {
     log.info('Waiting for the "Show more" button.');
     try {
-        await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
-        timeoutMillis = 2000; // 2 sec timeout after the first.
+        // Default timeout first time.
+        await waitFor(buttonSelector, { timeoutMillis });
+        // 2 sec timeout after the first.
+        timeoutMillis = 2000;
     } catch (err) {
         // Ignore the timeout error.
-        log.info('Could not find the "Show more button", we\'ve reached the end.');
+        log.info('Could not find the "Show more button", '
+            + 'we\'ve reached the end.');
         break;
     }
     log.info('Clicking the "Show more" button.');
@@ -331,7 +343,13 @@ function on the first line.
 
 ```js
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $, waitFor } = context;
+    const { request,
+        log,
+        skipLinks,
+        jQuery: $,
+        waitFor
+    } = context;
+
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         let timeoutMillis; // undefined
@@ -339,11 +357,14 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
-                timeoutMillis = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await waitFor(buttonSelector, { timeoutMillis });
+                // 2 sec timeout after the first.
+                timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button", '
+                    + 'we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -357,7 +378,10 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,
@@ -403,7 +427,13 @@ Now, debugging wouldn't be debugging without [breakpoints](https://developers.go
 
 ```javascript
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $, waitFor } = context;
+    const { request,
+        log,
+        skipLinks,
+        jQuery: $,
+        waitFor
+    } = context;
+    
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         let timeoutMillis; // undefined
@@ -473,11 +503,14 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
-                timeoutMillis = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await waitFor(buttonSelector, { timeoutMillis });
+                // 2 sec timeout after the first.
+                timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button", '
+                    + 'we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -485,13 +518,22 @@ async function pageFunction(context) {
         }
     }
 
-    async function handleDetail({ request, log, skipLinks, jQuery: $ }) {
+    async function handleDetail({
+        request,
+        log,
+        skipLinks,
+        jQuery: $
+    }) {
+
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,

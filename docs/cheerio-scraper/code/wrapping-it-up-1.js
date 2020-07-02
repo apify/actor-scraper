@@ -2,7 +2,10 @@ const { url } = request;
 
 // ...
 
-const uniqueIdentifier = url.split('/').slice(-2).join('/');
+const uniqueIdentifier = url
+    .split('/')
+    .slice(-2)
+    .join('/');
 
 return {
     url,

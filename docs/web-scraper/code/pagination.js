@@ -1,5 +1,11 @@
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $, waitFor } = context;
+    const { request,
+        log,
+        skipLinks,
+        jQuery: $,
+        waitFor
+    } = context;
+
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         let timeoutMillis; // undefined
@@ -7,11 +13,14 @@ async function pageFunction(context) {
         while (true) {
             log.info('Waiting for the "Show more" button.');
             try {
-                await waitFor(buttonSelector, { timeoutMillis }); // Default timeout first time.
-                timeoutMillis = 2000; // 2 sec timeout after the first.
+                // Default timeout first time.
+                await waitFor(buttonSelector, { timeoutMillis });
+                // 2 sec timeout after the first.
+                timeoutMillis = 2000;
             } catch (err) {
                 // Ignore the timeout error.
-                log.info('Could not find the "Show more button", we\'ve reached the end.');
+                log.info('Could not find the "Show more button", '
+                    + 'we\'ve reached the end.');
                 break;
             }
             log.info('Clicking the "Show more" button.');
@@ -25,7 +34,10 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,

@@ -12,7 +12,13 @@ Now, debugging wouldn't be debugging without [breakpoints](https://developers.go
 
 ```javascript
 async function pageFunction(context) {
-    const { request, log, skipLinks, jQuery: $, waitFor } = context;
+    const { request,
+        log,
+        skipLinks,
+        jQuery: $,
+        waitFor
+    } = context;
+    
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         let timeoutMillis; // undefined

@@ -9,9 +9,13 @@ returns `true`.
 in the Puppeteer documentation.
 
 ```js
-await page.waitFor(2000); // Waits for 2 seconds.
-await page.waitFor('#my-id'); // Waits until an element with id "my-id" appears in the page.
-await page.waitFor(() => !!window.myObject); // Waits until a "myObject" variable appears on the window object.
+// Waits for 2 seconds.
+await page.waitFor(2000);
+// Waits until an element with id "my-id" appears in the page.
+await page.waitFor('#my-id');
+// Waits until a "myObject" variable appears
+// on the window object.
+await page.waitFor(() => !!window.myObject);
 ```
 
 The selector may never be found and the function might never return `true`, so the `page.waitFor()` function also has
@@ -76,11 +80,14 @@ const buttonSelector = 'div.show-more > button';
 while (true) {
     log.info('Waiting for the "Show more" button.');
     try {
-        await page.waitFor(buttonSelector, { timeout }); // Default timeout first time.
-        timeout = 2000; // 2 sec timeout after the first.
+        // Default timeout first time.
+        await page.waitFor(buttonSelector, { timeout });
+        // 2 sec timeout after the first.
+        timeout = 2000;
     } catch (err) {
         // Ignore the timeout error.
-        log.info('Could not find the "Show more button", we\'ve reached the end.');
+        log.info('Could not find the "Show more button", '
+            + 'we\'ve reached the end.');
         break;
     }
     log.info('Clicking the "Show more" button.');

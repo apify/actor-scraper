@@ -271,7 +271,10 @@ async function pageFunction(context) {
         await skipLinks();
 
         // Do some scraping.
-        const uniqueIdentifier = url.split('/').slice(-2).join('/');
+        const uniqueIdentifier = url
+            .split('/')
+            .slice(-2)
+            .join('/');
 
         return {
             url,

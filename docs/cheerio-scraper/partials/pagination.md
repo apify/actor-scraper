@@ -65,7 +65,8 @@ actor names such as `cheerio-scraper` and their owners, such as `apify` in the d
 to construct URLs that will take us to the actor detail pages and enqueue those URLs into the request queue.
 
 ```js
-// We're not in DevTools anymore, so we use Cheerio to get the data.
+// We're not in DevTools anymore,
+// so we use Cheerio to get the data.
 const dataJson = $('#__NEXT_DATA__').text();
 const data = JSON.parse(dataJson);
 
@@ -75,7 +76,8 @@ for (const item of data.props.pageProps.items) {
     await context.enqueueRequest({
         url: actorDetailUrl,
         userData: {
-            label: 'DETAIL', // Don't forget the label.
+            // Don't forget the label.
+            label: 'DETAIL',
         }
     });
 }
