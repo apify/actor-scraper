@@ -280,7 +280,8 @@ to construct URLs that will take us to the actor detail pages and enqueue those 
 ```js
 // We're not in DevTools anymore,
 // so we use Cheerio to get the data.
-const dataJson = $('#__NEXT_DATA__').text();
+const dataJson = $('#__NEXT_DATA__').html();
+// We requested HTML, but the data are actually JSON.
 const data = JSON.parse(dataJson);
 
 for (const item of data.props.pageProps.items) {
@@ -313,7 +314,8 @@ async function pageFunction(context) {
     if (request.userData.label === 'START') {
         log.info('Store opened!');
 
-        const dataJson = $('#__NEXT_DATA__').text();
+        const dataJson = $('#__NEXT_DATA__').html();
+        // We requested HTML, but the data are actually JSON.
         const data = JSON.parse(dataJson);
 
         for (const item of data.props.pageProps.items) {
@@ -401,7 +403,8 @@ async function pageFunction(context) {
     async function handleStart({ log, waitFor, $ }) {
         log.info('Store opened!');
 
-        const dataJson = $('#__NEXT_DATA__').text();
+        const dataJson = $('#__NEXT_DATA__').html();
+        // We requested HTML, but the data are actually JSON.
         const data = JSON.parse(dataJson);
 
         for (const item of data.props.pageProps.items) {

@@ -7,7 +7,8 @@ async function pageFunction(context) {
     async function handleStart({ log, waitFor, $ }) {
         log.info('Store opened!');
 
-        const dataJson = $('#__NEXT_DATA__').text();
+        const dataJson = $('#__NEXT_DATA__').html();
+        // We requested HTML, but the data are actually JSON.
         const data = JSON.parse(dataJson);
 
         for (const item of data.props.pageProps.items) {
