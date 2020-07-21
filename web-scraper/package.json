@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
-    "apify": "^0.21.0",
+    "apify": "0.21.1",
     "content-type": "^1.0.4",
     "devtools-server": "^0.0.2"
   },
@@ -18,7 +18,7 @@
   "scripts": {
     "start": "node main.js",
     "build-toc": "./node_modules/.bin/markdown-toc README.md -i",
-    "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
+    "test": "jest",
     "prepare": "npm run build-toc",
     "lint": "eslint src test"
   },
