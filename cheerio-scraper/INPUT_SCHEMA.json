@@ -57,7 +57,7 @@
 			"type": "object",
 			"description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/cheerio-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
 			"prefill": { "useApifyProxy": false },
-			"default": {},
+			"default": { "useApifyProxy": false },
 			"editor": "proxy"
 		},
 		"proxyRotation": {
