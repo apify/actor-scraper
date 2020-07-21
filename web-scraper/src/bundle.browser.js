@@ -42,7 +42,7 @@ module.exports = (apifyNamespace) => {
          * @param config
          * @return {NodeProxy}
          */
-        global[namespace].createNodeProxy = config => new NodeProxy(config);
+        global[namespace].createNodeProxy = (config) => new NodeProxy(config);
 
         const setup = Symbol('crawler-setup');
         const internalState = Symbol('request-internal-state');
@@ -84,7 +84,7 @@ module.exports = (apifyNamespace) => {
 
                 // Copies of Node objects
                 this.input = JSON.parse(crawlerSetup.rawInput);
-                this.env = Object.assign({}, crawlerSetup.env);
+                this.env = { ...crawlerSetup.env };
                 this.customData = crawlerSetup.customData;
                 this.response = pageFunctionArguments.response;
                 this.request = pageFunctionArguments.request;
@@ -182,7 +182,7 @@ module.exports = (apifyNamespace) => {
             }
 
             async _waitForMillis(millis) {
-                return new Promise(res => setTimeout(res, millis));
+                return new Promise((res) => setTimeout(res, millis));
             }
 
             async _waitForFunction(predicate, options = {}) {

@@ -94,7 +94,6 @@ const createBrowserHandlesForObject = async (page, instance, properties) => {
     }, {});
 };
 
-
 /**
  * Attaches a console listener to page's console that
  * mirrors all console messages to the Node context.
@@ -126,10 +125,10 @@ const dumpConsole = (page, options = {}) => {
         if (hasJSHandles) {
             const msgPromises = msg.args().map((jsh) => {
                 return jsh.jsonValue()
-                    .catch(e => log.exception(e, `Stringification of console.${msg.type()} in browser failed.`));
+                    .catch((e) => log.exception(e, `Stringification of console.${msg.type()} in browser failed.`));
             });
             message = (await Promise.all(msgPromises))
-                .map(m => inspect(m))
+                .map((m) => inspect(m))
                 .join(' '); // console.log('a', 'b') produces 'a b'
         } else {
             message = msg.text();

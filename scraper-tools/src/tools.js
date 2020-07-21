@@ -97,7 +97,7 @@ const createDatasetPayload = (request, response, pageFunctionResult, isError = f
         '#debug': Apify.utils.createRequestDebugInfo(request, response),
     };
 
-    return result.map(item => Object.assign({}, item, meta));
+    return result.map((item) => ({ ...item, ...meta }));
 };
 
 /**
@@ -120,7 +120,7 @@ const createRandomHash = async () => {
  * @param {*} item
  * @return {boolean}
  */
-const isPlainObject = item => item && typeof item === 'object' && !Array.isArray(item);
+const isPlainObject = (item) => item && typeof item === 'object' && !Array.isArray(item);
 
 /**
  * Attempts to load Page Function from disk if it's not available
@@ -173,7 +173,7 @@ const logPerformance = (request, title, hrtime) => {
 const getMissingCookiesFromSession = (session, cookies, url) => {
     const sessionCookies = session.getPuppeteerCookies(url);
     return cookies.filter((c) => {
-        const sessionHasCookie = sessionCookies.some(sc => sc.name === c.name);
+        const sessionHasCookie = sessionCookies.some((sc) => sc.name === c.name);
         return !sessionHasCookie;
     });
 };

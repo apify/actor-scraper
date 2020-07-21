@@ -277,7 +277,6 @@ class CrawlerSetup {
         ]);
         tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
 
-
         if (this.isDevRun) {
             const cdpClient = await page.target().createCDPSession();
             await cdpClient.send('Debugger.enable');
@@ -492,7 +491,7 @@ class CrawlerSetup {
 
     async _assertNamespace(page, namespace) {
         try {
-            await page.waitFor(nmspc => !!window[nmspc], { timeout: this.input.pageLoadTimeoutSecs * 1000 }, namespace);
+            await page.waitFor((nmspc) => !!window[nmspc], { timeout: this.input.pageLoadTimeoutSecs * 1000 }, namespace);
         } catch (err) {
             if (err.stack.startsWith('TimeoutError')) {
                 throw new Error('Injection of environment into the browser context timed out. '
@@ -569,7 +568,6 @@ class CrawlerSetup {
 }
 
 module.exports = CrawlerSetup;
-
 
 function logDevRunWarning() {
     log.warning(`

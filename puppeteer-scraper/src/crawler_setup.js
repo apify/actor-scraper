@@ -211,7 +211,6 @@ class CrawlerSetup {
             });
         }
 
-
         // Add initial cookies, if any.
         if (this.input.initialCookies && this.input.initialCookies.length) {
             const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);

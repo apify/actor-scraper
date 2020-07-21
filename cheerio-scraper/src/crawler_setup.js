@@ -8,7 +8,6 @@ const {
 
 const SCHEMA = require('../INPUT_SCHEMA');
 
-
 const { utils: { log } } = Apify;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
@@ -69,7 +68,6 @@ class CrawlerSetup {
          */
         this.input = input;
         this.env = Apify.getEnv();
-
 
         // Validations
         if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
@@ -191,7 +189,6 @@ class CrawlerSetup {
                 newHeaders[key.toLowerCase()] = value;
                 return newHeaders;
             }, {});
-
 
         // Add initial cookies, if any.
         if (this.input.initialCookies && this.input.initialCookies.length) {

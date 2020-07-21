@@ -37,7 +37,7 @@ class Context {
 
         this.Apify = Apify;
         this.input = JSON.parse(crawlerSetup.rawInput);
-        this.env = Object.assign({}, crawlerSetup.env);
+        this.env = { ...crawlerSetup.env };
         this.customData = crawlerSetup.customData;
         this.globalStore = crawlerSetup.globalStore;
         this.log = Apify.utils.log;

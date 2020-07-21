@@ -27,7 +27,7 @@ describe('browserTools.', () => {
         it('should work', async () => {
             const page = await browser.newPage();
             const handle = await browserTools.createBrowserHandle(page, () => 42);
-            const result = await page.evaluate(browserHandle => window[browserHandle](), handle);
+            const result = await page.evaluate((browserHandle) => window[browserHandle](), handle);
             expect(result).to.be.eql(42);
         });
     });
@@ -100,7 +100,7 @@ describe('browserTools.', () => {
                 console.error('error');
                 console.debug('debug');
 
-                await new Promise(r => setTimeout(r, 10));
+                await new Promise((r) => setTimeout(r, 10));
             });
 
             expect(debug.withArgs('debug').calledOnce).to.be.eql(true);
@@ -113,7 +113,7 @@ describe('browserTools.', () => {
             await page.evaluate(async () => {
                 /* eslint-disable no-console */
                 console.error('error');
-                await new Promise(r => setTimeout(r, 10));
+                await new Promise((r) => setTimeout(r, 10));
             });
 
             expect(error.withArgs('error').calledOnce).to.be.eql(true);
