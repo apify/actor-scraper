@@ -662,9 +662,9 @@ You might also want to see these other resources:
   An introduction to web scraping with Apify.
 - [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
   A step-by-step tutorial on how to use Web Scraper, with a detailed explanation and examples.
-- [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scaper`) -
+- **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)) -
   Another web scraping actor that downloads and processes pages in raw HTML for much higher performance. 
-- [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
+- **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) - 
   An actor similar to Web Scraper, which provides lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
 - [Actors documentation](https://apify.com/docs/actor) -

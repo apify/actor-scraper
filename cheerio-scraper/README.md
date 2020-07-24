@@ -1,6 +1,6 @@
 # Cheerio Scraper
 
-Cheerio Scraper is a ready-made solution for crawling web sites using plain HTTP requests. It retrieves the HTML pages, parses them using the [Cheerio](https://cheerio.js.org) Node.js library and lets you extract any data from them. Fast.
+Cheerio Scraper is a ready-made solution for crawling websites using plain HTTP requests. It retrieves the HTML pages, parses them using the [Cheerio](https://cheerio.js.org) Node.js library and lets you extract any data from them. Fast.
 
 Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
 browser but instead constructs a DOM from a HTML string. It then provides the user an API to work with that DOM.
@@ -564,9 +564,9 @@ You might also want to see these other resources:
   An introduction to web scraping with Apify.
 - [Scraping with Cheerio Scraper](https://docs.apify.com/scraping/cheerio-scraper) -
   A step-by-step tutorial on how to use Cheerio Scraper, with a detailed explanation and examples. 
-- [Web Scraper](https://apify.com/apify/web-scraper) (`apify/web-scaper`) -
+- **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)) -
   Apify's basic tool for web crawling and scraping. It uses a full Chrome browser to render dynamic content.
-- [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scaper`) - 
+- **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) - 
   An actor similar to Web Scraper, which provides lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
 - [Actors documentation](https://apify.com/docs/actor) -
