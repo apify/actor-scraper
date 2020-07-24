@@ -11,7 +11,7 @@ of those are, don't worry. We'll walk you through using them step by step.
 > To learn more about `Cheerio`, see [the docs on their GitHub page](https://github.com/cheeriojs/cheerio).
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
+**Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)) page, and use our DevTools-Fu to scrape some data.
 
-> If you're wondering why we're using `apify/web-scraper` as an example instead of `cheerio-scraper`,
+> If you're wondering why we're using Web Scraper as an example instead of Cheerio Scraper,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!

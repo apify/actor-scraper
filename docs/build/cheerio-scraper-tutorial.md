@@ -18,9 +18,9 @@ of those are, don't worry. We'll walk you through using them step by step.
 > To learn more about `Cheerio`, see [the docs on their GitHub page](https://github.com/cheeriojs/cheerio).
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
+**Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)) page, and use our DevTools-Fu to scrape some data.
 
-> If you're wondering why we're using `apify/web-scraper` as an example instead of `cheerio-scraper`,
+> If you're wondering why we're using Web Scraper as an example instead of Cheerio Scraper,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!
 
 ## [](#build-page-function) Building our Page function
@@ -227,8 +227,8 @@ answer is that we can't click a button. Does that mean that we cannot get the da
 but it requires some clever DevTools-Fu.
 
 ### [](#page-analysis) Analyzing the page
-While with `apify/web-scraper` and `apify/puppeteer-scraper`, we could get away with simply clicking a button,
-with `apify/cheerio-scraper` we need to dig a little deeper into the page's architecture. For this, we will use
+While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)), we could get away with simply clicking a button,
+with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
 > It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
@@ -246,9 +246,9 @@ displays it. This is good news.
 
 ### [](#find-actors) Finding the actors
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
-is `apify/web-scraper` so let's try using the search tool in the Elements tab to find some reference to it. The first
+is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
-with the ID `__NEXT_DATA__` that seems to hold a lot of information about `apify/web-scraper`. In DevTools,
+with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
 you can right click an element and click **Store as global variable** to make this element available in the Console.
 
 ![find-data](../img/find-data.jpg "Finding the hidden actor data.")
@@ -458,4 +458,4 @@ of JavaScript. It helps you put what matters on top, if you so desire.
 ## [](#conclusion) Final word
 Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
 
-Finally, `apify/cheerio-scraper` is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!
+Finally, Cheerio Scraper is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!
