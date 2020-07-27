@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "This repository houses all of Apify generic actors that are used for simplified scraping using a pre-defined, schema validated UI input instead of the typical JSON input used in other actors.",
   "scripts": {
+    "clean": "rm -rf *-scraper/node_modules *-scraper/package-lock.json",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --ignore-path .gitignore */src/* */test/*",
     "lint:fix": "eslint --fix --ignore-path .gitignore */src/* */test/*"
