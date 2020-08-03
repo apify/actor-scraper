@@ -27,7 +27,7 @@ Puppeteer Scraper is powerful (and the [Apify SDK](https://sdk.apify.com) is sup
 [page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call.
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
-[`apify/web-scraper`](https://apify.com/apify/web-scraper) page and use our DevTools-Fu to scrape some data.
+**Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)) page and use our DevTools-Fu to scrape some data.
 
-> If you're wondering why we're using `apify/web-scraper` as an example instead of `puppeteer-scraper`,
+> If you're wondering why we're using Web Scraper as an example instead of Puppeteer Scraper,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!

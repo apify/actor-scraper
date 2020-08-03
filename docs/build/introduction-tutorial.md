@@ -2,7 +2,7 @@
 Welcome to the getting started tutorial! It will walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a `pageFunction`, and finally download the scraped data either as an Excel sheet or in another format, such as JSON or CSV. But first, let's give you a brief introduction to web scraping with Apify.
 
 ## [](#what-is-scraper) What is an Apify scraper
-It doesn't matter whether you arrived here from [Web Scraper](https://apify.com/apify/web-scraper) (`apify/web-scraper`), [Puppeteer Scraper](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`) or [Cheerio Scraper](https://apify.com/apify/cheerio-scraper) (`apify/cheerio-scraper`).  All of them are **actors** and for now, let's just think of an **actor** as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations **tasks**.
+It doesn't matter whether you arrived here from **Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)), **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) or **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)).  All of them are **actors** and for now, let's just think of an **actor** as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations **tasks**.
 
 > If you need help choosing the right scraper, see this [great knowledge base article](https://kb.apify.com/tutorials-getting-started/choosing-the-right-scraper). And if you just want to learn more about actors in general, you can read our [actors page](https://apify.com/actors) or [browse the documentation](https://apify.com/docs/actor). 
 
@@ -288,8 +288,8 @@ Now **Save & Run** the task and once it finishes, check the results by going to 
 the **Result dataset** card, or by going to the **DATASET** tab. Click **Preview data** (and check Clean data, if unchecked). You should see the URLs and Unique identifiers scraped. Great job!
 
 ## [](#conclusion) Choosing sides
-Up until now, everything has been the same for all the Apify scrapers. Whether you're using `apify/web-scraper`,
-`apify/puppeteer-scraper` or `apify/cheerio-scraper`, what you've learned now will always be the same.
+Up until now, everything has been the same for all the Apify scrapers. Whether you're using Web Scraper,
+Puppeteer Scraper or Cheerio Scraper, what you've learned now will always be the same.
 This is great if you ever need to switch scrapers, because there's no need to learn everything from scratch.
 
 There are differences in the code we use in the `pageFunction` though. Often subtle, sometimes large.

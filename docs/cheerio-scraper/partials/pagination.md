@@ -14,8 +14,8 @@ answer is that we can't click a button. Does that mean that we cannot get the da
 but it requires some clever DevTools-Fu.
 
 ### [](#page-analysis) Analyzing the page
-While with `apify/web-scraper` and `apify/puppeteer-scraper`, we could get away with simply clicking a button,
-with `apify/cheerio-scraper` we need to dig a little deeper into the page's architecture. For this, we will use
+While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)), we could get away with simply clicking a button,
+with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
 > It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
@@ -33,9 +33,9 @@ displays it. This is good news.
 
 ### [](#find-actors) Finding the actors
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
-is `apify/web-scraper` so let's try using the search tool in the Elements tab to find some reference to it. The first
+is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
-with the ID `__NEXT_DATA__` that seems to hold a lot of information about `apify/web-scraper`. In DevTools,
+with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
 you can right click an element and click **Store as global variable** to make this element available in the Console.
 
 ![find-data](../img/find-data.jpg "Finding the hidden actor data.")
