@@ -70,7 +70,7 @@ In summary, Cheerio Scraper works as follows:
 Cheerio Scraper has a number of advanced configuration settings to improve performance, set cookies for login to websites, limit the number of records, etc. 
 See [Advanced configuration](#advanced-configuration) below for the complete list of settings.
 
-Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheeriocrawler) class
+Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheerio-crawler) class
 from the Apify SDK. If you'd like to learn more about the inner workings of the scraper, see the respective documentation.
 
 ## Content types
@@ -111,7 +111,7 @@ Since Cheerio Scraper's **Page function** is executed in the context of the serv
 In the [**Page function**](#page-function) and **Prepare request function**,
 you can only use NPM modules that are already installed in this actor.
 If you require other modules for your scraping, you'll need to develop a completely new actor.
-You can use the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheeriocrawler) class
+You can use the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheerio-crawler) class
 from Apify SDK to get most of the functionality of Cheerio Scraper out of the box.
 
 ## Input configuration
