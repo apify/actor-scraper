@@ -491,7 +491,7 @@ class CrawlerSetup {
 
     async _assertNamespace(page, namespace) {
         try {
-            await page.waitFor((nmspc) => !!window[nmspc], { timeout: this.input.pageLoadTimeoutSecs * 1000 }, namespace);
+            await page.waitForFunction((nmspc) => !!window[nmspc], { timeout: this.input.pageLoadTimeoutSecs * 1000 }, namespace);
         } catch (err) {
             if (err.stack.startsWith('TimeoutError')) {
                 throw new Error('Injection of environment into the browser context timed out. '
@@ -517,7 +517,7 @@ class CrawlerSetup {
 
         try {
             const timeout = this.input.pageLoadTimeoutSecs * 1000;
-            await page.waitFor(() => document.readyState === 'complete', { timeout });
+            await page.waitForFunction(() => document.readyState === 'complete', { timeout });
         } catch (err) {
             if (err.stack.startsWith('TimeoutError')) {
                 throw new Error('Parsing of XML in the page timed out. If you\'re expecting a large XML file, '

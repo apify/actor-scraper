@@ -36,7 +36,7 @@ describe('Bundle', () => {
         };
         beforeEach(async () => {
             await page.goto('about:chrome');
-            await page.waitFor((namespace) => !!window[namespace], {}, NAMESPACE);
+            await page.waitForFunction((namespace) => !!window[namespace], {}, NAMESPACE);
             await page.evaluate((namespace, contextOptions) => {
                 window.contextInstance = window[namespace].createContext(contextOptions);
             }, NAMESPACE, CONTEXT_OPTIONS);
