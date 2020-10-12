@@ -210,7 +210,7 @@
 			"description": "Name or ID of the key-value store that will be used for storing records. If left empty, the default key-value store of the run will be used.",
 			"editor": "textfield"
 		},
-		"RequestQueueName": {
+		"requestQueueName": {
 			"title": "Request queue name",
 			"type": "string",
 			"description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
