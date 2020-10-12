@@ -109,6 +109,7 @@ class CrawlerSetup {
         this.requestQueue = null;
         this.dataset = null;
         this.keyValueStore = null;
+        this.proxyConfiguration = null;
         this.initPromise = this._initializeAsync();
     }
 
@@ -131,6 +132,9 @@ class CrawlerSetup {
 
         // KeyValueStore
         this.keyValueStore = await Apify.openKeyValueStore(this.keyValueStoreName);
+
+        // Proxy configuration
+        this.proxyConfiguration = await Apify.createProxyConfiguration(this.input.proxyConfiguration);
     }
 
     /**
@@ -141,7 +145,7 @@ class CrawlerSetup {
         await this.initPromise;
 
         const options = {
-            proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
+            proxyConfiguration: this.proxyConfiguration,
             handlePageFunction: this._handlePageFunction.bind(this),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
@@ -189,7 +193,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _prepareRequestFunction({ request, session }) {
+    async _prepareRequestFunction({ request, session, proxyInfo }) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)
@@ -209,7 +213,8 @@ class CrawlerSetup {
 
         if (this.evaledPrepareRequestFunction) {
             try {
-                await this.evaledPrepareRequestFunction({ request, Apify });
+                const { customData } = this.input;
+                await this.evaledPrepareRequestFunction({ request, session, proxyInfo, Apify, customData });
             } catch (err) {
                 log.error('User provided Prepare request function failed.');
                 throw err;
