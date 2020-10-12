@@ -262,21 +262,21 @@
             "editor": "json"
         },
         "datasetName": {
-            "title": "Dataset Name",
+            "title": "Dataset name",
             "type": "string",
-            "description": "Name or ID of the dataset that will be used for storing results.",
+            "description": "Name or ID of the Dataset that will be used for storing results.",
             "editor": "textfield"
         },
         "keyValueStoreName": {
-            "title": "Key-value Store Name",
+            "title": "Key-value store name",
             "type": "string",
             "description": "Name or ID of the Key-value store that will be used for storing records.",
             "editor": "textfield"
         },
         "RequestQueueName": {
-            "title": "Request Queue Name",
+            "title": "Request queue name",
             "type": "string",
-            "description": "Name of the Request Queue that will be used for storing requests.",
+            "description": "Name of the Request queue that will be used for storing requests.",
             "editor": "textfield"
         }
     },
