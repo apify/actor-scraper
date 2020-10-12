@@ -201,7 +201,8 @@ class CrawlerSetup {
 
         if (this.evaledPrepareRequestFunction) {
             try {
-                await this.evaledPrepareRequestFunction({ request, Apify });
+                const { customData } = this.input;
+                await this.evaledPrepareRequestFunction({ request, Apify, customData });
             } catch (err) {
                 log.error('User provided Prepare request function failed.');
                 throw err;
