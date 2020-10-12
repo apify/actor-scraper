@@ -185,7 +185,7 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _prepareRequestFunction({ request, session }) {
+    async _prepareRequestFunction({ request, session, proxyInfo }) {
         // Normalize headers
         request.headers = Object
             .entries(request.headers)
@@ -206,8 +206,6 @@ class CrawlerSetup {
         if (this.evaledPrepareRequestFunction) {
             try {
                 const { customData } = this.input;
-                const sessionId = session ? session.id : undefined;
-                const proxyInfo = this.proxyConfiguration.newProxyInfo(sessionId);
                 await this.evaledPrepareRequestFunction({ request, session, proxyInfo, Apify, customData });
             } catch (err) {
                 log.error('User provided Prepare request function failed.');
