@@ -41,6 +41,9 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  * @property {string} sessionPoolName
  * @property {string} suggestResponseEncoding
  * @property {boolean} forceResponseEncoding
+ * @property {string} datasetName
+ * @property {string} keyValueStoreName
+ * @property {string} requestQueueName
  */
 
 /**
@@ -95,6 +98,11 @@ class CrawlerSetup {
         // Used to store data that persist navigations
         this.globalStore = new Map();
 
+        // Named storages
+        this.datasetName = this.input.datasetName;
+        this.keyValueStoreName = this.input.keyValueStoreName;
+        this.requestQueueName = this.input.requestQueueName;
+
         // Initialize async operations.
         this.crawler = null;
         this.requestList = null;
@@ -115,15 +123,15 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', startUrls);
 
         // RequestQueue if selected
-        if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
+        if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
-        this.dataset = await Apify.openDataset();
+        this.dataset = await Apify.openDataset(this.datasetName);
         const { itemsCount } = await this.dataset.getInfo();
         this.pagesOutputted = itemsCount || 0;
 
         // KeyValueStore
-        this.keyValueStore = await Apify.openKeyValueStore();
+        this.keyValueStore = await Apify.openKeyValueStore(this.keyValueStoreName);
 
         // Proxy configuration
         this.proxyConfiguration = await Apify.createProxyConfiguration(this.input.proxyConfiguration);
@@ -331,7 +339,7 @@ class CrawlerSetup {
 
     async _handleResult(request, response, pageFunctionResult, isError) {
         const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
-        await Apify.pushData(payload);
+        await this.dataset.pushData(payload);
         this.pagesOutputted++;
     }
 }
