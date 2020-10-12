@@ -46,6 +46,9 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} clickableElementsSelector
  * @property {string} proxyRotation
  * @property {string} sessionPoolName
+ * @property {string} datasetName
+ * @property {string} keyValueStoreName
+ * @property {string} requestQueueName
  */
 
 /**
@@ -116,6 +119,11 @@ class CrawlerSetup {
         // Start Chromium with Debugger any time the page function includes the keyword.
         this.devtools = this.input.pageFunction.includes('debugger;');
 
+        // Named storages
+        this.datasetName = this.input.datasetName;
+        this.keyValueStoreName = this.input.keyValueStoreName;
+        this.requestQueueName = this.input.requestQueueName;
+
         // Initialize async operations.
         this.crawler = null;
         this.requestList = null;
@@ -135,15 +143,15 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('PUPPETEER_SCRAPER', startUrls);
 
         // RequestQueue if selected
-        if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue();
+        if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
-        this.dataset = await Apify.openDataset();
+        this.dataset = await Apify.openDataset(this.datasetName);
         const { itemsCount } = await this.dataset.getInfo();
         this.pagesOutputted = itemsCount || 0;
 
         // KeyValueStore
-        this.keyValueStore = await Apify.openKeyValueStore();
+        this.keyValueStore = await Apify.openKeyValueStore(this.keyValueStoreName);
     }
 
     /**
@@ -356,7 +364,7 @@ class CrawlerSetup {
 
     async _handleResult(request, response, pageFunctionResult, isError) {
         const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
-        await Apify.pushData(payload);
+        await this.dataset.pushData(payload);
         this.pagesOutputted++;
     }
 }
