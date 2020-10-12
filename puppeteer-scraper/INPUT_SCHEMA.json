@@ -197,7 +197,6 @@
       "description": "Maximum time the scraper will allow a web page to load in seconds.",
       "minimum": 1,
       "default": 60,
-      "maximum": 360,
       "unit": "secs"
     },
     "pageFunctionTimeoutSecs": {
@@ -206,7 +205,6 @@
       "description": "Maximum time the scraper will wait for the page function to execute in seconds.",
       "minimum": 1,
       "default": 60,
-      "maximum": 360,
       "unit": "secs"
     },
     "waitUntil": {
