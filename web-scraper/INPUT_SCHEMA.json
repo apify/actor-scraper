@@ -262,6 +262,24 @@
             "default": {},
             "prefill": {},
             "editor": "json"
+        },
+        "datasetName": {
+            "title": "Dataset Name",
+            "type": "string",
+            "description": "Name or ID of the dataset that will be used for storing results.",
+            "editor": "textfield"
+        },
+        "keyValueStoreName": {
+            "title": "Key-value Store Name",
+            "type": "string",
+            "description": "Name or ID of the Key-value store that will be used for storing records.",
+            "editor": "textfield"
+        },
+        "RequestQueueName": {
+            "title": "Request Queue Name",
+            "type": "string",
+            "description": "Name of the Request Queue that will be used for storing requests.",
+            "editor": "textfield"
         }
     },
     "required": ["startUrls", "pageFunction"]
