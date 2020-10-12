@@ -173,7 +173,6 @@
 			"description": "The maximum amount of time the scraper will wait for a web page to load, in seconds. If the web page does not load in this timeframe, it is considered to have failed and will be retried (subject to <b>Max page retries</b>), similarly as with other page load errors.",
 			"minimum": 1,
 			"default": 60,
-			"maximum": 360,
 			"unit": "seconds"
 		},
 		"pageFunctionTimeoutSecs": {
@@ -182,7 +181,6 @@
 			"description": "The maximum amount of time the scraper will wait for the <b>Page function</b> to execute, in seconds. It is always a good idea to set this limit, to ensure that unexpected behavior in page function will not get the scraper stuck.",
 			"minimum": 1,
 			"default": 60,
-			"maximum": 360,
 			"unit": "seconds"
 		},
 		"debugLog": {
