@@ -142,8 +142,13 @@ class CrawlerSetup {
         });
         this.requestList = await Apify.openRequestList('PUPPETEER_SCRAPER', startUrls);
 
-        // RequestQueue if selected
-        if (this.input.useRequestQueue) this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
+        // RequestQueue
+        if (!this.input.useRequestQueue) {
+            log.warning('Option useRequestQueue is deprecated. '
+                + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
+        } else {
+            this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
+        }
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);

@@ -20,7 +20,8 @@
       "title": "Use request queue",
       "type": "boolean",
       "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
-      "default": true
+      "default": true,
+      "editor": "hidden"
     },
     "pseudoUrls": {
       "title": "Pseudo-URLs",

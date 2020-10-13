@@ -17,7 +17,8 @@
 			"type": "boolean",
 			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
 			"default": true,
-			"groupCaption": "Options"
+			"groupCaption": "Options",
+			"editor": "hidden"
 		},
 		"keepUrlFragments": {
 			"title": "URL #fragments identify unique pages",
