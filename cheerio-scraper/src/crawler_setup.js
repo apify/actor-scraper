@@ -73,7 +73,7 @@ class CrawlerSetup {
         this.env = Apify.getEnv();
 
         // Validations
-        if (this.input.pseudoUrls.length && !this.input.useRequestQueue) {
+        if (this.input.pseudoUrls.length && this.input.useRequestQueue === false) {
             throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
                 + 'Either enable the "Use request queue" option or '
                 + 'remove your Pseudo-URLs.');
@@ -123,8 +123,8 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', startUrls);
 
         // RequestQueue
-        if (!this.input.useRequestQueue) {
-            log.warning('Option useRequestQueue is deprecated. '
+        if (this.input.useRequestQueue === false) {
+            log.deprecated('Option useRequestQueue is deprecated. '
                 + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
         } else {
             this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
@@ -267,7 +267,7 @@ class CrawlerSetup {
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
                 customData: this.input.customData,
-                useRequestQueue: this.input.useRequestQueue,
+                useRequestQueue: this.input.useRequestQueue !== false,
             },
             pageFunctionArguments: {
                 $,

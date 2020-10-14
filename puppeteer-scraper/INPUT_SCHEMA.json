@@ -16,13 +16,6 @@
       ],
       "editor": "requestListSources"
     },
-    "useRequestQueue": {
-      "title": "Use request queue",
-      "type": "boolean",
-      "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
-      "default": true,
-      "editor": "hidden"
-    },
     "pseudoUrls": {
       "title": "Pseudo-URLs",
       "type": "array",
@@ -260,6 +253,12 @@
       "type": "string",
       "description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
       "editor": "textfield"
+    },
+    "useRequestQueue": {
+      "title": "Use request queue",
+      "type": "boolean",
+      "description": "Request queue enables recursive crawling and the use of Pseudo-URLs, Link selector and <code>context.enqueueRequest()</code>.",
+      "editor": "hidden"
     }
   },
   "required": []
