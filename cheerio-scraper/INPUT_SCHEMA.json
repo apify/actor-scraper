@@ -12,18 +12,12 @@
 			"prefill": [ { "url": "https://apify.com" } ],
 			"editor": "requestListSources"
 		},
-		"useRequestQueue": {
-			"title": "Use request queue",
-			"type": "boolean",
-			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
-			"default": true,
-			"groupCaption": "Options"
-		},
 		"keepUrlFragments": {
 			"title": "URL #fragments identify unique pages",
 			"type": "boolean",
 			"description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such cases, this option should be enabled.",
-			"default": false
+			"default": false,
+			"groupCaption": "Options"
 		},
 		"pseudoUrls": {
 			"title": "Pseudo-URLs",
@@ -215,6 +209,12 @@
 			"type": "string",
 			"description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
 			"editor": "textfield"
+		},
+		"useRequestQueue": {
+			"title": "Use request queue",
+			"type": "boolean",
+			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
+			"editor": "hidden"
 		}
 	},
 	"required": [ "startUrls", "pageFunction" ]
