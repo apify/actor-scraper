@@ -216,7 +216,7 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
-            useSessionPool: true,
+            useSessionPool: !this.isDevRun,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
                 persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
