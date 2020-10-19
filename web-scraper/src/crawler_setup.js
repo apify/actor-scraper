@@ -222,7 +222,7 @@ class CrawlerSetup {
                 args,
             },
             useSessionPool: !this.isDevRun,
-            persistCookiesPerSession: true,
+            persistCookiesPerSession: !this.isDevRun,
             sessionPoolOptions: {
                 persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
@@ -273,6 +273,7 @@ class CrawlerSetup {
             if (cookiesToSet && cookiesToSet.length) {
                 // setting initial cookies that are not already in the session and page
                 if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
+                // TODO: We have to change this when there is an option to define blocked status codes in sessionPool
                 await page.setCookie(...cookiesToSet);
             }
         }
