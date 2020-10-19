@@ -267,10 +267,12 @@ class CrawlerSetup {
 
         // Add initial cookies, if any.
         if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            const cookiesToSet = session
+                ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
+                : this.input.initialCookies;
             if (cookiesToSet && cookiesToSet.length) {
                 // setting initial cookies that are not already in the session and page
-                session.setPuppeteerCookies(cookiesToSet, request.url);
+                if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
                 await page.setCookie(...cookiesToSet);
             }
         }
