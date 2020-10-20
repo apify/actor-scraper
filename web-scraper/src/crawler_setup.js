@@ -272,8 +272,8 @@ class CrawlerSetup {
                 : this.input.initialCookies;
             if (cookiesToSet && cookiesToSet.length) {
                 // setting initial cookies that are not already in the session and page
-                if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
-                // TODO: We have to change this when there is an option to define blocked status codes in sessionPool
+                // eslint-disable-next-line max-len
+                if (session) session.setPuppeteerCookies(cookiesToSet, request.url); // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
                 await page.setCookie(...cookiesToSet);
             }
         }
@@ -589,8 +589,9 @@ function logDevRunWarning() {
     log.warning(`
 *****************************************************************
 *          Web Scraper is running in DEVELOPMENT MODE!          *
-*  Concurrency is limited, timeouts are increased and debugger  *
-*  is enabled. If you want full control and performance switch  *
+*       Concurrency is limited, sessionPool is not available,   *
+*       timeouts are increased and debugger is enabled.         *
+*       If you want full control and performance switch         *
 *                    Run type to PRODUCTION!                    *
 *****************************************************************
 `);
