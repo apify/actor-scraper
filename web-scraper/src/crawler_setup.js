@@ -221,8 +221,8 @@ class CrawlerSetup {
                 stealth: this.input.useStealth,
                 args,
             },
-            useSessionPool: true,
-            persistCookiesPerSession: true,
+            useSessionPool: !this.isDevRun,
+            persistCookiesPerSession: !this.isDevRun,
             sessionPoolOptions: {
                 persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
@@ -267,10 +267,13 @@ class CrawlerSetup {
 
         // Add initial cookies, if any.
         if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+            const cookiesToSet = session
+                ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
+                : this.input.initialCookies;
             if (cookiesToSet && cookiesToSet.length) {
                 // setting initial cookies that are not already in the session and page
-                session.setPuppeteerCookies(cookiesToSet, request.url);
+                // eslint-disable-next-line max-len
+                if (session) session.setPuppeteerCookies(cookiesToSet, request.url); // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
                 await page.setCookie(...cookiesToSet);
             }
         }
@@ -586,8 +589,9 @@ function logDevRunWarning() {
     log.warning(`
 *****************************************************************
 *          Web Scraper is running in DEVELOPMENT MODE!          *
-*  Concurrency is limited, timeouts are increased and debugger  *
-*  is enabled. If you want full control and performance switch  *
+*       Concurrency is limited, sessionPool is not available,   *
+*       timeouts are increased and debugger is enabled.         *
+*       If you want full control and performance switch         *
 *                    Run type to PRODUCTION!                    *
 *****************************************************************
 `);

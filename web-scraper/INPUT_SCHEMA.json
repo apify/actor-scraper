@@ -8,7 +8,7 @@
             "sectionCaption": "Basic configuration",
             "title": "Run mode",
             "type": "string",
-            "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, opens pages one by one and enables debugging via Chrome DevTools. Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#run-mode' target='_blank' rel='noopener'>Run mode</a> in README.",
+            "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, doesn't use sessionPool, opens pages one by one and enables debugging via Chrome DevTools.  Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#run-mode' target='_blank' rel='noopener'>Run mode</a> in README.",
             "default": "PRODUCTION",
             "prefill": "DEVELOPMENT",
             "editor": "select",
