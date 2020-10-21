@@ -8,7 +8,7 @@
             "sectionCaption": "Basic configuration",
             "title": "Run mode",
             "type": "string",
-            "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, opens pages one by one and enables debugging via Chrome DevTools. Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#run-mode' target='_blank' rel='noopener'>Run mode</a> in README.",
+            "description": "This property indicates the scraper's mode of operation. In DEVELOPMENT mode, the scraper ignores page timeouts, doesn't use sessionPool, opens pages one by one and enables debugging via Chrome DevTools.  Open the live view tab or the container URL to access the debugger. Further debugging options can be configured in the Advanced configuration section. PRODUCTION mode disables debugging and enables timeouts and concurrency. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#run-mode' target='_blank' rel='noopener'>Run mode</a> in README.",
             "default": "PRODUCTION",
             "prefill": "DEVELOPMENT",
             "editor": "select",
@@ -26,18 +26,12 @@
             ],
             "editor": "requestListSources"
         },
-        "useRequestQueue": {
-            "title": "Use request queue",
-            "type": "boolean",
-            "description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
-            "default": true,
-            "groupCaption": "Options"
-        },
         "keepUrlFragments": {
             "title": "URL #fragments identify unique pages",
             "type": "boolean",
             "description": "Indicates that URL fragments (e.g. <code>http://example.com<b>#fragment</b></code>) should be included when checking whether a URL has already been visited or not. Typically, URL fragments are used for page navigation only and therefore they should be ignored, as they don't identify separate pages. However, some single-page websites use URL fragments to display different pages; in such a case, this option should be enabled.",
-            "default": false
+            "default": false,
+            "groupCaption": "Options"
         },
         "linkSelector": {
             "title": "Link selector",
@@ -278,6 +272,12 @@
             "type": "string",
             "description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
             "editor": "textfield"
+        },
+        "useRequestQueue": {
+            "title": "Use request queue",
+            "type": "boolean",
+            "description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
+            "editor": "hidden"
         }
     },
     "required": ["startUrls", "pageFunction"]
