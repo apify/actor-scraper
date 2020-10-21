@@ -1,4 +1,8 @@
 FROM apify/actor-node-basic
+# Add git to enable installation of packages using git URLs.
+RUN apk update
+ && apk upgrade
+ && \apk add --no-cache bash git openssh
 
 COPY package.json package-lock.json ./
 
