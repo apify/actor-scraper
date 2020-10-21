@@ -5,7 +5,7 @@
 	"main": "src/main.js",
 	"dependencies": {
 		"@apify/scraper-tools": "^0.1.13",
-		"apify": "0.21.8"
+		"apify": "git://github.com/apify/apify-js.git#fix/text-xml-content-type-works"
 	},
 	"devDependencies": {
 		"markdown-toc": "^1.2.0"
