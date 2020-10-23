@@ -209,12 +209,6 @@
 			"type": "string",
 			"description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
 			"editor": "textfield"
-		},
-		"useRequestQueue": {
-			"title": "Use request queue",
-			"type": "boolean",
-			"description": "If enabled, the scraper will support adding new URLs to scrape on the fly, either using the <b>Link selector</b> and <b>Pseudo-URLs</b> options or by calling <code>context.enqueueRequest()</code> inside the <b>Page function</b>. Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.",
-			"editor": "hidden"
 		}
 	},
 	"required": [ "startUrls", "pageFunction" ]
