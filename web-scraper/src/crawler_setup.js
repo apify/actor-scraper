@@ -340,7 +340,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, autoscaledPool, proxyInfo }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);
@@ -374,6 +374,7 @@ class CrawlerSetup {
                     status: response && response.status(),
                     headers: response && response.headers(),
                 },
+                proxyInfo,
             },
         };
 
