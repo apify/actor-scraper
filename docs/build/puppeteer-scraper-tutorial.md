@@ -1,17 +1,19 @@
 # Scraping with Puppeteer Scraper
-This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store` 
+
+This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store`
 using **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
 
-## [](#our-tools) Getting to know our tools
+## [](#getting-to-know-our-tools) Getting to know our tools
+
 In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Puppeteer` library](https://github.com/GoogleChrome/puppeteer). Puppeteer is a browser
 automation library that allows you to control a browser using JavaScript. That is, simulate a real human sitting
-in front of a computer, using a mouse and a keyboard. It gives you almost unlimited possibilites, but you need to learn
+in front of a computer, using a mouse and a keyboard. It gives you almost unlimited possibilities, but you need to learn
 quite a lot before you'll be able to use all of its features. We'll walk you through some of the basics of Puppeteer,
 so that you can start using it for some of the most typical scraping tasks, but if you really want to master it,
 you'll need to visit its [documentation](https://pptr.dev/) and really dive deep into its intricacies.
@@ -20,7 +22,8 @@ you'll need to visit its [documentation](https://pptr.dev/) and really dive deep
 it in a nice, manageable UI. It provides almost all of its features in a format that is much easier to grasp
 when first trying to scrape using Puppeteer.
 
-### [](#differences) Web Scraper differences
+### [](#web-scraper-differences) Web Scraper differences
+
 At first glance, it may seem like Web Scraper and Puppeteer Scraper are almost the same. Well, they are.
 In fact, Web Scraper uses Puppeteer underneath. The difference is the amount of control they give you.
 Where Web Scraper only gives you access to in-browser JavaScript and the `pageFunction` is executed
@@ -30,7 +33,7 @@ It's also much easier to work with external APIs, databases or the [Apify SDK](h
 in the Node.js context. The tradeoff is simple. Power vs simplicity. Web Scraper is simple,
 Puppeteer Scraper is powerful (and the [Apify SDK](https://sdk.apify.com) is super-powerful).
 
-> Simply put, Web Scraper `pageFunction` is just a single 
+> Simply put, Web Scraper `pageFunction` is just a single
 [page.evaluate()](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args) call.
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example the
@@ -39,7 +42,8 @@ Now that's out of the way, let's open one of the actor detail pages in the Store
 > If you're wondering why we're using Web Scraper as an example instead of Puppeteer Scraper,
 it's only because we didn't want to triple the number of screenshots we needed to make. Lazy developers!
 
-## [](#build-page-function) Building our Page function
+## [](#building-our-page-function) Building our Page function
+
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
@@ -48,13 +52,14 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    4. **Description** - The actor's description.
    5. **Last run date**- When the actor was last run.
    6. **Number of runs** - How many times the actor was run.
-   
+
 ![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### [](#title) Title
+
 ![actor title](../img/title.jpg "Finding actor title in DevTools.")
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
@@ -86,6 +91,7 @@ Here we use it to extract the text content of a `h1` element that's in the page.
 is automatically passed back to the Node.js context, so we receive an actual `string` with the element's text.
 
 ### [](#description) Description
+
 Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
 the `<header>` element too, same as the title. Sadly, we're still left with two `<p>` tags. To finally select only the
@@ -110,6 +116,7 @@ return {
 ```
 
 ### [](#last-run-date) Last run date
+
 The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
 
 ![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
@@ -150,6 +157,7 @@ constructor will not accept a `string`, so we cast the `string` to a `number` us
 Phew!
 
 ### [](#run-count) Run count
+
 And so we're finishing up with the `runCount`. There's no specific element like `<time>`, so we need to create
 a complex selector and then do a transformation on the result.
 
@@ -187,7 +195,8 @@ The `ul.stats > li:nth-of-type(3)` looks complicated, but it only reads that we'
 element we're looking for the third `<li>` element. We grab its text, but we're only interested in the number of runs. So we parse the number out
 using a regular expression, but its type is still a `string`, so we finally convert the result to a `number` by wrapping it with a `Number()` call.
 
-### [](#wrap-up) Wrapping it up
+### [](#wrapping-it-up) Wrapping it up
+
 And there we have it! All the data we needed in a single object. For the sake of completeness, let's add
 the properties we parsed from the URL earlier and we're good to go.
 
@@ -305,11 +314,13 @@ concurrency or parallelism. Unless the functions need to be executed in a specif
 to run them concurrently to speed things up.
 
 ### [](#test-run) Test run
-As always, try hitting that **Save & Run** button  and visit 
+
+As always, try hitting that **Save & Run** button  and visit
 the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!
 
 ## [](#pagination) Pagination
+
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
@@ -318,7 +329,8 @@ one needs to click the orange **Show more** button at the very bottom of the lis
 that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
-###[](#waiting-for-content) Waiting for dynamic content
+### [](#waiting-for-dynamic-content) Waiting for dynamic content
+
 Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Store is a JavaScript
 application (as many, if not most modern websites are), the button might not exist in the page when the scraper
 runs the `pageFunction`.
@@ -535,14 +547,16 @@ it's probably just some typo.
 
 ![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
 
-## [](#downloading-data) Downloading the scraped data
+## [](#downloading-our-scraped-data) Downloading the scraped data
+
 You already know the DATASET tab of the run console since this is where we've always previewed our data.
 Notice that at the bottom, there is a table with multiple data formats, such as JSON, CSV or an Excel sheet,
 and to the right, there are options to download the scraping results in any of those formats. Go ahead and try it.
 
 > If you prefer working with an API, you can find an example in the API tab of the run console: **Get dataset items**.
 
-### [](#clean-items) Items and Clean items
+### [](#items-and-clean-items) Items and Clean items
+
 There are two types of data available for download. Items and Clean items. The Items will always include a record
 for each `pageFunction` invocation, even if you did not return any results. The record also includes hidden fields
 such as `#debug`, where you can find various information that can help you with debugging your scrapers.
@@ -550,7 +564,8 @@ such as `#debug`, where you can find various information that can help you with 
 Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested
 in the data you scraped, this format is what you will be using most of the time.
 
-## [](#bonus) Bonus: Making your code neater
+## [](#bonus-making-your-code-neater) Bonus: Making your code neater
+
 You may have noticed that the `pageFunction` gets quite bulky. To make better sense of your code and have an easier
 time maintaining or extending your task, feel free to define other functions inside the `pageFunction`
 that encapsulate all the different logic. You can, for example, define a function for each of the different pages:
@@ -648,12 +663,14 @@ async function pageFunction(context) {
 > If you're confused by the functions being declared below their executions, it's called hoisting and it's a feature
 of JavaScript. It helps you put what matters on top, if you so desire.
 
-## [](#bonus-2)  Bonus 2: Using jQuery with Puppeteer Scraper
+## [](#bonus-2-using-jquery-with-puppeteer-scraper)  Bonus 2: Using jQuery with Puppeteer Scraper
+
 If you're familiar with the [`jQuery` library](https://jquery.com/), you may have looked at the scraping code and thought
 that it's unnecessarily complicated. That's probably up to everyone to decide on their own, but the good news is,
 you can easily use `jQuery` with Puppeteer Scraper too.
 
-### [](#inject-jquery) Injecting jQuery
+### [](#injecting-jquery) Injecting jQuery
+
 To be able to use jQuery, we first need to introduce it to the browser. Fortunately, we have a helper function to
 do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteerinjectjquerypage)
 
@@ -667,7 +684,7 @@ You can either call this function directly in your `pageFunction`, or you can se
 async function pageFunction(context) {
     const { Apify, page } = context;
     await Apify.utils.puppeteer.injectJQuery(page);
-    
+
     // your code ...
 }
 ```
@@ -765,7 +782,8 @@ async function pageFunction(context) {
 injecting it outside of the browser. We're using the [`page.evaluate()`](https://pptr.dev/#?product=Puppeteer&show=api-pageevaluatepagefunction-args)
 function to run the script in the context of the browser and the return value is passed back to Node.js. Keep this in mind.
 
-## [](#conclusion) Final word
+## [](#final-word) Final word
+
 Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
 
 Finally, Puppeteer Scraper is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!

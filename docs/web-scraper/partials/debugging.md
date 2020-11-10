@@ -1,4 +1,4 @@
-## [](#debugging) Debugging 
+## [](#debugging) Debugging
 
 Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **LIVE VIEW** tab.
 
@@ -8,7 +8,7 @@ To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the [INP
 
 ![setting the run mode](../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
 
-Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/scraping/getting-started#the-pagefunction) wherever you need to set one.
+Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/tutorials/getting-started#the-page-function) wherever you need to set one.
 
 ```javascript
 async function pageFunction(context) {
@@ -18,7 +18,7 @@ async function pageFunction(context) {
         jQuery: $,
         waitFor
     } = context;
-    
+
     if (request.userData.label === 'START') {
         log.info('Store opened!');
         let timeoutMillis; // undefined
@@ -40,7 +40,7 @@ async function pageFunction(context) {
 }
 ```
 
-Additionally, use the **Advanced configuration** menu to set breakpoints outside the Page function. These allow you to start the debugger either before navigation to the URL, before invocating the Page function, and after the invocation.
+Additionally, use the **Advanced configuration** menu to set breakpoints outside the Page function. These allow you to start the debugger either before navigation to the URL, before invoking the Page function, and after the invocation.
 
 Once you've set your input and breakpoints, click the **Save & Run** button to try the debugger for yourself. To let you know you're in development mode, the LOG will display the following banner.
 
