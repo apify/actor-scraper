@@ -23,22 +23,22 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
-      - [**`$: Function`**](#-function)
+      - [**`$: Function`**](#function)
       - [**`Apify: Object`**](#apify-object)
       - [**`autoscaledPool: Object`**](#autoscaledpool-object)
-      - [**`body: String|Buffer`**](#body-stringbuffer)
+      - [**`body: String|Buffer`**](#body-string-buffer)
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`contentType: Object`**](#contenttype-object)
       - [**`customData: Object`**](#customdata-object)
-      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequest-request-options-asyncfunction)
       - [**`env: Object`**](#env-object)
-      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`getValue(key): AsyncFunction`**](#getvalue-key-asyncfunction)
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`input: Object`**](#input-object)
       - [**`json: Object`**](#json-object)
       - [**`log: Object`**](#log-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
-      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvalue-key-data-options-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
@@ -68,7 +68,7 @@ In summary, Cheerio Scraper works as follows:
 5. If there are more items in the queue, repeats step 2, otherwise finishes.
 
 Cheerio Scraper has a number of advanced configuration settings to improve performance, set cookies for login to websites, limit the number of records, etc. 
-See [Advanced configuration](#advanced-configuration) below for the complete list of settings.
+See their tooltips for more information.
 
 Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://sdk.apify.com/docs/api/cheerio-crawler) class
 from the Apify SDK. If you'd like to learn more about the inner workings of the scraper, see the respective documentation.
@@ -90,7 +90,7 @@ either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in t
 The web pages with various content types are parsed differently and
 thus the `context` parameter of the [**Page function**](#page-function) will have different values:
 
-| **Content types**  | [`context.body`](#body-stringbuffer) | [`context.$`](#-function)  | [`context.json`](#json-object)
+| **Content types**  | [`context.body`](#body-string-buffer) | [`context.$`](#-function)  | [`context.json`](#json-object)
 |------------|---|---|---|
 | `text/html`, `application/xhtml+xml` or `application/xml` | `String`  | `Function`  |`null`
 | `application/json` |  `String` | `null`  | `Object`
@@ -319,7 +319,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 - ##### **`env: Object`**
 
   A map of all relevant values set by the Apify platform to the actor run via the `APIFY_` environment variable. For example, here you can find information such as actor run ID, timeouts, actor run memory, etc.
-  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#module_Apify.getEnv) function in the Apify SDK documentation.
+  For the full list of available values, see the [`Apify.getEnv()`](https://sdk.apify.com/docs/api/apify#getenv) function in the Apify SDK documentation.
   
   Example:
   ```javascript
@@ -328,7 +328,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`getValue(key): AsyncFunction`**
 
-  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object) function in the Apify SDK documentation.
+  Gets a value from the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.getValue()`](https://sdk.apify.com/docs/api/apify#getvalue) function in the Apify SDK documentation.
   
   To set the value, use the dual function `context.setValue(key, value)`.
   
@@ -397,7 +397,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`setValue(key, data, options): AsyncFunction`**
 
-  Sets a value to the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.setValue()`](https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise) function in the Apify SDK documentation.
+  Sets a value to the default key-value store associated with the actor run. The key-value store is useful for persisting named data records, such as state objects, files, etc. The function is very similar to the [`Apify.setValue()`](https://sdk.apify.com/docs/api/apify#setvalue) function in the Apify SDK documentation.
     
   To get the value, use the dual function `context.getValue(key)`.
   

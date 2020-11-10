@@ -85,7 +85,7 @@ The following tables describe the `context` object in more detail.
     <tr><td><code>env</code></td><td><code>Object</code></td></tr>
     <tr><td colspan="2">
         A map of all the relevant environment variables that you may want to use. See the
-        <a href="https://sdk.apify.com/docs/api/apify#apifygetenv-code-object-code" target="_blank"><code>Apify.getEnv()</code></a>
+        <a href="https://sdk.apify.com/docs/api/apify#getenv" target="_blank"><code>Apify.getEnv()</code></a>
         function for a preview of the structure and full documentation.
     </td></tr>
     <tr><td><code>customData</code></td><td><code>Object</code></td></tr>
@@ -110,7 +110,7 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
     <tr><td colspan="2">
         To save data to the default key-value store, you can use the <code>setValue</code> function.
         See the full documentation:
-        <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-code-promise-code" target="_blank">
+        <a href="https://sdk.apify.com/docs/api/apify#setvalue" target="_blank">
             <code>Apify.setValue()</code>
         </a> function.
     </td></tr>
@@ -118,7 +118,7 @@ and more streamlined. All of the functions are `async` so make sure to use `awai
     <tr><td colspan="2">
         To read data from the default key-value store, you can use the <code>getValue</code> function.
         See the full documentation:
-        <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-value-options-code-promise-code" target="_blank">
+        <a href="https://sdk.apify.com/docs/api/apify#getvalue" target="_blank">
             <code>Apify.getValue()</code>
         </a> function.
     </td></tr>

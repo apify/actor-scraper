@@ -17,7 +17,6 @@
 		"start": "node main.js",
 		"build-toc": "./node_modules/.bin/markdown-toc README.md -i",
 		"test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
-		"prepare": "npm run build-toc",
 		"lint": "eslint src test"
 	},
 	"repository": {

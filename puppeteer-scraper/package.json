@@ -14,7 +14,6 @@
   "scripts": {
     "start": "node main.js",
     "build-toc": "./node_modules/.bin/markdown-toc README.md -i",
-    "prepare": "npm run build-toc",
     "lint": "eslint src test"
   },
   "repository": {

@@ -28,9 +28,9 @@ a tutorial which will walk you through all the steps and provide a number of exa
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
       - [**`customData: Object`**](#customdata-object)
-      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequestrequest-options-asyncfunction)
+      - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequest-request-options-asyncfunction)
       - [**`env: Object`**](#env-object)
-      - [**`getValue(key): AsyncFunction`**](#getvaluekey-asyncfunction)
+      - [**`getValue(key): AsyncFunction`**](#getvalue-key-asyncfunction)
       - [**`globalStore: Object`**](#globalstore-object)
       - [**`input: Object`**](#input-object)
       - [**`jQuery: Function`**](#jquery-function)
@@ -38,10 +38,10 @@ a tutorial which will walk you through all the steps and provide a number of exa
       - [**`request: Object`**](#request-object)
       - [**`response: Object`**](#response-object)
       - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
-      - [**`setValue(key, data, options): AsyncFunction`**](#setvaluekey-data-options-asyncfunction)
+      - [**`setValue(key, data, options): AsyncFunction`**](#setvalue-key-data-options-asyncfunction)
       - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
       - [**`underscoreJs: Object`**](#underscorejs-object)
-      - [**`waitFor(task, options): AsyncFunction`**](#waitfortask-options-asyncfunction)
+      - [**`waitFor(task, options): AsyncFunction`**](#waitfor-task-options-asyncfunction)
 - [Proxy configuration](#proxy-configuration)
 - [Results](#results)
 - [Additional resources](#additional-resources)
@@ -315,7 +315,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   via the `APIFY_` environment variables.
   For example, you can find here information such as actor run ID, timeouts, actor run memory, etc.
   For the full list of available values, see
-  <a href="https://sdk.apify.com/docs/api/apify#module_Apify.getEnv" target="_blank"><code>Apify.getEnv()</code></a>
+  <a href="https://sdk.apify.com/docs/api/apify#getenv" target="_blank"><code>Apify.getEnv()</code></a>
   function in Apify SDK.
   
   Example:
@@ -327,7 +327,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
   Gets a value from the default key-value store associated with the actor run.
   The key-value store is useful for persisting named data records, such as state objects, files, etc.
-  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifygetvaluekey-promise-object" target="_blank"><code>Apify.getValue()</code></a>
+  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#getvalue" target="_blank"><code>Apify.getValue()</code></a>
   function in Apify SDK.
   
   To set the value, use the dual function `context.setValue(key, value)`.
@@ -453,7 +453,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 
   Sets a value to the default key-value store associated with the actor run.
   The key-value store is useful for persisting named data records, such as state objects, files, etc.
-  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#apifysetvaluekey-value-options-promise" target="_blank"><code>Apify.setValue()</code></a>
+  The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#setvalue" target="_blank"><code>Apify.setValue()</code></a>
   function in Apify SDK.
     
   To get the value, use the dual function `context.getValue(key)`.
