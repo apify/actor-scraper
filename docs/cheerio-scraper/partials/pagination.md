@@ -1,4 +1,5 @@
 ## [](#pagination) Pagination
+
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
@@ -13,13 +14,14 @@ with Cheerio? We don't have a browser to do it and we only have the HTML of the 
 answer is that we can't click a button. Does that mean that we cannot get the data at all? Usually not,
 but it requires some clever DevTools-Fu.
 
-### [](#page-analysis) Analyzing the page
+### [](#analyzing-the-page) Analyzing the page
+
 While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)), we could get away with simply clicking a button,
 with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
 > It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
-https://developers.google.com/web/tools/chrome-devtools/network/ which explains everything much better than we
+<https://developers.google.com/web/tools/chrome-devtools/network/> which explains everything much better than we
 ever could.
 
 We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
@@ -31,7 +33,8 @@ Now, this is interesting. It seems that we've only received two images after cli
 data. This means that the data about actors must already be available in the page and the Show more button only
 displays it. This is good news.
 
-### [](#find-actors) Finding the actors
+### [](#finding-the-actors) Finding the actors
+
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
 is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
@@ -47,7 +50,7 @@ cumbersome, so we need to parse it.
 
 ```js
 const data = JSON.parse(temp1.textContent);
-``` 
+```
 
 After entering the above command into the console, we can inspect the `data` variable and see that all the information
 we need is there, in the `data.props.pageProps.items` array. Great!
@@ -59,7 +62,8 @@ so you might already be wondering, can I just make one request to the store to g
 and then parse it out and be done with it in a single request? Yes you can! And that's the power
 of clever page analysis.
 
-### [](#using-data) Using the data to enqueue all actor details
+### [](#using-the-data-to-enqueue-all-actor-details) Using the data to enqueue all actor details
+
 We don't really need to go to all the actor details now, but for the sake of practice, let's imagine we only found
 actor names such as `cheerio-scraper` and their owners, such as `apify` in the data. We will use this information
 to construct URLs that will take us to the actor detail pages and enqueue those URLs into the request queue.
@@ -82,7 +86,7 @@ for (const item of data.props.pageProps.items) {
         }
     });
 }
-``` 
+```
 
 We iterate through the items we found, build actor detail URLs from the available properties and then enqueue
 those URLs into the request queue. We need to specify the label too, otherwise our page function wouldn't know
@@ -91,7 +95,8 @@ how to route those requests.
 >If you're wondering how we know the structure of the URL, see the [Getting started
 with Apify Scrapers](intro-scraper-tutorial) tutorial again.
 
-### [](#pagination-page-function) Plugging it into the Page function
+### [](#plugging-it-into-the-page-function) Plugging it into the Page function
+
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it.
 

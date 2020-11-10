@@ -40,7 +40,7 @@ Now that the run has `SUCCEEDED`, click on the rightmost card labeled **Result d
 
 Good job! We've run our first task and got some results. Let's learn how to change the default configuration to scrape something more interesting than just the page's `<title>`.
 
-## [](#creating-a-task) Creating your own task
+## [](#creating-your-own-task) Creating your own task
 
 Before we jump into the scraping itself, let's just have a quick look at the user interface that's available to us.
 
@@ -80,12 +80,12 @@ Since this is a tutorial, we'll be scraping our own website. A great candidate f
 
 We want to create a scraper that scrapes all the actors (i.e. not crawlers, our legacy product) in the store and collects the following attributes for each actor:
 
-1. **URL** - The URL that goes directly to the actor's detail page.
-2. **Unique identifier** - Such as `apify/web-scraper`.
-3. **Title** - The title visible in the actor's detail page.
-4. **Description** - The actor's description.
-5. **Last run date** - When the actor was last run.
-6. **Number of runs** - How many times the actor was run.
+   1. **URL** - The URL that goes directly to the actor's detail page.
+   2. **Unique identifier** - Such as `apify/web-scraper`.
+   4. **Title** - The title visible in the actor's detail page.
+   5. **Description** - The actor's description.
+   6. **Last run date** - When the actor was last run.
+   7. **Number of runs** - How many times the actor was run.
 
 Some of this information may be scraped directly from the listing pages, but for the rest, we will need to visit the detail pages of all the actors.
 
@@ -123,19 +123,19 @@ div.item > a
 
 Save it as your Link selector. If you're wondering how we figured this out, just follow along with the tutorial. By the time we finish, you'll know why we used this selector, too.
 
-### [](#crawling-the-website-with-pseudo-urls) Crawling the website with Pseudo URLs
+### [](#crawling-the-website-with-pseudo-url) Crawling the website with Pseudo URLs
 
 What is a Pseudo URL? Let me explain. Before we can start scraping the actor details, we need to find all the links to the details. If the links follow a set structure, we can use a certain pattern to describe this structure. And that's what a Pseudo URL is. A pattern that describes a URL structure.  By setting a Pseudo URL, all links that follow the given structure will automatically be added to the crawling queue.
 
 Let's see an example. To find the pattern, open some of the actor details in the store. You'll find that the URLs are always structured the same:
 
-```text
+```
 https://apify.com/{OWNER}/{NAME}
 ```
 
 In the structures, only the `OWNER` and `NAME` change. We can leverage this in a Pseudo URL.
 
-#### [](#making-a-pseudo-url) Making a Pseudo URL
+#### Making a Pseudo URL
 
 If you'd like to learn more about Pseudo URLs, [visit a quick tutorial in our docs](https://sdk.apify.com/docs/guides/getting-started#introduction-to-pseudo-urls), but for now, let's keep it simple. Pseudo URLs are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://regexone.com/) enclosed in brackets `[]`.
 
@@ -229,7 +229,7 @@ This may seem like a lot of new information, but it's all connected to our earli
 
 The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the Start URL and the Pseudo URL, we gave them a `label`. We're now using them in the `pageFunction` to distinguish between the store page and the detail pages.
 
-### [](#context-skiplinks) `context.skipLinks()`
+### [](#context-skip-links) `context.skipLinks()`
 
 When a Pseudo URL is set, the scraper attempts to enqueue matching links on each page it visits. `skipLinks()` is used to tell the scraper that we don't want this to happen on the current page.
 
