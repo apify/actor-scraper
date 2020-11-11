@@ -440,7 +440,7 @@ To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the [INP
 
 ![setting the run mode](../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
 
-Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/tutorials/getting-started#the-page-function) wherever you need to set one.
+Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/tutorials/apify-scrapers/getting-started#the-page-function) wherever you need to set one.
 
 ```javascript
 async function pageFunction(context) {
