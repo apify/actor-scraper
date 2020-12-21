@@ -19,7 +19,6 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
 - [Limitations](#limitations)
 - [Input configuration](#input-configuration)
   * [Start URLs](#start-urls)
-  * [Use request queue](#use-request-queue)
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
@@ -54,7 +53,7 @@ To get started with Cheerio Scraper, you only need two things. First, tell the s
 it should load. Second, tell it how to extract data from each page.
 
 The scraper starts by loading the pages specified in the [**Start URLs**](#start-urls) field.
-Optionally, you can make the scraper follow page links on the fly by enabling the [**Use request queue**](#use-request-queue) option. Then, just set a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
+You can make the scraper follow page links on the fly by setting a [**Link selector**](#link-selector) and/or [**Pseudo URLs**](#pseudo-urls) to tell the scraper which links it should add to the crawling queue. This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
 To tell the scraper how to extract data from web pages, you need to provide a [**Page function**](#page-function). This is JavaScript code that is executed for every web page loaded. Since the scraper does not use the full web browser, writing the **Page function** is equivalent to writing server-side Node.js code - it uses the server-side library [Cheerio](https://cheerio.js.org).
 
@@ -124,22 +123,18 @@ The **Start URLs** (`startUrls`) field represents the initial list of pages that
 You can either enter the URLs manually one by one, upload them in a CSV file, or [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet) document.
 Each URL must start with either a `http://` or `https://` protocol prefix.
 
+The scraper supports adding new URLs to scrape on the fly, either using the [**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options or by calling `context.enqueueRequest()` inside the [**Page function**](#page-function).
+
 Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from
 your JavaScript code in the [**Page function**](#page-function) under `context.request.userData`.
 This is useful for determining which start URL is currently loaded, in order to perform some page-specific actions. For example, when crawling an online store, you might want to perform different actions on a page listing the products vs. a product detail page. For details, see the [**Web scraping tutorial**](https://apify.com/docs/scraping/tutorial/introduction#the-start-url)
 in the Apify documentation.
 
-### Use request queue
-
-The **Use request queue** (`useRequestQueue`) option determines whether the scraper will use a dynamic queue to manage URLs in addition to the static list of [**Start URLs**](#start-urls). If the option is enabled, the scraper will support adding new URLs to scrape on the fly, either using the [**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options or by calling `context.enqueueRequest()` inside the [**Page function**](#page-function). Use of the request queue has some overheads, so only enable this option if you need to add URLs dynamically.
-
 <!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
 ### Link selector
 
-The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages, i.e. `<a>` elements with the `href` attribute. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled, otherwise it is ignored and no links are followed.
-
-On every page loaded, the scraper looks for all links matching the **Link selector**. It checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls), and if so then adds the URL to the request queue, to be loaded by the scraper later.
+The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages, i.e. `<a>` elements with the `href` attribute. On every page loaded, the scraper looks for all links matching the **Link selector**. It checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls), and if so then adds the URL to the request queue, to be loaded by the scraper later.
 
 By default, new scrapers are created with the following selector that matches all links:
 
@@ -151,7 +146,7 @@ If the **Link selector** is empty, page links are ignored, and the scraper only 
 
 ### Pseudo-URLs
 
-The **Pseudo-URLs** (`pseudoUrls`) field specifies what kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue. This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled.
+The **Pseudo-URLs** (`pseudoUrls`) field specifies what kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue.
 
 A pseudo-URL is simply a URL with special directives enclosed in `[]` brackets. Currently, the only supported directive is `[regexp]`, which defines a JavaScript-style regular expression to match against the URL.
 
@@ -304,7 +299,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`enqueueRequest(request, [options]): AsyncFunction`**
   
-  Adds a new URL to the request queue, if it wasn't already there. To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise an error will be thrown.
+  Adds a new URL to the request queue, if it wasn't already there.
 
   The `request` parameter is an object containing details of the request, with properties such as `url`, `userData`, `headers` etc. For the full list of the supported properties, see the [`Request`](https://sdk.apify.com/docs/api/request) object's constructor in the Apify SDK documentation.
   
