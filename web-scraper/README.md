@@ -23,7 +23,6 @@ a tutorial which will walk you through all the steps and provide a number of exa
 - [Input configuration](#input-configuration)
   * [Run mode](#run-mode)
   * [Start URLs](#start-urls)
-  * [Use request queue](#use-request-queue)
   * [Link selector](#link-selector)
   * [Pseudo-URLs](#pseudo-urls)
   * [Page function](#page-function)
@@ -56,9 +55,8 @@ it should load, and second, tell it how to extract data from each of the pages.
 
 The scraper starts by loading pages specified in
 the [**Start URLs**](#start-urls) input setting.
-Optionally, you can make the scraper follow page links on the fly
-by enabling the [**Use request queue**](#use-request-queue) option.
-Then just set <a href="#link-selector"><b>Link selector</b></a>
+You can make the scraper follow page links on the fly
+by setting a <a href="#link-selector"><b>Link selector</b></a>
 and/or <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>
 to tell the scraper which links it should add to the crawling queue.
 This is useful for the recursive crawling of entire websites,
@@ -146,6 +144,11 @@ You can either enter these URLs manually one by one, upload them in a CSV file o
 document.
 Each URL must start with either a `http://` or `https://` protocol prefix.
 
+The scraper supports adding new URLs to scrape on the fly, either using the
+[**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options
+or by calling <code>context.enqueueRequest()</code>
+inside [**Page function**](#page-function).
+
 Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from
 your JavaScript code in [**Page function**](#page-function) under `context.request.userData`.
 This is useful for determining which start URL is currently loaded,
@@ -155,25 +158,12 @@ actions on a page listing the products vs. a product detail page.
 For details, see [**Web scraping tutorial**](https://apify.com/docs/scraping/tutorial/introduction#the-start-url)
 in Apify documentation.
 
-### Use request queue
-
-The **Use request queue** (`useRequestQueue`) option determines whether
-the scraper will use a dynamic queue to manage URLs,
-in addition to the static list of [**Start URLs**](#start-urls).
-If the option is enabled, the scraper will support adding new URLs to scrape on the fly, either using the
-[**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options
-or by calling <code>context.enqueueRequest()</code>
-inside [**Page function**](#page-function). Usage of the request queue has some overheads, so only enable this option
-if you need to add URLs dynamically.
-
 <!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
 ### Link selector
 
 The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages,
 i.e. `<a>` elements with the `href` attribute.
-This setting only applies if the [**Use request queue**](#use-request-queue) option is enabled,
-otherwise it is ignored and no links are followed.
 
 On every page loaded, the scraper looks for all links matching **Link selector**,
 checks that the target URL matches one of the [**Pseudo-URLs**](#pseudo-urls),
@@ -195,8 +185,6 @@ in [**Page function**](#page-function).
 
 The **Pseudo-URLs** (`pseudoUrls`) field specifies
 what kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue.
-This setting only applies if the [**Use request queue**](#use-request-queue)
-option is enabled.
 
 A pseudo-URL is simply a URL with special directives enclosed in `[]` brackets.
 Currently, the only supported directive is `[regexp]`, which defines
@@ -255,7 +243,6 @@ async function pageFunction(context) {
     context.log.info(`URL: ${context.request.url} TITLE: ${pageTitle}`);
 
     // Manually add a new page to the scraping queue.
-    // To make this work, make sure the "Use request queue" option is enabled.
     context.enqueueRequest({ url: 'http://www.example.com' });
 
     // Return an object with the data extracted from the page.
@@ -291,8 +278,6 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 - ##### **`enqueueRequest(request, [options]): AsyncFunction`**
   
   Adds a new URL to the request queue, if it wasn't already there.
-  To call this function, the [**Use request queue**](#use-request-queue) option must be enabled, otherwise
-  an error will be thrown.
   The `request` parameter is an object containing details of the request,
   with properties such as `url`, `userData`, `headers` etc.
   For the full list of the supported properties, see the 
