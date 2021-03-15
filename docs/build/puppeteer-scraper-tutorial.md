@@ -130,9 +130,9 @@ const description = await page.$eval(
     (el => el.textContent)
 );
 
-const modifiedTimestamp = await page.$$eval(
-    'time',
-    (els) => els[1].getAttribute('datetime')
+const modifiedTimestamp = await page.$eval(
+    'ul.ActorHeader-stats time',
+    (el) => el.getAttribute('datetime')
 );
 const modifiedDate = new Date(Number(modifiedTimestamp));
 
@@ -170,9 +170,9 @@ const description = await page.$eval(
     (el => el.textContent)
 );
 
-const modifiedTimestamp = await page.$$eval(
-    'time',
-    (els) => els[1].getAttribute('datetime')
+const modifiedTimestamp = await page.$eval(
+    'ul.ActorHeader-stats time',
+    (el) => el.getAttribute('datetime')
 );
 const modifiedDate = new Date(Number(modifiedTimestamp));
 
@@ -190,7 +190,7 @@ return {
 };
 ```
 
-The `ul.ActorHeader-stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="stats ...">` element and within that
+The `ul.ActorHeader-stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="ActorHeader-stats ...">` element and within that
 element we're looking for the third `<li>` element. We grab its text, but we're only interested in the number of runs. So we parse the number out
 using a regular expression, but its type is still a `string`, so we finally convert the result to a `number` by wrapping it with a `Number()` call.
 
@@ -223,9 +223,9 @@ const description = await page.$eval(
     (el => el.textContent)
 );
 
-const modifiedTimestamp = await page.$$eval(
-    'time',
-    (els) => els[1].getAttribute('datetime')
+const modifiedTimestamp = await page.$eval(
+    'ul.ActorHeader-stats time',
+    (el) => el.getAttribute('datetime')
 );
 const modifiedDate = new Date(Number(modifiedTimestamp));
 
@@ -276,9 +276,9 @@ async function pageFunction(context) {
             'header span.actor-description',
             (el => el.textContent)
         );
-        const modifiedTimestampP = page.$$eval(
-            'time',
-            (els) => els[1].getAttribute('datetime')
+        const modifiedTimestampP = page.$eval(
+            'ul.ActorHeader-stats time',
+            (el) => el.getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
@@ -507,9 +507,9 @@ async function pageFunction(context) {
             'header span.actor-description',
             (el => el.textContent)
         );
-        const modifiedTimestampP = page.$$eval(
-            'time',
-            (els) => els[1].getAttribute('datetime')
+        const modifiedTimestampP = page.$eval(
+            'ul.ActorHeader-stats time',
+            (el) => el.getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
@@ -628,9 +628,9 @@ async function pageFunction(context) {
             'header span.actor-description',
             (el => el.textContent)
         );
-        const modifiedTimestampP = page.$$eval(
-            'time',
-            (els) => els[1].getAttribute('datetime')
+        const modifiedTimestampP = page.$eval(
+            'ul.ActorHeader-stats time',
+            (el) => el.getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
