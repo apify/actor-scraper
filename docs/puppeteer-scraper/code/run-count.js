@@ -7,9 +7,9 @@ const description = await page.$eval(
     (el => el.textContent)
 );
 
-const modifiedTimestamp = await page.$$eval(
-    'time',
-    (els) => els[1].getAttribute('datetime')
+const modifiedTimestamp = await page.$eval(
+    'ul.ActorHeader-stats time',
+    (el) => el.getAttribute('datetime')
 );
 const modifiedDate = new Date(Number(modifiedTimestamp));
 

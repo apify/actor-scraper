@@ -51,9 +51,9 @@ async function pageFunction(context) {
             'header span.actor-description',
             (el => el.textContent)
         );
-        const modifiedTimestampP = page.$$eval(
-            'time',
-            (els) => els[1].getAttribute('datetime')
+        const modifiedTimestampP = page.$eval(
+            'ul.ActorHeader-stats time',
+            (el) => el.getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
