@@ -50,7 +50,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    2. **Unique identifier** - Such as `apify/web-scraper`.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
-   5. **Last run date**- When the actor was last run.
+   5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
 ![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
@@ -94,8 +94,7 @@ is automatically passed back to the Node.js context, so we receive an actual `st
 
 Getting the actor's description is a little more involved, but still pretty straightforward. We can't just simply search for a `<p>` tag, because
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
-the `<header>` element too, same as the title. Sadly, we're still left with two `<p>` tags. To finally select only the
-description, we choose the `<p>` tag that has a `class` that starts with `Text__Paragraph`.
+the `<header>` element too, same as the title. Moreover, the actual description is nested inside a `<span>` tag with a class `actor-description`.
 
 ![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
 
@@ -105,7 +104,7 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 
@@ -115,11 +114,11 @@ return {
 };
 ```
 
-### [](#last-run-date) Last run date
+### [](#modified-date) Modified date
 
-The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
+The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
+![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
 
 ```js
 const title = await page.$eval(
@@ -127,20 +126,20 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 
-const lastRunTimestamp = await page.$$eval(
+const modifiedTimestamp = await page.$$eval(
     'time',
     (els) => els[1].getAttribute('datetime')
 );
-const lastRunDate = new Date(Number(lastRunTimestamp));
+const modifiedDate = new Date(Number(modifiedTimestamp));
 
 return {
     title,
     description,
-    lastRunDate,
+    modifiedDate,
 };
 ```
 Similarly to `page.$eval`, the [`page.$$eval`](https://pptr.dev/#?product=Puppeteer&show=api-elementhandleevalselector-pagefunction-args)
@@ -167,33 +166,38 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 
-const lastRunTimestamp = await page.$$eval(
+const modifiedTimestamp = await page.$$eval(
     'time',
     (els) => els[1].getAttribute('datetime')
 );
-const lastRunDate = new Date(Number(lastRunTimestamp));
+const modifiedDate = new Date(Number(modifiedTimestamp));
 
 const runCountText = await page.$eval(
-    'ul.stats li:nth-of-type(3)',
+    'ul.ActorHeader-stats > li:nth-of-type(3)',
     (el => el.textContent)
 );
-const runCount = Number(runCountText.match(/\d+/)[0]);
+const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
 return {
     title,
     description,
-    lastRunDate,
+    modifiedDate,
     runCount,
 };
 ```
 
-The `ul.stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="stats ...">` element and within that
+The `ul.ActorHeader-stats > li:nth-of-type(3)` looks complicated, but it only reads that we're looking for a `<ul class="stats ...">` element and within that
 element we're looking for the third `<li>` element. We grab its text, but we're only interested in the number of runs. So we parse the number out
 using a regular expression, but its type is still a `string`, so we finally convert the result to a `number` by wrapping it with a `Number()` call.
+
+> The numbers are formatted with commas as thousands separators (e.g. `'1,234,567'`), so to extract it, we
+> first use regular expression `/[\d,]+/` - it will search for consecutive number or comma characters.
+> Then we extract the match via `.match(/[\d,]+/)[0]` and finally remove the commas by calling `.replace(',', '')`.
+> This will give us a string (e.g. `'1234567'`) that can be converted via `Number` function.
 
 ### [](#wrapping-it-up) Wrapping it up
 
@@ -215,28 +219,28 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 
-const lastRunTimestamp = await page.$$eval(
+const modifiedTimestamp = await page.$$eval(
     'time',
     (els) => els[1].getAttribute('datetime')
 );
-const lastRunDate = new Date(Number(lastRunTimestamp));
+const modifiedDate = new Date(Number(modifiedTimestamp));
 
 const runCountText = await page.$eval(
-    'ul.stats li:nth-of-type(3)',
+    'ul.ActorHeader-stats > li:nth-of-type(3)',
     (el => el.textContent)
 );
-const runCount = Number(runCountText.match(/\d+/)[0]);
+const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
 return {
     url,
     uniqueIdentifier,
     title,
     description,
-    lastRunDate,
+    modifiedDate,
     runCount,
 };
 ```
@@ -269,39 +273,39 @@ async function pageFunction(context) {
             (el => el.textContent)
         );
         const descriptionP = page.$eval(
-            'header p[class^=Text__Paragraph]',
+            'header span.actor-description',
             (el => el.textContent)
         );
-        const lastRunTimestampP = page.$$eval(
+        const modifiedTimestampP = page.$$eval(
             'time',
             (els) => els[1].getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
-            'ul.stats li:nth-of-type(3)',
+            'ul.ActorHeader-stats > li:nth-of-type(3)',
             (el => el.textContent)
         );
 
         const [
             title,
             description,
-            lastRunTimestamp,
+            modifiedTimestamp,
             runCountText
         ] = await Promise.all([
             titleP,
             descriptionP,
-            lastRunTimestampP,
+            modifiedTimestampP,
             runCountTextP
         ]);
 
-        const lastRunDate = new Date(Number(lastRunTimestamp));
-        const runCount = Number(runCountText.match(/\d+/)[0]);
+        const modifiedDate = new Date(Number(modifiedTimestamp));
+        const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
         return {
             url,
             uniqueIdentifier,
             title,
             description,
-            lastRunDate,
+            modifiedDate,
             runCount,
         };
     }
@@ -500,39 +504,39 @@ async function pageFunction(context) {
             (el => el.textContent)
         );
         const descriptionP = page.$eval(
-            'header p[class^=Text__Paragraph]',
+            'header span.actor-description',
             (el => el.textContent)
         );
-        const lastRunTimestampP = page.$$eval(
+        const modifiedTimestampP = page.$$eval(
             'time',
             (els) => els[1].getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
-            'ul.stats li:nth-of-type(3)',
+            'ul.ActorHeader-stats > li:nth-of-type(3)',
             (el => el.textContent)
         );
 
         const [
             title,
             description,
-            lastRunTimestamp,
+            modifiedTimestamp,
             runCountText
         ] = await Promise.all([
             titleP,
             descriptionP,
-            lastRunTimestampP,
+            modifiedTimestampP,
             runCountTextP
         ]);
 
-        const lastRunDate = new Date(Number(lastRunTimestamp));
-        const runCount = Number(runCountText.match(/\d+/)[0]);
+        const modifiedDate = new Date(Number(modifiedTimestamp));
+        const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
         return {
             url,
             uniqueIdentifier,
             title,
             description,
-            lastRunDate,
+            modifiedDate,
             runCount,
         };
     }
@@ -621,39 +625,39 @@ async function pageFunction(context) {
             (el => el.textContent)
         );
         const descriptionP = page.$eval(
-            'header p[class^=Text__Paragraph]',
+            'header span.actor-description',
             (el => el.textContent)
         );
-        const lastRunTimestampP = page.$$eval(
+        const modifiedTimestampP = page.$$eval(
             'time',
             (els) => els[1].getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
-            'ul.stats li:nth-of-type(3)',
+            'ul.ActorHeader-stats > li:nth-of-type(3)',
             (el => el.textContent)
         );
 
         const [
             title,
             description,
-            lastRunTimestamp,
+            modifiedTimestamp,
             runCountText
         ] = await Promise.all([
             titleP,
             descriptionP,
-            lastRunTimestampP,
+            modifiedTimestampP,
             runCountTextP
         ]);
 
-        const lastRunDate = new Date(Number(lastRunTimestamp));
-        const runCount = Number(runCountText.match(/\d+/)[0]);
+        const modifiedDate = new Date(Number(modifiedTimestamp));
+        const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
         return {
             url,
             uniqueIdentifier,
             title,
             description,
-            lastRunDate,
+            modifiedDate,
             runCount,
         };
     }
@@ -752,18 +756,17 @@ async function pageFunction(context) {
         const results = await page.evaluate(() => {
             return {
                 title: $('header h1').text(),
-                description: $('header p[class^=Text__Paragraph]').text(),
-                lastRunDate: new Date(
+                description: $('header span.actor-description').text(),
+                modifiedDate: new Date(
                     Number(
-                        $('time')
-                            .eq(1)
-                            .attr('datetime'),
+                        $('ul.ActorHeader-stats time').attr('datetime'),
                     ),
                 ).toISOString(),
                 runCount: Number(
-                    $('ul.stats li:nth-of-type(3)')
+                    $('ul.ActorHeader-stats > li:nth-of-type(3)')
                         .text()
-                        .match(/\d+/)[0],
+                        .match(/[\d,]+/)[0]
+                        .replace(',', ''),
                 ),
             };
         });

@@ -3,25 +3,25 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 
-const lastRunTimestamp = await page.$$eval(
+const modifiedTimestamp = await page.$$eval(
     'time',
     (els) => els[1].getAttribute('datetime')
 );
-const lastRunDate = new Date(Number(lastRunTimestamp));
+const modifiedDate = new Date(Number(modifiedTimestamp));
 
 const runCountText = await page.$eval(
-    'ul.stats li:nth-of-type(3)',
+    'ul.ActorHeader-stats > li:nth-of-type(3)',
     (el => el.textContent)
 );
-const runCount = Number(runCountText.match(/\d+/)[0]);
+const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
 return {
     title,
     description,
-    lastRunDate,
+    modifiedDate,
     runCount,
 };
