@@ -174,7 +174,7 @@ for more information.
 
 #### AutoscaledPool
 A reference to the running instance of the `AutoscaledPool` class. See
-<a href="https://sdk.apify.com/docs/api/autoscaledpool" target="_blank">Apify SDK docs</a>
+<a href="https://sdk.apify.com/docs/api/autoscaled-pool" target="_blank">Apify SDK docs</a>
 for more information.
 
 #### Global Store

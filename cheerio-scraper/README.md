@@ -254,7 +254,7 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
 
 - ##### **`autoscaledPool: Object`**
 
-  A reference to the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaledpool) object from the Apify SDK,
+  A reference to the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaled-pool) object from the Apify SDK,
   which is used by Cheerio Scraper to manage the parallel crawling of the web pages.
   The pool only starts new tasks if there is enough free CPU and memory available and the JavaScript event
   loop is not blocked.
