@@ -6,7 +6,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    2. **Unique identifier** - Such as `apify/web-scraper`.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
-   5. **Last run date**- When the actor was last run.
+   5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
 ![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")

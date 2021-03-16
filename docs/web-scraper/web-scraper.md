@@ -8,7 +8,7 @@
 
 {{> description}}
 
-{{> last-run-date}}
+{{> modified-date}}
 
 {{> run-count}}
 

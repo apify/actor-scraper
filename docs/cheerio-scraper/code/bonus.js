@@ -38,18 +38,17 @@ async function pageFunction(context) {
             url,
             uniqueIdentifier,
             title: $('header h1').text(),
-            description: $('header p[class^=Text__Paragraph]').text(),
-            lastRunDate: new Date(
+            description: $('header span.actor-description').text(),
+            modifiedDate: new Date(
                 Number(
-                    $('time')
-                        .eq(1)
-                        .attr('datetime'),
+                    $('ul.ActorHeader-stats time').attr('datetime'),
                 ),
             ),
             runCount: Number(
-                $('ul.stats li:nth-of-type(3)')
+                $('ul.ActorHeader-stats > li:nth-of-type(3)')
                     .text()
-                    .match(/\d+/)[0],
+                    .match(/[\d,]+/)[0]
+                    .replace(',', ''),
             ),
         };
     }

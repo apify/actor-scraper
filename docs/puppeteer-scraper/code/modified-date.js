@@ -13,15 +13,8 @@ const modifiedTimestamp = await page.$eval(
 );
 const modifiedDate = new Date(Number(modifiedTimestamp));
 
-const runCountText = await page.$eval(
-    'ul.ActorHeader-stats > li:nth-of-type(3)',
-    (el => el.textContent)
-);
-const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
-
 return {
     title,
     description,
     modifiedDate,
-    runCount,
 };

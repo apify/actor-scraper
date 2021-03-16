@@ -3,7 +3,7 @@ const title = await page.$eval(
     (el => el.textContent)
 );
 const description = await page.$eval(
-    'header p[class^=Text__Paragraph]',
+    'header span.actor-description',
     (el => el.textContent)
 );
 

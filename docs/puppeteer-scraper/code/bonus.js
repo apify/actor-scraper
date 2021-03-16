@@ -48,39 +48,39 @@ async function pageFunction(context) {
             (el => el.textContent)
         );
         const descriptionP = page.$eval(
-            'header p[class^=Text__Paragraph]',
+            'header span.actor-description',
             (el => el.textContent)
         );
-        const lastRunTimestampP = page.$$eval(
-            'time',
-            (els) => els[1].getAttribute('datetime')
+        const modifiedTimestampP = page.$eval(
+            'ul.ActorHeader-stats time',
+            (el) => el.getAttribute('datetime')
         );
         const runCountTextP = page.$eval(
-            'ul.stats li:nth-of-type(3)',
+            'ul.ActorHeader-stats > li:nth-of-type(3)',
             (el => el.textContent)
         );
 
         const [
             title,
             description,
-            lastRunTimestamp,
+            modifiedTimestamp,
             runCountText
         ] = await Promise.all([
             titleP,
             descriptionP,
-            lastRunTimestampP,
+            modifiedTimestampP,
             runCountTextP
         ]);
 
-        const lastRunDate = new Date(Number(lastRunTimestamp));
-        const runCount = Number(runCountText.match(/\d+/)[0]);
+        const modifiedDate = new Date(Number(modifiedTimestamp));
+        const runCount = Number(runCountText.match(/[\d,]+/)[0].replace(',', ''));
 
         return {
             url,
             uniqueIdentifier,
             title,
             description,
-            lastRunDate,
+            modifiedDate,
             runCount,
         };
     }

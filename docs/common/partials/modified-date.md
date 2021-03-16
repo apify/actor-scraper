@@ -1,11 +1,11 @@
-### [](#last-run-date) Last run date
+### [](#modified-date) Modified date
 
-The DevTools tell us that the `lastRunDate` can be found in the second of the two `<time>` elements in the page.
+The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor last run date selector](../img/last-run-date.jpg "Finding actor last run date in DevTools.")
+![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
 
-{{#code}}last-run-date.js{{/code}}
-{{> note-last-run-date}}
+{{#code}}modified-date.js{{/code}}
+{{> note-modified-date}}
 
 It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
 second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
