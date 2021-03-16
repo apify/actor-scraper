@@ -10,6 +10,6 @@ return {
         $('ul.ActorHeader-stats > li:nth-of-type(3)')
             .text()
             .match(/[\d,]+/)[0]
-            .replace(',', ''),
+            .replace(/,/g, ''),
     ),
 };
