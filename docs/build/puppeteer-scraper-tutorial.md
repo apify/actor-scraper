@@ -196,7 +196,10 @@ using a regular expression, but its type is still a `string`, so we finally conv
 
 > The numbers are formatted with commas as thousands separators (e.g. `'1,234,567'`), so to extract it, we
 > first use regular expression `/[\d,]+/` - it will search for consecutive number or comma characters.
-> Then we extract the match via `.match(/[\d,]+/)[0]` and finally remove the commas by calling `.replace(',', '')`.
+> Then we extract the match via `.match(/[\d,]+/)[0]` and finally remove all the commas by calling `.replace(/,/g, '')`.
+> We need to use `/,/g` with the global modifier to support large numbers with multiple separators, without it
+> we would replace only the very first occurrence.
+> 
 > This will give us a string (e.g. `'1234567'`) that can be converted via `Number` function.
 
 ### [](#wrapping-it-up) Wrapping it up
@@ -766,7 +769,7 @@ async function pageFunction(context) {
                     $('ul.ActorHeader-stats > li:nth-of-type(3)')
                         .text()
                         .match(/[\d,]+/)[0]
-                        .replace(',', ''),
+                        .replace(/,/g, ''),
                 ),
             };
         });
