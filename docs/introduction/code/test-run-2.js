@@ -18,6 +18,6 @@ async function pageFunction(context) {
         return {
             url,
             uniqueIdentifier,
-        }
+        };
     }
 }

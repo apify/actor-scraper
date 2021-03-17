@@ -29,7 +29,7 @@ async function pageFunction(context) {
             log,
             skipLinks,
             page,
-            Apify
+            Apify,
         } = context;
 
         // Inject jQuery

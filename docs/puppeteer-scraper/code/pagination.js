@@ -36,31 +36,31 @@ async function pageFunction(context) {
         // Get attributes in parallel to speed up the process.
         const titleP = page.$eval(
             'header h1',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const descriptionP = page.$eval(
             'header span.actor-description',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const modifiedTimestampP = page.$eval(
             'ul.ActorHeader-stats time',
-            (el) => el.getAttribute('datetime')
+            (el) => el.getAttribute('datetime'),
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
 
         const [
             title,
             description,
             modifiedTimestamp,
-            runCountText
+            runCountText,
         ] = await Promise.all([
             titleP,
             descriptionP,
             modifiedTimestampP,
-            runCountTextP
+            runCountTextP,
         ]);
 
         const modifiedDate = new Date(Number(modifiedTimestamp));
