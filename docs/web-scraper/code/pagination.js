@@ -3,7 +3,7 @@ async function pageFunction(context) {
         log,
         skipLinks,
         jQuery: $,
-        waitFor
+        waitFor,
     } = context;
 
     if (request.userData.label === 'START') {
@@ -26,7 +26,6 @@ async function pageFunction(context) {
             log.info('Clicking the "Show more" button.');
             $(buttonSelector).click();
         }
-
     }
     if (request.userData.label === 'DETAIL') {
         const { url } = request;

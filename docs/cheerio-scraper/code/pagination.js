@@ -14,7 +14,7 @@ async function pageFunction(context) {
                 url: actorDetailUrl,
                 userData: {
                     label: 'DETAIL',
-                }
+                },
             });
         }
     }

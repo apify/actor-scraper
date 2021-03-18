@@ -30,9 +30,8 @@ async function pageFunction(context) {
         request,
         log,
         skipLinks,
-        jQuery: $
+        jQuery: $,
     }) {
-
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();
