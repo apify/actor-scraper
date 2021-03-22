@@ -13,3 +13,5 @@ RUN npm --quiet set progress=false \
  && npm --version
 
 COPY . ./
+
+ENV APIFY_DISABLE_OUTDATED_WARNING 1
