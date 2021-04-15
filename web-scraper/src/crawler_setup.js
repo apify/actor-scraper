@@ -197,29 +197,31 @@ class CrawlerSetup {
             maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            launchPuppeteerFunction: async (launchOpts) => {
-                const browser = await Apify.launchPuppeteer(launchOpts);
-                if (this.isDevRun) {
-                    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
-                    const devToolsServer = new DevToolsServer({
-                        containerHost,
-                        devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
-                        chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
-                    });
-                    await devToolsServer.start();
-                }
-                return browser;
-            },
             proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
-            puppeteerPoolOptions: {
-                recycleDiskCache: true,
+            browserPoolOptions: {
+                preLaunchHooks: [
+                    async () => {
+                        if (!this.isDevRun) {
+                            return;
+                        }
+
+                        const devToolsServer = new DevToolsServer({
+                            containerHost: new URL(process.env.APIFY_CONTAINER_URL).host,
+                            devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
+                            chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+                        });
+                        await devToolsServer.start();
+                    },
+                ],
             },
-            launchPuppeteerOptions: {
-                ignoreHTTPSErrors: this.input.ignoreSslErrors,
-                defaultViewport: DEFAULT_VIEWPORT,
+            launchContext: {
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
-                args,
+                launchOptions: {
+                    ignoreHTTPSErrors: this.input.ignoreSslErrors,
+                    defaultViewport: DEFAULT_VIEWPORT,
+                    args,
+                },
             },
             useSessionPool: !this.isDevRun,
             persistCookiesPerSession: !this.isDevRun,
@@ -236,7 +238,7 @@ class CrawlerSetup {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
         if (this.isDevRun) {
-            options.puppeteerPoolOptions.retireInstanceAfterRequestCount = Infinity;
+            options.browserPoolOptions.retireInstanceAfterRequestCount = Infinity;
         }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
@@ -340,7 +342,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, crawler }) {
         const start = process.hrtime();
 
         const pageContext = this.pageContexts.get(page);
@@ -353,7 +355,7 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
         // Setup Context and pass the configuration down to Browser.

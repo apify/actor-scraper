@@ -179,19 +179,16 @@ class CrawlerSetup {
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            // launchPuppeteerFunction: use default,
             proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
-            puppeteerPoolOptions: {
-                useLiveView: true,
-                recycleDiskCache: true,
-            },
-            launchPuppeteerOptions: {
-                ignoreHTTPSErrors: this.input.ignoreSslErrors,
-                defaultViewport: DEFAULT_VIEWPORT,
-                devtools: this.devtools,
+            launchContext: {
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
-                args,
+                launchOptions: {
+                    ignoreHTTPSErrors: this.input.ignoreSslErrors,
+                    defaultViewport: DEFAULT_VIEWPORT,
+                    devtools: this.devtools,
+                    args,
+                },
             },
             useSessionPool: true,
             persistCookiesPerSession: true,
@@ -273,7 +270,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
+    async _handlePageFunction({ request, response, page, crawler }) {
         /**
          * PRE-PROCESSING
          */
@@ -282,7 +279,7 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
         // Setup and create Context.
@@ -297,8 +294,8 @@ class CrawlerSetup {
             },
             pageFunctionArguments: {
                 page,
-                autoscaledPool,
-                puppeteerPool,
+                autoscaledPool: crawler.autoscaledPool,
+                puppeteerPool: crawler.browserPool,
                 request,
                 response: {
                     status: response && response.status(),

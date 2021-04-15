@@ -247,7 +247,7 @@ class CrawlerSetup {
      * @param {Object} environment
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
+    async _handlePageFunction({ request, response, $, body, json, contentType, crawler }) {
         /**
          * PRE-PROCESSING
          */
@@ -277,7 +277,7 @@ class CrawlerSetup {
                 },
                 body,
                 json,
-                autoscaledPool,
+                autoscaledPool: crawler.autoscaledPool,
                 request,
                 contentType,
                 response: {

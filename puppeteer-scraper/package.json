@@ -5,11 +5,12 @@
   "main": "src/main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.1.13",
-    "apify": "0.21.9"
+    "apify": "1.1.2"
   },
   "devDependencies": {
-    "@types/puppeteer": "^3.0.0",
-    "markdown-toc": "^1.2.0"
+    "@types/puppeteer": "^5.4.3",
+    "markdown-toc": "^1.2.0",
+    "puppeteer": "^8.0.0"
   },
   "scripts": {
     "start": "node main.js",
