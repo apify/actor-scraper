@@ -1,6 +1,6 @@
 {
   "title": "Puppeteer Scraper Input",
-  "description": "Use the following form to configure Puppeteer Scraper. The Start URLs and Page function are required and all other fields are optional. If you want to use Pseudo URLs, you also need to Use request queue. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab.",
+  "description": "Use the following form to configure Puppeteer Scraper. The Start URLs and Page function are required and all other fields are optional. To learn more about the different options, click on their title or on the nearby question marks. For details about the Page function visit the actor's README in the ACTOR INFO tab.",
   "type": "object",
   "schemaVersion": 1,
   "properties": {

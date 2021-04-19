@@ -35,7 +35,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @typedef {Object} Input
  * @property {string} runMode
  * @property {Object[]} startUrls
- * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
@@ -96,11 +95,6 @@ class CrawlerSetup {
         this.env = Apify.getEnv();
 
         // Validations
-        if (this.input.pseudoUrls.length && this.input.useRequestQueue === false) {
-            throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
-                + 'Either enable the "Use request queue" option or '
-                + 'remove your Pseudo-URLs.');
-        }
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
@@ -159,12 +153,7 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('WEB_SCRAPER', startUrls);
 
         // RequestQueue
-        if (this.input.useRequestQueue === false) {
-            log.warning('Option useRequestQueue is deprecated. '
-                + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
-        } else {
-            this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
-        }
+        this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);
@@ -364,7 +353,6 @@ class CrawlerSetup {
                 rawInput: this.rawInput,
                 env: this.env,
                 customData: this.input.customData,
-                useRequestQueue: this.input.useRequestQueue !== false,
                 injectJQuery: this.input.injectJQuery,
                 injectUnderscore: this.input.injectUnderscore,
                 META_KEY,
