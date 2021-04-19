@@ -227,7 +227,7 @@ class CrawlerSetup {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
         if (this.isDevRun) {
-            options.browserPoolOptions.retireInstanceAfterRequestCount = Infinity;
+            options.browserPoolOptions.retireBrowserAfterPageCount = Infinity;
         }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
