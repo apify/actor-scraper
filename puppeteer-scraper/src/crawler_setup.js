@@ -241,13 +241,12 @@ class CrawlerSetup {
             }
         });
 
-        // TODO do we need to pass the timeout & waitUntil somehow/somewhere?
-        //   timeout is probably handled already, but `waitUntil` looks to be unused and supported
-        // Invoke navigation.
-        // return puppeteer.gotoExtended(page, request, {
-        //     timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-        //     waitUntil: this.input.waitUntil,
-        // });
+        options.postNavigationHooks.push(async (page) => {
+            await page.waitForNavigation({
+                timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+                waitUntil: this.input.waitUntil,
+            });
+        });
     }
 
     _handleFailedRequestFunction({ request }) {

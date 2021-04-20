@@ -303,14 +303,12 @@ class CrawlerSetup {
             pageContext.timers.navStart = process.hrtime();
         });
 
-        // TODO do we need to pass the timeout & waitUntil somehow/somewhere?
-        // Invoke navigation.
-        // const response = await puppeteer.gotoExtended(page, request, {
-        //     timeout: this.input.pageLoadTimeoutSecs * 1000,
-        //     waitUntil: this.input.waitUntil,
-        // });
-
         options.postNavigationHooks.push(async ({ request, page, response }) => {
+            await page.waitForNavigation({
+                timeout: this.input.pageLoadTimeoutSecs * 1000,
+                waitUntil: this.input.waitUntil,
+            });
+
             await this._waitForLoadEventWhenXml(page, response);
             const pageContext = this.pageContexts.get(page);
             tools.logPerformance(request, 'gotoFunction NAVIGATION', pageContext.timers.navStart);
