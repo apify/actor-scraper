@@ -4,7 +4,7 @@
   "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "@apify/scraper-tools": "^0.1.13",
+    "@apify/scraper-tools": "^0.1.14-dev.0",
     "apify": "1.1.2",
     "content-type": "^1.0.4",
     "devtools-server": "^0.0.2"

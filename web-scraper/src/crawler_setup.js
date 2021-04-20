@@ -5,8 +5,7 @@ const {
     tools,
     browserTools,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
-} = require('../../scraper-tools');
-// } = require('@apify/scraper-tools'); // FIXME
+} = require('@apify/scraper-tools');
 const DevToolsServer = require('devtools-server');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
