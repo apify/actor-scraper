@@ -5,7 +5,8 @@ const {
     tools,
     browserTools,
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, PROXY_ROTATION_NAMES, SESSION_MAX_USAGE_COUNTS },
-} = require('@apify/scraper-tools');
+} = require('../../scraper-tools');
+// } = require('@apify/scraper-tools'); // FIXME
 const DevToolsServer = require('devtools-server');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
@@ -181,7 +182,8 @@ class CrawlerSetup {
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
-            gotoFunction: this._gotoFunction.bind(this),
+            preNavigationHooks: [],
+            postNavigationHooks: [],
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
@@ -223,6 +225,8 @@ class CrawlerSetup {
             },
         };
 
+        this._createNavigationHooks(options);
+
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
@@ -236,80 +240,92 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
-        const start = process.hrtime();
+    /**
+     * @private
+     */
+    _createNavigationHooks(options) {
+        options.preNavigationHooks.push(async ({ request, page, session }) => {
+            const start = process.hrtime();
 
-        // Create a new page context with a new random key for Apify namespace.
-        const pageContext = {
-            apifyNamespace: await tools.createRandomHash(),
-            skipLinks: false,
-        };
-        this.pageContexts.set(page, pageContext);
+            // Create a new page context with a new random key for Apify namespace.
+            const pageContext = {
+                apifyNamespace: await tools.createRandomHash(),
+                skipLinks: false,
+                timers: { start },
+            };
+            this.pageContexts.set(page, pageContext);
 
-        // Attach a console listener to get all logs as soon as possible.
-        if (this.input.browserLog) browserTools.dumpConsole(page);
+            // Attach a console listener to get all logs as soon as possible.
+            if (this.input.browserLog) browserTools.dumpConsole(page);
 
-        // Prevent download of stylesheets and media, unless selected otherwise
-        if (this.blockedUrlPatterns.length) {
-            await puppeteer.blockRequests(page, {
-                urlPatterns: this.blockedUrlPatterns,
-            });
-        }
-
-        // Add initial cookies, if any.
-        if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = session
-                ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
-                : this.input.initialCookies;
-            if (cookiesToSet && cookiesToSet.length) {
-                // setting initial cookies that are not already in the session and page
-                // eslint-disable-next-line max-len
-                if (session) session.setPuppeteerCookies(cookiesToSet, request.url); // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
-                await page.setCookie(...cookiesToSet);
+            // Prevent download of stylesheets and media, unless selected otherwise
+            if (this.blockedUrlPatterns.length) {
+                await puppeteer.blockRequests(page, {
+                    urlPatterns: this.blockedUrlPatterns,
+                });
             }
-        }
 
-        // Disable content security policy.
-        if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
-
-        tools.logPerformance(request, 'gotoFunction INIT', start);
-        const handleStart = process.hrtime();
-        pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
-        tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
-
-        const evalStart = process.hrtime();
-        await Promise.all([
-            page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
-            page.evaluateOnNewDocument(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace)),
-        ]);
-        tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
-
-        if (this.isDevRun) {
-            const cdpClient = await page.target().createCDPSession();
-            await cdpClient.send('Debugger.enable');
-            if (this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
-                await cdpClient.send('Debugger.pause');
+            // Add initial cookies, if any.
+            if (this.input.initialCookies && this.input.initialCookies.length) {
+                const cookiesToSet = session
+                    ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
+                    : this.input.initialCookies;
+                if (cookiesToSet && cookiesToSet.length) {
+                    // setting initial cookies that are not already in the session and page
+                    // eslint-disable-next-line max-len
+                    // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
+                    if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
+                    await page.setCookie(...cookiesToSet);
+                }
             }
-        }
-        // Invoke navigation.
-        const navStart = process.hrtime();
-        const response = await puppeteer.gotoExtended(page, request, {
-            timeout: this.input.pageLoadTimeoutSecs * 1000,
-            waitUntil: this.input.waitUntil,
+
+            // Disable content security policy.
+            if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+
+            tools.logPerformance(request, 'gotoFunction INIT', start);
+            const handleStart = process.hrtime();
+            pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
+            tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
+
+            const evalStart = process.hrtime();
+            await Promise.all([
+                page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
+                page.evaluateOnNewDocument(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace)),
+            ]);
+            tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
+
+            if (this.isDevRun) {
+                const cdpClient = await page.target().createCDPSession();
+                await cdpClient.send('Debugger.enable');
+                if (this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
+                    await cdpClient.send('Debugger.pause');
+                }
+            }
+
+            pageContext.timers.navStart = process.hrtime();
         });
-        await this._waitForLoadEventWhenXml(page, response);
-        tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
 
-        const delayStart = process.hrtime();
-        await this._assertNamespace(page, pageContext.apifyNamespace);
+        // Invoke navigation.
+        // const response = await puppeteer.gotoExtended(page, request, {
+        //     timeout: this.input.pageLoadTimeoutSecs * 1000,
+        //     waitUntil: this.input.waitUntil,
+        // });
 
-        // Inject selected libraries
-        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
-        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+        options.postNavigationHooks.push(async ({ request, page, response }) => {
+            await this._waitForLoadEventWhenXml(page, response);
+            const pageContext = this.pageContexts.get(page);
+            tools.logPerformance(request, 'gotoFunction NAVIGATION', pageContext.timers.navStart);
 
-        tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
-        tools.logPerformance(request, 'gotoFunction EXECUTION', start);
-        return response;
+            const delayStart = process.hrtime();
+            await this._assertNamespace(page, pageContext.apifyNamespace);
+
+            // Inject selected libraries
+            if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
+            if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+
+            tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
+            tools.logPerformance(request, 'gotoFunction EXECUTION', pageContext.timers.start);
+        });
     }
 
     _handleFailedRequestFunction({ request }) {
@@ -541,6 +557,7 @@ class CrawlerSetup {
             page,
             this.globalStore,
             ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
+            ['size'],
         );
         const logP = browserTools.createBrowserHandlesForObject(
             page,
