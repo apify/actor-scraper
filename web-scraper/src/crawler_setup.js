@@ -271,7 +271,6 @@ class CrawlerSetup {
                     : this.input.initialCookies;
                 if (cookiesToSet && cookiesToSet.length) {
                     // setting initial cookies that are not already in the session and page
-                    // eslint-disable-next-line max-len
                     // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
                     if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
                     await page.setCookie(...cookiesToSet);
@@ -304,6 +303,7 @@ class CrawlerSetup {
             pageContext.timers.navStart = process.hrtime();
         });
 
+        // TODO do we need to pass the timeout & waitUntil somehow/somewhere?
         // Invoke navigation.
         // const response = await puppeteer.gotoExtended(page, request, {
         //     timeout: this.input.pageLoadTimeoutSecs * 1000,
