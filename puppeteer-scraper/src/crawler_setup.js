@@ -206,7 +206,7 @@ class CrawlerSetup {
      * @private
      */
     _createNavigationHooks(options) {
-        options.preNavigationHooks.push(async ({ request, page, session }) => {
+        options.preNavigationHooks.push(async ({ request, page, session }, gotoOptions) => {
             // Attach a console listener to get all logs from Browser context.
             if (this.input.browserLog) browserTools.dumpConsole(page);
 
@@ -239,13 +239,9 @@ class CrawlerSetup {
                     throw err;
                 }
             }
-        });
 
-        options.postNavigationHooks.push(async (page) => {
-            await page.waitForNavigation({
-                timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-                waitUntil: this.input.waitUntil,
-            });
+            gotoOptions.timeout = (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000;
+            gotoOptions.waitUntil = this.input.waitUntil;
         });
     }
 

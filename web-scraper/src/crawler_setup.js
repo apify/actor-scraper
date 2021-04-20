@@ -243,7 +243,7 @@ class CrawlerSetup {
      * @private
      */
     _createNavigationHooks(options) {
-        options.preNavigationHooks.push(async ({ request, page, session }) => {
+        options.preNavigationHooks.push(async ({ request, page, session }, gotoOptions) => {
             const start = process.hrtime();
 
             // Create a new page context with a new random key for Apify namespace.
@@ -301,14 +301,11 @@ class CrawlerSetup {
             }
 
             pageContext.timers.navStart = process.hrtime();
+            gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
+            gotoOptions.waitUntil = this.input.waitUntil;
         });
 
         options.postNavigationHooks.push(async ({ request, page, response }) => {
-            await page.waitForNavigation({
-                timeout: this.input.pageLoadTimeoutSecs * 1000,
-                waitUntil: this.input.waitUntil,
-            });
-
             await this._waitForLoadEventWhenXml(page, response);
             const pageContext = this.pageContexts.get(page);
             tools.logPerformance(request, 'gotoFunction NAVIGATION', pageContext.timers.navStart);
