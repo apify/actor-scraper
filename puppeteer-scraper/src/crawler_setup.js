@@ -163,7 +163,8 @@ class CrawlerSetup {
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
-            gotoFunction: this._gotoFunction.bind(this),
+            preNavigationHooks: [],
+            postNavigationHooks: [],
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
@@ -190,6 +191,8 @@ class CrawlerSetup {
             },
         };
 
+        this._createNavigationHooks(options);
+
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
@@ -199,45 +202,52 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
-        // Attach a console listener to get all logs from Browser context.
-        if (this.input.browserLog) browserTools.dumpConsole(page);
+    /**
+     * @private
+     */
+    _createNavigationHooks(options) {
+        options.preNavigationHooks.push(async ({ request, page, session }) => {
+            // Attach a console listener to get all logs from Browser context.
+            if (this.input.browserLog) browserTools.dumpConsole(page);
 
-        // Prevent download of stylesheets and media, unless selected otherwise
-        if (this.blockedUrlPatterns.length) {
-            await puppeteer.blockRequests(page, {
-                urlPatterns: this.blockedUrlPatterns,
-            });
-        }
-
-        // Add initial cookies, if any.
-        if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
-            if (cookiesToSet && cookiesToSet.length) {
-                // setting initial cookies that are not already in the session and page
-                session.setPuppeteerCookies(cookiesToSet, request.url);
-                await page.setCookie(...cookiesToSet);
+            // Prevent download of stylesheets and media, unless selected otherwise
+            if (this.blockedUrlPatterns.length) {
+                await puppeteer.blockRequests(page, {
+                    urlPatterns: this.blockedUrlPatterns,
+                });
             }
-        }
 
-        // Disable content security policy.
-        if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
-
-        // Enable pre-processing before navigation is initiated.
-        if (this.evaledPreGotoFunction) {
-            try {
-                await this.evaledPreGotoFunction({ request, page, Apify });
-            } catch (err) {
-                log.error('User provided Pre goto function failed.');
-                throw err;
+            // Add initial cookies, if any.
+            if (this.input.initialCookies && this.input.initialCookies.length) {
+                const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+                if (cookiesToSet && cookiesToSet.length) {
+                    // setting initial cookies that are not already in the session and page
+                    session.setPuppeteerCookies(cookiesToSet, request.url);
+                    await page.setCookie(...cookiesToSet);
+                }
             }
-        }
 
-        // Invoke navigation.
-        return puppeteer.gotoExtended(page, request, {
-            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-            waitUntil: this.input.waitUntil,
+            // Disable content security policy.
+            if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+
+            // Enable pre-processing before navigation is initiated.
+            if (this.evaledPreGotoFunction) {
+                try {
+                    await this.evaledPreGotoFunction({ request, page, Apify });
+                } catch (err) {
+                    log.error('User provided Pre goto function failed.');
+                    throw err;
+                }
+            }
         });
+
+        // TODO do we need to pass the timeout & waitUntil somehow/somewhere?
+        //   timeout is probably handled already, but `waitUntil` looks to be unused and supported
+        // Invoke navigation.
+        // return puppeteer.gotoExtended(page, request, {
+        //     timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
+        //     waitUntil: this.input.waitUntil,
+        // });
     }
 
     _handleFailedRequestFunction({ request }) {
