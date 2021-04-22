@@ -338,12 +338,12 @@ class CrawlerSetup {
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
-     * @param {Object} environment
-     * @returns {Function}
+     * @param {Object} crawlingContext
+     * @returns {Promise<void>}
      */
-    async _handlePageFunction({ request, response, page, crawler }) {
+    async _handlePageFunction(crawlingContext) {
+        const { request, response, page, crawler, proxyInfo } = crawlingContext;
         const start = process.hrtime();
-
         const pageContext = this.pageContexts.get(page);
 
         /**
@@ -370,6 +370,7 @@ class CrawlerSetup {
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,
+                proxyInfo,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),

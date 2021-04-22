@@ -84,7 +84,7 @@ module.exports = (apifyNamespace) => {
 
                 // Copies of Node objects
                 this.input = JSON.parse(crawlerSetup.rawInput);
-                this.env = { ...(crawlerSetup.env || {}) };
+                this.env = { ...crawlerSetup.env };
                 this.customData = crawlerSetup.customData;
                 this.response = pageFunctionArguments.response;
                 this.request = pageFunctionArguments.request;
