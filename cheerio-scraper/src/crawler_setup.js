@@ -237,7 +237,7 @@ class CrawlerSetup {
      * @returns {Function}
      */
     async _handlePageFunction(crawlingContext) {
-        const { request, response, $, body, contentType, crawler } = crawlingContext;
+        const { request, response, $ } = crawlingContext;
 
         /**
          * PRE-PROCESSING
@@ -261,11 +261,6 @@ class CrawlerSetup {
             },
             pageFunctionArguments: {
                 ...crawlingContext,
-                get html() {
-                    log.deprecated('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
-                    return contentType.type === 'text/html' ? body : null;
-                },
-                autoscaledPool: crawler.autoscaledPool,
                 response: {
                     status: response.statusCode,
                     headers: response.headers,

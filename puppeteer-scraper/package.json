@@ -9,7 +9,6 @@
     "puppeteer": "^8.0.0"
   },
   "devDependencies": {
-    "@types/puppeteer": "^5.4.3",
     "markdown-toc": "^1.2.0"
   },
   "scripts": {

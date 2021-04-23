@@ -289,8 +289,6 @@ class CrawlerSetup {
             },
             pageFunctionArguments: {
                 ...crawlingContext,
-                autoscaledPool: crawler.autoscaledPool,
-                puppeteerPool: crawler.browserPool,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
