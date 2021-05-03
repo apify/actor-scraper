@@ -55,7 +55,7 @@ Since tasks are just configurations for actors, this tab shows you all the infor
 Webhooks are a feature that help keep you aware of what's happening with your tasks. You can set them up to inform you when a task starts, finishes, fails and so on, or you can even use them to run more tasks, depending on the outcome of the original one. You can find the [documentation on webhooks here](https://apify.com/docs/webhooks).
 
 ### RUNS
-You can find all the task runs and their detail pages here. Every time you start a task, it will appear here in the list. All runs of your task including their results will be stored here for the data retention period, [which you can find under your plan](https://apify.com/pricing).
+You can find all the task runs and their detail pages here. Every time you start a task, it will appear here in the list. All runs of your task including their results will be stored here for the duration of your [subscription plan's](https://apify.com/pricing) data retention period.
 
 ### API
 The API tab gives you a quick overview of all the available API calls, if you would like to use your task programmatically. It also includes links to detailed API documentation. You can even try it out immediately using the **TEST** button.
