@@ -241,7 +241,11 @@ class CrawlerSetup {
         const pageFunctionArguments = {};
 
         // We must use properties and descriptors not to trigger getters / setters.
-        Object.defineProperties(pageFunctionArguments, Object.getOwnPropertyDescriptors(crawlingContext));
+        const props = Object.getOwnPropertyDescriptors(crawlingContext);
+        ['json', 'body'].forEach((key) => {
+            props[key].configurable = true;
+        });
+        Object.defineProperties(pageFunctionArguments, props);
 
         pageFunctionArguments.cheerio = cheerio;
         pageFunctionArguments.response = {
