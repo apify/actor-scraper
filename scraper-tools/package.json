@@ -20,7 +20,7 @@
     "markdown-toc": "^1.2.0",
     "mocha": "^8.3.2",
     "nyc": "^14.1.1",
-    "puppeteer": "^8.0.0",
+    "puppeteer": "^9.1.1",
     "sinon": "^7.5.0"
   },
   "scripts": {

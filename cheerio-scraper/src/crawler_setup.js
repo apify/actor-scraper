@@ -238,6 +238,15 @@ class CrawlerSetup {
      */
     async _handlePageFunction(crawlingContext) {
         const { request, response, $ } = crawlingContext;
+        const pageFunctionArguments = {
+            ...crawlingContext,
+            response: {
+                status: response.statusCode,
+                headers: response.headers,
+            },
+            cheerio,
+        };
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
 
         /**
          * PRE-PROCESSING
@@ -259,14 +268,7 @@ class CrawlerSetup {
                 requestQueue: this.requestQueue,
                 customData: this.input.customData,
             },
-            pageFunctionArguments: {
-                ...crawlingContext,
-                response: {
-                    status: response.statusCode,
-                    headers: response.headers,
-                },
-                cheerio,
-            },
+            pageFunctionArguments,
         };
         const { context, state } = createContext(contextOptions);
 
