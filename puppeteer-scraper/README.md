@@ -19,6 +19,7 @@
     + [Apify](#apify)
 - [Output](#output)
   * [Dataset](#dataset)
+- [Upgrading](#upgrading)
 
 <!-- tocstop -->
 
@@ -246,3 +247,8 @@ The result will look like this:
   "title": "Web Scraping, Data Extraction and Automation - Apify"
 }
 ```
+
+## Upgrading
+
+v2 introduced several minor breaking changes, you can read about those in the
+[migration guide](https://github.com/apify/actor-scraper/blob/master/MIGRATIONS.md).

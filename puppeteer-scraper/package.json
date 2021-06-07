@@ -1,6 +1,6 @@
 {
   "name": "actor-puppeteer-scraper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
