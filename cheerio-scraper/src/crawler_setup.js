@@ -238,14 +238,17 @@ class CrawlerSetup {
      */
     async _handlePageFunction(crawlingContext) {
         const { request, response, $ } = crawlingContext;
-        const pageFunctionArguments = {
-            ...crawlingContext,
-            response: {
-                status: response.statusCode,
-                headers: response.headers,
-            },
-            cheerio,
+        const pageFunctionArguments = {};
+
+        // We must use properties and descriptors not to trigger getters / setters.
+        Object.defineProperties(pageFunctionArguments, Object.getOwnPropertyDescriptors(crawlingContext));
+
+        pageFunctionArguments.cheerio = cheerio;
+        pageFunctionArguments.response = {
+            status: response.statusCode,
+            headers: response.headers,
         };
+
         Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
 
         /**

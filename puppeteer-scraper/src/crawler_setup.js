@@ -278,6 +278,16 @@ class CrawlerSetup {
         const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
+        const pageFunctionArguments = {};
+
+        // We must use properties and descriptors not to trigger getters / setters.
+        Object.defineProperties(pageFunctionArguments, Object.getOwnPropertyDescriptors(crawlingContext));
+
+        pageFunctionArguments.response = {
+            status: response && response.status(),
+            headers: response && response.headers(),
+        };
+
         // Setup and create Context.
         const contextOptions = {
             crawlerSetup: {
@@ -287,13 +297,7 @@ class CrawlerSetup {
                 requestQueue: this.requestQueue,
                 customData: this.input.customData,
             },
-            pageFunctionArguments: {
-                ...crawlingContext,
-                response: {
-                    status: response && response.status(),
-                    headers: response && response.headers(),
-                },
-            },
+            pageFunctionArguments,
         };
         const { context, state } = createContext(contextOptions);
 
