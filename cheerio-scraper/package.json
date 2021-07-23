@@ -4,8 +4,8 @@
 	"description": "Crawl web pages using HTTP requests and Cheerio",
 	"main": "src/main.js",
 	"dependencies": {
-		"@apify/scraper-tools": "^0.1.14-dev.0",
-		"apify": "1.3.0-beta.1"
+		"@apify/scraper-tools": "^0.3.1",
+		"apify": "^2.0.0-beta.2"
 	},
 	"devDependencies": {
 		"markdown-toc": "^1.2.0"
