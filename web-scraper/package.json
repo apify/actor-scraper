@@ -1,18 +1,18 @@
 {
   "name": "actor-web-scraper",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
   "main": "src/main.js",
   "dependencies": {
-    "@apify/scraper-tools": "^0.1.13",
-    "apify": "0.21.9",
+    "@apify/scraper-tools": "^0.3.1",
+    "apify": "^2.0.0-beta.2",
     "content-type": "^1.0.4",
-    "devtools-server": "^0.0.2"
+    "devtools-server": "^0.0.2",
+    "puppeteer": "^10.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/puppeteer": "^3.0.0",
-    "jest": "^26.0.1",
+    "@types/jest": "^26.0.22",
+    "jest": "^26.6.3",
     "markdown-toc": "^1.2.0"
   },
   "scripts": {

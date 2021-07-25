@@ -35,7 +35,6 @@ const { utils: { log, puppeteer } } = Apify;
  * @typedef {Object} Input
  * @property {string} runMode
  * @property {Object[]} startUrls
- * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
@@ -96,11 +95,6 @@ class CrawlerSetup {
         this.env = Apify.getEnv();
 
         // Validations
-        if (this.input.pseudoUrls.length && this.input.useRequestQueue === false) {
-            throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
-                + 'Either enable the "Use request queue" option or '
-                + 'remove your Pseudo-URLs.');
-        }
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
@@ -159,12 +153,7 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('WEB_SCRAPER', startUrls);
 
         // RequestQueue
-        if (this.input.useRequestQueue === false) {
-            log.warning('Option useRequestQueue is deprecated. '
-                + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
-        } else {
-            this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
-        }
+        this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);
@@ -192,34 +181,37 @@ class CrawlerSetup {
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
-            gotoFunction: this._gotoFunction.bind(this),
+            preNavigationHooks: [],
+            postNavigationHooks: [],
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            launchPuppeteerFunction: async (launchOpts) => {
-                const browser = await Apify.launchPuppeteer(launchOpts);
-                if (this.isDevRun) {
-                    const containerHost = new URL(process.env.APIFY_CONTAINER_URL).host;
-                    const devToolsServer = new DevToolsServer({
-                        containerHost,
-                        devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
-                        chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
-                    });
-                    await devToolsServer.start();
-                }
-                return browser;
-            },
             proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
-            puppeteerPoolOptions: {
-                recycleDiskCache: true,
+            browserPoolOptions: {
+                preLaunchHooks: [
+                    async () => {
+                        if (!this.isDevRun) {
+                            return;
+                        }
+
+                        const devToolsServer = new DevToolsServer({
+                            containerHost: new URL(process.env.APIFY_CONTAINER_URL).host,
+                            devToolsServerPort: process.env.APIFY_CONTAINER_PORT,
+                            chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+                        });
+                        await devToolsServer.start();
+                    },
+                ],
             },
-            launchPuppeteerOptions: {
-                ignoreHTTPSErrors: this.input.ignoreSslErrors,
-                defaultViewport: DEFAULT_VIEWPORT,
+            launchContext: {
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
-                args,
+                launchOptions: {
+                    ignoreHTTPSErrors: this.input.ignoreSslErrors,
+                    defaultViewport: DEFAULT_VIEWPORT,
+                    args,
+                },
             },
             useSessionPool: !this.isDevRun,
             persistCookiesPerSession: !this.isDevRun,
@@ -232,11 +224,13 @@ class CrawlerSetup {
             },
         };
 
+        this._createNavigationHooks(options);
+
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
         if (this.isDevRun) {
-            options.puppeteerPoolOptions.retireInstanceAfterRequestCount = Infinity;
+            options.browserPoolOptions.retireBrowserAfterPageCount = Infinity;
         }
 
         this.crawler = new Apify.PuppeteerCrawler(options);
@@ -245,80 +239,87 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
-        const start = process.hrtime();
+    /**
+     * @private
+     */
+    _createNavigationHooks(options) {
+        options.preNavigationHooks.push(async ({ request, page, session }, gotoOptions) => {
+            const start = process.hrtime();
 
-        // Create a new page context with a new random key for Apify namespace.
-        const pageContext = {
-            apifyNamespace: await tools.createRandomHash(),
-            skipLinks: false,
-        };
-        this.pageContexts.set(page, pageContext);
+            // Create a new page context with a new random key for Apify namespace.
+            const pageContext = {
+                apifyNamespace: await tools.createRandomHash(),
+                skipLinks: false,
+                timers: { start },
+            };
+            this.pageContexts.set(page, pageContext);
 
-        // Attach a console listener to get all logs as soon as possible.
-        if (this.input.browserLog) browserTools.dumpConsole(page);
+            // Attach a console listener to get all logs as soon as possible.
+            if (this.input.browserLog) browserTools.dumpConsole(page);
 
-        // Prevent download of stylesheets and media, unless selected otherwise
-        if (this.blockedUrlPatterns.length) {
-            await puppeteer.blockRequests(page, {
-                urlPatterns: this.blockedUrlPatterns,
-            });
-        }
-
-        // Add initial cookies, if any.
-        if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = session
-                ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
-                : this.input.initialCookies;
-            if (cookiesToSet && cookiesToSet.length) {
-                // setting initial cookies that are not already in the session and page
-                // eslint-disable-next-line max-len
-                if (session) session.setPuppeteerCookies(cookiesToSet, request.url); // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
-                await page.setCookie(...cookiesToSet);
+            // Prevent download of stylesheets and media, unless selected otherwise
+            if (this.blockedUrlPatterns.length) {
+                await puppeteer.blockRequests(page, {
+                    urlPatterns: this.blockedUrlPatterns,
+                });
             }
-        }
 
-        // Disable content security policy.
-        if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
-
-        tools.logPerformance(request, 'gotoFunction INIT', start);
-        const handleStart = process.hrtime();
-        pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
-        tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
-
-        const evalStart = process.hrtime();
-        await Promise.all([
-            page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
-            page.evaluateOnNewDocument(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace)),
-        ]);
-        tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
-
-        if (this.isDevRun) {
-            const cdpClient = await page.target().createCDPSession();
-            await cdpClient.send('Debugger.enable');
-            if (this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
-                await cdpClient.send('Debugger.pause');
+            // Add initial cookies, if any.
+            if (this.input.initialCookies && this.input.initialCookies.length) {
+                const cookiesToSet = session
+                    ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
+                    : this.input.initialCookies;
+                if (cookiesToSet && cookiesToSet.length) {
+                    // setting initial cookies that are not already in the session and page
+                    // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
+                    if (session) session.setPuppeteerCookies(cookiesToSet, request.url);
+                    await page.setCookie(...cookiesToSet);
+                }
             }
-        }
-        // Invoke navigation.
-        const navStart = process.hrtime();
-        const response = await puppeteer.gotoExtended(page, request, {
-            timeout: this.input.pageLoadTimeoutSecs * 1000,
-            waitUntil: this.input.waitUntil,
+
+            // Disable content security policy.
+            if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+
+            tools.logPerformance(request, 'gotoFunction INIT', start);
+            const handleStart = process.hrtime();
+            pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
+            tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
+
+            const evalStart = process.hrtime();
+            await Promise.all([
+                page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
+                page.evaluateOnNewDocument(browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace)),
+            ]);
+            tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
+
+            if (this.isDevRun) {
+                const cdpClient = await page.target().createCDPSession();
+                await cdpClient.send('Debugger.enable');
+                if (this.input.breakpointLocation === BREAKPOINT_LOCATIONS.BEFORE_GOTO) {
+                    await cdpClient.send('Debugger.pause');
+                }
+            }
+
+            pageContext.timers.navStart = process.hrtime();
+            gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
+            gotoOptions.waitUntil = this.input.waitUntil;
         });
-        await this._waitForLoadEventWhenXml(page, response);
-        tools.logPerformance(request, 'gotoFunction NAVIGATION', navStart);
 
-        const delayStart = process.hrtime();
-        await this._assertNamespace(page, pageContext.apifyNamespace);
+        options.postNavigationHooks.push(async ({ request, page, response }) => {
+            await this._waitForLoadEventWhenXml(page, response);
+            const pageContext = this.pageContexts.get(page);
+            tools.logPerformance(request, 'gotoFunction NAVIGATION', pageContext.timers.navStart);
 
-        // Inject selected libraries
-        if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
-        if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+            const delayStart = process.hrtime();
+            await this._assertNamespace(page, pageContext.apifyNamespace);
 
-        tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
-        tools.logPerformance(request, 'gotoFunction EXECUTION', start);
-        return response;
+            // Inject selected libraries
+            if (this.input.injectJQuery) await puppeteer.injectJQuery(page);
+            if (this.input.injectUnderscore) await puppeteer.injectUnderscore(page);
+
+            tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
+            tools.logPerformance(request, 'gotoFunction EXECUTION', pageContext.timers.start);
+        });
     }
 
     _handleFailedRequestFunction({ request }) {
@@ -337,12 +338,12 @@ class CrawlerSetup {
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
-     * @param {Object} environment
-     * @returns {Function}
+     * @param {Object} crawlingContext
+     * @returns {Promise<void>}
      */
-    async _handlePageFunction({ request, response, page, autoscaledPool }) {
+    async _handlePageFunction(crawlingContext) {
+        const { request, response, page, crawler, proxyInfo } = crawlingContext;
         const start = process.hrtime();
-
         const pageContext = this.pageContexts.get(page);
 
         /**
@@ -353,7 +354,7 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
         // Setup Context and pass the configuration down to Browser.
@@ -362,7 +363,6 @@ class CrawlerSetup {
                 rawInput: this.rawInput,
                 env: this.env,
                 customData: this.input.customData,
-                useRequestQueue: this.input.useRequestQueue !== false,
                 injectJQuery: this.input.injectJQuery,
                 injectUnderscore: this.input.injectUnderscore,
                 META_KEY,
@@ -370,6 +370,7 @@ class CrawlerSetup {
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,
+                proxyInfo,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
@@ -551,6 +552,7 @@ class CrawlerSetup {
             page,
             this.globalStore,
             ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
+            ['size'],
         );
         const logP = browserTools.createBrowserHandlesForObject(
             page,

@@ -19,7 +19,6 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  *
  * @typedef {Object} Input
  * @property {Object[]} startUrls
- * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
@@ -73,11 +72,6 @@ class CrawlerSetup {
         this.env = Apify.getEnv();
 
         // Validations
-        if (this.input.pseudoUrls.length && this.input.useRequestQueue === false) {
-            throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
-                + 'Either enable the "Use request queue" option or '
-                + 'remove your Pseudo-URLs.');
-        }
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
@@ -123,12 +117,7 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('CHEERIO_SCRAPER', startUrls);
 
         // RequestQueue
-        if (this.input.useRequestQueue === false) {
-            log.deprecated('Option useRequestQueue is deprecated. '
-                + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
-        } else {
-            this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
-        }
+        this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);
@@ -244,10 +233,28 @@ class CrawlerSetup {
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
-     * @param {Object} environment
+     * @param {Object} crawlingContext
      * @returns {Function}
      */
-    async _handlePageFunction({ request, response, $, body, json, contentType, autoscaledPool }) {
+    async _handlePageFunction(crawlingContext) {
+        const { request, response, $ } = crawlingContext;
+        const pageFunctionArguments = {};
+
+        // We must use properties and descriptors not to trigger getters / setters.
+        const props = Object.getOwnPropertyDescriptors(crawlingContext);
+        ['json', 'body'].forEach((key) => {
+            props[key].configurable = true;
+        });
+        Object.defineProperties(pageFunctionArguments, props);
+
+        pageFunctionArguments.cheerio = cheerio;
+        pageFunctionArguments.response = {
+            status: response.statusCode,
+            headers: response.headers,
+        };
+
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
+
         /**
          * PRE-PROCESSING
          */
@@ -267,25 +274,8 @@ class CrawlerSetup {
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
                 customData: this.input.customData,
-                useRequestQueue: this.input.useRequestQueue !== false,
             },
-            pageFunctionArguments: {
-                $,
-                get html() {
-                    log.deprecated('Cheerio Scraper: Parameter context.html is deprecated use context.body instead.');
-                    return contentType.type === 'text/html' ? body : null;
-                },
-                body,
-                json,
-                autoscaledPool,
-                request,
-                contentType,
-                response: {
-                    status: response.statusCode,
-                    headers: response.headers,
-                },
-                cheerio,
-            },
+            pageFunctionArguments,
         };
         const { context, state } = createContext(contextOptions);
 

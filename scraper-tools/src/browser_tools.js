@@ -58,9 +58,10 @@ const getPropertyDescriptor = (target, key) => {
  * @param {Page} page
  * @param {Object} instance
  * @param {string[]} properties
+ * @param {string[]} [getters] as TS will build all module methods as getters, we need to whitelist what are actual getters here
  * @return {Promise<Object>}
  */
-const createBrowserHandlesForObject = async (page, instance, properties) => {
+const createBrowserHandlesForObject = async (page, instance, properties, getters = []) => {
     const promises = properties
         .map((prop) => {
             const descriptor = getPropertyDescriptor(instance, prop);
@@ -75,11 +76,9 @@ const createBrowserHandlesForObject = async (page, instance, properties) => {
                 };
             }
             if (descriptor.get) {
-                return {
-                    name: prop,
-                    value: descriptor.get,
-                    type: 'GETTER',
-                };
+                const value = getters.includes(prop) ? descriptor.get : descriptor.get();
+                const type = getters.includes(prop) ? 'GETTER' : 'METHOD';
+                return { name: prop, value, type };
             }
             throw new Error(`Cannot create a browser handle for property: ${prop} on object ${instance}. No getter or value for descriptor.`);
         })

@@ -7,7 +7,7 @@ describe('Bundle', () => {
     let browser;
     let page;
     beforeAll(async () => {
-        browser = await Apify.launchPuppeteer({ headless: true });
+        browser = await Apify.launchPuppeteer({ launchOptions: { headless: true } });
     });
     afterAll(async () => {
         await browser.close();

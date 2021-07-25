@@ -15,7 +15,7 @@ describe('browserTools.', () => {
     before(async () => {
         fs.ensureDirSync(LOCAL_STORAGE_DIR);
         process.env.APIFY_LOCAL_STORAGE_DIR = LOCAL_STORAGE_DIR;
-        browser = await Apify.launchPuppeteer({ headless: true });
+        browser = await Apify.launchPuppeteer({ launchOptions: { headless: true } });
     });
     after(async () => {
         fs.removeSync(LOCAL_STORAGE_DIR);

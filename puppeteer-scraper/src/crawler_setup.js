@@ -18,7 +18,6 @@ const { utils: { log, puppeteer } } = Apify;
  *
  * @typedef {Object} Input
  * @property {Object[]} startUrls
- * @property {boolean} useRequestQueue
  * @property {Object[]} pseudoUrls
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
@@ -78,11 +77,6 @@ class CrawlerSetup {
         this.env = Apify.getEnv();
 
         // Validations
-        if (this.input.pseudoUrls.length && this.input.useRequestQueue === false) {
-            throw new Error('Cannot enqueue links using Pseudo-URLs without using a request queue. '
-                + 'Either enable the "Use request queue" option or '
-                + 'remove your Pseudo-URLs.');
-        }
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
             if (purl.userData && !tools.isPlainObject(purl.userData)) throw new Error('The userData property of a pseudoUrl must be an Object.');
@@ -143,12 +137,7 @@ class CrawlerSetup {
         this.requestList = await Apify.openRequestList('PUPPETEER_SCRAPER', startUrls);
 
         // RequestQueue
-        if (this.input.useRequestQueue === false) {
-            log.warning('Option useRequestQueue is deprecated. '
-                + 'The request queue is not going to be used now but this option will not be possible to set in the future.');
-        } else {
-            this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
-        }
+        this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);
@@ -174,24 +163,22 @@ class CrawlerSetup {
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
-            gotoFunction: this._gotoFunction.bind(this),
+            preNavigationHooks: [],
+            postNavigationHooks: [],
             handleFailedRequestFunction: this._handleFailedRequestFunction.bind(this),
             maxConcurrency: this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
             maxRequestsPerCrawl: this.input.maxPagesPerCrawl,
-            // launchPuppeteerFunction: use default,
             proxyConfiguration: await Apify.createProxyConfiguration(this.input.proxyConfiguration),
-            puppeteerPoolOptions: {
-                useLiveView: true,
-                recycleDiskCache: true,
-            },
-            launchPuppeteerOptions: {
-                ignoreHTTPSErrors: this.input.ignoreSslErrors,
-                defaultViewport: DEFAULT_VIEWPORT,
-                devtools: this.devtools,
+            launchContext: {
                 useChrome: this.input.useChrome,
                 stealth: this.input.useStealth,
-                args,
+                launchOptions: {
+                    ignoreHTTPSErrors: this.input.ignoreSslErrors,
+                    defaultViewport: DEFAULT_VIEWPORT,
+                    devtools: this.devtools,
+                    args,
+                },
             },
             useSessionPool: true,
             persistCookiesPerSession: true,
@@ -204,6 +191,8 @@ class CrawlerSetup {
             },
         };
 
+        this._createNavigationHooks(options);
+
         if (this.input.proxyRotation === PROXY_ROTATION_NAMES.UNTIL_FAILURE) {
             options.sessionPoolOptions.maxPoolSize = 1;
         }
@@ -213,44 +202,46 @@ class CrawlerSetup {
         return this.crawler;
     }
 
-    async _gotoFunction({ request, page, session }) {
-        // Attach a console listener to get all logs from Browser context.
-        if (this.input.browserLog) browserTools.dumpConsole(page);
+    /**
+     * @private
+     */
+    _createNavigationHooks(options) {
+        options.preNavigationHooks.push(async ({ request, page, session }, gotoOptions) => {
+            // Attach a console listener to get all logs from Browser context.
+            if (this.input.browserLog) browserTools.dumpConsole(page);
 
-        // Prevent download of stylesheets and media, unless selected otherwise
-        if (this.blockedUrlPatterns.length) {
-            await puppeteer.blockRequests(page, {
-                urlPatterns: this.blockedUrlPatterns,
-            });
-        }
-
-        // Add initial cookies, if any.
-        if (this.input.initialCookies && this.input.initialCookies.length) {
-            const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
-            if (cookiesToSet && cookiesToSet.length) {
-                // setting initial cookies that are not already in the session and page
-                session.setPuppeteerCookies(cookiesToSet, request.url);
-                await page.setCookie(...cookiesToSet);
+            // Prevent download of stylesheets and media, unless selected otherwise
+            if (this.blockedUrlPatterns.length) {
+                await puppeteer.blockRequests(page, {
+                    urlPatterns: this.blockedUrlPatterns,
+                });
             }
-        }
 
-        // Disable content security policy.
-        if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
-
-        // Enable pre-processing before navigation is initiated.
-        if (this.evaledPreGotoFunction) {
-            try {
-                await this.evaledPreGotoFunction({ request, page, Apify });
-            } catch (err) {
-                log.error('User provided Pre goto function failed.');
-                throw err;
+            // Add initial cookies, if any.
+            if (this.input.initialCookies && this.input.initialCookies.length) {
+                const cookiesToSet = tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url);
+                if (cookiesToSet && cookiesToSet.length) {
+                    // setting initial cookies that are not already in the session and page
+                    session.setPuppeteerCookies(cookiesToSet, request.url);
+                    await page.setCookie(...cookiesToSet);
+                }
             }
-        }
 
-        // Invoke navigation.
-        return puppeteer.gotoExtended(page, request, {
-            timeout: (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000,
-            waitUntil: this.input.waitUntil,
+            // Disable content security policy.
+            if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+
+            // Enable pre-processing before navigation is initiated.
+            if (this.evaledPreGotoFunction) {
+                try {
+                    await this.evaledPreGotoFunction({ request, page, Apify });
+                } catch (err) {
+                    log.error('User provided Pre goto function failed.');
+                    throw err;
+                }
+            }
+
+            gotoOptions.timeout = (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000;
+            gotoOptions.waitUntil = this.input.waitUntil;
         });
     }
 
@@ -270,10 +261,12 @@ class CrawlerSetup {
      *
      * Finally, it makes decisions based on the current state and post-processes
      * the data returned from the `pageFunction`.
-     * @param {Object} environment
-     * @returns {Function}
+     * @param {Object} crawlingContext
+     * @returns {Promise<void>}
      */
-    async _handlePageFunction({ request, response, page, puppeteerPool, autoscaledPool }) {
+    async _handlePageFunction(crawlingContext) {
+        const { request, response, page, crawler } = crawlingContext;
+
         /**
          * PRE-PROCESSING
          */
@@ -282,8 +275,18 @@ class CrawlerSetup {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(autoscaledPool);
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
+
+        const pageFunctionArguments = {};
+
+        // We must use properties and descriptors not to trigger getters / setters.
+        Object.defineProperties(pageFunctionArguments, Object.getOwnPropertyDescriptors(crawlingContext));
+
+        pageFunctionArguments.response = {
+            status: response && response.status(),
+            headers: response && response.headers(),
+        };
 
         // Setup and create Context.
         const contextOptions = {
@@ -293,18 +296,8 @@ class CrawlerSetup {
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
                 customData: this.input.customData,
-                useRequestQueue: this.input.useRequestQueue !== false,
             },
-            pageFunctionArguments: {
-                page,
-                autoscaledPool,
-                puppeteerPool,
-                request,
-                response: {
-                    status: response && response.status(),
-                    headers: response && response.headers(),
-                },
-            },
+            pageFunctionArguments,
         };
         const { context, state } = createContext(contextOptions);
 

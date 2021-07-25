@@ -44,6 +44,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
 - [Proxy configuration](#proxy-configuration)
 - [Results](#results)
 - [Additional resources](#additional-resources)
+- [Upgrading](#upgrading)
 
 <!-- tocstop -->
 
@@ -568,4 +569,7 @@ You might also want to see these other resources:
   Documentation for the Apify Actors cloud computing platform.
 - [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most popular web crawling and scraping library for Node.js.
 
+## Upgrading
 
+v2 introduced several minor breaking changes, you can read about those in the
+[migration guide](https://github.com/apify/actor-scraper/blob/master/MIGRATIONS.md).

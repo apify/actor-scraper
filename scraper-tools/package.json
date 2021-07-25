@@ -1,6 +1,6 @@
 {
   "name": "@apify/scraper-tools",
-  "version": "0.1.13",
+  "version": "0.3.1",
   "description": "Tools shared by Apify actor-scrapers.",
   "main": "src/main.js",
   "dependencies": {
@@ -8,23 +8,26 @@
     "content-type": "^1.0.4"
   },
   "peerDependencies": {
-    "apify": ">=0.17.0"
+    "apify": ">=2.0.0-beta.1"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.4",
-    "@types/puppeteer": "^1.20.2",
-    "@types/underscore": "^1.9.3",
-    "apify": ">=0.19.0",
-    "chai": "^4.2.0",
-    "fs-extra": "^7.0.1",
+    "@types/fs-extra": "^9.0.11",
+    "@types/puppeteer": "^5.4.3",
+    "@types/underscore": "^1.11.1",
+    "apify": "^1.1.2",
+    "chai": "^4.3.4",
+    "fs-extra": "^9.1.0",
     "markdown-toc": "^1.2.0",
-    "mocha": "^5.2.0",
+    "mocha": "^8.3.2",
     "nyc": "^14.1.1",
+    "puppeteer": "^9.1.1",
     "sinon": "^7.5.0"
   },
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha --timeout 60000 --recursive",
-    "lint": "eslint src test"
+    "lint": "eslint src test",
+    "publish": "npm publish",
+    "publish:next": "npm publish --tag next"
   },
   "repository": {
     "type": "git",
