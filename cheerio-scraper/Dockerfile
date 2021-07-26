@@ -1,4 +1,4 @@
-FROM apify/actor-node-basic
+FROM apify/actor-node:16
 
 COPY package.json package-lock.json ./
 
@@ -6,7 +6,7 @@ COPY package.json package-lock.json ./
 RUN npm --quiet set progress=false \
  && npm install --only=prod --no-optional \
  && echo "Installed NPM packages:" \
- && npm list || true \
+ && (npm list || true) \
  && echo "Node.js version:" \
  && node --version \
  && echo "NPM version:" \
