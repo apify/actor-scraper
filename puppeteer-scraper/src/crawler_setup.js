@@ -97,7 +97,6 @@ class CrawlerSetup {
 
         if (this.input.preGotoFunction) {
             this.evaledPreGotoFunction = tools.evalFunctionOrThrow(this.input.preGotoFunction);
-        } else {
             log.deprecated('`preGotoFunction` is deprecated, use `pre/postNavigationHooks` instead');
         }
 
