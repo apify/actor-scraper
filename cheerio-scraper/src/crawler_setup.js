@@ -90,6 +90,8 @@ class CrawlerSetup {
 
         if (this.input.prepareRequestFunction) {
             this.evaledPrepareRequestFunction = tools.evalFunctionOrThrow(this.input.prepareRequestFunction);
+        } else {
+            log.deprecated('`prepareRequestFunction` is deprecated, use `pre/postNavigationHooks` instead');
         }
 
         if (this.input.preNavigationHooks) {
