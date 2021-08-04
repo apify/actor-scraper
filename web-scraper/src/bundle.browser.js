@@ -79,7 +79,7 @@ module.exports = (apifyNamespace) => {
                 this[internalState] = {
                     browserHandles,
                     requestQueue: browserHandles.requestQueue ? createProxy(browserHandles.requestQueue) : null,
-                    apify: createProxy(browserHandles.apify),
+                    keyValueStore: browserHandles.keyValueStore ? createProxy(browserHandles.keyValueStore) : null,
                 };
 
                 // Copies of Node objects
@@ -117,11 +117,11 @@ module.exports = (apifyNamespace) => {
             }
 
             async getValue(...args) {
-                return this[internalState].apify.getValue(...args);
+                return this[internalState].keyValueStore.getValue(...args);
             }
 
             async setValue(...args) {
-                return this[internalState].apify.setValue(...args);
+                return this[internalState].keyValueStore.setValue(...args);
             }
 
             async saveSnapshot() {

@@ -24,7 +24,7 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
   * [Page function](#page-function)
       - [**`$: Function`**](#function)
       - [**`Apify: Object`**](#apify-object)
-      - [**`autoscaledPool: Object`**](#autoscaledpool-object)
+      - [**`crawler: Object`**](#crawler-object)
       - [**`body: String|Buffer`**](#body-string-buffer)
       - [**`cheerio: Object`**](#cheerio-object)
       - [**`contentType: Object`**](#contenttype-object)
@@ -253,12 +253,9 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
   **Caution:** Since the Cheerio Scraper itself runs using the Apify SDK,
   you should use `Apify` property with caution and avoid making global changes to it, since it can affect the run of scraper itself.
 
-- ##### **`autoscaledPool: Object`**
+- ##### **`crawler: Object`**
 
-  A reference to the [`AutoscaledPool`](https://sdk.apify.com/docs/api/autoscaled-pool) object from the Apify SDK,
-  which is used by Cheerio Scraper to manage the parallel crawling of the web pages.
-  The pool only starts new tasks if there is enough free CPU and memory available and the JavaScript event
-  loop is not blocked.
+  A reference to the `CheerioCrawler` object, see [Apify SDK docs](https://sdk.apify.com/docs/api/cheerio-crawler) for more information.
 
 - ##### **`body: String|Buffer`**
 

@@ -54,11 +54,11 @@ class Context {
     }
 
     async getValue(...args) {
-        return Apify.getValue(...args);
+        return this[setup].keyValueStore.getValue(...args);
     }
 
     async setValue(...args) {
-        return Apify.setValue(...args);
+        return this[setup].keyValueStore.setValue(...args);
     }
 
     async saveSnapshot() {

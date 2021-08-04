@@ -54,8 +54,7 @@ const context = {
     page, // Reference to the Puppeteer.Page.
     request, // Apify.Request object.
     response, // Response object holding the status code and headers.
-    puppeteerPool, // Reference to the Apify.PuppeteerPool instance running the browsers.
-    autoscaledPool, // Reference to the Apify.AutoscaledPool instance managing concurrency.
+    crawler, // Reference to the crawler object, with access to `browserPool`, `autoscaledPool` and others
     globalStore, // Represents an in memory store that can be used to share data across pageFunction invocations.
     log, // Reference to Apify.utils.log
     Apify, // Reference to the full power of Apify SDK.
@@ -168,14 +167,10 @@ class for a preview of the structure and full documentation.
 The `response` object is produced by Puppeteer. Currently, we only pass the HTTP status code
 and the response headers to the `context`.
 
-#### PuppeteerPool
-A reference to the running instance of the `PuppeteerPool` class. See
-<a href="https://sdk.apify.com/docs/api/puppeteerpool" target="_blank">Apify SDK docs</a>
-for more information.
-
-#### AutoscaledPool
-A reference to the running instance of the `AutoscaledPool` class. See
-<a href="https://sdk.apify.com/docs/api/autoscaled-pool" target="_blank">Apify SDK docs</a>
+#### Crawler object
+To access current `AutoscaledPool` or `BrowserPool` instance we can use the 
+`crawler` object, which is a `PuppeteerCrawler` instance. See 
+[Apify SDK docs](https://sdk.apify.com/docs/api/puppeteer-crawler)
 for more information.
 
 #### Global Store

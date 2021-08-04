@@ -39,6 +39,8 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
+ * @property {string} preNavigationHooks
+ * @property {string} postNavigationHooks
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
  * @property {boolean} browserLog
@@ -111,6 +113,18 @@ class CrawlerSetup {
         this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         tools.evalFunctionOrThrow(this.input.pageFunction);
+
+        if (this.input.preNavigationHooks) {
+            this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        } else {
+            this.evaledPreNavigationHooks = [];
+        }
+
+        if (this.input.postNavigationHooks) {
+            this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        } else {
+            this.evaledPostNavigationHooks = [];
+        }
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
@@ -304,6 +318,9 @@ class CrawlerSetup {
             gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
             gotoOptions.waitUntil = this.input.waitUntil;
         });
+
+        options.preNavigationHooks.push(...this.evaledPreNavigationHooks);
+        options.postNavigationHooks.push(...this.evaledPostNavigationHooks);
 
         options.postNavigationHooks.push(async ({ request, page, response }) => {
             await this._waitForLoadEventWhenXml(page, response);
@@ -559,9 +576,11 @@ class CrawlerSetup {
             log,
             ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
         );
-        const apifyP = browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']);
         const requestQueueP = this.requestQueue
             ? browserTools.createBrowserHandlesForObject(page, this.requestQueue, ['addRequest'])
+            : null;
+        const keyValueStoreP = this.keyValueStore
+            ? browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue'])
             : null;
 
         const [
@@ -569,16 +588,16 @@ class CrawlerSetup {
             skipLinks,
             globalStore,
             logHandle,
-            apify,
             requestQueue,
-        ] = await Promise.all([saveSnapshotP, skipLinksP, globalStoreP, logP, apifyP, requestQueueP]);
+            keyValueStore,
+        ] = await Promise.all([saveSnapshotP, skipLinksP, globalStoreP, logP, requestQueueP, keyValueStoreP]);
 
         const handles = {
             saveSnapshot,
             skipLinks,
             globalStore,
             log: logHandle,
-            apify,
+            keyValueStore,
         };
         if (requestQueue) handles.requestQueue = requestQueue;
         return handles;

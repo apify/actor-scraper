@@ -23,6 +23,8 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
+ * @property {string} preNavigationHooks
+ * @property {string} postNavigationHooks
  * @property {string} prepareRequestFunction
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
@@ -85,8 +87,22 @@ class CrawlerSetup {
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
+
         if (this.input.prepareRequestFunction) {
             this.evaledPrepareRequestFunction = tools.evalFunctionOrThrow(this.input.prepareRequestFunction);
+            log.deprecated('`prepareRequestFunction` is deprecated, use `pre/postNavigationHooks` instead');
+        }
+
+        if (this.input.preNavigationHooks) {
+            this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        } else {
+            this.evaledPreNavigationHooks = [];
+        }
+
+        if (this.input.postNavigationHooks) {
+            this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        } else {
+            this.evaledPostNavigationHooks = [];
         }
 
         // Used to store data that persist navigations
@@ -141,6 +157,8 @@ class CrawlerSetup {
         const options = {
             proxyConfiguration: this.proxyConfiguration,
             handlePageFunction: this._handlePageFunction.bind(this),
+            preNavigationHooks: this.evaledPreNavigationHooks,
+            postNavigationHooks: this.evaledPostNavigationHooks,
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
@@ -273,6 +291,7 @@ class CrawlerSetup {
                 env: this.env,
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
+                keyValueStore: this.keyValueStore,
                 customData: this.input.customData,
             },
             pageFunctionArguments,

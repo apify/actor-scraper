@@ -94,8 +94,22 @@ class CrawlerSetup {
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
+
         if (this.input.preGotoFunction) {
             this.evaledPreGotoFunction = tools.evalFunctionOrThrow(this.input.preGotoFunction);
+            log.deprecated('`preGotoFunction` is deprecated, use `pre/postNavigationHooks` instead');
+        }
+
+        if (this.input.preNavigationHooks) {
+            this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        } else {
+            this.evaledPreNavigationHooks = [];
+        }
+
+        if (this.input.postNavigationHooks) {
+            this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        } else {
+            this.evaledPostNavigationHooks = [];
         }
 
         // Used to store data that persist navigations
@@ -243,6 +257,9 @@ class CrawlerSetup {
             gotoOptions.timeout = (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000;
             gotoOptions.waitUntil = this.input.waitUntil;
         });
+
+        options.preNavigationHooks.push(...this.evaledPreNavigationHooks);
+        options.postNavigationHooks.push(...this.evaledPostNavigationHooks);
     }
 
     _handleFailedRequestFunction({ request }) {
@@ -295,6 +312,7 @@ class CrawlerSetup {
                 env: this.env,
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
+                keyValueStore: this.keyValueStore,
                 customData: this.input.customData,
             },
             pageFunctionArguments,
