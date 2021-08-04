@@ -58,21 +58,14 @@
       "title": "Pre-navigation hooks",
       "type": "string",
       "description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `gotoOptions`, which are passed to the `page.goto()` function the crawler calls to navigate.",
-      "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"gotoOptions\".\n[\n    async (crawlingContext, gotoOptions) => {\n        const { page } = crawlingContext;\n        await page.evaluate((attr) => { window.foo = attr; }, 'bar');\n    },\n]",
+      "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"gotoOptions\".\n[\n    async (crawlingContext, gotoOptions) => {\n        const { page } = crawlingContext;\n        // ...\n    },\n]",
       "editor": "javascript"
     },
     "postNavigationHooks": {
       "title": "Post-navigation hooks",
       "type": "string",
       "description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
-      "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        const { page } = crawlingContext;\n        if (hasCaptcha(page)) {\n            await solveCaptcha (page);\n        }\n    },\n]",
-      "editor": "javascript"
-    },
-    "preGotoFunction": {
-      "title": "Pre goto function",
-      "type": "string",
-      "description": "This function is executed before navigation to a given URL. It can be useful to do pre-processing, changes to the page that allow bypassing anti-scraping protections or just setting cookies.",
-      "prefill": "async function preGotoFunction({ request, page, Apify }) {\n    /* add your pre-navigation logic here, if needed */\n}",
+      "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        const { page } = crawlingContext;\n        // ...\n    },\n]",
       "editor": "javascript"
     },
     "proxyConfiguration": {

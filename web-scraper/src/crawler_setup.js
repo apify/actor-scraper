@@ -116,10 +116,14 @@ class CrawlerSetup {
 
         if (this.input.preNavigationHooks) {
             this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        } else {
+            this.evaledPreNavigationHooks = [];
         }
 
         if (this.input.postNavigationHooks) {
             this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        } else {
+            this.evaledPostNavigationHooks = [];
         }
 
         // Used to store page specific data.
@@ -572,9 +576,11 @@ class CrawlerSetup {
             log,
             ['LEVELS', 'setLevel', 'getLevel', 'debug', 'info', 'warning', 'error', 'exception'],
         );
-        const apifyP = browserTools.createBrowserHandlesForObject(page, Apify, ['getValue', 'setValue']);
         const requestQueueP = this.requestQueue
             ? browserTools.createBrowserHandlesForObject(page, this.requestQueue, ['addRequest'])
+            : null;
+        const keyValueStoreP = this.keyValueStore
+            ? browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue'])
             : null;
 
         const [
@@ -582,16 +588,16 @@ class CrawlerSetup {
             skipLinks,
             globalStore,
             logHandle,
-            apify,
             requestQueue,
-        ] = await Promise.all([saveSnapshotP, skipLinksP, globalStoreP, logP, apifyP, requestQueueP]);
+            keyValueStore,
+        ] = await Promise.all([saveSnapshotP, skipLinksP, globalStoreP, logP, requestQueueP, keyValueStoreP]);
 
         const handles = {
             saveSnapshot,
             skipLinks,
             globalStore,
             log: logHandle,
-            apify,
+            keyValueStore,
         };
         if (requestQueue) handles.requestQueue = requestQueue;
         return handles;

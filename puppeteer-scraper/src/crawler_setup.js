@@ -101,10 +101,14 @@ class CrawlerSetup {
 
         if (this.input.preNavigationHooks) {
             this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        } else {
+            this.evaledPreNavigationHooks = [];
         }
 
         if (this.input.postNavigationHooks) {
             this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        } else {
+            this.evaledPostNavigationHooks = [];
         }
 
         // Used to store data that persist navigations
@@ -307,6 +311,7 @@ class CrawlerSetup {
                 env: this.env,
                 globalStore: this.globalStore,
                 requestQueue: this.requestQueue,
+                keyValueStore: this.keyValueStore,
                 customData: this.input.customData,
             },
             pageFunctionArguments,

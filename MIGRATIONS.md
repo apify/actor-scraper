@@ -18,3 +18,4 @@ changes.
 - removed `puppeteerPool`/`autoscaledPool` from the `crawlingContext` object
   - `puppeteerPool` was replaces by `browserPool`
   - `autoscaledPool` and `browserPool` and available on the `crawler` property of `crawlingContext` object
+- custom "Key-value store name" option in Advanced configuration is now fixed, previously the default store was always used
