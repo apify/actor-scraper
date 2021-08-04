@@ -39,6 +39,8 @@ const { utils: { log, puppeteer } } = Apify;
  * @property {string} linkSelector
  * @property {boolean} keepUrlFragments
  * @property {string} pageFunction
+ * @property {string} preNavigationHooks
+ * @property {string} postNavigationHooks
  * @property {Object} proxyConfiguration
  * @property {boolean} debugLog
  * @property {boolean} browserLog
@@ -111,6 +113,14 @@ class CrawlerSetup {
         this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         tools.evalFunctionOrThrow(this.input.pageFunction);
+
+        if (this.input.preNavigationHooks) {
+            this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        }
+
+        if (this.input.postNavigationHooks) {
+            this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
+        }
 
         // Used to store page specific data.
         this.pageContexts = new WeakMap();
@@ -304,6 +314,9 @@ class CrawlerSetup {
             gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
             gotoOptions.waitUntil = this.input.waitUntil;
         });
+
+        options.preNavigationHooks.push(...this.evaledPreNavigationHooks);
+        options.postNavigationHooks.push(...this.evaledPostNavigationHooks);
 
         options.postNavigationHooks.push(async ({ request, page, response }) => {
             await this._waitForLoadEventWhenXml(page, response);

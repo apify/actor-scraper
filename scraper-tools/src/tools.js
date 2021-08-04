@@ -31,6 +31,32 @@ const evalFunctionOrThrow = (funcString) => {
 };
 
 /**
+ * Transforms a pre/post navigation hooks string into array of Functions.
+ * @param {string} hooksString
+ * @param {string} paramName
+ * @return {Function[]}
+ */
+const evalFunctionArrayOrThrow = (hooksString, paramName) => {
+    let arr;
+
+    try {
+        arr = vm.runInThisContext(`(${hooksString})`);
+    } catch (err) {
+        throw new Error(`Compilation of ${paramName} failed.\n${err.message}\n${err.stack.substr(err.stack.indexOf('\n'))}`);
+    }
+
+    if (!Array.isArray(arr)) {
+        throw new Error(`Input parameter "${paramName}" is not an array!`);
+    }
+
+    if (arr.some((func) => typeof func !== 'function')) {
+        throw new Error(`Input parameter "${paramName}" is not an array of functions!`);
+    }
+
+    return arr;
+};
+
+/**
  * Validates the INPUT using the AJV library against the schema.
  *
  * @param {Object} input
@@ -180,6 +206,7 @@ const getMissingCookiesFromSession = (session, cookies, url) => {
 
 module.exports = {
     evalFunctionOrThrow,
+    evalFunctionArrayOrThrow,
     checkInputOrThrow,
     ensureMetaData,
     createDatasetPayload,

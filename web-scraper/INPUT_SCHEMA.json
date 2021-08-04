@@ -59,6 +59,20 @@
             "prefill": "// The function accepts a single argument: the \"context\" object.\n// For a complete list of its properties and functions,\n// see https://apify.com/apify/web-scraper#page-function \nasync function pageFunction(context) {\n    // This statement works as a breakpoint when you're trying to debug your code. Works only with Run mode: DEVELOPMENT!\n    // debugger; \n\n    // jQuery is handy for finding DOM elements and extracting data from them.\n    // To use it, make sure to enable the \"Inject jQuery\" option.\n    const $ = context.jQuery;\n    const pageTitle = $('title').first().text();\n\n    // Print some information to actor log\n    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);\n\n    // Manually add a new page to the queue for scraping.\n    context.enqueueRequest({ url: 'http://www.example.com' });\n\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n        url: context.request.url,\n        pageTitle\n    };\n}",
             "editor": "javascript"
         },
+        "preNavigationHooks": {
+            "title": "Pre-navigation hooks",
+            "type": "string",
+            "description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `gotoOptions`, which are passed to the `page.goto()` function the crawler calls to navigate.",
+            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"gotoOptions\".\n[\n    async (crawlingContext, gotoOptions) => {\n        const { page } = crawlingContext;\n        await page.evaluate((attr) => { window.foo = attr; }, 'bar');\n    },\n]",
+            "editor": "javascript"
+        },
+        "postNavigationHooks": {
+            "title": "Post-navigation hooks",
+            "type": "string",
+            "description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
+            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        const { page } = crawlingContext;\n        if (hasCaptcha(page)) {\n            await solveCaptcha (page);\n        }\n    },\n]",
+            "editor": "javascript"
+        },
         "injectJQuery": {
             "title": "Inject jQuery",
             "type": "boolean",

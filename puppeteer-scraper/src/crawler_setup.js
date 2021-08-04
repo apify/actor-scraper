@@ -94,8 +94,17 @@ class CrawlerSetup {
 
         // Functions need to be evaluated.
         this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
+
         if (this.input.preGotoFunction) {
             this.evaledPreGotoFunction = tools.evalFunctionOrThrow(this.input.preGotoFunction);
+        }
+
+        if (this.input.preNavigationHooks) {
+            this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.preNavigationHooks, 'preNavigationHooks');
+        }
+
+        if (this.input.postNavigationHooks) {
+            this.evaledPostNavigationHooks = tools.evalFunctionArrayOrThrow(this.input.postNavigationHooks, 'postNavigationHooks');
         }
 
         // Used to store data that persist navigations
@@ -243,6 +252,9 @@ class CrawlerSetup {
             gotoOptions.timeout = (this.devtools ? DEVTOOLS_TIMEOUT_SECS : this.input.pageLoadTimeoutSecs) * 1000;
             gotoOptions.waitUntil = this.input.waitUntil;
         });
+
+        options.preNavigationHooks.push(...this.evaledPreNavigationHooks);
+        options.postNavigationHooks.push(...this.evaledPostNavigationHooks);
     }
 
     _handleFailedRequestFunction({ request }) {
