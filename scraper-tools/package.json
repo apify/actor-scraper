@@ -1,8 +1,8 @@
 {
   "name": "@apify/scraper-tools",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Tools shared by Apify actor-scrapers.",
-  "main": "src/main.js",
+  "main": "index.js",
   "dependencies": {
     "ajv": "^6.10.2",
     "content-type": "^1.0.4"
