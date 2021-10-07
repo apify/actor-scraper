@@ -8,7 +8,7 @@
     "content-type": "^1.0.4"
   },
   "peerDependencies": {
-    "apify": ">=2.0.0-beta.1"
+    "apify": ">=2.1.0-beta.6"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
