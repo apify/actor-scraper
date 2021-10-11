@@ -120,7 +120,7 @@ function on the first line.
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate
 through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see
 the clean items. You should have a table of all the actor's details in front of you. If you do, great job!
-You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again,
+You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
 ![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
