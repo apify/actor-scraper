@@ -20,30 +20,11 @@
         "startUrls": {
             "title": "Start URLs",
             "type": "array",
-            "description": "A static list of URLs to scrape. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a> in README.",
+            "description": "URLs to begin scraping. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a>",
             "prefill": [
-                { "url": "https://apify.com" }
+                { "url": "https://www.leboncoin.fr/recherche?category=21&text=mer&price=17-50" }
             ],
             "editor": "requestListSources"
-        },
-        "pseudoUrls": {
-            "title": "Pseudo-URLs",
-            "type": "array",
-            "description": "Specifies what kind of URLs found by <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. <br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
-            "editor": "pseudoUrls",
-            "default": [],
-            "prefill": [
-                {
-                    "purl": "https://apify.com[(/[\\w-]+)?]"
-                }
-            ]
-        },
-        "pageFunction": {
-            "title": "Page function",
-            "type": "string",
-            "description": "JavaScript (ES6) function that is executed in the context of every page loaded in the Chrome browser. Use it to scrape data from the page, perform actions or add new URLs to the request queue.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a> in README.",
-            "prefill": "// The function accepts a single argument: the \"context\" object.\n// For a complete list of its properties and functions,\n// see https://apify.com/apify/web-scraper#page-function \nasync function pageFunction(context) {\n    // This statement works as a breakpoint when you're trying to debug your code. Works only with Run mode: DEVELOPMENT!\n    // debugger; \n\n    // jQuery is handy for finding DOM elements and extracting data from them.\n    // To use it, make sure to enable the \"Inject jQuery\" option.\n    const $ = context.jQuery;\n    const pageTitle = $('title').first().text();\n\n    // Print some information to actor log\n    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);\n\n    // Manually add a new page to the queue for scraping.\n    context.enqueueRequest({ url: 'http://www.example.com' });\n\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n        url: context.request.url,\n        pageTitle\n    };\n}",
-            "editor": "javascript"
         },
         "proxyConfiguration": {
             "sectionCaption": "Proxy and browser configuration",
@@ -67,6 +48,25 @@
             "description": "How many links away from <b>Start URLs</b> the scraper will click on (=> avoid infinite crawling). <br><br>If <code>0</code>, there is no limit.",
             "minimum": 0,
             "default": 3
+        },
+        "pseudoUrls": {
+            "sectionCaption": "Advanced configuration",
+            "title": "Pseudo-URLs",
+            "type": "array",
+            "description": "Specifies what kind of URLs found by <b>Link selector</b> should be added to the request queue. A pseudo-URL is a URL with regular expressions enclosed in <code>[]</code> brackets, e.g. <code>http://www.example.com/[.*]</code>. <br><br>If <b>Pseudo-URLs</b> are omitted, the actor enqueues all links matched by the <b>Link selector</b>.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#pseudo-urls' target='_blank' rel='noopener'>Pseudo-URLs</a> in README.",
+            "editor": "pseudoUrls",
+            "prefill": [
+                {
+                    "purl": "https://www.leboncoin.fr[.*]"
+                }
+            ]
+        },
+        "pageFunction": {
+            "title": "Function",
+            "type": "string",
+            "description": "JavaScript function executed on every page (inside the Chrome browser). Customise it if necessary. <br><br>For details, see <a href='https://apify.com/apify/web-scraper#page-function' target='_blank' rel='noopener'>Page function</a>",
+            "prefill": "// For a complete list of its properties and functions,\n// see https://apify.com/apify/web-scraper#page-function \nasync function pageFunction(context) {\n    const $ = context.jQuery;\n    const pageTitle = $('title').first().text();\n    \n    let items = []\n    $('[data-qa-id=aditem_container]').map( function(i){\n        let obj = {}\n        obj.link = $(this).attr('href')\n        obj.img = $(this).find('img').attr('src')\n        obj.title = $(this).find('[data-qa-id=aditem_title]').text()\n        obj.price = $(this).find('[data-qa-id=aditem_price]').text()\n        items.push( JSON.parse(JSON.stringify(obj)) )\n    })\n\n    // Print some information to actor log\n    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);\n\n    return {\n        url: context.request.url,\n        items\n    };\n}",
+            "editor": "javascript"            
         }
     },
     "required": ["startUrls", "pageFunction", "proxyConfiguration"]
