@@ -1,7 +1,7 @@
 {
-  "name": "actor-web-scraper",
-  "version": "2.0.0",
-  "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
+  "name": "actor-leboncoin",
+  "version": "0.0.1",
+  "description": "Crawls leboncoin.fr from the search you specify, until the number of pages you want it to stop",
   "main": "main.js",
   "dependencies": {
     "@apify/scraper-tools": "^0.4.0",
@@ -23,17 +23,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/apifytech/actor-scraper"
+    "url": "https://github.com/guillim/actor-leboncoin"
   },
   "author": {
-    "name": "Apify Technologies",
-    "email": "support@apify.com",
-    "url": "https://apify.com"
+    "name": "Guillim",
+    "email": "actor.leboncoin@guigloo.33mail.com"
   },
   "contributors": [
     "Marek Trunkat <marek@apify.com>",
-    "Ondra Urban <ondra@apify.com>"
+    "Ondra Urban <ondra@apify.com>",
+    "Guillim"
   ],
   "license": "Apache-2.0",
-  "homepage": "https://github.com/apifytech/actor-scraper"
+  "homepage": "https://github.com/guillim/actor-leboncoin"
 }

@@ -96,6 +96,31 @@ class CrawlerSetup {
         this.input = input;
         this.env = Apify.getEnv();
 
+        // manually chosen options for simplification
+        this.input.maxRequestRetries = 3
+        this.input.maxConcurrency = 50
+        this.input.pageLoadTimeoutSecs = 60
+        this.input.browserLog = false
+        this.input.initialCookies = []
+        this.input.ignoreCorsAndCsp = false
+        this.input.breakpointLocation = "NONE"
+        this.input.debugLog = false
+        this.input.pageLoadTimeoutSecs = 60
+        this.input.waitUntil = ["networkidle2"]
+        this.input.injectJQuery = true
+        this.input.injectUnderscore = false
+        this.input.ignoreSslErrors = false
+        this.input.downloadCss = false
+        this.input.downloadMedia = false
+        this.input.customData = false
+        this.input.maxResultsPerCrawl = 0
+        this.input.preNavigationHooks = false
+        this.input.postNavigationHooks = false
+        this.input.sessionPoolName = ""
+        this.input.keepUrlFragments = false
+        this.input.proxyRotation = "RECOMMENDED"
+        this.input.linkSelector = "a[title*='Page suivante']"
+
         // Validations
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) throw new Error('The pseudoUrls Array must only contain Objects.');
@@ -155,6 +180,8 @@ class CrawlerSetup {
         this.dataset = null;
         this.keyValueStore = null;
         this.initPromise = this._initializeAsync();
+
+
     }
 
     async _initializeAsync() {
@@ -166,8 +193,8 @@ class CrawlerSetup {
         });
         this.requestList = await Apify.openRequestList('WEB_SCRAPER', startUrls);
 
-        // RequestQueue
-        this.requestQueue = await Apify.openRequestQueue(this.requestQueueName);
+        // RequestQueue cannot be null or "" so we removed this.requestQueueName as argument
+        this.requestQueue = await Apify.openRequestQueue();
 
         // Dataset
         this.dataset = await Apify.openDataset(this.datasetName);
@@ -219,8 +246,8 @@ class CrawlerSetup {
                 ],
             },
             launchContext: {
-                useChrome: this.input.useChrome,
-                stealth: this.input.useStealth,
+                useChrome: true,
+                stealth: true,
                 launchOptions: {
                     ignoreHTTPSErrors: this.input.ignoreSslErrors,
                     defaultViewport: DEFAULT_VIEWPORT,
@@ -482,6 +509,7 @@ class CrawlerSetup {
     }
 
     async _handleLinks(page, request) {
+
         if (!(this.input.linkSelector && this.requestQueue)) return;
         const start = process.hrtime();
 
