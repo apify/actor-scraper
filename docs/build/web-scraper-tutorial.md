@@ -79,7 +79,7 @@ return {
 
 ### [](#modified-date) Modified date
 
-The DevTools tell us that the `modifiedDate` can be found in the `<time>` element.
+The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
 ![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
 
@@ -95,7 +95,13 @@ return {
 };
 ```
 
-We read the `datetime` attribute as that's where a unix timestamp is stored as a `string`. But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()` constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`. Phew!
+It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
+second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
+`string`.
+
+But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()`
+constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`.
+Phew!
 
 ### [](#run-count) Run count
 
@@ -224,7 +230,7 @@ be automatically enqueued to the request queue. Use a label to let the scraper k
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content
 
-Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Store is a JavaScript
+Before we talk about paginating, we need to have a quick look at dynamic content. Since Apify Store is a JavaScript
 application (as many, if not most modern websites are), the button might not exist in the page when the scraper
 runs the `pageFunction`.
 
@@ -360,7 +366,7 @@ async function pageFunction(context) {
         log,
         skipLinks,
         jQuery: $,
-        waitFor
+        waitFor,
     } = context;
 
     if (request.userData.label === 'START') {
@@ -383,7 +389,6 @@ async function pageFunction(context) {
             log.info('Clicking the "Show more" button.');
             $(buttonSelector).click();
         }
-
     }
     if (request.userData.label === 'DETAIL') {
         const { url } = request;
@@ -420,7 +425,7 @@ async function pageFunction(context) {
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate
 through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see
 the clean items. You should have a table of all the actor's details in front of you. If you do, great job!
-You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again,
+You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
 ![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
@@ -537,9 +542,8 @@ async function pageFunction(context) {
         request,
         log,
         skipLinks,
-        jQuery: $
+        jQuery: $,
     }) {
-
         const { url } = request;
         log.info(`Scraping ${url}`);
         await skipLinks();

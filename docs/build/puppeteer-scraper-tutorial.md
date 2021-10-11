@@ -273,31 +273,31 @@ async function pageFunction(context) {
         // Get attributes in parallel to speed up the process.
         const titleP = page.$eval(
             'header h1',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const descriptionP = page.$eval(
             'header span.actor-description',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const modifiedTimestampP = page.$eval(
             'ul.ActorHeader-stats time',
-            (el) => el.getAttribute('datetime')
+            (el) => el.getAttribute('datetime'),
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
 
         const [
             title,
             description,
             modifiedTimestamp,
-            runCountText
+            runCountText,
         ] = await Promise.all([
             titleP,
             descriptionP,
             modifiedTimestampP,
-            runCountTextP
+            runCountTextP,
         ]);
 
         const modifiedDate = new Date(Number(modifiedTimestamp));
@@ -338,7 +338,7 @@ be automatically enqueued to the request queue. Use a label to let the scraper k
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content
 
-Before we talk about paginating, we need to have a quick look at dynamic content. Since the Apify Store is a JavaScript
+Before we talk about paginating, we need to have a quick look at dynamic content. Since Apify Store is a JavaScript
 application (as many, if not most modern websites are), the button might not exist in the page when the scraper
 runs the `pageFunction`.
 
@@ -352,6 +352,7 @@ It would never stop waiting. It is therefore up to you, the programmer, to wait 
 Fortunately, we have an easy solution.
 
 #### The `context.page.waitFor()` function
+
 `waitFor()` is a function that's available on the Puppeteer `page` object that's in turn available on
 the `context` argument of the  `pageFunction` (as you already know from previous chapters). It helps you with,
 well, waiting for stuff. It accepts either a number of milliseconds to wait, a selector to await in the page,
@@ -382,7 +383,8 @@ await page.waitFor('.bad-class', { timeout: 5000 });
 With those tools, you should be able to handle any dynamic content the website throws at you.
 
 ### [](#how-to-paginate)  How to paginate
-With the theory out of the way, this should be pretty easy. The algorithm is a loop: 
+
+With the theory out of the way, this should be pretty easy. The algorithm is a loop:
 
    1. Wait for the **Show more** button.
    2. Click it.
@@ -391,7 +393,8 @@ With the theory out of the way, this should be pretty easy. The algorithm is a l
       - No? We're done. We have all the actors.
 
 #### Waiting for the button
-Before we can wait for the button, we need to know its unique selector. A quick look in the DevTools tells us 
+
+Before we can wait for the button, we need to know its unique selector. A quick look in the DevTools tells us
 that the button's class is some weird randomly generated string, but fortunately, there's an enclosing `<div>`
 with a class of `show-more`. Great! Our unique selector:
 
@@ -410,9 +413,10 @@ await page.waitFor('div.show-more > button');
 ```
 
 #### Clicking the button
+
 We have a unique selector for the button and we know that it's already rendered in the page. Clicking it is a piece
 of cake. We'll use the Puppeteer `page` again to issue the click. Puppeteer will actually simulate dragging the mouse
-and making a left mouse click in the element. 
+and making a left mouse click in the element.
 
 ```js
 await page.click('div.show-more > button');
@@ -421,6 +425,7 @@ await page.click('div.show-more > button');
 This will show the next page of actors.
 
 #### Repeating the process
+
 We've shown two function calls, but how do we make this work together in the `pageFunction`?
 
 ```js
@@ -456,13 +461,14 @@ We want to run this until the `waitFor()` function throws, so that's why we use 
 interested in the error, because we're expecting it, so we just ignore it and print a log message instead.
 
 You might be wondering what's up with the `timeout`. Well, for the first page load, we want to wait longer,
-so that all the page's JavaScript has had a chance to execute, but for the other iterations, the JavaScript is 
+so that all the page's JavaScript has had a chance to execute, but for the other iterations, the JavaScript is
 already loaded and we're just waiting for the page to re-render so waiting for `2` seconds is enough to confirm
 that the button is not there. We don't want to stall the scraper for `30` seconds just to make sure that there's
 no button.
 
 ### [](#pagination-page-function) Plugging it into the Page function
-We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`. 
+
+We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it.
 
 ```js
@@ -504,31 +510,31 @@ async function pageFunction(context) {
         // Get attributes in parallel to speed up the process.
         const titleP = page.$eval(
             'header h1',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const descriptionP = page.$eval(
             'header span.actor-description',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const modifiedTimestampP = page.$eval(
             'ul.ActorHeader-stats time',
-            (el) => el.getAttribute('datetime')
+            (el) => el.getAttribute('datetime'),
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
 
         const [
             title,
             description,
             modifiedTimestamp,
-            runCountText
+            runCountText,
         ] = await Promise.all([
             titleP,
             descriptionP,
             modifiedTimestampP,
-            runCountTextP
+            runCountTextP,
         ]);
 
         const modifiedDate = new Date(Number(modifiedTimestamp));
@@ -547,9 +553,9 @@ async function pageFunction(context) {
 ```
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate
-through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see 
+through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see
 the clean items. You should have a table of all the actor's details in front of you. If you do, great job!
-You've successfully scraped the Apify Store. And if not, no worries, just go through the code examples again,
+You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
 ![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
@@ -610,7 +616,7 @@ async function pageFunction(context) {
         request,
         log,
         skipLinks,
-        page
+        page,
     }) {
         const { url } = request;
         log.info(`Scraping ${url}`);
@@ -625,31 +631,31 @@ async function pageFunction(context) {
         // Get attributes in parallel to speed up the process.
         const titleP = page.$eval(
             'header h1',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const descriptionP = page.$eval(
             'header span.actor-description',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
         const modifiedTimestampP = page.$eval(
             'ul.ActorHeader-stats time',
-            (el) => el.getAttribute('datetime')
+            (el) => el.getAttribute('datetime'),
         );
         const runCountTextP = page.$eval(
             'ul.ActorHeader-stats > li:nth-of-type(3)',
-            (el => el.textContent)
+            (el) => el.textContent,
         );
 
         const [
             title,
             description,
             modifiedTimestamp,
-            runCountText
+            runCountText,
         ] = await Promise.all([
             titleP,
             descriptionP,
             modifiedTimestampP,
-            runCountTextP
+            runCountTextP,
         ]);
 
         const modifiedDate = new Date(Number(modifiedTimestamp));
@@ -739,7 +745,7 @@ async function pageFunction(context) {
             log,
             skipLinks,
             page,
-            Apify
+            Apify,
         } = context;
 
         // Inject jQuery

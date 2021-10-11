@@ -341,7 +341,7 @@ async function pageFunction(context) {
                 url: actorDetailUrl,
                 userData: {
                     label: 'DETAIL',
-                }
+                },
             });
         }
     }
@@ -380,7 +380,7 @@ async function pageFunction(context) {
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper
 scrape all of the actors' data. After it succeeds, open the Dataset again and see the clean items.
 You should have a table of all the actor's details in front of you. If you do, great job! You've successfully
-scraped the Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
+scraped Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
 > There's an important caveat. The way we implemented pagination here is in no way a generic system that you can easily
 use with other websites. Cheerio is fast (and that means it's cheap), but it's not easy. Sometimes there's just no way
@@ -432,7 +432,7 @@ async function pageFunction(context) {
                 url: actorDetailUrl,
                 userData: {
                     label: 'DETAIL',
-                }
+                },
             });
         }
     }
