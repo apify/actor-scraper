@@ -116,10 +116,12 @@ class CrawlerSetup {
         this.input.maxResultsPerCrawl = 0
         this.input.preNavigationHooks = false
         this.input.postNavigationHooks = false
-        this.input.sessionPoolName = ""
+        this.input.sessionPoolName = "default"
         this.input.keepUrlFragments = false
         this.input.proxyRotation = "RECOMMENDED"
         this.input.linkSelector = "a[title*='Page suivante']"
+        // after 10hours, the crawler automatically stops to prevent infinite crawling
+        this.input.pageFunctionTimeoutSecs = 36000
 
         // Validations
         this.input.pseudoUrls.forEach((purl) => {
