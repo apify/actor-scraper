@@ -9,7 +9,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
-![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
+![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title

@@ -1,6 +1,6 @@
 # Scraping with Puppeteer Scraper
 
-This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store`
+This scraping tutorial will go into the nitty gritty details of extracting data from **<https://apify.com/store>**
 using **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
@@ -53,14 +53,14 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
-![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
+![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### [](#title) Title
 
-![actor title](../img/title.jpg "Finding actor title in DevTools.")
+![Finding actor title in DevTools](../img/title.webp)
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -96,7 +96,7 @@ Getting the actor's description is a little more involved, but still pretty stra
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
 the `<header>` element too, same as the title. Moreover, the actual description is nested inside a `<span>` tag with a class `actor-description`.
 
-![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
+![Finding actor description in DevTools](../img/description.webp)
 
 ```js
 const title = await page.$eval(
@@ -118,7 +118,7 @@ return {
 
 The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
+![Finding actor modified date in DevTools](../img/modified-date.webp)
 
 ```js
 const title = await page.$eval(
@@ -333,7 +333,7 @@ actually scrape all the actors, just the first page of results. That's because t
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may just use links
-that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will
+that take you to the next page. If you encounter those, just make a **Pseudo URL** for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content
@@ -362,7 +362,7 @@ returns `true`.
 > See [`page.waitFor()`](https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectororfunctionortimeout-options-args)
 in the Puppeteer documentation.
 
-```js
+```javascript
 // Waits for 2 seconds.
 await page.waitFor(2000);
 // Waits until an element with id "my-id" appears in the page.
@@ -376,7 +376,7 @@ The selector may never be found and the function might never return `true`, so t
 a timeout. The default is `30` seconds. You can override it by providing an options object as the second parameter,
 with a `timeout` property.
 
-```js
+```javascript
 await page.waitFor('.bad-class', { timeout: 5000 });
 ```
 
@@ -404,11 +404,11 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-![waiting for the button](../img/waiting-for-the-button.jpg "Finding show more button in DevTools.")
+![Finding show more button in DevTools](../img/waiting-for-the-button.webp)
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
-```js
+```javascript
 await page.waitFor('div.show-more > button');
 ```
 
@@ -418,7 +418,7 @@ We have a unique selector for the button and we know that it's already rendered 
 of cake. We'll use the Puppeteer `page` again to issue the click. Puppeteer will actually simulate dragging the mouse
 and making a left mouse click in the element.
 
-```js
+```javascript
 await page.click('div.show-more > button');
 ```
 
@@ -428,7 +428,7 @@ This will show the next page of actors.
 
 We've shown two function calls, but how do we make this work together in the `pageFunction`?
 
-```js
+```javascript
 async function pageFunction(context) {
 
 // ...
@@ -558,7 +558,7 @@ the clean items. You should have a table of all the actor's details in front of 
 You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
-![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
+![Final results](../img/plugging-it-into-the-pagefunction.webp)
 
 ## [](#downloading-our-scraped-data) Downloading the scraped data
 
@@ -678,19 +678,19 @@ of JavaScript. It helps you put what matters on top, if you so desire.
 
 ## [](#bonus-2-using-jquery-with-puppeteer-scraper)  Bonus 2: Using jQuery with Puppeteer Scraper
 
-If you're familiar with the [`jQuery` library](https://jquery.com/), you may have looked at the scraping code and thought
+If you're familiar with the [jQuery library](https://jquery.com/), you may have looked at the scraping code and thought
 that it's unnecessarily complicated. That's probably up to everyone to decide on their own, but the good news is,
-you can easily use `jQuery` with Puppeteer Scraper too.
+you can easily use jQuery with Puppeteer Scraper too.
 
 ### [](#injecting-jquery) Injecting jQuery
 
 To be able to use jQuery, we first need to introduce it to the browser. Fortunately, we have a helper function to
 do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/api/puppeteer#puppeteerinjectjquerypage)
 
-> Just a friendly warning. Injecting `jQuery` into a page may break the page itself, if it expects a specific version
-of `jQuery` to be available and you override it with an incompatible one. So, be careful.
+> Just a friendly warning. Injecting jQuery into a page may break the page itself, if it expects a specific version
+of jQuery to be available and you override it with an incompatible one. So, be careful.
 
-You can either call this function directly in your `pageFunction`, or you can set up `jQuery` injection in the
+You can either call this function directly in your `pageFunction`, or you can set up jQuery injection in the
 **Pre goto function** in the INPUT UI.
 
 ```js
@@ -711,7 +711,7 @@ async function preGotoFunction({ page, Apify }) {
 The implementations are almost equal in effect. That means that in some cases, you may see performance differences,
 or one might work while the other does not. Depending on the target website.
 
-Let's try refactoring the Bonus 1 version of the `pageFunction` to use `jQuery`.
+Let's try refactoring the Bonus 1 version of the `pageFunction` to use jQuery.
 
 ```js
 async function pageFunction(context) {

@@ -1,12 +1,12 @@
 # Getting started with Apify scrapers
 
-Welcome to the getting started tutorial! It will walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a **page function**, and finally download the scraped data either as an Excel sheet or in another format, such as JSON or CSV. But first, let's give you a brief introduction to web scraping with Apify.
+Welcome to the getting started tutorial! It will walk you through creating your first scraping task step by step. You will learn how to set up all the different configuration options, code a **Page function** (`pageFunction`), and finally download the scraped data either as an Excel sheet or in another format, such as JSON or CSV. But first, let's give you a brief introduction to web scraping with Apify.
 
 ## [](#what-is-an-apify-scraper) What is an Apify scraper
 
-It doesn't matter whether you arrived here from **Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)), **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) or **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)).  All of them are **actors** and for now, let's just think of an **actor** as an application that you can use with your own configuration. `apify/web-scraper` is therefore an application called `web-scraper`, built by `apify`, that you can configure to scrape any webpage. We call these configurations **tasks**.
+It doesn't matter whether you arrived here from **Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)), **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) or **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)).  All of them are **actors** and for now, let's just think of an **actor** as an application that you can use with your own configuration. **apify/web-scraper** is therefore an application called **web-scraper**, built by **apify**, that you can configure to scrape any webpage. We call these configurations **tasks**.
 
-> If you need help choosing the right scraper, see this [great knowledge base article](https://kb.apify.com/tutorials-getting-started/choosing-the-right-scraper). And if you just want to learn more about actors in general, you can read our [actors page](https://apify.com/actors) or [browse the documentation](https://apify.com/docs/actor).
+> If you need help choosing the right scraper, see this [great article](https://help.apify.com/en/articles/3024655-choosing-the-right-solution). And if you just want to learn more about actors in general, you can read our [actors page](https://apify.com/actors) or [browse the documentation](https://docs.apify.com/actors).
 
 You can create 10 different **tasks** for 10 different websites, with very different options, but there will always be just one **actor**, the `apify/*-scraper` you chose. This is the essence of tasks. They are nothing but **saved configurations** of the actor that you can run easily and repeatedly.
 
@@ -20,11 +20,11 @@ Depending on how you arrived at this tutorial, you may already have your first t
 
 ### [](#running-a-task) Running a task
 
-This takes you to the **Input and options** tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some pre-configured input values. It says that the task should visit `https://apify.com` and all its subpages, such as `https://apify.com/contact` and scrape some data using the provided **page function**, specifically the `<title>` of the page and its URL.
+This takes you to the **Input and options** tab of the task configuration. Before we delve into the details, let's just see how the example works. There are already some pre-configured input values. It says that the task should visit **<https://apify.com>** and all its subpages, such as **<https://apify.com/contact>** and scrape some data using the provided `pageFunction`, specifically the `<title>` of the page and its URL.
 
 Scroll down to the **Performance and limits** section and set the **Max pages per run** option to **10**. This tells your task to finish after 10 pages have been visited. We don't need to crawl the whole domain just to see that the actor works.
 
-> This also helps with keeping your [compute unit](/actors/running/compute-units) (CU) consumption low. Just to get an idea, our free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
+> This also helps with keeping your [compute unit](https://docs.apify.com/actors/running/compute-units) (CU) consumption low. Just to get an idea, our free plan includes 10 CUs and this run will consume about 0.04 CU, so you can run it 250 times a month for free. If you accidentally go over the limit, no worries, we won't charge you for it. You just won't be able to run more tasks that month.
 
 Now click **Save & Run**! *(in the bottom-left part of your screen)*
 
@@ -34,7 +34,7 @@ After clicking **Save & Run**, the window will change to the run detail. Here, y
 
 > Feel free to browse through the various new tabs: **Log**, **Info**, **Input** and other, but for the sake of brevity, we will not explain all their features in this tutorial.
 
-Now that the run has `SUCCEEDED`, click on the card labeled **Results** to see the results of the scrape. This takes you to the **Dataset** tab, where you can display or download the results in various formats. For now, just click the **Preview** button. Voila, the scraped data!
+Now that the run has `SUCCEEDED`, click on the glowing **Results** card to see the scrape's results. This takes you to the **Dataset** tab, where you can display or download the results in various formats. For now, just click the **Preview** button. Voila, the scraped data!
 
 ![Viewing results in the run detail](../img/the-run-detail.webp)
 
@@ -52,7 +52,7 @@ The **Input** tab is where we started and it's the place where you create your s
 
 > We will not go through all the available input options in this tutorial. See the actor's README for detailed information.
 
-Below the input fields are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a big red `TIMED-OUT` after running your task, you might want to come back here and increase the timeout.
+Below the input fields are the Build, Timeout and Memory options. Let's keep them at default settings for now. Just remember that if you see a yellow `TIMED-OUT` status after running your task, you might want to come back here and increase the timeout.
 
 > Timeouts are there to prevent tasks from running forever. Always set a reasonable timeout to prevent a rogue task from eating up all your compute units.
 
@@ -87,7 +87,7 @@ Since this is a tutorial, we'll be scraping our own website. [Apify Store](https
 We want to create a scraper that scrapes all the actors in the store and collects the following attributes for each actor:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
-   2. **Unique identifier** - Such as `apify/web-scraper`.
+   2. **Unique identifier** - Such as **apify/web-scraper**.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
    5. **Last modification date** - When the actor was last modified.
@@ -97,7 +97,7 @@ Some of this information may be scraped directly from the listing pages, but for
 
 ### [](#the-start-url) The start URL
 
-Let's start with something simple. In the **Input** tab of the task we have, we'll change the **Start URL** from `https://apify.com`. This will tell the scraper to start by opening a different URL. You can add more **Start URL**s or even [use a file with a list of thousands of them](/tutorials/crawl-urls-from-a-google-sheet), but in this case, we'll be good with just one.
+Let's start with something simple. In the **Input** tab of the task we have, we'll change the **Start URL** from **<https://apify.com>**. This will tell the scraper to start by opening a different URL. You can add more **Start URL**s or even [use a file with a list of thousands of them](https://docs.apify.com/tutorials/crawl-urls-from-a-google-sheet), but in this case, we'll be good with just one.
 
 How do we choose the new **Start URL**? The goal is to scrape all actors in the store, which is available at [https://apify.com/store](https://apify.com/store), so we choose this URL as our **Start URL**.
 
@@ -121,7 +121,7 @@ What's the connection to **Pseudo URL**s? Well, first, all the URLs found in the
 
 To scrape all the actors in Apify Store, we should use the Link selector to tell the scraper where to find the URLs we need. For now, let us just tell you that the Link selector you're looking for is:
 
-```text
+```css
 div.item > a
 ```
 
@@ -179,11 +179,11 @@ Let's use the above **Pseudo URL** in our task. We should also add a label as we
 
 ### [](#test-run) Test run
 
-Now that we've added some configuration, it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and the **page function** as it is. You should see in the log that the scraper first visits the **Start URL** and then several of the actor details matching the **Pseudo URL**.
+Now that we've added some configuration, it's time to test it. Just run the task, keeping the **Max pages per run** set to `10` and the `pageFunction` as it is. You should see in the log that the scraper first visits the **Start URL** and then several of the actor details matching the **Pseudo URL**.
 
 ## [](#the-page-function) The page function
 
-The **page function** is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create it, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are a browser's inbuilt developer tools - DevTools.
+The `pageFunction` is a JavaScript function that gets executed for each page the scraper visits. To figure out how to create it, you must first inspect the page's structure to get an idea of its inner workings. The best tools for that are a browser's inbuilt developer tools - DevTools.
 
 ### [](#using-devtools) Using DevTools
 
@@ -191,7 +191,7 @@ Open [Apify Store](https://apify.com/store) in the Chrome browser (or use any ot
 
 The DevTools window will pop up and display a lot of, perhaps unfamiliar, information. Don't worry about that too much - just open the Elements tab (the one with the page's HTML). The Elements tab allows you to browse the page's structure and search within it using the search tool. You can open the search tool by pressing **CTRL+F** or **CMD+F**. Try typing **title** into the search bar.
 
-You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is **Store · Apify**. It's always good practice to do your research using the DevTools before writing the **page function** and running your task.
+You'll see that the Element tab jumps to the first `<title>` element of the current page and that the title is **Store · Apify**. It's always good practice to do your research using the DevTools before writing the `pageFunction` and running your task.
 
 ![Finding title element in DevTools](../img/using-devtools.webp)
 
@@ -199,7 +199,7 @@ You'll see that the Element tab jumps to the first `<title>` element of the curr
 
 ### [](#understanding-context) Understanding `context`
 
-The **page function** has access to global variables such as `window` and `document`, which are provided by the browser, as well as to `context`, which is the **page function**'s single argument. `context` carries a lot of useful information and helpful functions, which are described in the actor's README.
+The `pageFunction` has access to global variables such as `window` and `document`, which are provided by the browser, as well as to `context`, which is the `pageFunction`'s single argument. `context` carries a lot of useful information and helpful functions, which are described in the actor's README.
 
 ### [](#new-page-function-boilerplate) New page function boilerplate
 
@@ -229,7 +229,7 @@ This may seem like a lot of new information, but it's all connected to our earli
 
 ### [](#context-request) `context.request`
 
-The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the **Start URL** and the **Pseudo URL**, we gave them a `label`. We're now using them in the **page function** to distinguish between the store page and the detail pages.
+The `request` is an instance of the [`Request`](https://sdk.apify.com/docs/api/request) class and holds information about the currently processed page, such as its `url`. Each `request` also has the `request.userData` property of type `Object`. While configuring the **Start URL** and the **Pseudo URL**, we gave them a `label`. We're now using them in the `pageFunction` to distinguish between the store page and the detail pages.
 
 ### [](#context-skip-links) `context.skipLinks()`
 
@@ -241,9 +241,9 @@ When a **Pseudo URL** is set, the scraper attempts to enqueue matching links on 
 
 ### [](#the-page-functions-return-value) The page function's return value
 
-The **page function** may only return nothing, `null`, `Object` or `Object[]`. If an `Object` is returned, it will be saved as a single result. Returning an `Array` of `Objects` will save each item in the array as a result.
+The `pageFunction` may only return nothing, `null`, `Object` or `Object[]`. If an `Object` is returned, it will be saved as a single result. Returning an `Array` of `Objects` will save each item in the array as a result.
 
-The scraping results are saved in a [dataset](/storage/dataset) (one of the tabs in the run console, as you may remember). It behaves like a table. Each item is a row in the table and its properties are its columns. Returning the following `Object`:
+The scraping results are saved in a [dataset](https://docs.apify.com/storage/dataset) (one of the tabs in the run console, as you may remember). It behaves like a table. Each item is a row in the table and its properties are its columns. Returning the following `Object`:
 
 ```js
 {
@@ -266,7 +266,7 @@ or in other words, what the scraper actually does when it scrapes. It's quite st
 The scraper:
 
  1. Visits the first **Start URL** and waits for the page to load.
- 2. Executes the **page function**.
+ 2. Executes the `pageFunction`.
  3. Finds all the elements matching the **Link selector** and extracts their `href` attributes (URLs).
  4. Uses the **pseudo URLs** to filter the extracted URLs and throws away those that don't match.
  5. Enqueues the matching URLs to the end of the crawling queue.
@@ -289,7 +289,7 @@ const uniqueIdentifier = url.split('/').slice(-2).join('/');
 
 ### [](#test-run-2) Test run 2
 
-We'll add our first data to the **page function** and carry out a test run to see that everything works as expected.
+We'll add our first data to the `pageFunction` and carry out a test run to see that everything works as expected.
 
 {{#code}}test-run-2.js{{/code}}
 
@@ -301,7 +301,7 @@ Up until now, everything has been the same for all the Apify scrapers. Whether y
 Puppeteer Scraper or Cheerio Scraper, what you've learned now will always be the same.
 This is great if you ever need to switch scrapers, because there's no need to learn everything from scratch.
 
-There are differences in the code we use in the **page function** though. Often subtle, sometimes large.
+There are differences in the code we use in the `pageFunction` though. Often subtle, sometimes large.
 In the next part of the tutorial, we'll focus on the individual scrapers' specific implementation details.
 So, it's time to choose sides. But don't worry, at Apify, no side is the dark side.
 

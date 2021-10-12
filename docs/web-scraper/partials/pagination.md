@@ -30,11 +30,11 @@ With those tools, you should be able to handle any dynamic content the website t
 
 With the theory out of the way, this should be pretty easy. The algorithm is a loop:
 
-   1. Wait for the **Show more** button.
-   2. Click it.
-   3. Is there another **Show more** button?
-      - Yes? Repeat the above. (loop)
-      - No? We're done. We have all the actors.
+1. Wait for the **Show more** button.
+2. Click it.
+3. Is there another **Show more** button?
+    - Yes? Repeat the above. (loop)
+    - No? We're done. We have all the actors.
 
 #### Waiting for the button
 
@@ -48,7 +48,7 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-![waiting for the button](../img/waiting-for-the-button.jpg "Finding show more button in DevTools.")
+![Finding show more button in DevTools](../img/waiting-for-the-button.webp)
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
@@ -58,8 +58,7 @@ await waitFor('div.show-more > button');
 
 #### Clicking the button
 
-We have a unique selector for the button and we know that it's already rendered in the page. Clicking it is a piece
- of cake. We'll use `jQuery` again, but feel free to use plain JavaScript, it works the same.
+We have a unique selector for the button and we know that it's already rendered in the page. Clicking it is a piece of cake. We'll use jQuery again, but feel free to use plain JavaScript, it works the same.
 
 ```js
 $('div.show-more > button').click()
@@ -109,7 +108,7 @@ already loaded and we're just waiting for the page to re-render so waiting for `
 that the button is not there. We don't want to stall the scraper for `20` seconds just to make sure that there's
 no button.
 
-### [](#plugging-it-into-the-page-function) Plugging it into the Page function
+### [](#plugging-it-into-the-page-function) Plugging it into the pageFunction
 
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it. And don't forget to destructure the `waitFor()`
@@ -123,4 +122,4 @@ the clean items. You should have a table of all the actor's details in front of 
 You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
-![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
+![Final results](../img/plugging-it-into-the-pagefunction.webp)

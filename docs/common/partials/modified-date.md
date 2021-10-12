@@ -2,7 +2,7 @@
 
 The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
+![Finding actor modified date in DevTools](../img/modified-date.webp)
 
 {{#code}}modified-date.js{{/code}}
 {{> note-modified-date}}

@@ -1,6 +1,6 @@
 # Scraping with Web Scraper
 
-This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store`
+This scraping tutorial will go into the nitty gritty details of extracting data from **<https://apify.com/store>**
 using **Web Scraper** ([apify/web-scraper](https://apify.com/apify/web-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
@@ -11,13 +11,12 @@ because this one builds on topics and code examples discussed there.
 In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial,
 we've confirmed that the scraper works as expected, so now it's time to add more data to the results.
 
-To do that, we'll be using the [`jQuery` library](https://jquery.com/), because it provides some nice tools
+To do that, we'll be using the [jQuery library](https://jquery.com/), because it provides some nice tools
 and a lot of people familiar with JavaScript already know how to use it.
 
-> If you're not familiar with `jQuery`, you can find good information [in the docs](https://api.jquery.com/)
-and if you just don't want to use it, that's okay. Everything can be done using pure JavaScript too.
+> If you're not familiar with jQuery, you can find good information [in its docs](https://api.jquery.com/). And if you just don't want to use it, that's okay. Everything can be done using pure JavaScript, too.
 
-To add `jQuery`, all we need to do is turn on **Inject jQuery** under INPUT **Options**.
+To add jQuery, all we need to do is turn on **Inject jQuery** under the  **Input and options** tab.
 This will add a `context.jQuery` function that you can use.
 
 Now that's out of the way, let's open one of the actor detail pages in the Store, for example
@@ -34,14 +33,14 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
-![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
+![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### [](#title) Title
 
-![actor title](../img/title.jpg "Finding actor title in DevTools.")
+![Finding actor title in DevTools](../img/title.webp)
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -68,7 +67,7 @@ Getting the actor's description is a little more involved, but still pretty stra
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
 the `<header>` element too, same as the title. Moreover, the actual description is nested inside a `<span>` tag with a class `actor-description`.
 
-![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
+![Finding actor description in DevTools](../img/description.webp)
 
 ```js
 return {
@@ -81,7 +80,7 @@ return {
 
 The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
+![Finding actor modified date in DevTools](../img/modified-date.webp)
 
 ```js
 return {
@@ -225,7 +224,7 @@ actually scrape all the actors, just the first page of results. That's because t
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may just use links
-that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will
+that take you to the next page. If you encounter those, just make a **Pseudo URL** for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content
@@ -275,11 +274,11 @@ With those tools, you should be able to handle any dynamic content the website t
 
 With the theory out of the way, this should be pretty easy. The algorithm is a loop:
 
-   1. Wait for the **Show more** button.
-   2. Click it.
-   3. Is there another **Show more** button?
-      - Yes? Repeat the above. (loop)
-      - No? We're done. We have all the actors.
+1. Wait for the **Show more** button.
+2. Click it.
+3. Is there another **Show more** button?
+    - Yes? Repeat the above. (loop)
+    - No? We're done. We have all the actors.
 
 #### Waiting for the button
 
@@ -293,7 +292,7 @@ div.show-more > button
 
 > Don't forget to confirm our assumption in the DevTools finder tool (CTRL/CMD + F).
 
-![waiting for the button](../img/waiting-for-the-button.jpg "Finding show more button in DevTools.")
+![Finding show more button in DevTools](../img/waiting-for-the-button.webp)
 
 Now that we know what to wait for, we just plug it into the `waitFor()` function.
 
@@ -303,8 +302,7 @@ await waitFor('div.show-more > button');
 
 #### Clicking the button
 
-We have a unique selector for the button and we know that it's already rendered in the page. Clicking it is a piece
- of cake. We'll use `jQuery` again, but feel free to use plain JavaScript, it works the same.
+We have a unique selector for the button and we know that it's already rendered in the page. Clicking it is a piece of cake. We'll use jQuery again, but feel free to use plain JavaScript, it works the same.
 
 ```js
 $('div.show-more > button').click()
@@ -354,7 +352,7 @@ already loaded and we're just waiting for the page to re-render so waiting for `
 that the button is not there. We don't want to stall the scraper for `20` seconds just to make sure that there's
 no button.
 
-### [](#plugging-it-into-the-page-function) Plugging it into the Page function
+### [](#plugging-it-into-the-page-function) Plugging it into the pageFunction
 
 We've got the general algorithm ready, so all that's left is to integrate it into our earlier `pageFunction`.
 Remember the `// Do some stuff later` comment? Let's replace it. And don't forget to destructure the `waitFor()`
@@ -428,7 +426,7 @@ the clean items. You should have a table of all the actor's details in front of 
 You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
-![final results](../img/plugging-it-into-the-pagefunction.jpg "Final results.")
+![Final results](../img/plugging-it-into-the-pagefunction.webp)
 
 ## [](#debugging) Debugging
 
@@ -438,7 +436,7 @@ Web scraping can be tricky, so it's common to run into issues while coding your 
 
 To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the [INPUT](https://apify.com/apify/web-scraper?section=input-schema) section. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the Run mode to PRODUCTION.
 
-![setting the run mode](../img/debugging-run-mode.jpg "Setting the actor's Run mode.")
+![Setting the actor's Run mode](../img/debugging-run-mode.webp)
 
 Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/tutorials/apify-scrapers/getting-started#the-page-function) wherever you need to set one.
 
@@ -476,7 +474,7 @@ Additionally, use the **Advanced configuration** menu to set breakpoints outside
 
 Once you've set your input and breakpoints, click the **Save & Run** button to try the debugger for yourself. To let you know you're in development mode, the LOG will display the following banner.
 
-![development log example](../img/debugging-log.jpg "The log shows a banner to tell you you're in development mode.")
+![The log shows a banner to tell you you're in development mode](../img/debugging-log.webp)
 
 Over in the LIVE VIEW tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your Page function, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
 

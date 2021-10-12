@@ -5,7 +5,7 @@ actually scrape all the actors, just the first page of results. That's because t
 one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may just use links
-that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they will
+that take you to the next page. If you encounter those, just make a **Pseudo URL** for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content

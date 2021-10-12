@@ -1,6 +1,6 @@
 # Scraping with Cheerio Scraper
 
-This scraping tutorial will go into the nitty gritty details of extracting data from `https://apify.com/store`
+This scraping tutorial will go into the nitty gritty details of extracting data from **<https://apify.com/store>**
 using **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
@@ -12,8 +12,8 @@ In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tut
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Cheerio`](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
-so let me try again. Does [`jQuery` library](https://jquery.com/) ring a bell? If it does you're in luck,
-because `Cheerio` is just `jQuery` that doesn't need an actual browser to run. Everything else is the same.
+so let me try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
+because `Cheerio` is just jQuery that doesn't need an actual browser to run. Everything else is the same.
 All the functions you already know are there and even the familiar `$` is used. If you still have no idea what either
 of those are, don't worry. We'll walk you through using them step by step.
 
@@ -36,14 +36,14 @@ Before we start, let's do a quick recap of the data we chose to scrape:
    5. **Last modification date** - When the actor was last modified.
    6. **Number of runs** - How many times the actor was run.
 
-![data to scrape](../img/scraping-practice.jpg "Overview of data to be scraped.")
+![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
 tutorial, so let's get to the next one on the list: Title
 
 ### [](#title) Title
 
-![actor title](../img/title.jpg "Finding actor title in DevTools.")
+![Finding actor title in DevTools](../img/title.webp)
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.
@@ -70,7 +70,7 @@ Getting the actor's description is a little more involved, but still pretty stra
 there's a lot of them in the page. We need to narrow our search down a little. Using the DevTools we find that the actor description is nested within
 the `<header>` element too, same as the title. Moreover, the actual description is nested inside a `<span>` tag with a class `actor-description`.
 
-![actor description selector](../img/description.jpg "Finding actor description in DevTools.")
+![Finding actor description in DevTools](../img/description.webp)
 
 ```js
 return {
@@ -83,7 +83,7 @@ return {
 
 The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
 
-![actor modified date selector](../img/modified-date.jpg "Finding actor modified date in DevTools.")
+![Finding actor modified date in DevTools](../img/modified-date.webp)
 
 ```js
 return {
@@ -251,7 +251,7 @@ ever could.
 We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
 Then we click the Show more button and wait for incoming requests to appear in the list.
 
-![inspect-network](../img/inspect-network.jpg "Inspecting network in DevTools.")
+![Inspecting network in DevTools](../img/inspect-network.webp)
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
 data. This means that the data about actors must already be available in the page and the Show more button only
@@ -265,7 +265,7 @@ few hits do not provide any interesting information, but in the end, we find our
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
 you can right click an element and click **Store as global variable** to make this element available in the Console.
 
-![find-data](../img/find-data.jpg "Finding the hidden actor data.")
+![Finding the hidden actor data](../img/find-data.webp)
 
 A `temp1` variable is now added to your console. We're mostly interested in its contents and we can get that using
 the `temp1.textContent` property. You can see that it's a rather large JSON string. How do we know?
@@ -279,7 +279,7 @@ const data = JSON.parse(temp1.textContent);
 After entering the above command into the console, we can inspect the `data` variable and see that all the information
 we need is there, in the `data.props.pageProps.items` array. Great!
 
-![inspect-data](../img/inspect-data.jpg "Inspecting the hidden actor data.")
+![Inspecting the hidden actor data](../img/inspect-data.webp)
 
 > It's obvious that all the information we set to scrape is available in this one data object,
 so you might already be wondering, can I just make one request to the store to get this JSON
