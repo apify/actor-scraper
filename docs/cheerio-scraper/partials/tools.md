@@ -4,7 +4,7 @@ In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tut
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Cheerio`](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
-so let me try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
+so let's try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
 because `Cheerio` is just jQuery that doesn't need an actual browser to run. Everything else is the same.
 All the functions you already know are there and even the familiar `$` is used. If you still have no idea what either
 of those are, don't worry. We'll walk you through using them step by step.

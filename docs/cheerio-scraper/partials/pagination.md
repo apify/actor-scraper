@@ -2,7 +2,7 @@
 
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
-one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
+one needs to click the **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may use links
 that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they

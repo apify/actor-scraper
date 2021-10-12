@@ -14,7 +14,7 @@ we've confirmed that the scraper works as expected, so now it's time to add more
 To do that, we'll be using the [jQuery library](https://jquery.com/), because it provides some nice tools
 and a lot of people familiar with JavaScript already know how to use it.
 
-> If you're not familiar with jQuery, you can find good information [in its docs](https://api.jquery.com/). And if you just don't want to use it, that's okay. Everything can be done using pure JavaScript, too.
+> [Check out the jQuery docs](https://api.jquery.com/) if you're not familiar with it. And if you just don't want to use it, that's okay. Everything can be done using pure JavaScript, too.
 
 To add jQuery, all we need to do is turn on **Inject jQuery** under the  **Input and options** tab.
 This will add a `context.jQuery` function that you can use.
@@ -27,7 +27,7 @@ the [Web Scraper](https://apify.com/apify/web-scraper) page and use our DevTools
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
-   2. **Unique identifier** - Such as `apify/web-scraper`.
+   2. **Unique identifier** - Such as **apify/web-scraper**.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
    5. **Last modification date** - When the actor was last modified.
@@ -78,7 +78,7 @@ return {
 
 ### [](#modified-date) Modified date
 
-The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
+The DevTools tell us that the `modifiedDate` can be found in a `<time>` element.
 
 ![Finding actor modified date in DevTools](../img/modified-date.webp)
 
@@ -94,9 +94,7 @@ return {
 };
 ```
 
-It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
-second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
-`string`.
+It might look a little too complex at first glance, but let us walk you through it. We find all the `<time>` elements. Then, we read its `datetime` attribute, because that's where a unix timestamp is stored as a `string`.
 
 But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()`
 constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`.
@@ -214,23 +212,23 @@ async function pageFunction(context) {
 ### [](#test-run) Test run
 
 As always, try hitting that **Save & Run** button  and visit
-the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
+the **Dataset** preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!
 
 ## [](#pagination) Pagination
 
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
-one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
+one needs to click the **Show more** button at the very bottom of the list. This is pagination.
 
-> This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may just use links
+> This is a typical form of JavaScript pagination, sometimes called infinite scroll. Other pages may just use links
 that take you to the next page. If you encounter those, just make a **Pseudo URL** for those links and they will
 be automatically enqueued to the request queue. Use a label to let the scraper know what kind of URL it's processing.
 
 ### [](#waiting-for-dynamic-content) Waiting for dynamic content
 
 Before we talk about paginating, we need to have a quick look at dynamic content. Since Apify Store is a JavaScript
-application (as many, if not most modern websites are), the button might not exist in the page when the scraper
+application (as many, if not most, modern websites are), the button might not exist in the page when the scraper
 runs the `pageFunction`.
 
 How is this possible? Because the scraper only waits with executing the `pageFunction` for the page to load its HTML.
@@ -430,15 +428,15 @@ it's probably just some typo.
 
 ## [](#debugging) Debugging
 
-Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **LIVE VIEW** tab.
+Web scraping can be tricky, so it's common to run into issues while coding your scraper. To help you solve these issues, we've enlisted the mighty [Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools) as part of our debugging toolkit. It allows you to monitor every step your scraper makes, all from the comfort of the **Live view** tab.
 
 > The debugger is optimized to work with Google Chrome. It will still work with Firefox but for best results, we suggest using Chrome.
 
-To enable the debugger, set your actor's **Run mode** to DEVELOPMENT in the [INPUT](https://apify.com/apify/web-scraper?section=input-schema) section. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the Run mode to PRODUCTION.
+To enable the debugger, set your actor's **Run mode** to DEVELOPMENT under the **Input and options** tab. DEVELOPMENT mode restricts the actor's concurrency to 1 and increases timeouts to help you debug more easily. When you're done, make sure to set the **Run mode** back to PRODUCTION.
 
 ![Setting the actor's Run mode](../img/debugging-run-mode.webp)
 
-Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [Page function](https://docs.apify.com/tutorials/apify-scrapers/getting-started#the-page-function) wherever you need to set one.
+Now, debugging wouldn't be debugging without [breakpoints](https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints). Use the [`debugger`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) command in your [`pageFunction`](https://docs.apify.com/tutorials/apify-scrapers/getting-started#the-page-function) wherever you need to set one.
 
 ```javascript
 async function pageFunction(context) {
@@ -470,36 +468,33 @@ async function pageFunction(context) {
 }
 ```
 
-Additionally, use the **Advanced configuration** menu to set breakpoints outside the Page function. These allow you to start the debugger either before navigation to the URL, before invoking the Page function, and after the invocation.
+Additionally, use the **Advanced configuration** menu to set breakpoints outside the `pageFunction`. These allow you to start the debugger either before navigation to the URL, before invoking the `pageFunction`, and after the invocation.
 
-Once you've set your input and breakpoints, click the **Save & Run** button to try the debugger for yourself. To let you know you're in development mode, the LOG will display the following banner.
+Once you've set your input and breakpoints, click the **Save & Run** button to try the debugger for yourself. To let you know you're in development mode, the **Log** will display the following banner.
 
 ![The log shows a banner to tell you you're in development mode](../img/debugging-log.webp)
 
-Over in the LIVE VIEW tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your Page function, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
+Over in the **Live view** tab, the actor should have hit its first breakpoint. It will start on the **Sources** tab, which lets you control your breakpoints, look through the page's file tree, your `pageFunction`, and view useful information such as the page's **Scope**. The Scope includes the page's `context`and `request`. If you've already spent time debugging actors, you'll know - this will save you a lot of `console.log`s.
 
-Thinking of which, the **Console** tab allows you to execute statements in the context of your Page function. This means even fewer `console.log`s when checking if your values are of the right type and less tab-hopping when looking for that special [selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
+Thinking of which, the **Console** tab allows you to execute statements in the context of your `pageFunction`. This means even fewer `console.log`s when checking if your values are of the right type and less tab-hopping when looking for that special [selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Selectors).
 
-Take some time to play around with all the available options. If you're unfamiliar with debuggers and their controls, make sure to read [this article](https://developers.google.com/web/tools/chrome-devtools/javascript/reference#stepping) about stepping through your code.
+Take some time to play around with all the available options. If you're unfamiliar with debuggers and their controls, make sure to [read this article](https://developers.google.com/web/tools/chrome-devtools/javascript/reference#stepping) about stepping through your code.
 
 When you're finished with the debugging, don't forget to set your actor's **Run mode** to PRODUCTION.
 
 ## [](#downloading-our-scraped-data) Downloading the scraped data
 
-You already know the DATASET tab of the run console since this is where we've always previewed our data.
-Notice that at the bottom, there is a table with multiple data formats, such as JSON, CSV or an Excel sheet,
-and to the right, there are options to download the scraping results in any of those formats. Go ahead and try it.
+You already know the **Dataset** tab of the run console since this is where we've always previewed our data. Notice the row of data formats such as JSON, CSV, and Excel. Below it are options for viewing and downloading the data. Go ahead and try it.
 
-> If you prefer working with an API, you can find an example in the API tab of the run console: **Get dataset items**.
+> If you prefer working with an API, you can find the example endpoint under the API tab: **Get dataset items**.
 
 ### [](#items-and-clean-items) Items and Clean items
 
-There are two types of data available for download. Items and Clean items. The Items will always include a record
+There are two types of data available for download: standard and clean. The standard form will always include a record
 for each `pageFunction` invocation, even if you did not return any results. The record also includes hidden fields
-such as `#debug`, where you can find various information that can help you with debugging your scrapers.
+such as `#debug`, where you can find a variety of information that can help you with debugging your scrapers.
 
-Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested
-in the data you scraped, this format is what you will be using most of the time.
+Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested in the data you scraped, this format is what you will be using most of the time.
 
 ## [](#bonus-making-your-code-neater) Bonus: Making your code neater
 
@@ -578,6 +573,10 @@ of JavaScript. It helps you put what matters on top, if you so desire.
 
 ## [](#final-word) Final word
 
-Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
+Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [join us on Discord](https://discord.gg/jyEM2PRvMU)!
 
-Finally, Web Scraper is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!
+## [](#whats-next) What's next?
+
+* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
+* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) your own actors, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
+* Found out you're not into the coding part but would still to use Apify actors? Check out our [ready-made solutions](https://apify.com/store) or [order a custom actor](https://apify.com/custom-solutions) from an Apify-certified developer.

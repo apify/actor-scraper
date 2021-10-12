@@ -3,7 +3,7 @@
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
-   2. **Unique identifier** - Such as `apify/web-scraper`.
+   2. **Unique identifier** - Such as **apify/web-scraper**.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
    5. **Last modification date** - When the actor was last modified.

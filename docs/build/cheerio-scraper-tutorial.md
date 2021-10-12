@@ -12,7 +12,7 @@ In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tut
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [`Cheerio`](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
-so let me try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
+so let's try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
 because `Cheerio` is just jQuery that doesn't need an actual browser to run. Everything else is the same.
 All the functions you already know are there and even the familiar `$` is used. If you still have no idea what either
 of those are, don't worry. We'll walk you through using them step by step.
@@ -30,7 +30,7 @@ it's only because we didn't want to triple the number of screenshots we needed t
 Before we start, let's do a quick recap of the data we chose to scrape:
 
    1. **URL** - The URL that goes directly to the actor's detail page.
-   2. **Unique identifier** - Such as `apify/web-scraper`.
+   2. **Unique identifier** - Such as **apify/web-scraper**.
    3. **Title** - The title visible in the actor's detail page.
    4. **Description** - The actor's description.
    5. **Last modification date** - When the actor was last modified.
@@ -81,7 +81,7 @@ return {
 
 ### [](#modified-date) Modified date
 
-The DevTools tell us that the `modifiedDate` can be found in the second of the two `<time>` elements in the page.
+The DevTools tell us that the `modifiedDate` can be found in a `<time>` element.
 
 ![Finding actor modified date in DevTools](../img/modified-date.webp)
 
@@ -97,9 +97,7 @@ return {
 };
 ```
 
-It might look a little too complex at first glance, but let me walk you through it. We find all the `<time>` elements. There are two, so we grab the
-second one using the `.eq(1)` call (it's zero indexed) and then we read its `datetime` attribute, because that's where a unix timestamp is stored as a
-`string`.
+It might look a little too complex at first glance, but let us walk you through it. We find all the `<time>` elements. Then, we read its `datetime` attribute, because that's where a unix timestamp is stored as a `string`.
 
 But we would much rather see a readable date in our results, not a unix timestamp, so we need to convert it. Unfortunately the `new Date()`
 constructor will not accept a `string`, so we cast the `string` to a `number` using the `Number()` function before actually calling `new Date()`.
@@ -219,14 +217,14 @@ async function pageFunction(context) {
 ### [](#test-run) Test run
 
 As always, try hitting that **Save & Run** button  and visit
-the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
+the **Dataset** preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!
 
 ## [](#pagination) Pagination
 
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
-one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
+one needs to click the **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may use links
 that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they
@@ -390,20 +388,17 @@ define a correct Pseudo URL. So do your research first before giving up on Cheer
 
 ## [](#downloading-our-scraped-data) Downloading the scraped data
 
-You already know the DATASET tab of the run console since this is where we've always previewed our data.
-Notice that at the bottom, there is a table with multiple data formats, such as JSON, CSV or an Excel sheet,
-and to the right, there are options to download the scraping results in any of those formats. Go ahead and try it.
+You already know the **Dataset** tab of the run console since this is where we've always previewed our data. Notice the row of data formats such as JSON, CSV, and Excel. Below it are options for viewing and downloading the data. Go ahead and try it.
 
-> If you prefer working with an API, you can find an example in the API tab of the run console: **Get dataset items**.
+> If you prefer working with an API, you can find the example endpoint under the API tab: **Get dataset items**.
 
 ### [](#items-and-clean-items) Items and Clean items
 
-There are two types of data available for download. Items and Clean items. The Items will always include a record
+There are two types of data available for download: standard and clean. The standard form will always include a record
 for each `pageFunction` invocation, even if you did not return any results. The record also includes hidden fields
-such as `#debug`, where you can find various information that can help you with debugging your scrapers.
+such as `#debug`, where you can find a variety of information that can help you with debugging your scrapers.
 
-Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested
-in the data you scraped, this format is what you will be using most of the time.
+Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested in the data you scraped, this format is what you will be using most of the time.
 
 ## [](#bonus-making-your-code-neater) Bonus: Making your code neater
 
@@ -474,6 +469,10 @@ of JavaScript. It helps you put what matters on top, if you so desire.
 
 ## [](#final-word) Final word
 
-Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [do it on Stack Overflow](https://stackoverflow.com/questions/tagged/apify)!
+Thank you for reading this whole tutorial! Really! It's important to us that our users have the best information available to them so that they can use Apify easily and effectively. We're glad that you made it all the way here and congratulations on creating your first scraping task. We hope that you liked the tutorial and if there's anything you'd like to ask, [join us on Discord](https://discord.gg/jyEM2PRvMU)!
 
-Finally, Cheerio Scraper is just an actor and writing your own actors is a breeze with the [Apify SDK](https://sdk.apify.com). It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking. Perhaps some other time, when you're in the mood for yet another tutorial, visit the [Getting Started](https://sdk.apify.com/docs/guides/getting-started). We think you'd like it!
+## [](#whats-next) What's next?
+
+* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
+* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) your own actors, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
+* Found out you're not into the coding part but would still to use Apify actors? Check out our [ready-made solutions](https://apify.com/store) or [order a custom actor](https://apify.com/custom-solutions) from an Apify-certified developer.
