@@ -13,7 +13,7 @@ do just that: [`Apify.utils.puppeteer.injectJQuery`](https://sdk.apify.com/docs/
 of jQuery to be available and you override it with an incompatible one. So, be careful.
 
 You can either call this function directly in your `pageFunction`, or you can set up jQuery injection in the
-**Pre goto function** in the INPUT UI.
+**Pre goto function** in the **Input and options** section.
 
 ```js
 async function pageFunction(context) {
