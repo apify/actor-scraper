@@ -25,7 +25,7 @@
             "sectionCaption": "Proxy configuration",
             "title": "Choose 'Custom proxies' and get FRENCH ones",
             "type": "object",
-            "description": "Proxy servers to have a FRENCH IP, otherwise leboncoin will block you.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a>. <br><br> Should look like this : 'http://groups-RESIDENTIAL,country-FR:mmmdWt2t3Q83GNxTiuuyCZCghh@proxy.apify.com:8000' ",
+            "description": "Proxy servers to have a FRENCH IP, otherwise leboncoin will block you.<br><br>For details, see <a href='https://apify.com/apify/web-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a>. <br><br> Should look like this : 'http://groups-RESIDENTIAL,country-FR:balbalbalbaGNyTidoCZCfqg@proxy.apify.com:8000' ",
             "prefill": { "useApifyProxy": false },
             "default": { "useApifyProxy": false },
             "editor": "proxy"
