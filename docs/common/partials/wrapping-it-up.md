@@ -13,5 +13,5 @@ All we need to do now is add this to our `pageFunction`:
 ### [](#test-run) Test run
 
 As always, try hitting that **Save & Run** button {{dontForget}} and visit
-the Dataset preview of clean items. You should see a nice table of all the attributes correctly scraped.
+the **Dataset** preview of clean items. You should see a nice table of all the attributes correctly scraped.
 You nailed it!

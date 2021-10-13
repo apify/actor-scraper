@@ -1,6 +1,6 @@
 ### [](#title) Title
 
-![actor title](../img/title.jpg "Finding actor title in DevTools.")
+![Finding actor title in DevTools](../img/title.webp)
 
 By using the element selector tool, we find out that the title is there under an `<h1>` tag, as titles should be.
 Maybe surprisingly, we find that there are actually two `<h1>` tags on the detail page. This should get us thinking.

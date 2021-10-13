@@ -2,7 +2,7 @@
 
 Pagination is just a term that represents "going to the next page of results". You may have noticed that we did not
 actually scrape all the actors, just the first page of results. That's because to load the rest of the actors,
-one needs to click the orange **Show more** button at the very bottom of the list. This is pagination.
+one needs to click the **Show more** button at the very bottom of the list. This is pagination.
 
 > This is a typical JavaScript pagination, sometimes called infinite scroll. Other pages may use links
 that take you to the next page. If you encounter those, just make a Pseudo URL for those links and they
@@ -20,28 +20,25 @@ While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](http
 with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
-> It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
-<https://developers.google.com/web/tools/chrome-devtools/network/> which explains everything much better than we
-ever could.
+> DevTools is a powerful tool with many features, so if you're not familiar with it, please [see Google's tutorial](https://developers.google.com/web/tools/chrome-devtools/network/), which explains everything much better than we ever could.
 
-We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
-Then we click the Show more button and wait for incoming requests to appear in the list.
+We want to know what happens when we click the **Show more** button, so we open the DevTools **Network** tab and clear it.
+Then we click the **Show more** button and wait for incoming requests to appear in the list.
 
-![inspect-network](../img/inspect-network.jpg "Inspecting network in DevTools.")
+![Inspecting network in DevTools](../img/inspect-network.webp)
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
-data. This means that the data about actors must already be available in the page and the Show more button only
-displays it. This is good news.
+data. This means that the data about actors must already be available in the page and the **Show more** button only displays it. This is good news.
 
 ### [](#finding-the-actors) Finding the actors
 
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
-is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
+is Web Scraper, so let's try using the search tool in the **Elements** tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
-you can right click an element and click **Store as global variable** to make this element available in the Console.
+you can right click an element and click **Store as global variable** to make this element available in the **Console**.
 
-![find-data](../img/find-data.jpg "Finding the hidden actor data.")
+![Finding the hidden actor data](../img/find-data.webp)
 
 A `temp1` variable is now added to your console. We're mostly interested in its contents and we can get that using
 the `temp1.textContent` property. You can see that it's a rather large JSON string. How do we know?
@@ -55,7 +52,7 @@ const data = JSON.parse(temp1.textContent);
 After entering the above command into the console, we can inspect the `data` variable and see that all the information
 we need is there, in the `data.props.pageProps.items` array. Great!
 
-![inspect-data](../img/inspect-data.jpg "Inspecting the hidden actor data.")
+![Inspecting the hidden actor data](../img/inspect-data.webp)
 
 > It's obvious that all the information we set to scrape is available in this one data object,
 so you might already be wondering, can I just make one request to the store to get this JSON
@@ -103,9 +100,9 @@ Remember the `// Do some stuff later` comment? Let's replace it.
 {{#code}}pagination.js{{/code}}
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper
-scrape all of the actors' data. After it succeeds, open the Dataset again and see the clean items.
+scrape all of the actors' data. After it succeeds, open the **Dataset** tab again click on **Preview**.
 You should have a table of all the actor's details in front of you. If you do, great job! You've successfully
-scraped the Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
+scraped Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
 > There's an important caveat. The way we implemented pagination here is in no way a generic system that you can easily
 use with other websites. Cheerio is fast (and that means it's cheap), but it's not easy. Sometimes there's just no way
