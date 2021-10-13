@@ -1,60 +1,55 @@
 # Leboncoin
 
-This actor aims to extract information from leboncoin.fr using a Chromium browser and french Proxies. Data can be exported to various formats such as JSON or CSV.
+This actor aims to **extract information from leboncoin.fr** using a Chromium browser and french Proxies. Data can be exported to various formats such as JSON or CSV. You have to option to customise the information you want to extract by modifying the javascript function which is executed on each page.
 
 ## How to Start
+### Setup
 - On your laptop, simply go to leboncoin and make a search, with all the filters you want, and location you want. 
 - Then copy the URL of first page of search results, and paste it in the start-URL of this Actor.
 - Because leboncoin bans non-french request from its website, you will need to get custom french proxy (See bellow for more details about Proxies). Enter your french proxy IPs in the Proxy section
 
-✅ You are good to go !
+### Run
+- Click __Run_
+
+Then wait for the result to appear in the "dataset" section and download them.
 
 
 ## Proxy
 
-The **Proxy configuration** (`proxyConfiguration`) option enables you to set proxies that will be used by the scraper in order to prevent its detection by target websites.
-You can use both [Apify Proxy](https://apify.com/proxy) as well as custom HTTP or SOCKS5 proxy servers.
+The **Proxy** option sets proxies used in order to prevent detection by leboncoin. It's compulsory to have french proxies since leboncoin bans foreign IPs. That's why you must choose "Custom Proxies" since every other option are not french ones. see <a href="https://apify.com/proxy">Apify Proxy</a>
 
 The following table lists the available options of the proxy configuration setting:
 
 <table class="table table-bordered table-condensed">
     <tbody>
     <tr>
-        <th><b>None [won't work]</b></td>
-        <td>
-            The scraper will not use any proxies.
-            All web pages will be loaded directly from IP addresses of Apify servers running on Amazon Web Services.
-        </td>
-    </tr>
-    <tr>
-        <th><b>Apify&nbsp;Proxy,&nbsp;automatic [won't work]</b></td>
-        <td>
-            The proxy uses all proxy groups that are available to the user, and for each new web page it automatically selects the proxy
-            that hasn't been used in the longest time for the specific hostname, in order to reduce the chance of detection by the website.
-        </td>
-    </tr>
-    <tr>
-        <th><b>Apify&nbsp;Proxy,&nbsp;selected&nbsp;groups[won't work]</b></td>
-        <td>
-            The scraper will load all web pages using <a href="https://apify.com/proxy">Apify Proxy</a>
-            with specific groups of target proxy servers.
-        </td>
-    </tr>
-    <tr>
-        <th><b style="color:red">Custom&nbsp;proxies</b></td>
+        <th><b style="color:green">Custom&nbsp;proxies</b></td>
         <td>
             <p>
-            The scraper will use a custom list of proxy servers.
-            The proxies must be specified in the <code>scheme://user:password@host:port</code> format,
-            multiple proxies should be separated by a space or new line.
-            The URL scheme can be either <code>http</code> or <code>socks5</code>.
-            User and password might be omitted, but the port must always be present.
+            The scraper will use a custom list of proxy servers. Proxies must be specified in the <code>scheme://user:password@host:port</code> format.
+            <br>Note: multiple proxies should be separated by a space or new line. Scheme can be <code>http</code> or <code>socks5</code>. User & password are optional.
             </p>
             <p>
-                Example:
+                Example: <pre><code class="language-none">http://groups-RESIDENTIAL,country-FR:balbalbalbaGNyTidoCZCfqg@proxy.apify.com:8000</code></pre>
             </p>
-            <pre><code class="language-none">http://bob:password@proxy1.example.com:8000
-http://bob:password@proxy2.example.com:8000</code></pre>
+        </td>
+    </tr>
+        <tr>
+        <th><b style="color:red"><s>None</s> [ban from leboncoin]</b></td>
+        <td>
+            The scraper will not use any proxies, and will have AWS IPs from the united states.
+        </td>
+    </tr>
+    <tr>
+        <th><b style="color:red"><s>Apify&nbsp;Proxy,&nbsp;automatic</s> [ban from leboncoin]</b></td>
+        <td>
+            The proxy uses all proxy groups that are available to the user, but none of them are french
+        </td>
+    </tr>
+    <tr>
+        <th><b style="color:red"><s>Apify&nbsp;Proxy,&nbsp;selected&nbsp;groups</s> [ban from leboncoin]</b></td>
+        <td>
+            The proxy uses specific groups, but none of them are french
         </td>
     </tr>
     </tbody>
