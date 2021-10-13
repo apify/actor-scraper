@@ -117,8 +117,7 @@ function on the first line.
 {{#code}}pagination.js{{/code}}
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate
-through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see
-the clean items. You should have a table of all the actor's details in front of you. If you do, great job!
+through all the actors and then scrape all of their data. After it succeeds, open the **Dataset** tab again click on **Preview**. You should have a table of all the actor's details in front of you. If you do, great job!
 You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 

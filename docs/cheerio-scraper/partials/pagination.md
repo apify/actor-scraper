@@ -20,26 +20,23 @@ While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](http
 with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
-> It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
-<https://developers.google.com/web/tools/chrome-devtools/network/> which explains everything much better than we
-ever could.
+> DevTools is a powerful tool with many features, so if you're not familiar with it, please [see Google's tutorial](https://developers.google.com/web/tools/chrome-devtools/network/), which explains everything much better than we ever could.
 
-We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
-Then we click the Show more button and wait for incoming requests to appear in the list.
+We want to know what happens when we click the **Show more** button, so we open the DevTools **Network** tab and clear it.
+Then we click the **Show more** button and wait for incoming requests to appear in the list.
 
 ![Inspecting network in DevTools](../img/inspect-network.webp)
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
-data. This means that the data about actors must already be available in the page and the Show more button only
-displays it. This is good news.
+data. This means that the data about actors must already be available in the page and the **Show more** button only displays it. This is good news.
 
 ### [](#finding-the-actors) Finding the actors
 
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
-is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
+is Web Scraper, so let's try using the search tool in the **Elements** tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
-you can right click an element and click **Store as global variable** to make this element available in the Console.
+you can right click an element and click **Store as global variable** to make this element available in the **Console**.
 
 ![Finding the hidden actor data](../img/find-data.webp)
 
@@ -103,7 +100,7 @@ Remember the `// Do some stuff later` comment? Let's replace it.
 {{#code}}pagination.js{{/code}}
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper
-scrape all of the actors' data. After it succeeds, open the Dataset again and see the clean items.
+scrape all of the actors' data. After it succeeds, open the **Dataset** tab again click on **Preview**.
 You should have a table of all the actor's details in front of you. If you do, great job! You've successfully
 scraped Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
