@@ -1,15 +1,17 @@
 # Leboncoin
 
-This actor aims to **extract information from leboncoin.fr** using a Chromium browser and french Proxies. Data can be exported to various formats such as JSON or CSV. You have to option to customise the information you want to extract by modifying the javascript function which is executed on each page.
+This actor aims to **extract information from leboncoin.fr** using a Chromium browser and french Proxies. Data can be exported to various formats such as JSON or CSV. You have to option to **customise the information you want to extract** by modifying the javascript function which is executed on each page.
 
 ## How to Start
-### Setup
+
+### 1 - Setup
 - On your laptop, simply go to leboncoin and make a search, with all the filters you want, and location you want. 
 - Then copy the URL of first page of search results, and paste it in the start-URL of this Actor.
-- Because leboncoin bans non-french request from its website, you will need to get custom french proxy (See bellow for more details about Proxies). Enter your french proxy IPs in the Proxy section
+- Update the field "Page suivante: how many times ?" to paginate deeper in the results.
+- Get custom french proxy (See bellow for more details about Proxy) because leboncoin bans non-french request from its website
 
-### Run
-- Click __Run_
+### 2 - Run & Download
+- Click _Run_
 
 Then wait for the result to appear in the "dataset" section and download them.
 
@@ -54,3 +56,9 @@ The following table lists the available options of the proxy configuration setti
     </tr>
     </tbody>
 </table>
+
+## Advanced Configuration
+
+- Respect URL pattern : you can ask the actor to follow only links with a specific Regex pattern. By default, it follows only <code>https://www.leboncoin.fr[.*]</code> to avoid going wild in the web !
+- Max pages : it's a limit, to prevent the actor from crawling too many pages.
+- Function : It's the function extracting the result on each leboncoin.fr pages. If the default is not enough for you, just update it using <a href="https://www.w3schools.com/jquery/jquery_ref_selectors.asp">jQuery selectors</a> to fetch other piece of information from leboncoin.fr !
