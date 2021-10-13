@@ -11,5 +11,5 @@ Before we start, let's do a quick recap of the data we chose to scrape:
 
 ![Overview of data to be scraped](../img/scraping-practice.webp)
 
-We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
+We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://docs.apify.com/tutorials/apify-scrapers/getting-started)
 tutorial, so let's get to the next one on the list: title.

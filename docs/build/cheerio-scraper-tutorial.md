@@ -1,14 +1,14 @@
 # Scraping with Cheerio Scraper
 
 This scraping tutorial will go into the nitty gritty details of extracting data from **<https://apify.com/store>**
-using **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction),
+using **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)). If you arrived here from the [Getting started with Apify scrapers](https://docs.apify.com/tutorials/apify-scrapers/getting-started),
 tutorial, great! You are ready to continue where we left off. If you haven't seen the Getting started yet,
 check it out, it will help you learn about Apify and scraping in general and set you up for this tutorial,
 because this one builds on topics and code examples discussed there.
 
 ## [](#getting-to-know-our-tools) Getting to know our tools
 
-In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
+In the [Getting started with Apify scrapers](https://docs.apify.com/tutorials/apify-scrapers/getting-started) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [Cheerio](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
@@ -38,7 +38,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
 
 ![Overview of data to be scraped](../img/scraping-practice.webp)
 
-We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
+We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://docs.apify.com/tutorials/apify-scrapers/getting-started)
 tutorial, so let's get to the next one on the list: title.
 
 ### [](#title) Title

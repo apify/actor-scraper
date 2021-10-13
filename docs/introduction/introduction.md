@@ -141,7 +141,7 @@ In the structures, only the `OWNER` and `NAME` change. We can leverage this in a
 
 #### Making a pseudo URL
 
-If you'd like to learn more about **Pseudo URL**s, [visit a quick tutorial in our docs](https://sdk.apify.com/docs/guides/getting-started#introduction-to-pseudo-urls), but for now, let's keep it simple. **Pseudo URL**s are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://regexone.com/) enclosed in brackets `[]`.
+If you'd like to learn more about **Pseudo URL**s, [visit a quick tutorial in our docs](https://docs.apify.com/tutorials/apify-scrapers/getting-started#crawling-the-website-with-pseudo-url), but for now, let's keep it simple. **Pseudo URL**s are really just URLs with some variable parts in them. Those variable parts are represented by [regular expressions](https://regexone.com/) enclosed in brackets `[]`.
 
 So, working with our actor details example, we could produce a **Pseudo URL** like this:
 
@@ -305,6 +305,6 @@ There are differences in the code we use in the `pageFunction` though. Often sub
 In the next part of the tutorial, we'll focus on the individual scrapers' specific implementation details.
 So, it's time to choose sides. But don't worry, at Apify, no side is the dark side.
 
-- [Web Scraper tutorial](https://apify.com/docs/scraping/tutorial/web-scraper)
-- [Cheerio Scraper tutorial](https://apify.com/docs/scraping/tutorial/cheerio-scraper)
-- [Puppeteer Scraper tutorial](https://apify.com/docs/scraping/tutorial/puppeteer-scraper)
+- [Web Scraper tutorial](https://docs.apify.com/tutorials/apify-scrapers/web-scraper)
+- [Cheerio Scraper tutorial](https://docs.apify.com/tutorials/apify-scrapers/cheerio-scraper)
+- [Puppeteer Scraper tutorial](https://docs.apify.com/tutorials/apify-scrapers/puppeteer-scraper)

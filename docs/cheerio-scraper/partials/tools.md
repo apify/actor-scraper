@@ -1,6 +1,6 @@
 ## [](#getting-to-know-our-tools) Getting to know our tools
 
-In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction) tutorial, we've confirmed that the scraper works as expected,
+In the [Getting started with Apify scrapers](https://docs.apify.com/tutorials/apify-scrapers/getting-started) tutorial, we've confirmed that the scraper works as expected,
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [Cheerio](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
