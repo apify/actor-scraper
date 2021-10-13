@@ -12,7 +12,7 @@ In the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tut
 so now it's time to add more data to the results.
 
 To do that, we'll be using the [Cheerio](https://github.com/cheeriojs/cheerio) library. This may not sound familiar,
-so let's try again. Does [jQuery library](https://jquery.com/) ring a bell? If it does you're in luck,
+so let's try again. Does [jQuery](https://jquery.com/) ring a bell? If it does you're in luck,
 because Cheerio is just jQuery that doesn't need an actual browser to run. Everything else is the same.
 All the functions you already know are there and even the familiar `$` is used. If you still have no idea what either
 of those are, don't worry. We'll walk you through using them step by step.
@@ -39,7 +39,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
 ![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
-tutorial, so let's get to the next one on the list: Title
+tutorial, so let's get to the next one on the list: title.
 
 ### [](#title) Title
 
@@ -242,26 +242,23 @@ While with Web Scraper and **Puppeteer Scraper** ([apify/puppeteer-scraper](http
 with Cheerio Scraper we need to dig a little deeper into the page's architecture. For this, we will use
 the Network tab of the Chrome DevTools.
 
-> It's a very powerful tool with a lot of features, so if you're not familiar with it, please see this tutorial:
-<https://developers.google.com/web/tools/chrome-devtools/network/> which explains everything much better than we
-ever could.
+> DevTools is a powerful tool with many features, so if you're not familiar with it, please [see Google's tutorial](https://developers.google.com/web/tools/chrome-devtools/network/), which explains everything much better than we ever could.
 
-We want to know what happens when we click the **Show more** button, so we open the DevTools Network tab and clear it.
-Then we click the Show more button and wait for incoming requests to appear in the list.
+We want to know what happens when we click the **Show more** button, so we open the DevTools **Network** tab and clear it.
+Then we click the **Show more** button and wait for incoming requests to appear in the list.
 
 ![Inspecting network in DevTools](../img/inspect-network.webp)
 
 Now, this is interesting. It seems that we've only received two images after clicking the button and no additional
-data. This means that the data about actors must already be available in the page and the Show more button only
-displays it. This is good news.
+data. This means that the data about actors must already be available in the page and the **Show more** button only displays it. This is good news.
 
 ### [](#finding-the-actors) Finding the actors
 
 Now that we know the information we seek is already in the page, we just need to find it. The first actor in the store
-is Web Scraper so let's try using the search tool in the Elements tab to find some reference to it. The first
+is Web Scraper, so let's try using the search tool in the **Elements** tab to find some reference to it. The first
 few hits do not provide any interesting information, but in the end, we find our goldmine. There is a `<script>` tag,
 with the ID `__NEXT_DATA__` that seems to hold a lot of information about Web Scraper. In DevTools,
-you can right click an element and click **Store as global variable** to make this element available in the Console.
+you can right click an element and click **Store as global variable** to make this element available in the **Console**.
 
 ![Finding the hidden actor data](../img/find-data.webp)
 
@@ -376,7 +373,7 @@ async function pageFunction(context) {
 ```
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper
-scrape all of the actors' data. After it succeeds, open the Dataset again and see the clean items.
+scrape all of the actors' data. After it succeeds, open the **Dataset** tab again click on **Preview**.
 You should have a table of all the actor's details in front of you. If you do, great job! You've successfully
 scraped Apify Store. And if not, no worries, just go through the code examples again, it's probably just some typo.
 
@@ -392,13 +389,15 @@ You already know the **Dataset** tab of the run console since this is where we'v
 
 > If you prefer working with an API, you can find the example endpoint under the API tab: **Get dataset items**.
 
-### [](#items-and-clean-items) Items and Clean items
+### [](#clean-items) Clean items
 
-There are two types of data available for download: standard and clean. The standard form will always include a record
+You can view and download your data without modifications, or you can choose to only get **clean** items. Data that aren't cleaned include a record
 for each `pageFunction` invocation, even if you did not return any results. The record also includes hidden fields
 such as `#debug`, where you can find a variety of information that can help you with debugging your scrapers.
 
 Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested in the data you scraped, this format is what you will be using most of the time.
+
+To control this, open the **Advanced options** view on the **Dataset** tab.
 
 ## [](#bonus-making-your-code-neater) Bonus: Making your code neater
 
@@ -473,6 +472,6 @@ Thank you for reading this whole tutorial! Really! It's important to us that our
 
 ## [](#whats-next) What's next?
 
-* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
-* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) your own actors, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
+* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial if you'd like to try building your own actors. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
+* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) them in Apify Store, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
 * Found out you're not into the coding part but would still to use Apify actors? Check out our [ready-made solutions](https://apify.com/store) or [order a custom actor](https://apify.com/custom-solutions) from an Apify-certified developer.

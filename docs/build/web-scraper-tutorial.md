@@ -36,7 +36,7 @@ Before we start, let's do a quick recap of the data we chose to scrape:
 ![Overview of data to be scraped](../img/scraping-practice.webp)
 
 We've already scraped number 1 and 2 in the [Getting started with Apify scrapers](https://apify.com/docs/scraping/tutorial/introduction)
-tutorial, so let's get to the next one on the list: Title
+tutorial, so let's get to the next one on the list: title.
 
 ### [](#title) Title
 
@@ -419,8 +419,7 @@ async function pageFunction(context) {
 ```
 
 That's it! You can now remove the **Max pages per run** limit, **Save & Run** your task and watch the scraper paginate
-through all the actors and then scrape all of their data. After it succeeds, open the Dataset again and see
-the clean items. You should have a table of all the actor's details in front of you. If you do, great job!
+through all the actors and then scrape all of their data. After it succeeds, open the **Dataset** tab again click on **Preview**. You should have a table of all the actor's details in front of you. If you do, great job!
 You've successfully scraped Apify Store. And if not, no worries, just go through the code examples again,
 it's probably just some typo.
 
@@ -488,13 +487,15 @@ You already know the **Dataset** tab of the run console since this is where we'v
 
 > If you prefer working with an API, you can find the example endpoint under the API tab: **Get dataset items**.
 
-### [](#items-and-clean-items) Items and Clean items
+### [](#clean-items) Clean items
 
-There are two types of data available for download: standard and clean. The standard form will always include a record
+You can view and download your data without modifications, or you can choose to only get **clean** items. Data that aren't cleaned include a record
 for each `pageFunction` invocation, even if you did not return any results. The record also includes hidden fields
 such as `#debug`, where you can find a variety of information that can help you with debugging your scrapers.
 
 Clean items, on the other hand, include only the data you returned from the `pageFunction`. If you're only interested in the data you scraped, this format is what you will be using most of the time.
+
+To control this, open the **Advanced options** view on the **Dataset** tab.
 
 ## [](#bonus-making-your-code-neater) Bonus: Making your code neater
 
@@ -577,6 +578,6 @@ Thank you for reading this whole tutorial! Really! It's important to us that our
 
 ## [](#whats-next) What's next?
 
-* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
-* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) your own actors, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
+* Check out the [Apify SDK](https://sdk.apify.com/) and its [Getting started](https://sdk.apify.com/docs/guides/getting-started) tutorial if you'd like to try building your own actors. It's a bit more complex and involved than writing a simple `pageFunction`, but it allows you to fine-tune all the details of your scraper to your liking.
+* [Take a deep dive into actors](https://docs.apify.com/actors), from how they work to [publishing](https://docs.apify.com/actors/publishing) them in Apify Store, and even [making money](https://blog.apify.com/make-regular-passive-income-developing-web-automation-actors-b0392278d085/) on actors.
 * Found out you're not into the coding part but would still to use Apify actors? Check out our [ready-made solutions](https://apify.com/store) or [order a custom actor](https://apify.com/custom-solutions) from an Apify-certified developer.
