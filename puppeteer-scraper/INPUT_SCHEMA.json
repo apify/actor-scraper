@@ -73,7 +73,7 @@
       "title": "Proxy configuration",
       "type": "object",
       "description": "Choose to use no proxy, Apify Proxy, or provide custom proxy URLs.",
-      "prefill": { "useApifyProxy": false },
+      "prefill": { "useApifyProxy": true },
       "default": { "useApifyProxy": false },
       "editor": "proxy"
     },
