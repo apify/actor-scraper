@@ -1,70 +1,32 @@
-# Web Scraper
-
-Web Scraper is a generic easy-to-use actor for crawling arbitrary web pages
+## Features
+Web Scraper is a generic easy-to-use [actor](https://apify.com/actors) for crawling arbitrary web pages
 and extracting structured data from them using a few lines of JavaScript code.
 The actor loads web pages in the Chromium browser and renders dynamic content.
 Web Scraper can either be configured and run manually in a user interface, or programmatically using the API.
 The extracted data is stored in a dataset, from where it can be exported to various formats,
 such as JSON, XML, or CSV.
 
-If you're not familiar with web scraping or front-end web development in general,
-you might prefer to start
-with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
-in Apify documentation,
-and then continue with [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper),
-a tutorial which will walk you through all the steps and provide a number of examples.
+If you're not familiar with web scraping, you might like to go through the following resources before using Web Scraper:
+- First read our [Beginner's Guide to Web Scraping](https://apify.com/web-scraping).
+- Read our short step-by-step tutorial on [How to scrape any web page for beginners](https://blog.apify.com/how-to-scrape-any-website-for-beginners/).
+- Then go over the [Web scraping tutorial](https://apify.com/docs/scraping/web-scraper-tutorial) in the Apify documentation.
+- Finally, go through [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper),
+a detailed tutorial to walk you through all the technical steps and provide a number of examples.
 
-## Table of content
-
-<!-- toc -->
-
-- [Usage](#usage)
-- [Limitations](#limitations)
-- [Input configuration](#input-configuration)
-  - [Run mode](#run-mode)
-  - [Start URLs](#start-urls)
-  - [Link selector](#link-selector)
-  - [Pseudo-URLs](#pseudo-urls)
-  - [Page function](#page-function)
-    - [**`customData: Object`**](#customdata-object)
-    - [**`enqueueRequest(request, [options]): AsyncFunction`**](#enqueuerequest-request-options-asyncfunction)
-    - [**`env: Object`**](#env-object)
-    - [**`getValue(key): AsyncFunction`**](#getvalue-key-asyncfunction)
-    - [**`globalStore: Object`**](#globalstore-object)
-    - [**`input: Object`**](#input-object)
-    - [**`jQuery: Function`**](#jquery-function)
-    - [**`log: Object`**](#log-object)
-    - [**`request: Object`**](#request-object)
-    - [**`response: Object`**](#response-object)
-    - [**`saveSnapshot(): AsyncFunction`**](#savesnapshot-asyncfunction)
-    - [**`setValue(key, data, options): AsyncFunction`**](#setvalue-key-data-options-asyncfunction)
-    - [**`skipLinks(): AsyncFunction`**](#skiplinks-asyncfunction)
-    - [**`underscoreJs: Object`**](#underscorejs-object)
-    - [**`waitFor(task, options): AsyncFunction`**](#waitfor-task-options-asyncfunction)
-- [Proxy configuration](#proxy-configuration)
-- [Results](#results)
-- [Additional resources](#additional-resources)
-- [Upgrading](#upgrading)
-
-<!-- tocstop -->
-
-## Usage
-
-To get started with Web Scraper,
-you only need two things. First, tell the scraper which web pages
+## How to use Web Scraper
+To get started with Web Scraper, you only need two things. First, tell the scraper which web pages
 it should load, and second, tell it how to extract data from each of the pages.
 
 The scraper starts by loading pages specified in
 the [**Start URLs**](#start-urls) input setting.
 You can make the scraper follow page links on the fly
-by setting a <a href="#link-selector"><b>Link selector</b></a>
-and/or <a href="#pseudo-urls"><b>Pseudo-URLs</b></a>
+by setting a <a href="#link-selector">**Link selector**</a>
+and/or <a href="#pseudo-urls">**Pseudo-URLs**</a>
 to tell the scraper which links it should add to the crawling queue.
-This is useful for the recursive crawling of entire websites,
-e.g. to find all products in an online store.
+This is useful for the recursive crawling of entire websites, e.g. to find all products in an online store.
 
 To tell the scraper how to extract data from web pages,
-you need to provide <a href="#page-function"><b>Page function</b></a>.
+you need to provide <a href="#page-function">**Page function**</a>.
 This is JavaScript code that is executed in the context
 of every web page loaded.
 Since the scraper uses the full-featured Chromium browser,
@@ -90,7 +52,6 @@ See [Input configuration](#input-configuration) below
 for the complete list of settings.
 
 ## Limitations
-
 Web Scraper is designed to be generic and easy to use,
 and as such might not be an ideal solution if your primary concern
 is performance or flexibility.
@@ -116,14 +77,12 @@ For even more flexibility and control, you might develop
 a new actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com).
 
 ## Input configuration
-
-On input, the Web Scraper actor accepts a number of configuration settings.
+On input, Web Scraper accepts a number of configuration settings.
 These can be entered either manually in the user interface in [Apify Console](https://console.apify.com),
 or programmatically in a JSON object using the [Apify API](https://apify.com/docs/api/v2#/reference/actors/run-collection/run-actor).
 For a complete list of input fields and their type, please see [Input](https://apify.com/apify/web-scraper?section=input-schema).
 
 ### Run mode
-
 Run mode allows you to switch between two modes of operation for Web Scraper.
 
 **PRODUCTION** mode gives you full control and full performance. You should always
@@ -134,11 +93,10 @@ in the browser and debug your code. You can do that with the scraper's **DEVELOP
 mode. It allows you to directly control the browser using Chrome DevTools.
 Open the Live View tab to access the DevTools. It will also limit concurrency and
 prevent timeouts to improve your DevTools experience. Other debugging related options
-can be configured in the **Advanced configuration** section.
+can be configured in the Advanced configuration section.
 
 ### Start URLs
-
-The **Start URLs** (`startUrls`) field represent the initial list of URLs
+The **Start URLs** (`startUrls`) field represents the initial list of URLs
 of pages that the scraper will visit.
 You can either enter these URLs manually one by one, upload them in a CSV file or
 [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet)
@@ -162,7 +120,6 @@ in Apify documentation.
 <!-- TODO: Describe how the queue works, unique key etc. plus link -->
 
 ### Link selector
-
 The **Link selector** (`linkSelector`) field contains a CSS selector that is used to find links to other web pages,
 i.e. `<a>` elements with the `href` attribute.
 
@@ -183,7 +140,6 @@ or that were manually added to the request queue by calling <code>context.enqueu
 in [**Page function**](#page-function).
 
 ### Pseudo-URLs
-
 The **Pseudo-URLs** (`pseudoUrls`) field specifies
 what kind of URLs found by [**Link selector**](#link-selector) should be added to the request queue.
 
@@ -222,7 +178,6 @@ because you can completely control which pages the scraper will access
 by calling `context.enqueuePage()` from [**Page function**](#page-function).
 
 ### Page function
-
 The **Page function** (`pageFunction`) field
 contains a JavaScript function that is executed in the context
 of every page loaded in the Chromium browser.
@@ -270,7 +225,6 @@ To learn more about `async` functions,
 see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function">Mozilla documentation</a>.
 
 **Properties of the `context` object:**
-
 - ##### **`customData: Object`**
 
   Contains the object provided in the **Custom data** (`customData`) input setting.
@@ -516,7 +470,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
 ## Proxy configuration
 
 The **Proxy configuration** (`proxyConfiguration`) option enables you to set
-proxies that will be used by the scraper in order to prevent its detection by target websites.
+proxies that will be used by the scraper, for instance to alter the apparent country of origin.
 You can use both [Apify Proxy](https://apify.com/proxy)
 as well as custom HTTP or SOCKS5 proxy servers.
 
@@ -650,23 +604,24 @@ endpoint in Apify API reference.
 ## Additional resources
 
 Congratulations! You've learned how Web Scraper works.
-You might also want to see these other resources:
+You might also want to check out these other resources:
 
+- [How to scrape any website - for beginners](https://blog.apify.com/how-to-scrape-any-website-for-beginners/) - simple step-by-step guide to using Web Scraper on the Apify platform.
+- [Beginner's Guide to Web Scraping](https://apify.com/web-scraping) - a comprehensive but easy to understand guide to how web scraping works and how it can help you get  data.
 - [Web scraping tutorial](https://apify.com/docs/scraping) -
-  An introduction to web scraping with Apify.
+  introduction to web scraping with Apify.
 - [Scraping with Web Scraper](https://apify.com/docs/scraping/tutorial/web-scraper) -
-  A step-by-step tutorial on how to use Web Scraper, with a detailed explanation and examples.
+  step-by-step tutorial on how to use Web Scraper, with a detailed explanation and examples.
 - **Cheerio Scraper** ([apify/cheerio-scraper](https://apify.com/apify/cheerio-scraper)) -
-  Another web scraping actor that downloads and processes pages in raw HTML for much higher performance.
+  another web scraping actor that downloads and processes pages in raw HTML for much higher performance.
 - **Puppeteer Scraper** ([apify/puppeteer-scraper](https://apify.com/apify/puppeteer-scraper)) -
-  An actor similar to Web Scraper, which provides lower-level control of the underlying
+  an actor similar to Web Scraper, which provides lower-level control of the underlying
   [Puppeteer](https://github.com/GoogleChrome/puppeteer) library and the ability to use server-side libraries.
 - [Actors documentation](https://apify.com/docs/actor) -
-  Documentation for the Apify Actors cloud computing platform.
-- [Apify SDK](https://sdk.apify.com) - Learn how to build a new web scraping actor from scratch using the world's most
+  documentation for the Apify Actors cloud computing platform.
+- [Apify SDK](https://sdk.apify.com) - learn how to build a new web scraping actor from scratch using the world's most
   popular web crawling and scraping library for Node.js.
 
 ## Upgrading
-
-v2 introduced several minor breaking changes, you can read about those in the
+v2 introduced several minor breaking changes, you can read about them in the
 [migration guide](https://github.com/apify/actor-scraper/blob/master/MIGRATIONS.md).
