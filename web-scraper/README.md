@@ -327,6 +327,9 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
   console.dir(value);
   ```
   
+  > Web Scraper has limited functionality thus it is not possible to read from a named key/value store without `fetch`. 
+  > For more complex cases upgrade to Puppeteer Scraper or own actor.
+  
 - ##### **`globalStore: Object`**
 
   Represents an in-memory store that can be used to share data across page function invocations,
