@@ -18,8 +18,6 @@
 
 {{> pagination}}
 
-{{> debugging}}
-
 {{> downloading-scraped-data}}
 
 {{> bonus}}
