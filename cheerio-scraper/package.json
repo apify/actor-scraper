@@ -5,7 +5,7 @@
 	"main": "main.js",
 	"dependencies": {
 		"@apify/scraper-tools": "^0.4.4",
-		"apify": "^2.2.0"
+		"apify": "^2.2.1"
 	},
 	"devDependencies": {
 		"markdown-toc": "^1.2.0"
