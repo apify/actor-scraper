@@ -7,7 +7,8 @@ This actor aims to **extract information from leboncoin.fr** using a Chromium br
 ### 1 - Setup
 - On your laptop, simply go to leboncoin and make a search, with all the filters you want, and location you want. Dont' forget to launch the search
 ![lbc_search](./assets/lbc_search.gif)
-- Then copy the URL of first page of search results, and paste it in the start-URL of this Actor.
+- Then copy the URL of first page of search results, and paste it in the start-URL of this Actor. Please add the root url first, so that it mimics the user behaviour, as shown in the image bellow :
+![url1](./assets/Screenshot%202022-01-11%20at%2022.50.27.png)
 ![url1](./assets/url1.png)
 - Update the field "Page suivante: how many times ?" to paginate deeper in the results.
 - Get custom french proxy (See bellow for more details about Proxy) because leboncoin bans non-french request from its website
