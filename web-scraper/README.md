@@ -12,9 +12,11 @@ you might prefer to start
 with [**Web scraping tutorial**](https://apify.com/docs/scraping/web-scraper-tutorial)
 in Apify documentation,
 and then continue with [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper),
-a tutorial which will walk you through all the steps and provide a number of examples.
+a tutorial which will walk you through all the steps and provide a number of examples. Or you can just watch this video tutorial:
 
-## Table of content
+[![Watch Web Scraper video](https://img.youtube.com/vi/K76Hib0cY0k/0.jpg)](https://youtu.be/K76Hib0cY0k)
+
+## Table of contents
 
 <!-- toc -->
 
