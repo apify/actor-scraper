@@ -57,7 +57,7 @@ The scraper starts by loading pages specified in the [**Start URLs**](#start-url
 
 To tell the scraper how to handle requests and extra data, you need to provide a **[Page function](#page-function)**, and optionally arrays of **[Pre-navigation hooks](#pre-navigation-hooks)** and **[Post-navigation hooks](#post-navigation-hooks)**. This is JavaScript code that is executed in the Node.js environment. Since the scraper uses the full-featured Chromium browser, client-side logic to be executed within the context of the web-page can be done using the **[`page`](#page)** object within the Page function's context.
 
-In summary, PuppeteerScraper works as follows:
+In summary, Puppeteer Scraper works as follows:
 
 1. Adds each URL from [Start URLs](#start-urls) to the request queue.
 2. For each request:
@@ -71,9 +71,9 @@ Puppeteer Scraper has a number of other configuration settings to improve perfor
 
 ## Limitations
 
-The actor employs a fully-featured Chromium web browser, which is resource-intensive and might be overkill for websites that do not render the content dynamically using client-side JavaScript. To achieve better performance for scraping such sites, you might prefer to use [**Cheerio Scraper**](https://apify.com/apify/cheerio-scraper), which downloads and processes raw HTML pages without the overheads of a full-on web browser.
+The actor employs a fully-featured Chromium web browser, which is resource-intensive and might be overkill for websites that do not render the content dynamically using client-side JavaScript. To achieve better performance for scraping such sites, you might prefer to use [**Cheerio Scraper**](https://apify.com/apify/cheerio-scraper), which downloads and processes raw HTML pages without the overheads of a web browser.
 
-For non-seasoned developers, Puppeteer Scraper may be too complex. For a simpler setup process check out [Web Scraper](https://apify.com/apify/web-scraper), which also runs off of Puppeteeer.
+For non-seasoned developers, Puppeteer Scraper may be too complex. For a simpler setup process check out [Web Scraper](https://apify.com/apify/web-scraper), which also uses Puppeteer under the hood.
 
 ## Input Configuration
 
@@ -83,7 +83,7 @@ On input, the Puppeteer Scraper actor accepts a number of configuration settings
 
 The **Start URLs** (`startUrls`) field represent the initial list of URLs of pages that the scraper will visit. You can either enter these URLs manually one by one, upload them in a CSV file or [link URLs from a Google Sheet](https://help.apify.com/en/articles/2906022-scraping-a-list-of-urls-from-google-spreadsheet) document. Note that each URL must start with either a `http://` or `https://` protocol prefix.
 
-The scraper supports adding new URLs to scrape on the fly, either using the **[Link selector](#link-selector)** and **[Pseudo-URLs](#pseudo-urls)** options, or by calling `context.enqueueRequest()`inside the **[Page function](#page-function)**.
+The scraper supports adding new URLs to scrape on the fly, either using the **[Link selector](#link-selector)** and **[Pseudo-URLs](#pseudo-urls)** options, or by calling `await context.enqueueRequest()`inside the **[Page function](#page-function)**.
 
 Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from your JavaScript code in **[Page function](#page-function)** under `context.request.userData`. This is useful for determining which start URL is currently loaded, allowing the ability to perform some page-specific actions. For example, when crawling an online store, you might want to perform different actions on a page listing the products vs. a product detail page. For details, refer to **[Web scraping tutorial](https://apify.com/docs/scraping/tutorial/introduction#the-start-url)** within the Apify documentation.
 
@@ -101,7 +101,7 @@ By default, new scrapers are created with the following selector that matches al
 a[href]
 ```
 
-If **Link selector** is empty, the page links are ignored, and the scraper only loads pages that were specified in **[Start URLs](#start-urls)** or that were manually added to the request queue by calling `context.enqueueRequest()` in **[Page function](#page-function)**.
+If **Link selector** is empty, the page links are ignored, and the scraper only loads pages that were specified in **[Start URLs](#start-urls)** or that were manually added to the request queue by calling `await context.enqueueRequest()` in **[Page function](#page-function)**.
 
 ### Pseudo URLs
 
@@ -132,11 +132,11 @@ http://www.example.com/search?do[load]=1
 
 Optionally, each pseudo-URL can be associated with user data that can be referenced from your **[Page function](#page-function)** using `context.request.userData` to determine which kind of page is currently loaded in the browser.
 
-Note that you don't need to use the **Pseudo-URLs** setting at all, because you can completely control which pages the scraper will access by calling `context.enqueuePage()` from the **[Page function](#page-function)**.
+Note that you don't need to use the **Pseudo-URLs** setting at all, because you can completely control which pages the scraper will access by calling `await context.enqueueRequest()` from the **[Page function](#page-function)**.
 
 ### Clickable elements selector
 
-For pages where the links you want to add to the crawler's request queye aren't included in elements with `href` attributes, you can pass a CSS Selector to the **Clickable elements selector**. This CSS selector should match elements that lead to the URL you want to queue up.
+For pages where the links you want to add to the crawler's request queue aren't included in elements with `href` attributes, you can pass a CSS Selector to the **Clickable elements selector**. This CSS selector should match elements that lead to the URL you want to queue up.
 
 The scraper will mouse click the specified CSS selector after the page function finishes. Any triggered requests, navigations, or open tabs will be intercepted, and the target URLs will be filtered using Pseudo URLs. Finally, these filtered URLs will be added to the request queue. Leave this field empty empty to prevent the scraper from clicking in the page.
 
@@ -278,11 +278,11 @@ This should be used instead of JavaScript's built in `console.log` when logging 
 
 The most common `log` methods include:
 
--   `log.info()`
--   `log.debug()`
--   `log.warning()`
--   `log.error()`
--   `log.exception()`
+-   `context.log.info()`
+-   `context.log.debug()`
+-   `context.log.warning()`
+-   `context.log.error()`
+-   `context.log.exception()`
 
 #### **`Apify`**
 
@@ -307,7 +307,7 @@ Allows you to save data to the default key-value store. The `key` is the name of
 Usage:
 
 ```JavaScript
-await setValue('my-value', { message: 'hello' })
+await context.setValue('my-value', { message: 'hello' })
 ```
 
 Refer to Apify's [Key-Value store documentation](https://sdk.apify.com/docs/api/key-value-store#keyvaluestoregetvaluekey) for more information.
@@ -325,7 +325,7 @@ Retrieve previously saved data in the key-value store via the `key` specified wh
 Usage:
 
 ```JavaScript
-const { message } = await getValue('my-value')
+const { message } = await context.getValue('my-value')
 ```
 
 Refer to Apify's [Key-Value store documentation](https://sdk.apify.com/docs/api/key-value-store#keyvaluestoregetvaluekey) for more information.
@@ -343,16 +343,16 @@ A helper function that enables saving a snapshot of the current page's HTML and 
 Usage:
 
 ```JavaScript
-await saveSnapshot()
+await context.saveSnapshot()
 ```
 
 You can find the latest screenshot under the `SNAPSHOT-SCREENSHOT` key and the HTML under the `SNAPSHOT-BODY` key.
 
 #### **`skipLinks`**
 
-| Type     | Arguments                                       | Returns          |
-| -------- | ----------------------------------------------- | ---------------- |
-| Function | (request: _Request\|object_, options: _object_) | _Promise\<void>_ |
+| Type     | Arguments | Returns          |
+| -------- | --------- | ---------------- |
+| Function | ()        | _Promise\<void>_ |
 
 > This function is async! Don't forget the `await` keyword!
 
@@ -361,7 +361,7 @@ With each invocation of the pageFunction, the scraper attempts to extract new UR
 Usage:
 
 ```JavaScript
-await skipLinks(context.request)
+await context.skipLinks(context.request)
 ```
 
 #### **`enqueueRequest`**
@@ -377,7 +377,13 @@ To enqueue a specific URL manually instead of automatically by a combination of 
 Usage:
 
 ```JavaScript
-await enqueueRequest({ url: 'https://www.example.com' })
+await context.enqueueRequest({ url: 'https://www.example.com' })
+```
+
+This method is a nice shorthand for
+
+```JavaScript
+await context.crawler.requestQueue.addRequest({ url: 'https://foo.bar/baz' })
 ```
 
 ### Pre-navigation hooks
@@ -387,7 +393,7 @@ This is an array of functions that will be executed **BEFORE** the main `pageFun
 The available options can be seen here:
 
 ```JavaScript
-[
+preNavigationHooks: [
     async ({ id, request, session, proxyInfo }, { timeout, waitUntil, referer }) => {}
 ]
 ```
@@ -399,7 +405,7 @@ Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedef
 An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object.
 
 ```JavaScript
-[
+postNavigationHooks: [
     async ({ id, request, session, proxyInfo, response }) => {}
 ]
 ```
@@ -457,7 +463,7 @@ When set to true, debug messages will be included in the log. Use `context.log.d
 
 _boolean_
 
-When set to true, console messages from the browser will be included in the actor'slog. This may result in the log being flooded by error messages, warnings and other messages of little value (especially with a high concurrency).
+When set to true, console messages from the browser will be included in the actor's log. This may result in the log being flooded by error messages, warnings and other messages of little value (especially with a high concurrency).
 
 ### Custom data
 
@@ -468,13 +474,15 @@ Since the input UI is fixed, it does not support adding of other fields that may
 With the final three options in the **Advanced configuration**, you can set custom names for the following:
 
 -   Dataset
+    -   Leave your dataset unnamed if you only want the data within it to be persisted on the Apify platform for 7 days (after which, it will expire). Named datasets are retained indefinitely. Learn more [here](https://docs.apify.com/storage#named-and-unnamed-storages).
 -   Key-value store
--   Request queue
+    -   Similarly to datasets, named key-value stores never expire, and unnamed ones expire after 7 days.
+-   ## Request queue
 
 ## Results
 
 The scraping results returned by **[Page function](#page-function)** are stored in the default dataset associated with the actor run, from which you can export them to formats such as JSON, XML, CSV or Excel.
-For each object returned by the **[Page function**](#page-function)\*\*, Puppeteer Scraper pushes one record into the dataset, and extends it with metadata such as the URL of the web page where the results come from.
+For each object returned by the **[Page function](#page-function)**, Puppeteer Scraper pushes one record into the dataset, and extends it with metadata such as the URL of the web page where the results come from.
 
 For example, if you were scraping the HTML `<title>` of [Apify](https://apify.com) and returning the following object from the `pageFunction`:
 

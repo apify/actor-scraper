@@ -149,7 +149,7 @@ Each URL must start with either a `http://` or `https://` protocol prefix.
 
 The scraper supports adding new URLs to scrape on the fly, either using the
 [**Link selector**](#link-selector) and [**Pseudo-URLs**](#pseudo-urls) options
-or by calling <code>context.enqueueRequest()</code>
+or by calling <code>await context.enqueueRequest()</code>
 inside [**Page function**](#page-function).
 
 Optionally, each URL can be associated with custom user data - a JSON object that can be referenced from
@@ -181,7 +181,7 @@ a[href]
 
 If <b>Link selector</b> is empty, the page links are ignored,
 and the scraper only loads pages that were specified in [**Start URLs**](#start-urls)
-or that were manually added to the request queue by calling <code>context.enqueueRequest()</code>
+or that were manually added to the request queue by calling <code>await context.enqueueRequest()</code>
 in [**Page function**](#page-function).
 
 ### Pseudo-URLs
@@ -221,7 +221,7 @@ to determine which kind of page is currently loaded in the browser.
 
 Note that you don't need to use the **Pseudo-URLs** setting at all,
 because you can completely control which pages the scraper will access
-by calling `context.enqueuePage()` from [**Page function**](#page-function).
+by calling `await context.enqueueRequest()` from [**Page function**](#page-function).
 
 ### Page function
 
@@ -243,10 +243,10 @@ async function pageFunction(context) {
     const pageTitle = $('title').first().text();
 
     // Print some information to actor log
-    context.log.info(`URL: ${context.request.url} TITLE: ${pageTitle}`);
+    context.log.info(`URL: ${context.request.url}, TITLE: ${pageTitle}`);
 
     // Manually add a new page to the scraping queue.
-    context.enqueueRequest({ url: 'http://www.example.com' });
+    await context.enqueueRequest({ url: 'http://www.example.com' });
 
     // Return an object with the data extracted from the page.
     // It will be stored to the resulting dataset.
@@ -451,7 +451,7 @@ see <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/S
     The function is very similar to <a href="https://sdk.apify.com/docs/api/apify#setvalue" target="_blank"><code>Apify.setValue()</code></a>
     function in Apify SDK.
 
-    To get the value, use the dual function `context.getValue(key)`.
+    To get the value, use the dual function `await context.getValue(key)`.
 
     Example:
 
