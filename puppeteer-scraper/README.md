@@ -361,7 +361,7 @@ With each invocation of the pageFunction, the scraper attempts to extract new UR
 Usage:
 
 ```JavaScript
-await context.skipLinks(context.request)
+await context.skipLinks()
 ```
 
 #### **`enqueueRequest`**
@@ -474,10 +474,10 @@ Since the input UI is fixed, it does not support adding of other fields that may
 With the final three options in the **Advanced configuration**, you can set custom names for the following:
 
 -   Dataset
-    -   Leave your dataset unnamed if you only want the data within it to be persisted on the Apify platform for 7 days (after which, it will expire). Named datasets are retained indefinitely. Learn more [here](https://docs.apify.com/storage#named-and-unnamed-storages).
+    -   Leave your dataset unnamed if you only want the data within it to be persisted on the Apify platform for 7 days (after which, it will expire). Named datasets are retained indefinitely. Additionally, using a named dataset allows you to share it across multiple runs (e.g. Instead of having 10 different unnamed datasets for 10 different runs, all the data from all 10 runs can be accumulated into a single named dataset). Learn more [here](https://docs.apify.com/storage#named-and-unnamed-storages).
 -   Key-value store
     -   Similarly to datasets, named key-value stores never expire, and unnamed ones expire after 7 days.
--   ## Request queue
+-   Request queue
 
 ## Results
 
