@@ -6,7 +6,7 @@ const {
     constants: { META_KEY, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
-const SCHEMA = require('../INPUT_SCHEMA');
+const SCHEMA = require('../INPUT_SCHEMA.json');
 
 const SESSION_STORE_NAME = 'APIFY-PUPPETEER-SCRAPER-SESSION-STORE';
 
@@ -55,7 +55,6 @@ const { utils: { log, puppeteer } } = Apify;
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
-    /* eslint-disable class-methods-use-this */
     constructor(input) {
         this.name = 'Puppeteer Scraper';
         // Set log level early to prevent missed messages.

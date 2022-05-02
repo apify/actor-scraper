@@ -4,7 +4,6 @@
  * because it's currently impossible for functions and object references to cross Node-Browser threshold.
  */
 class GlobalStore extends Map {
-    /* eslint-disable class-methods-use-this */
     get(key) {
         if (typeof key !== 'string') throw new Error('GlobalStore#get parameter "key" must be a string.');
         return super.get(key);
