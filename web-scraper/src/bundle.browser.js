@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* istanbul ignore next */
 /**
  * Command to be evaluated for Browser side code injection.
@@ -64,7 +65,6 @@ module.exports = (apifyNamespace) => {
          * @param {Object} options.pageFunctionArguments
          */
         class Context {
-            /* eslint-disable class-methods-use-this */
             constructor(options) {
                 const {
                     crawlerSetup,

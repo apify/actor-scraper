@@ -10,7 +10,7 @@ const DevToolsServer = require('devtools-server');
 
 const { CHROME_DEBUGGER_PORT } = require('./consts');
 const createBundle = require('./bundle.browser');
-const SCHEMA = require('../INPUT_SCHEMA');
+const SCHEMA = require('../INPUT_SCHEMA.json');
 const GlobalStore = require('./global_store');
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
@@ -75,7 +75,6 @@ const { utils: { log, puppeteer } } = Apify;
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
-    /* eslint-disable class-methods-use-this */
     constructor(input) {
         this.name = 'Web Scraper';
         // Set log level early to prevent missed messages.

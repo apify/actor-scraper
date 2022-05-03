@@ -6,7 +6,7 @@ const {
     constants: { META_KEY, SESSION_MAX_USAGE_COUNTS, PROXY_ROTATION_NAMES },
 } = require('@apify/scraper-tools');
 
-const SCHEMA = require('../INPUT_SCHEMA');
+const SCHEMA = require('../INPUT_SCHEMA.json');
 
 const { utils: { log } } = Apify;
 
@@ -52,7 +52,6 @@ const SESSION_STORE_NAME = 'APIFY-CHEERIO-SCRAPER-SESSION-STORE';
  * instance and creating a context for a pageFunction invocation.
  */
 class CrawlerSetup {
-    /* eslint-disable class-methods-use-this */
     constructor(input) {
         this.name = 'Cheerio Scraper';
         // Set log level early to prevent missed messages.
@@ -157,8 +156,8 @@ class CrawlerSetup {
         const options = {
             proxyConfiguration: this.proxyConfiguration,
             handlePageFunction: this._handlePageFunction.bind(this),
-            preNavigationHooks: this.evaledPreNavigationHooks,
-            postNavigationHooks: this.evaledPostNavigationHooks,
+            preNavigationHooks: this._runHookWithEnhancedContext(this.evaledPreNavigationHooks),
+            postNavigationHooks: this._runHookWithEnhancedContext(this.evaledPostNavigationHooks),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
@@ -233,6 +232,13 @@ class CrawlerSetup {
             }
         }
         return request;
+    }
+
+    _runHookWithEnhancedContext(hooks) {
+        return hooks.map((hook) => (ctx, ...args) => {
+            const { customData } = this.input;
+            return hook({ ...ctx, Apify, customData }, ...args);
+        });
     }
 
     _handleFailedRequestFunction({ request }) {

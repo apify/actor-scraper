@@ -22,7 +22,6 @@ const internalState = Symbol('request-internal-state');
  * @param {Object} options.pageFunctionArguments
  */
 class Context {
-    /* eslint-disable class-methods-use-this */
     constructor(options) {
         const {
             crawlerSetup,

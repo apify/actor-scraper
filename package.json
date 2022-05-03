@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/apifytech/act-crawler#readme",
   "dependencies": {
-    "@apify/eslint-config": "^0.1.0",
-    "eslint": "^7.5.0"
+    "@apify/eslint-config": "^0.3.1",
+    "eslint": "^8.14.0"
   }
 }
