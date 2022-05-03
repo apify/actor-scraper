@@ -259,6 +259,15 @@ class CrawlerSetup {
 
         options.preNavigationHooks.push(...this.evaledPreNavigationHooks);
         options.postNavigationHooks.push(...this.evaledPostNavigationHooks);
+        options.preNavigationHooks = this._runHookWithEnhancedContext(this.evaledPreNavigationHooks);
+        options.postNavigationHooks = this._runHookWithEnhancedContext(this.evaledPostNavigationHooks);
+    }
+
+    _runHookWithEnhancedContext(hooks) {
+        return hooks.map((hook) => (ctx, ...args) => {
+            const { customData } = this.input;
+            return hook({ ...ctx, Apify, customData }, ...args);
+        });
     }
 
     _handleFailedRequestFunction({ request }) {

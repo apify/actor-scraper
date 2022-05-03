@@ -156,8 +156,8 @@ class CrawlerSetup {
         const options = {
             proxyConfiguration: this.proxyConfiguration,
             handlePageFunction: this._handlePageFunction.bind(this),
-            preNavigationHooks: this.evaledPreNavigationHooks,
-            postNavigationHooks: this.evaledPostNavigationHooks,
+            preNavigationHooks: this._runHookWithEnhancedContext(this.evaledPreNavigationHooks),
+            postNavigationHooks: this._runHookWithEnhancedContext(this.evaledPostNavigationHooks),
             requestList: this.requestList,
             requestQueue: this.requestQueue,
             handlePageTimeoutSecs: this.input.pageFunctionTimeoutSecs,
@@ -232,6 +232,13 @@ class CrawlerSetup {
             }
         }
         return request;
+    }
+
+    _runHookWithEnhancedContext(hooks) {
+        return hooks.map((hook) => (ctx, ...args) => {
+            const { customData } = this.input;
+            return hook({ ...ctx, Apify, customData }, ...args);
+        });
     }
 
     _handleFailedRequestFunction({ request }) {
