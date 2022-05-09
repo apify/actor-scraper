@@ -44,6 +44,9 @@ a tutorial which will walk you through all the steps and provide a number of exa
         -   [**`underscoreJs: Object`**](#underscorejs-object)
         -   [**`waitFor(task, options): AsyncFunction`**](#waitfor-task-options-asyncfunction)
 -   [Proxy configuration](#proxy-configuration)
+-   [Advanced configuration](#advanced-configuration)
+    -   [Pre-navigation hooks](#pre-navigation-hooks)
+    -   [Post-navigation hooks](#post-navigation-hooks)
 -   [Results](#results)
 -   [Additional resources](#additional-resources)
 -   [Upgrading](#upgrading)
@@ -591,6 +594,38 @@ It accepts a JSON object with the following structure:
     "proxyUrls": String[],
 }
 ```
+
+## Advanced Configuration
+
+### Pre-navigation hooks
+
+This is an array of functions that will be executed **BEFORE** the main `pageFunction` is run. A similar `context` object is passed into each of these functions as is passed into the `pageFunction`; however, a second "[DirectNavigationOptions](https://sdk.apify.com/docs/typedefs/direct-navigation-options)" object is also passed in.
+
+The available options can be seen here:
+
+```JavaScript
+preNavigationHooks: [
+    async ({ id, request, session, proxyInfo }, { timeout, waitUntil, referer }) => {}
+]
+```
+
+> Unlike with puppeteer and cheerio scrapers, in web scraper we don't have the `Apify` object available in the hook parameters, as the hook is executed inside the browser.
+
+Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
+
+### Post-navigation hooks
+
+An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object.
+
+```JavaScript
+postNavigationHooks: [
+    async ({ id, request, session, proxyInfo, response }) => {}
+]
+```
+
+> Unlike with puppeteer and cheerio scrapers, in web scraper we don't have the `Apify` object available in the hook parameters, as the hook is executed inside the browser.
+
+Check out the docs for [Post-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#postnavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
 
 ## Results
 

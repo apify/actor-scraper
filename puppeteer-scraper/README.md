@@ -35,10 +35,10 @@ If you are having any difficulty deciding which of the three main Apify "Scraper
         -   [`saveSnapshot`](#savesnapshot)
         -   [`skipLinks`](#skiplinks)
         -   [`enqueueRequest`](#enqueuerequest)
-    -   [Pre-navigation hooks](#pre-navigation-hooks)
-    -   [Post-navigation hooks](#post-navigation-hooks)
 -   [Proxy and browser configuration](#proxy-and-browser-configuration)
 -   [Advanced configuration](#advanced-configuration)
+    -   [Pre-navigation hooks](#pre-navigation-hooks)
+    -   [Post-navigation hooks](#post-navigation-hooks)
     -   [Debug log](#debug-log)
     -   [Browser log](#browser-log)
     -   [Custom data](#custom-data)
@@ -386,32 +386,6 @@ This method is a nice shorthand for
 await context.crawler.requestQueue.addRequest({ url: 'https://foo.bar/baz' })
 ```
 
-### Pre-navigation hooks
-
-This is an array of functions that will be executed **BEFORE** the main `pageFunction` is run. A similar `context` object is passed into each of these functions as is passed into the `pageFunction`; however, a second "[DirectNavigationOptions](https://sdk.apify.com/docs/typedefs/direct-navigation-options)" object is also passed in.
-
-The available options can be seen here:
-
-```JavaScript
-preNavigationHooks: [
-    async ({ id, request, session, proxyInfo }, { timeout, waitUntil, referer }) => {}
-]
-```
-
-Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
-
-### Post-navigation hooks
-
-An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object.
-
-```JavaScript
-postNavigationHooks: [
-    async ({ id, request, session, proxyInfo, response }) => {}
-]
-```
-
-Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
-
 ## Proxy Configuration
 
 The **Proxy configuration** (`proxyConfiguration`) option enables you to set proxies that will be used by the scraper in order to prevent its detection by target websites.
@@ -452,6 +426,32 @@ The proxy configuration can be set programmatically when calling the actor using
 ```
 
 ## Advanced Configuration
+
+### Pre-navigation hooks
+
+This is an array of functions that will be executed **BEFORE** the main `pageFunction` is run. A similar `context` object is passed into each of these functions as is passed into the `pageFunction`; however, a second "[DirectNavigationOptions](https://sdk.apify.com/docs/typedefs/direct-navigation-options)" object is also passed in.
+
+The available options can be seen here:
+
+```JavaScript
+preNavigationHooks: [
+    async ({ id, request, session, proxyInfo, customData, Apify }, { timeout, waitUntil, referer }) => {}
+]
+```
+
+Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
+
+### Post-navigation hooks
+
+An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object.
+
+```JavaScript
+postNavigationHooks: [
+    async ({ id, request, session, proxyInfo, response, customData, Apify }) => {}
+]
+```
+
+Check out the docs for [Post-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#postnavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
 
 ### Debug log
 
