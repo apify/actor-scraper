@@ -439,11 +439,11 @@ preNavigationHooks: [
 ]
 ```
 
-Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions.
+Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions. The available properties are extended with `Apify` and `customData` in this scraper.
 
 ### Post-navigation hooks
 
-An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object.
+An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object. The available properties are extended with `Apify` and `customData` in this scraper.
 
 ```JavaScript
 postNavigationHooks: [
