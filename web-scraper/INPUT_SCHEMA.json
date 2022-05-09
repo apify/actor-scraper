@@ -213,8 +213,22 @@
             "prefill": ["networkidle2"],
             "editor": "json"
         },
-        "breakpointLocation": {
+        "preNavigationHooks": {
             "sectionCaption": "Advanced configuration",
+            "title": "Pre-navigation hooks",
+            "type": "string",
+            "description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `gotoOptions`, which are passed to the `page.goto()` function the crawler calls to navigate.",
+            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"gotoOptions\".\n[\n    async (crawlingContext, gotoOptions) => {\n        // ...\n    },\n]\n",
+            "editor": "javascript"
+        },
+        "postNavigationHooks": {
+            "title": "Post-navigation hooks",
+            "type": "string",
+            "description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
+            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        // ...\n    },\n]",
+            "editor": "javascript"
+        },
+        "breakpointLocation": {
             "title": "Insert breakpoint",
             "type": "string",
             "description": "This property has no effect if Run mode is set to PRODUCTION. When set to DEVELOPMENT it inserts a breakpoint at the selected location in every page the scraper visits. Execution of code stops at the breakpoint until manually resumed in the DevTools window accessible via Live View tab or Container URL. Additional breakpoints can be added by adding <code>debugger;</code> statements within your Page function. <br><br>See <a href='https://apify.com/apify/web-scraper#run-mode' target='_blank' rel='noopener'>Run mode</a> in README for details.",
@@ -233,20 +247,6 @@
                 "Before Page function invocation",
                 "After Page function invocation"
             ]
-        },        
-        "preNavigationHooks": {
-            "title": "Pre-navigation hooks",
-            "type": "string",
-            "description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `gotoOptions`, which are passed to the `page.goto()` function the crawler calls to navigate.",
-            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"gotoOptions\".\n[\n    async (crawlingContext, gotoOptions) => {\n        // ...\n    },\n]\n",
-            "editor": "javascript"
-        },
-        "postNavigationHooks": {
-            "title": "Post-navigation hooks",
-            "type": "string",
-            "description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
-            "prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        // ...\n    },\n]",
-            "editor": "javascript"
         },
         "debugLog": {
             "title": "Enable debug log",

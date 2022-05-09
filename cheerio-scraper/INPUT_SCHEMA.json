@@ -45,20 +45,6 @@
 			"prefill": "async function pageFunction(context) {\n    const { $, request, log } = context;\n\n    // The \"$\" property contains the Cheerio object which is useful\n    // for querying DOM elements and extracting data from them.\n    const pageTitle = $('title').first().text();\n\n    // The \"request\" property contains various information about the web page loaded. \n    const url = request.url;\n    \n    // Use \"log\" object to print information to actor log.\n    log.info('Page scraped', { url, pageTitle });\n\n    // Return an object with the data extracted from the page.\n    // It will be stored to the resulting dataset.\n    return {\n        url,\n        pageTitle\n    };\n}",
 			"editor": "javascript"
 		},
-		"preNavigationHooks": {
-			"title": "Pre-navigation hooks",
-			"type": "string",
-			"description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `requestAsBrowserOptions`, which are passed to the `requestAsBrowser()` function the crawler calls to navigate.",
-			"prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"requestAsBrowserOptions\" which are passed to the `requestAsBrowser()`\n// function the crawler calls to navigate..\n[\n    async (crawlingContext, requestAsBrowserOptions) => {\n        // ...\n    }\n]",
-			"editor": "javascript"
-		},
-		"postNavigationHooks": {
-			"title": "Post-navigation hooks",
-			"type": "string",
-			"description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
-			"prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        // ...\n    },\n]",
-			"editor": "javascript"
-		},
 		"proxyConfiguration": {
 			"sectionCaption": "Proxy and HTTP configuration",
 			"title": "Proxy configuration",
@@ -129,8 +115,22 @@
 			"default": false,
 			"groupCaption": "Security"
 		},
-		"maxRequestRetries": {
+		"preNavigationHooks": {
 			"sectionCaption": "Advanced configuration",
+			"title": "Pre-navigation hooks",
+			"type": "string",
+			"description": "Async functions that are sequentially evaluated before the navigation. Good for setting additional cookies or browser properties before navigation. The function accepts two parameters, `crawlingContext` and `requestAsBrowserOptions`, which are passed to the `requestAsBrowser()` function the crawler calls to navigate.",
+			"prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept two arguments: the \"crawlingContext\" object\n// and \"requestAsBrowserOptions\" which are passed to the `requestAsBrowser()`\n// function the crawler calls to navigate..\n[\n    async (crawlingContext, requestAsBrowserOptions) => {\n        // ...\n    }\n]",
+			"editor": "javascript"
+		},
+		"postNavigationHooks": {
+			"title": "Post-navigation hooks",
+			"type": "string",
+			"description": "Async functions that are sequentially evaluated after the navigation. Good for checking if the navigation was successful. The function accepts `crawlingContext` as the only parameter.",
+			"prefill": "// We need to return array of (possibly async) functions here.\n// The functions accept a single argument: the \"crawlingContext\" object.\n[\n    async (crawlingContext) => {\n        // ...\n    },\n]",
+			"editor": "javascript"
+		},
+		"maxRequestRetries": {
 			"title": "Max request retries",
 			"type": "integer",
 			"description": "The maximum number of times the scraper will retry to load each web page on error, in case of a page load error or an exception thrown by the <b>Page function</b>.<br><br>If set to <code>0</code>, the page will be considered failed right after the first error.",
