@@ -42,6 +42,9 @@ you might prefer to start with the  [**Web scraping tutorial**](https://apify.co
     - [**`request: Object`**](#request-object)
     - [**`response: Object`**](#response-object)
 - [Proxy configuration](#proxy-configuration)
+- [Advanced configuration](#advanced-configuration)
+  - [Pre-navigation hooks](#pre-navigation-hooks)
+  - [Post-navigation hooks](#post-navigation-hooks)
 - [Results](#results)
 - [Additional resources](#additional-resources)
 - [Upgrading](#upgrading)
@@ -505,6 +508,34 @@ It accepts a JSON object with the following structure:
     "proxyUrls": String[],
 }
 ```
+
+## Advanced Configuration
+
+### Pre-navigation hooks
+
+This is an array of functions that will be executed **BEFORE** the main `pageFunction` is run. A similar `context` object is passed into each of these functions as is passed into the `pageFunction`; however, a second "[RequestAsBrowserOptions](https://sdk.apify.com/docs/typedefs/request-as-browser-options)" object is also passed in.
+
+The available options can be seen here:
+
+```JavaScript
+preNavigationHooks: [
+    async ({ id, request, session, proxyInfo, customData, Apify }, { url, method, headers, proxyUrl }) => {}
+]
+```
+
+Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) and the [PuppeteerHook type](https://sdk.apify.com/docs/typedefs/puppeteer-hook) for more info regarding the objects passed into these functions. The available properties are extended with `Apify` and `customData` in this scraper.
+
+### Post-navigation hooks
+
+An array of functions that will be executed **AFTER** the main `pageFunction` is run. The only available parameter is the [CrawlingContext](https://sdk.apify.com/docs/typedefs/crawling-context) object. The available properties are extended with `Apify` and `customData` in this scraper.
+
+```JavaScript
+postNavigationHooks: [
+    async ({ id, request, session, proxyInfo, response, customData, Apify }) => {}
+]
+```
+
+Check out the docs for [Pre-navigation hooks](https://sdk.apify.com/docs/typedefs/puppeteer-crawler-options#prenavigationhooks) for more info regarding the objects passed into these functions.
 
 ## Results
 
