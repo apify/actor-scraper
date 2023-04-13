@@ -14,9 +14,8 @@ in Apify documentation,
 and then continue with [**Scraping with Web Scraper**](https://apify.com/docs/scraping/tutorial/web-scraper),
 a tutorial which will walk you through all the steps and provide a number of examples.
 
-## Table of content
-
 <!-- toc -->
+## Table of content
 
 - [Usage](#usage)
 - [Limitations](#limitations)
