@@ -1,5 +1,7 @@
 .idea
+storage
 apify_storage
+dist
 node_modules
 .nyc_output
 coverage
