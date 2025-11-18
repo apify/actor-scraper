@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import type { IncomingMessage } from 'node:http';
-import { dirname } from 'node:path';
-import { fileURLToPath, URL } from 'node:url';
+import { URL } from 'node:url';
 
 import type {
   AutoscaledPool,
