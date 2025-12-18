@@ -1,5 +1,6 @@
-import type { ProxyConfiguration } from 'crawlee';
-import { log, RobotsFile } from 'crawlee';
+import type { ProxyConfiguration } from '@crawlee/http';
+import { log } from '@crawlee/core';
+import { RobotsFile } from '@crawlee/utils';
 import { Impit } from 'impit';
 
 export const SITEMAP_REQUEST_TIMEOUT_MILLIS = 30e3;

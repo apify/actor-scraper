@@ -2,7 +2,6 @@ import type {
     Dictionary,
     ProxyConfigurationOptions,
     RequestOptions,
-    Session,
 } from '@crawlee/http';
 
 export const enum ProxyRotation {
