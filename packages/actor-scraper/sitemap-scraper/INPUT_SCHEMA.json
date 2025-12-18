@@ -43,7 +43,6 @@
             ]
         },
         "maxCrawlingDepth": {
-            "sectionCaption": "Advanced configuration",
             "title": "Max crawling depth",
             "editor": "hidden",
             "type": "integer",
