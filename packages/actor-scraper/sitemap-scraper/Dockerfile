@@ -16,7 +16,7 @@ COPY package*.json ./
 
 RUN rm -rf node_modules \
     && npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
+    && npm install --omit=dev \
     && echo "Installed NPM packages:" \
     && (npm list --omit=dev --all || true) \
     && echo "Node.js version:" \
