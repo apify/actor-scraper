@@ -1,5 +1,8 @@
-build
+.idea
+storage
+apify_storage
 dist
+build
 build-docs
 node_modules
 *.log
