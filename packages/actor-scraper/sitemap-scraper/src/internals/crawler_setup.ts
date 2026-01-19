@@ -20,6 +20,7 @@ import {
     RequestList,
     RequestQueueV2,
 } from '@crawlee/http';
+import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
@@ -34,8 +35,6 @@ import {
 
 import type { Input } from './consts.js';
 import { ProxyRotation } from './consts.js';
-import { parseSitemap } from '@crawlee/utils';
-import { discoverValidSitemaps } from './tools.js';
 
 const { META_KEY } = scraperToolsConstants;
 
@@ -109,13 +108,15 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _initializeAsync() {
-        const discoveredSitemaps = await discoverValidSitemaps(
-            this.input.startUrls
-                .map((x) => x.url)
-                .filter((x) => x !== undefined),
-            this.proxyConfiguration,
+        const discoveredSitemaps = await Array.fromAsync(
+            discoverValidSitemaps(
+                this.input.startUrls
+                    .map((x) => x.url)
+                    .filter((x) => x !== undefined),
+                { proxyUrl: await this.proxyConfiguration?.newUrl() },
+            ),
         );
-        if (discoveredSitemaps.size === 0) {
+        if (discoveredSitemaps.length === 0) {
             throw await Actor.fail(
                 'No valid sitemaps were discovered from the provided startUrls.',
             );
@@ -376,7 +377,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         /**
          * The depth of the parent sitemap
          */
-        const currentDepth = (request.userData![META_KEY] as RequestMetadata)
+        const currentDepth = (request.userData[META_KEY] as RequestMetadata)
             .depth;
         const hasReachedMaxDepth =
             this.input.maxCrawlingDepth &&
