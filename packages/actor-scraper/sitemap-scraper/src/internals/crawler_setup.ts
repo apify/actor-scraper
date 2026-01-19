@@ -108,15 +108,17 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _initializeAsync() {
-        const discoveredSitemaps = await Array.fromAsync(
-            discoverValidSitemaps(
-                this.input.startUrls
-                    .map((x) => x.url)
-                    .filter((x) => x !== undefined),
-                { proxyUrl: await this.proxyConfiguration?.newUrl() },
+        const discoveredSitemaps = new Set(
+            await Array.fromAsync(
+                discoverValidSitemaps(
+                    this.input.startUrls
+                        .map((x) => x.url)
+                        .filter((x) => x !== undefined),
+                    { proxyUrl: await this.proxyConfiguration?.newUrl() },
+                ),
             ),
         );
-        if (discoveredSitemaps.length === 0) {
+        if (discoveredSitemaps.size === 0) {
             throw await Actor.fail(
                 'No valid sitemaps were discovered from the provided startUrls.',
             );
