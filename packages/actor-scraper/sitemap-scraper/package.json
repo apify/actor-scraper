@@ -11,6 +11,14 @@
         "apify": "^3.2.6",
         "impit": "^0.7.5"
     },
+    "overrides": {
+        "apify": {
+            "@crawlee/utils": "$crawlee"
+        },
+        "@apify/scraper-tools": {
+            "@crawlee/utils": "$crawlee"
+        }
+    },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
         "@types/node": "^24.0.0",
