@@ -12,12 +12,7 @@
         "impit": "^0.7.5"
     },
     "overrides": {
-        "apify": {
-            "@crawlee/utils": "$crawlee"
-        },
-        "@apify/scraper-tools": {
-            "@crawlee/utils": "$crawlee"
-        }
+        "@crawlee/utils": "3.15.4-beta.35"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
