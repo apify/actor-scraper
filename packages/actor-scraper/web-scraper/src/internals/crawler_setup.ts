@@ -225,40 +225,35 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.initPromise = this._initializeAsync();
     }
 
-    // DevToolsServer must be started only once per actor process
-    private static _devToolsStartPromise: Promise<void> | null = null;
-    private static _devToolsServer: any | null = null;
-    private static _devToolsExitHookRegistered = false;
+    private static devToolsStartPromise: Promise<DevToolsServer | null> | null =
+        null;
 
-    private static async _startDevToolsServerOnce(): Promise<void> {
-        if (this._devToolsStartPromise) return this._devToolsStartPromise;
+    private static async getDevToolsServer(): Promise<DevToolsServer | null> {
+        if (this.devToolsStartPromise) return this.devToolsStartPromise;
 
-        this._devToolsStartPromise = (async () => {
+        this.devToolsStartPromise = (async () => {
             const url = process.env.ACTOR_WEB_SERVER_URL;
             const portRaw = process.env.ACTOR_WEB_SERVER_PORT;
-
-            if (!url || !portRaw) return;
+            if (!url || !portRaw) return null;
 
             const port = Number(portRaw);
-            if (!Number.isFinite(port)) return;
+            if (!Number.isFinite(port)) return null;
 
-            this._devToolsServer = new DevToolsServer({
+            const server = new DevToolsServer({
                 containerHost: new URL(url).host,
-                devToolsServerPort: process.env.ACTOR_WEB_SERVER_PORT,
+                devToolsServerPort: port,
                 chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
             });
 
-            await this._devToolsServer.start();
+            await server.start();
 
-            if (!this._devToolsExitHookRegistered) {
-                this._devToolsExitHookRegistered = true;
-                Actor.on('exit', () => {
-                    this._devToolsServer?.stop?.();
-                });
-            }
+            Actor.on('exit', () => {
+                server.stop?.();
+            });
+            return server;
         })();
 
-        return this._devToolsStartPromise;
+        return this.devToolsStartPromise;
     }
 
     private async _initializeAsync() {
@@ -348,8 +343,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 preLaunchHooks: [
                     async () => {
                         if (!this.isDevRun) return;
-                        // eslint-disable-next-line no-underscore-dangle
-                        await CrawlerSetup._startDevToolsServerOnce();
+                        await CrawlerSetup.getDevToolsServer();
                     },
                 ],
             },
