@@ -5,7 +5,6 @@
     "schemaVersion": 1,
     "properties": {
         "startUrls": {
-            "sectionCaption": "Basic configuration",
             "title": "Start URLs",
             "type": "array",
             "description": "A static list of domains to scrape. <br><br>For details, see the <a href='https://apify.com/apify/sitemap-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a> section in the README.",
