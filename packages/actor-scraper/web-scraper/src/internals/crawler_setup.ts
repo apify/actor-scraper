@@ -225,6 +225,42 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.initPromise = this._initializeAsync();
     }
 
+    // DevToolsServer must be started only once per actor process
+    private static _devToolsStartPromise: Promise<void> | null = null;
+    private static _devToolsServer: any | null = null;
+    private static _devToolsExitHookRegistered = false;
+
+    private static async _startDevToolsServerOnce(): Promise<void> {
+        if (this._devToolsStartPromise) return this._devToolsStartPromise;
+
+        this._devToolsStartPromise = (async () => {
+            const url = process.env.ACTOR_WEB_SERVER_URL;
+            const portRaw = process.env.ACTOR_WEB_SERVER_PORT;
+
+            if (!url || !portRaw) return;
+
+            const port = Number(portRaw);
+            if (!Number.isFinite(port)) return;
+
+            this._devToolsServer = new DevToolsServer({
+                containerHost: new URL(url).host,
+                devToolsServerPort: process.env.ACTOR_WEB_SERVER_PORT,
+                chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+            });
+
+            await this._devToolsServer.start();
+
+            if (!this._devToolsExitHookRegistered) {
+                this._devToolsExitHookRegistered = true;
+                Actor.on('exit', () => {
+                    this._devToolsServer?.stop?.();
+                });
+            }
+        })();
+
+        return this._devToolsStartPromise;
+    }
+
     private async _initializeAsync() {
         // RequestList
         const startUrls = this.input.startUrls.map((req) => {
@@ -311,19 +347,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             browserPoolOptions: {
                 preLaunchHooks: [
                     async () => {
-                        if (!this.isDevRun) {
-                            return;
-                        }
-
-                        const devToolsServer = new DevToolsServer({
-                            containerHost: new URL(
-                                process.env.ACTOR_WEB_SERVER_URL!,
-                            ).host,
-                            devToolsServerPort:
-                                process.env.ACTOR_WEB_SERVER_PORT,
-                            chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
-                        });
-                        await devToolsServer.start();
+                        if (!this.isDevRun) return;
+                        // eslint-disable-next-line no-underscore-dangle
+                        await CrawlerSetup._startDevToolsServerOnce();
                     },
                 ],
             },
