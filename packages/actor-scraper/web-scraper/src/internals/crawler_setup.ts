@@ -225,6 +225,37 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.initPromise = this._initializeAsync();
     }
 
+    private static devToolsStartPromise: Promise<DevToolsServer | null> | null =
+        null;
+
+    private static async getDevToolsServer(): Promise<DevToolsServer | null> {
+        if (this.devToolsStartPromise) return this.devToolsStartPromise;
+
+        this.devToolsStartPromise = (async () => {
+            const url = process.env.ACTOR_WEB_SERVER_URL;
+            const portRaw = process.env.ACTOR_WEB_SERVER_PORT;
+            if (!url || !portRaw) return null;
+
+            const port = Number(portRaw);
+            if (!Number.isFinite(port)) return null;
+
+            const server = new DevToolsServer({
+                containerHost: new URL(url).host,
+                devToolsServerPort: port,
+                chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
+            });
+
+            await server.start();
+
+            Actor.on('exit', () => {
+                server.stop?.();
+            });
+            return server;
+        })();
+
+        return this.devToolsStartPromise;
+    }
+
     private async _initializeAsync() {
         // RequestList
         const startUrls = this.input.startUrls.map((req) => {
@@ -311,19 +342,8 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             browserPoolOptions: {
                 preLaunchHooks: [
                     async () => {
-                        if (!this.isDevRun) {
-                            return;
-                        }
-
-                        const devToolsServer = new DevToolsServer({
-                            containerHost: new URL(
-                                process.env.ACTOR_WEB_SERVER_URL!,
-                            ).host,
-                            devToolsServerPort:
-                                process.env.ACTOR_WEB_SERVER_PORT,
-                            chromeRemoteDebuggingPort: CHROME_DEBUGGER_PORT,
-                        });
-                        await devToolsServer.start();
+                        if (!this.isDevRun) return;
+                        await CrawlerSetup.getDevToolsServer();
                     },
                 ],
             },
