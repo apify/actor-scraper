@@ -2,7 +2,7 @@ import type {
     Dictionary,
     ProxyConfigurationOptions,
     RequestOptions,
-} from '@crawlee/http';
+} from 'crawlee';
 
 export const enum ProxyRotation {
     Recommended = 'RECOMMENDED',

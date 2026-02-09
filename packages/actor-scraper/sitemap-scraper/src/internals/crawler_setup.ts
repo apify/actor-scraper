@@ -1,8 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import type { IncomingMessage } from 'node:http';
 import { URL } from 'node:url';
 
+import { GotScrapingHttpClient } from '@crawlee/got-scraping-client';
+import type { ApifyEnv } from 'apify';
+import { Actor } from 'apify';
 import type {
+    CrawlingContext,
     Dictionary,
     HttpCrawlerOptions,
     HttpCrawlingContext,
@@ -10,24 +13,20 @@ import type {
     ProxyConfiguration,
     Request,
     RequestOptions,
-} from '@crawlee/http';
+} from 'crawlee';
 import {
     createHttpRouter,
     Dataset,
+    discoverValidSitemaps,
     HttpCrawler,
     KeyValueStore,
     log,
+    parseSitemap,
     RequestList,
     RequestQueueV2,
-} from '@crawlee/http';
-import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
-import type { ApifyEnv } from 'apify';
-import { Actor } from 'apify';
+} from 'crawlee';
 
-import type {
-    CrawlerSetupOptions,
-    RequestMetadata,
-} from '@apify/scraper-tools';
+import type { RequestMetadata } from '@apify/scraper-tools';
 import {
     constants as scraperToolsConstants,
     tools,
@@ -52,7 +51,7 @@ const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
  * Holds all the information necessary for constructing a crawler
  * instance and creating a context for a pageFunction invocation.
  */
-export class CrawlerSetup implements CrawlerSetupOptions {
+export class CrawlerSetup {
     name = 'Sitemap Scraper';
     rawInput: string;
     env: ApifyEnv;
@@ -69,6 +68,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     dataset!: Dataset;
     pagesOutputted!: number;
     proxyConfiguration?: ProxyConfiguration;
+    private sitemapHttpClient = new GotScrapingHttpClient();
     private initPromise: Promise<void>;
     protected readonly schema: object = SCHEMA;
 
@@ -108,13 +108,21 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _initializeAsync() {
+        // Proxy configuration
+        this.proxyConfiguration = (await Actor.createProxyConfiguration(
+            this.input.proxyConfiguration as any,
+        )) as any as ProxyConfiguration;
+
         const discoveredSitemaps = new Set(
             await Array.fromAsync(
                 discoverValidSitemaps(
                     this.input.startUrls
                         .map((x) => x.url)
                         .filter((x) => x !== undefined),
-                    { proxyUrl: await this.proxyConfiguration?.newUrl() },
+                    {
+                        proxyUrl: await this.proxyConfiguration?.newUrl(),
+                        httpClient: this.sitemapHttpClient,
+                    },
                 ),
             ),
         );
@@ -169,11 +177,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.dataset = await Dataset.open();
         const info = await this.dataset.getInfo();
         this.pagesOutputted = info?.itemCount ?? 0;
-
-        // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration,
-        )) as any as ProxyConfiguration;
     }
 
     /**
@@ -239,7 +242,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         });
     }
 
-    private async _failedRequestHandler({ request }: HttpCrawlingContext) {
+    private async _failedRequestHandler({
+        request,
+    }: CrawlingContext<Dictionary> | HttpCrawlingContext) {
         const lastError =
             request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
@@ -260,7 +265,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         // Make sure that an object containing internal metadata
         // is present on every request.
-        tools.ensureMetaData(request);
+        tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
         const parsed = parseSitemap(
@@ -269,6 +274,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             {
                 emitNestedSitemaps: true,
                 maxDepth: 0,
+                httpClient: this.sitemapHttpClient,
             },
         );
 
@@ -339,27 +345,29 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         // Make sure that an object containing internal metadata
         // is present on every request.
-        tools.ensureMetaData(request);
+        tools.ensureMetaData(request as any);
 
+        const status =
+            (response as any)?.status ?? (response as any)?.statusCode;
         const result = {
             url: request.url,
-            status: response.statusCode,
+            status,
         };
 
         // Save the `pageFunction`s result to the default dataset.
-        await this._handleResult(request, response, result);
+        await this._handleResult(request, response as any, result);
     }
 
     private async _handleResult(
         request: Request,
-        response?: IncomingMessage,
+        response?: any,
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {
         const payload = tools.createDatasetPayload(
-            request,
-            response,
-            pageFunctionResult,
+            request as any,
+            response as any,
+            pageFunctionResult as any,
             isError,
         );
         await this.dataset.pushData(payload);
