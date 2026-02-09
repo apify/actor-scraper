@@ -2,10 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { URL } from 'node:url';
 
 import { GotScrapingHttpClient } from '@crawlee/got-scraping-client';
-import type { ApifyEnv } from 'apify';
-import { Actor } from 'apify';
 import type {
-    CrawlingContext,
     Dictionary,
     HttpCrawlerOptions,
     HttpCrawlingContext,
@@ -13,18 +10,20 @@ import type {
     ProxyConfiguration,
     Request,
     RequestOptions,
-} from 'crawlee';
+} from '@crawlee/http';
 import {
     createHttpRouter,
     Dataset,
-    discoverValidSitemaps,
     HttpCrawler,
     KeyValueStore,
     log,
-    parseSitemap,
     RequestList,
     RequestQueueV2,
-} from 'crawlee';
+} from '@crawlee/http';
+import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
+import type { ApifyEnv } from 'apify';
+import { Actor } from 'apify';
+import type { CrawlingContext } from '@crawlee/core';
 
 import type { RequestMetadata } from '@apify/scraper-tools';
 import {
