@@ -6,11 +6,10 @@
     "type": "module",
     "dependencies": {
         "@apify/scraper-tools": "^1.1.4",
-        "@crawlee/got-scraping-client": "^4.0.0-beta.25",
-        "@crawlee/http": "^4.0.0-beta.25",
-        "@crawlee/utils": "^4.0.0-beta.25",
-        "apify": "4.0.0-beta.12",
-        "impit": "^0.9.1"
+        "@crawlee/http": "4.0.0-beta.25",
+        "@crawlee/impit-client": "4.0.0-beta.25",
+        "@crawlee/utils": "4.0.0-beta.25",
+        "apify": "4.0.0-beta.12"
     },
     "overrides": {
         "apify": {

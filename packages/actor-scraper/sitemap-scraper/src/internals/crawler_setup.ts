@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { URL } from 'node:url';
 
-import { GotScrapingHttpClient } from '@crawlee/got-scraping-client';
+import type { CrawlingContext } from '@crawlee/core';
 import type {
     Dictionary,
     HttpCrawlerOptions,
@@ -20,10 +20,10 @@ import {
     RequestList,
     RequestQueueV2,
 } from '@crawlee/http';
+import { Browser, ImpitHttpClient } from '@crawlee/impit-client';
 import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
-import type { CrawlingContext } from '@crawlee/core';
 
 import type { RequestMetadata } from '@apify/scraper-tools';
 import {
@@ -67,7 +67,11 @@ export class CrawlerSetup {
     dataset!: Dataset;
     pagesOutputted!: number;
     proxyConfiguration?: ProxyConfiguration;
-    private sitemapHttpClient = new GotScrapingHttpClient();
+    private sitemapHttpClient = new ImpitHttpClient({
+        browser: Browser.Chrome,
+        ignoreTlsErrors: true,
+    });
+
     private initPromise: Promise<void>;
     protected readonly schema: object = SCHEMA;
 
