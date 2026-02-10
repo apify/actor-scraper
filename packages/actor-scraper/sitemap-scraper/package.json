@@ -11,6 +11,18 @@
         "@crawlee/utils": "4.0.0-beta.25",
         "apify": "4.0.0-beta.12"
     },
+    "overrides": {
+        "apify": {
+            "@crawlee/core": "4.0.0-beta.25",
+            "@crawlee/types": "4.0.0-beta.25",
+            "@crawlee/utils": "4.0.0-beta.25"
+        },
+        "@apify/scraper-tools": {
+            "@crawlee/core": "4.0.0-beta.25",
+            "@crawlee/types": "4.0.0-beta.25",
+            "@crawlee/utils": "4.0.0-beta.25"
+        }
+    },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
         "@types/node": "^24.0.0",
