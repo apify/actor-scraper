@@ -6,13 +6,22 @@
     "type": "module",
     "dependencies": {
         "@apify/scraper-tools": "^1.1.4",
-        "@crawlee/http": "^3.14.1",
-        "@crawlee/utils": "^3.15.4-beta.44",
-        "apify": "^3.2.6",
-        "impit": "^0.7.5"
+        "@crawlee/http": "4.0.0-beta.25",
+        "@crawlee/impit-client": "4.0.0-beta.25",
+        "@crawlee/utils": "4.0.0-beta.25",
+        "apify": "4.0.0-beta.12"
     },
     "overrides": {
-        "@crawlee/utils": "^3.15.4-beta.44"
+        "apify": {
+            "@crawlee/core": "4.0.0-beta.25",
+            "@crawlee/types": "4.0.0-beta.25",
+            "@crawlee/utils": "4.0.0-beta.25"
+        },
+        "@apify/scraper-tools": {
+            "@crawlee/core": "4.0.0-beta.25",
+            "@crawlee/types": "4.0.0-beta.25",
+            "@crawlee/utils": "4.0.0-beta.25"
+        }
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
