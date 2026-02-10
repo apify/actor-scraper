@@ -110,11 +110,34 @@ export class CrawlerSetup {
         return router;
     }
 
+    private _wrapProxyConfiguration(
+        proxyConfiguration: ProxyConfiguration,
+    ): ProxyConfiguration {
+        const anyProxy = proxyConfiguration as any;
+        if (typeof anyProxy.newProxyInfo === 'function') {
+            const originalNewProxyInfo = anyProxy.newProxyInfo.bind(anyProxy);
+            if (originalNewProxyInfo.length >= 2) {
+                anyProxy.newProxyInfo = (options?: any) =>
+                    originalNewProxyInfo(undefined, options);
+            }
+        }
+        if (typeof anyProxy.newUrl === 'function') {
+            const originalNewUrl = anyProxy.newUrl.bind(anyProxy);
+            if (originalNewUrl.length >= 2) {
+                anyProxy.newUrl = (options?: any) =>
+                    originalNewUrl(undefined, options);
+            }
+        }
+        return anyProxy as ProxyConfiguration;
+    }
+
     private async _initializeAsync() {
         // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
+        const proxyConfiguration = (await Actor.createProxyConfiguration(
             this.input.proxyConfiguration as any,
-        )) as any as ProxyConfiguration;
+        )) as ProxyConfiguration;
+        this.proxyConfiguration =
+            this._wrapProxyConfiguration(proxyConfiguration);
 
         const discoveredSitemaps = new Set(
             await Array.fromAsync(
