@@ -179,8 +179,6 @@ export class CrawlerSetup {
                 url: sitemapUrl,
                 useExtendedUniqueKey: true,
                 keepUrlFragment: this.input.keepUrlFragments,
-                // sitemaps are fetched inside the handler
-                skipNavigation: true,
             }),
         );
 
@@ -228,6 +226,7 @@ export class CrawlerSetup {
 
         const options: HttpCrawlerOptions = {
             proxyConfiguration: this.proxyConfiguration,
+            httpClient: this.sitemapHttpClient,
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
             postNavigationHooks: [],
@@ -302,15 +301,17 @@ export class CrawlerSetup {
     protected async _handleSitemapRequest(
         crawlingContext: HttpCrawlingContext,
     ) {
-        const { request } = crawlingContext;
+        const { request, body } = crawlingContext;
 
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
+        const sitemapContent =
+            typeof body === 'string' ? body : body.toString('utf8');
         const parsed = parseSitemap(
-            [{ type: 'url', url: request.url }],
+            [{ type: 'raw', content: sitemapContent }],
             await this.proxyConfiguration?.newUrl(),
             {
                 emitNestedSitemaps: true,
