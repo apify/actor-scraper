@@ -1,4 +1,6 @@
 declare module '@apify/scraper-tools' {
+    type Dictionary = Record<string, any>;
+
     export interface RequestMetadata {
         depth: number;
         parentRequestId: string | null;
@@ -6,7 +8,7 @@ declare module '@apify/scraper-tools' {
 
     export const constants: {
         META_KEY: string;
-        SESSION_MAX_USAGE_COUNTS: Record<string, number | undefined>;
+        SESSION_MAX_USAGE_COUNTS: Record<string, number>;
     };
 
     export const tools: {
@@ -15,13 +17,13 @@ declare module '@apify/scraper-tools' {
         createDatasetPayload(
             request: unknown,
             response: unknown,
-            pageFunctionResult?: unknown,
+            pageFunctionResult?: Dictionary | Dictionary[],
             isError?: boolean,
-        ): unknown;
+        ): Dictionary | Dictionary[];
     };
 
     export function runActor(
-        CrawlerSetup: new (input: unknown) => {
+        CrawlerSetup: new (input: any) => {
             name: string;
             createCrawler: () => Promise<{ run(): Promise<unknown> }>;
         },
