@@ -9,7 +9,7 @@
         "@crawlee/http": "4.0.0-beta.25",
         "@crawlee/impit-client": "4.0.0-beta.25",
         "@crawlee/utils": "4.0.0-beta.25",
-        "apify": "^3.5.3"
+        "apify": "4.0.0-beta.12"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
