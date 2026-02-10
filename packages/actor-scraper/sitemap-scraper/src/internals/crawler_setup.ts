@@ -116,17 +116,32 @@ export class CrawlerSetup {
         const anyProxy = proxyConfiguration as any;
         if (typeof anyProxy.newProxyInfo === 'function') {
             const originalNewProxyInfo = anyProxy.newProxyInfo.bind(anyProxy);
-            if (originalNewProxyInfo.length >= 2) {
-                anyProxy.newProxyInfo = (options?: any) =>
-                    originalNewProxyInfo(undefined, options);
-            }
+            anyProxy.newProxyInfo = (
+                sessionIdOrOptions?: any,
+                options?: any,
+            ) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewProxyInfo(undefined, sessionIdOrOptions);
+                }
+                return originalNewProxyInfo(sessionIdOrOptions, options);
+            };
         }
         if (typeof anyProxy.newUrl === 'function') {
             const originalNewUrl = anyProxy.newUrl.bind(anyProxy);
-            if (originalNewUrl.length >= 2) {
-                anyProxy.newUrl = (options?: any) =>
-                    originalNewUrl(undefined, options);
-            }
+            anyProxy.newUrl = (sessionIdOrOptions?: any, options?: any) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewUrl(undefined, sessionIdOrOptions);
+                }
+                return originalNewUrl(sessionIdOrOptions, options);
+            };
         }
         return anyProxy as ProxyConfiguration;
     }
