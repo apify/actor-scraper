@@ -1,5 +1,5 @@
 {
-    "title": "Sitemap Scraper Input",
+    "title": "Sitemap Extractor Input",
     "type": "object",
     "description": "",
     "schemaVersion": 1,
@@ -7,7 +7,7 @@
         "startUrls": {
             "title": "Start URLs",
             "type": "array",
-            "description": "A static list of domains to scrape. <br><br>For details, see the <a href='https://apify.com/apify/sitemap-scraper#start-urls' target='_blank' rel='noopener'>Start URLs</a> section in the README.",
+            "description": "A static list of domains to scrape. <br><br>For details, see the <a href='https://apify.com/apify/sitemap-extractor#start-urls' target='_blank' rel='noopener'>Start URLs</a> section in the README.",
             "prefill": [
                 {
                     "url": "https://docs.apify.com"
@@ -19,7 +19,7 @@
             "sectionCaption": "Proxy and HTTP configuration",
             "title": "Proxy configuration",
             "type": "object",
-            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/sitemap-scraper#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
+            "description": "Specifies proxy servers that will be used by the scraper in order to hide its origin.<br><br>For details, see <a href='https://apify.com/apify/sitemap-extractor#proxy-configuration' target='_blank' rel='noopener'>Proxy configuration</a> in README.",
             "prefill": {
                 "useApifyProxy": true
             },
