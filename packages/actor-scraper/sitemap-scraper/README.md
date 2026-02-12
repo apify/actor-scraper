@@ -1,4 +1,4 @@
-# Sitemap Scraper
+# Sitemap Extractor
 
 This Actor is designed to bridge the gap between discovery and crawling. By traversing a website's `sitemap.xml` structure, it compiles a comprehensive list of all published pages and verifies their status before you commit resources to a full-scale scrape.
 
