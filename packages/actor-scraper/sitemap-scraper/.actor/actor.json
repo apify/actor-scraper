@@ -3,6 +3,9 @@
     "name": "sitemap-extractor",
     "version": "0.1",
     "buildTag": "latest",
+    "defaultMemoryMbytes": 1024,
+    "minMemoryMbytes": 256,
+    "maxMemoryMbytes": 4096,
     "storages": {
         "dataset": {
             "actorSpecification": 1,
