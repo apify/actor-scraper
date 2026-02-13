@@ -119,7 +119,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         );
         const discovered = await Promise.race([
             discoveryPromise,
-            sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS).then(() => null),
+            sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
         ]);
         if (!discovered) {
             log.warning(
@@ -128,7 +128,10 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 )}s, continuing without sitemaps.`,
             );
         }
-        const discoveredSitemaps = new Set(discovered ?? []);
+        const discoveredSitemaps =
+            discovered && discovered.length > 0
+                ? new Set(discovered)
+                : new Set<string>();
         if (discoveredSitemaps.size === 0) {
             throw await Actor.fail(
                 'No valid sitemaps were discovered from the provided startUrls.',
