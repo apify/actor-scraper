@@ -24,7 +24,8 @@
         "start": "npm run start:dev",
         "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
-        "build": "tsc"
+        "build": "tsc",
+        "test": "vitest run --config ../../../vitest.config.mts test"
     },
     "repository": {
         "type": "git",
