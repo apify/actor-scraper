@@ -20,7 +20,7 @@ import {
     RequestList,
     RequestQueueV2,
 } from '@crawlee/http';
-import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
+import { discoverValidSitemaps, parseSitemap, sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
@@ -44,6 +44,7 @@ const SCHEMA = JSON.parse(
 );
 
 const REQUESTS_BATCH_SIZE = 25;
+const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -108,16 +109,26 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _initializeAsync() {
-        const discoveredSitemaps = new Set(
-            await Array.fromAsync(
-                discoverValidSitemaps(
-                    this.input.startUrls
-                        .map((x) => x.url)
-                        .filter((x) => x !== undefined),
-                    { proxyUrl: await this.proxyConfiguration?.newUrl() },
-                ),
+        const discoveryPromise = Array.fromAsync(
+            discoverValidSitemaps(
+                this.input.startUrls
+                    .map((x) => x.url)
+                    .filter((x) => x !== undefined),
+                { proxyUrl: await this.proxyConfiguration?.newUrl() },
             ),
         );
+        const discovered = await Promise.race([
+            discoveryPromise,
+            sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS).then(() => null),
+        ]);
+        if (!discovered) {
+            log.warning(
+                `Sitemap discovery timed out after ${Math.round(
+                    SITEMAP_DISCOVERY_TIMEOUT_MILLIS / 1000,
+                )}s, continuing without sitemaps.`,
+            );
+        }
+        const discoveredSitemaps = new Set(discovered ?? []);
         if (discoveredSitemaps.size === 0) {
             throw await Actor.fail(
                 'No valid sitemaps were discovered from the provided startUrls.',
