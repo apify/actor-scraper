@@ -1,9 +1,7 @@
+import { log } from '@crawlee/http';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { log } from '@crawlee/http';
-
-import type { Input } from '../src/internals/consts.js';
-import { ProxyRotation } from '../src/internals/consts.js';
+import { type Input, ProxyRotation } from '../src/internals/consts.js';
 import { CrawlerSetup } from '../src/internals/crawler_setup.js';
 
 vi.mock('apify', () => ({
@@ -47,9 +45,10 @@ describe('CrawlerSetup', () => {
     it('sets debug log level when debugLog is true', async () => {
         const setLevelSpy = vi.spyOn(log, 'setLevel');
 
-        new CrawlerSetup(createInput({ debugLog: true }));
+        const setup = new CrawlerSetup(createInput({ debugLog: true }));
 
         expect(setLevelSpy).toHaveBeenCalledWith(log.LEVELS.DEBUG);
+        expect(setup).toBeInstanceOf(CrawlerSetup);
     });
 
     it('stores rawInput as a JSON string', async () => {
