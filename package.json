@@ -99,5 +99,8 @@
         "vite-tsconfig-paths": "^5.0.0",
         "vitest": "^3.0.0"
     },
-    "packageManager": "npm@10.9.2"
+    "packageManager": "npm@10.9.2",
+    "dependencies": {
+        "apify": "^3.5.3"
+    }
 }
