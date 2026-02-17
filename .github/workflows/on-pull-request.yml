@@ -1,4 +1,4 @@
-name: Check & Release
+name: PR Tests
 
 env:
     PUPPETEER_DOWNLOAD_BASE_URL: https://storage.googleapis.com/chrome-for-testing-public
