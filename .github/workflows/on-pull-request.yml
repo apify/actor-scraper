@@ -4,6 +4,10 @@ on:
     pull_request:
         branches: [master]
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
 jobs:
     build_and_test:
         name: Build & Test
@@ -11,11 +15,6 @@ jobs:
         runs-on: ubuntu-22.04
 
         steps:
-            - name: Cancel Workflow Action
-              uses: styfle/cancel-workflow-action@0.13.0
-              with:
-                  access_token: ${{ github.token }}
-
             - name: Checkout repository
               uses: actions/checkout@v6
 
@@ -28,7 +27,7 @@ jobs:
 
             - name: Install Dependencies
               run: |
-                  npm ci --force
+                  npm ci
 
             - name: Build
               run: npm run ci:build
