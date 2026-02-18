@@ -1,14 +1,4 @@
-import type {
-    Dictionary,
-    ProxyConfigurationOptions,
-    RequestOptions,
-} from '@crawlee/http';
-
-export const enum ProxyRotation {
-    Recommended = 'RECOMMENDED',
-    PerRequest = 'PER_REQUEST',
-    UntilFailure = 'UNTIL_FAILURE',
-}
+import type { Dictionary, RequestOptions } from '@crawlee/http';
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference
@@ -19,8 +9,6 @@ export interface Input {
     keepUrlFragments: boolean;
     respectRobotsTxtFile: boolean;
     pageFunction: string;
-    proxyConfiguration: ProxyConfigurationOptions;
-    proxyRotation: ProxyRotation;
     maxRequestRetries: number;
     maxCrawlingDepth: number;
     debugLog: boolean;

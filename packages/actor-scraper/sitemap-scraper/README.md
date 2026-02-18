@@ -6,7 +6,6 @@ This Actor is designed to bridge the gap between discovery and crawling. By trav
 
 - **Recursive Sitemap Discovery:** Automatically detects and traverses nested sitemaps (sitemap indexes).
 - **Efficiency:** Uses HTTP HEAD requests for URL validation, which are significantly faster and consume less bandwidth than full GET requests.
-- **Proxy Support:** Integrated with Apify Proxy to prevent rate limiting or blocking during the discovery phase.
 - **Detailed Output:** Provides the final URL and the corresponding HTTP status code.
 
 ## How it Works
@@ -26,7 +25,6 @@ This Actor is ideal for:
 
 ## Configuration
 
-|          Field          |                           Description                           |
-| :---------------------: | :-------------------------------------------------------------: |
-|     **Start URLs**      | Just a domain name or a list of sitemap XML URLs to start from. |
-| **Proxy configuration** |                   Settings for Apify Proxies.                   |
+|     Field      |                           Description                           |
+| :------------: | :-------------------------------------------------------------: |
+| **Start URLs** | Just a domain name or a list of sitemap XML URLs to start from. |

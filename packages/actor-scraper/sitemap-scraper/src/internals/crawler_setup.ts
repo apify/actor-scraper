@@ -7,7 +7,6 @@ import type {
     HttpCrawlerOptions,
     HttpCrawlingContext,
     InternalHttpCrawlingContext,
-    ProxyConfiguration,
     Request,
     RequestOptions,
 } from '@crawlee/http';
@@ -34,11 +33,8 @@ import {
 } from '@apify/scraper-tools';
 
 import type { Input } from './consts.js';
-import { ProxyRotation } from './consts.js';
 
 const { META_KEY } = scraperToolsConstants;
-
-const { SESSION_MAX_USAGE_COUNTS } = scraperToolsConstants;
 const SCHEMA = JSON.parse(
     await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'),
 );
@@ -48,6 +44,7 @@ const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
+let isDiscoveryHttpClientConfigured = false;
 
 /**
  * Holds all the information necessary for constructing a crawler
@@ -65,11 +62,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     keyValueStore: KeyValueStore;
     customData: unknown;
     input: Input;
-    maxSessionUsageCount: number;
     crawler!: HttpCrawler<InternalHttpCrawlingContext>;
     dataset!: Dataset;
     pagesOutputted!: number;
-    proxyConfiguration?: ProxyConfiguration;
     private initPromise: Promise<void>;
     protected readonly schema: object = SCHEMA;
 
@@ -86,16 +81,11 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.input = input;
         this.env = Actor.getEnv();
 
-        // solving proxy rotation settings
-        this.maxSessionUsageCount =
-            SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
-
         // Initialize async operations.
         this.crawler = null!;
         this.requestQueue = null!;
         this.dataset = null!;
         this.keyValueStore = null!;
-        this.proxyConfiguration = null!;
         this.initPromise = this._initializeAsync();
     }
 
@@ -108,13 +98,33 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         return router;
     }
 
+    private async _configureDiscoveryHttpClient() {
+        if (isDiscoveryHttpClientConfigured) {
+            return;
+        }
+
+        const { gotScraping } = await import('got-scraping');
+
+        // Sitemap discovery is stateless for this actor. Ignore invalid cross-domain
+        // cookies from target websites and avoid keeping any cookie jar state.
+        const defaults = gotScraping.defaults.options as {
+            ignoreInvalidCookies?: boolean;
+            cookieJar?: unknown;
+        };
+        defaults.ignoreInvalidCookies = true;
+        defaults.cookieJar = undefined;
+
+        isDiscoveryHttpClientConfigured = true;
+    }
+
     private async _initializeAsync() {
+        await this._configureDiscoveryHttpClient();
+
         const discoveryPromise = Array.fromAsync(
             discoverValidSitemaps(
                 this.input.startUrls
                     .map((x) => x.url)
                     .filter((x) => x !== undefined),
-                { proxyUrl: await this.proxyConfiguration?.newUrl() },
             ),
         );
         const discovered = await Promise.race([
@@ -183,11 +193,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.dataset = await Dataset.open();
         const info = await this.dataset.getInfo();
         this.pagesOutputted = info?.itemCount ?? 0;
-
-        // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration,
-        )) as any as ProxyConfiguration;
     }
 
     /**
@@ -197,7 +202,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         await this.initPromise;
 
         const options: HttpCrawlerOptions = {
-            proxyConfiguration: this.proxyConfiguration,
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
             postNavigationHooks: [],
@@ -216,24 +220,14 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 { length: 100 },
                 (_, i) => 500 + i,
             ),
-            useSessionPool: true,
-            persistCookiesPerSession: true,
-            sessionPoolOptions: {
-                blockedStatusCodes: [],
-                sessionOptions: {
-                    maxUsageCount: this.maxSessionUsageCount,
-                },
-            },
+            useSessionPool: false,
+            persistCookiesPerSession: false,
             experiments: {
                 requestLocking: true,
             },
         };
 
         this._createNavigationHooks(options);
-
-        if (this.input.proxyRotation === ProxyRotation.UntilFailure) {
-            options.sessionPoolOptions!.maxPoolSize = 1;
-        }
 
         this.crawler = new HttpCrawler(options);
 
@@ -250,6 +244,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 },
                 {} as Dictionary<string>,
             );
+
+            // Sitemap scraper is stateless - never send cookies.
+            delete request.headers.cookie;
         });
     }
 
@@ -279,7 +276,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         log.info('Processing sitemap', { url: request.url });
         const parsed = parseSitemap(
             [{ type: 'url', url: request.url }],
-            await this.proxyConfiguration?.newUrl(),
+            undefined,
             {
                 emitNestedSitemaps: true,
                 maxDepth: 0,
