@@ -48,6 +48,7 @@ const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
+let isDiscoveryHttpClientConfigured = false;
 
 /**
  * Holds all the information necessary for constructing a crawler
@@ -108,7 +109,32 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         return router;
     }
 
+    private async _configureDiscoveryHttpClient() {
+        if (isDiscoveryHttpClientConfigured) {
+            return;
+        }
+
+        const { gotScraping } = await import('got-scraping');
+
+        // Keep sitemap discovery stateless and resilient to cross-domain Set-Cookie headers.
+        const defaults = gotScraping.defaults.options as {
+            ignoreInvalidCookies?: boolean;
+            cookieJar?: unknown;
+        };
+        defaults.ignoreInvalidCookies = true;
+        defaults.cookieJar = undefined;
+
+        isDiscoveryHttpClientConfigured = true;
+    }
+
     private async _initializeAsync() {
+        // Proxy configuration
+        this.proxyConfiguration = (await Actor.createProxyConfiguration(
+            this.input.proxyConfiguration,
+        )) as any as ProxyConfiguration;
+
+        await this._configureDiscoveryHttpClient();
+
         const discoveryPromise = Array.fromAsync(
             discoverValidSitemaps(
                 this.input.startUrls
@@ -183,11 +209,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.dataset = await Dataset.open();
         const info = await this.dataset.getInfo();
         this.pagesOutputted = info?.itemCount ?? 0;
-
-        // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration,
-        )) as any as ProxyConfiguration;
     }
 
     /**
@@ -217,7 +238,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 (_, i) => 500 + i,
             ),
             useSessionPool: true,
-            persistCookiesPerSession: true,
+            persistCookiesPerSession: false,
             sessionPoolOptions: {
                 blockedStatusCodes: [],
                 sessionOptions: {
@@ -250,6 +271,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 },
                 {} as Dictionary<string>,
             );
+
+            // Sitemap scraper should never send cookies.
+            delete request.headers.cookie;
         });
     }
 
