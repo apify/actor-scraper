@@ -22,5 +22,5 @@ declare module '@apify/scraper-tools' {
             name: string;
             createCrawler(): Promise<{ run(): Promise<unknown> }>;
         },
-    ): Promise<void>;
+    ): void;
 }
