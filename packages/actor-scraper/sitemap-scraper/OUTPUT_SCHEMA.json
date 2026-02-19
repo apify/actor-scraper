@@ -1,0 +1,29 @@
+{
+    "title": "Sitemap Extractor Output",
+    "type": "object",
+    "description": "Each item represents a URL discovered in a sitemap and the result of a HEAD request. Failed requests may contain only error/debug metadata.",
+    "schemaVersion": 1,
+    "properties": {
+        "url": {
+            "title": "URL",
+            "type": "string",
+            "description": "URL discovered in a sitemap."
+        },
+        "status": {
+            "title": "Status code",
+            "type": "integer",
+            "description": "HTTP status code from the HEAD request."
+        },
+        "#error": {
+            "title": "Error flag",
+            "type": "boolean",
+            "description": "True if the request failed after retries."
+        },
+        "#debug": {
+            "title": "Debug info",
+            "type": "object",
+            "description": "Request debug info (id, retry count, errors, etc.).",
+            "additionalProperties": true
+        }
+    }
+}

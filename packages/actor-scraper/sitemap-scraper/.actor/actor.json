@@ -1,12 +1,36 @@
 {
     "actorSpecification": 1,
-    "name": "sitemap-scraper",
+    "name": "sitemap-extractor",
     "version": "0.1",
     "buildTag": "latest",
+    "defaultMemoryMbytes": 1024,
+    "minMemoryMbytes": 256,
+    "maxMemoryMbytes": 4096,
     "storages": {
         "dataset": {
             "actorSpecification": 1,
-            "fields": {},
+            "fields": {
+                "url": {
+                    "type": "string",
+                    "title": "URL",
+                    "description": "URL discovered in a sitemap."
+                },
+                "status": {
+                    "type": "integer",
+                    "title": "Status code",
+                    "description": "HTTP status code from the HEAD request."
+                },
+                "#error": {
+                    "type": "boolean",
+                    "title": "Error flag",
+                    "description": "True if the request failed after retries."
+                },
+                "#debug": {
+                    "type": "object",
+                    "title": "Debug info",
+                    "description": "Request debug info (id, retry count, errors, etc.)."
+                }
+            },
             "views": {}
         }
     }

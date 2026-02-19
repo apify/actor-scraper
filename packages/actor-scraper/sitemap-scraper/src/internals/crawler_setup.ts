@@ -42,6 +42,7 @@ const SCHEMA = JSON.parse(
 );
 
 const REQUESTS_BATCH_SIZE = 25;
+const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -129,6 +130,21 @@ export class CrawlerSetup {
                 ),
             ),
         );
+        const discovered = await Promise.race([
+            discoveryPromise,
+            sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
+        ]);
+        if (!discovered) {
+            log.warning(
+                `Sitemap discovery timed out after ${Math.round(
+                    SITEMAP_DISCOVERY_TIMEOUT_MILLIS / 1000,
+                )}s, continuing without sitemaps.`,
+            );
+        }
+        const discoveredSitemaps =
+            discovered && discovered.length > 0
+                ? new Set(discovered)
+                : new Set<string>();
         if (discoveredSitemaps.size === 0) {
             throw await Actor.fail(
                 'No valid sitemaps were discovered from the provided startUrls.',
