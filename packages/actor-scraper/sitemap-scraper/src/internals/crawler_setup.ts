@@ -21,7 +21,7 @@ import {
     RequestQueueV2,
 } from '@crawlee/http';
 import { Browser, ImpitHttpClient } from '@crawlee/impit-client';
-import { discoverValidSitemaps, parseSitemap } from '@crawlee/utils';
+import { discoverValidSitemaps, parseSitemap, sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
@@ -117,20 +117,18 @@ export class CrawlerSetup {
             this.input.proxyConfiguration as any,
         )) as any as ProxyConfiguration;
 
-        const discoveredSitemaps = new Set(
-            await Array.fromAsync(
-                discoverValidSitemaps(
-                    this.input.startUrls
-                        .map((x) => x.url)
-                        .filter((x) => x !== undefined),
-                    {
-                        proxyUrl: await this.proxyConfiguration?.newUrl(),
-                        httpClient: this.sitemapHttpClient,
-                    },
-                ),
+        const discoveryPromise = Array.fromAsync(
+            discoverValidSitemaps(
+                this.input.startUrls
+                    .map((x) => x.url)
+                    .filter((x) => x !== undefined),
+                {
+                    proxyUrl: await this.proxyConfiguration?.newUrl(),
+                    httpClient: this.sitemapHttpClient,
+                } as any,
             ),
         );
-        const discovered = await Promise.race([
+        const discovered = await Promise.race<string[] | void>([
             discoveryPromise,
             sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
         ]);
