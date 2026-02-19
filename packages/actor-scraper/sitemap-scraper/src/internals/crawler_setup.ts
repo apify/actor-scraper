@@ -25,7 +25,6 @@ import { discoverValidSitemaps, parseSitemap, sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
-import type { RequestMetadata } from '@apify/scraper-tools';
 import {
     constants as scraperToolsConstants,
     tools,
@@ -35,6 +34,10 @@ import type { Input } from './consts.js';
 import { ProxyRotation } from './consts.js';
 
 const { META_KEY } = scraperToolsConstants;
+type RequestMetadata = {
+    parentRequestId?: string;
+    depth: number;
+};
 
 const { SESSION_MAX_USAGE_COUNTS } = scraperToolsConstants;
 const SCHEMA = JSON.parse(
