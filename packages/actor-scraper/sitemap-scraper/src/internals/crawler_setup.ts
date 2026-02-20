@@ -114,11 +114,53 @@ export class CrawlerSetup {
         return router;
     }
 
+    private _wrapProxyConfiguration(
+        proxyConfiguration?: ProxyConfiguration,
+    ): ProxyConfiguration | undefined {
+        if (!proxyConfiguration) {
+            return proxyConfiguration;
+        }
+
+        const anyProxy = proxyConfiguration as any;
+        if (typeof anyProxy.newProxyInfo === 'function') {
+            const originalNewProxyInfo = anyProxy.newProxyInfo.bind(anyProxy);
+            anyProxy.newProxyInfo = (
+                sessionIdOrOptions?: any,
+                options?: any,
+            ) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewProxyInfo(undefined, sessionIdOrOptions);
+                }
+                return originalNewProxyInfo(sessionIdOrOptions, options);
+            };
+        }
+        if (typeof anyProxy.newUrl === 'function') {
+            const originalNewUrl = anyProxy.newUrl.bind(anyProxy);
+            anyProxy.newUrl = (sessionIdOrOptions?: any, options?: any) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewUrl(undefined, sessionIdOrOptions);
+                }
+                return originalNewUrl(sessionIdOrOptions, options);
+            };
+        }
+        return anyProxy as ProxyConfiguration;
+    }
+
     private async _initializeAsync() {
         // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
+        const proxyConfiguration = (await Actor.createProxyConfiguration(
             this.input.proxyConfiguration as any,
-        )) as any as ProxyConfiguration;
+        )) as ProxyConfiguration | undefined;
+        this.proxyConfiguration =
+            this._wrapProxyConfiguration(proxyConfiguration);
 
         const discoveryPromise = Array.fromAsync(
             discoverValidSitemaps(
