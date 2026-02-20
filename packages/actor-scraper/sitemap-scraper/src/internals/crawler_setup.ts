@@ -274,6 +274,11 @@ export class CrawlerSetup {
         const options: HttpCrawlerOptions = {
             proxyConfiguration: this.proxyConfiguration,
             httpClient: this.sitemapHttpClient,
+            additionalMimeTypes: [
+                'application/rss+xml',
+                'application/atom+xml',
+                'text/plain',
+            ],
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
             postNavigationHooks: [],
