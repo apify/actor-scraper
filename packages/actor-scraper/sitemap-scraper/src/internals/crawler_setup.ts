@@ -49,7 +49,6 @@ const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
-let isDiscoveryHttpClientConfigured = false;
 
 /**
  * Holds all the information necessary for constructing a crawler
