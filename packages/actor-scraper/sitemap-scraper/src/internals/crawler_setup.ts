@@ -55,7 +55,7 @@ const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
  * instance and creating a context for a pageFunction invocation.
  */
 export class CrawlerSetup {
-    name = 'Sitemap Scraper';
+    name = 'Sitemap Extractor';
     rawInput: string;
     env: ApifyEnv;
     /**
