@@ -2,7 +2,7 @@ FROM apify/actor-node:22 AS builder
 
 COPY package*.json ./
 
-RUN npm install --include=dev --audit=false
+RUN npm install --include=dev --audit=false --force
 
 COPY . ./
 
@@ -16,7 +16,7 @@ COPY package*.json ./
 
 RUN rm -rf node_modules \
     && npm --quiet set progress=false \
-    && npm install --omit=dev \
+    && npm install --omit=dev --force \
     && echo "Installed NPM packages:" \
     && (npm list --omit=dev --all || true) \
     && echo "Node.js version:" \
