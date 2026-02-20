@@ -3,6 +3,7 @@
     "name": "sitemap-extractor",
     "version": "0.1",
     "buildTag": "latest",
+    "output": "./output_schema.json",
     "defaultMemoryMbytes": 1024,
     "minMemoryMbytes": 256,
     "maxMemoryMbytes": 4096,
