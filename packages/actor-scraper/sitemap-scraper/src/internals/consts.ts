@@ -1,6 +1,6 @@
 import type {
     Dictionary,
-    ProxyConfigurationOptions,
+    ProxyConfigurationOptions as CrawleeProxyConfigurationOptions,
     RequestOptions,
 } from '@crawlee/http';
 
@@ -9,6 +9,10 @@ export const enum ProxyRotation {
     PerRequest = 'PER_REQUEST',
     UntilFailure = 'UNTIL_FAILURE',
 }
+
+type ProxyConfigurationOptions = CrawleeProxyConfigurationOptions & {
+    useApifyProxy?: boolean;
+};
 
 /**
  * Replicates the INPUT_SCHEMA with JavaScript types for quick reference

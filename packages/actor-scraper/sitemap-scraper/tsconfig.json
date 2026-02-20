@@ -3,6 +3,7 @@
     "compilerOptions": {
         "outDir": "dist",
         "module": "ESNext",
+        "moduleResolution": "bundler",
         "allowJs": true,
         "skipLibCheck": true
     },
