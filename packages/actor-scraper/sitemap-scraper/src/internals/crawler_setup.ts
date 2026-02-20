@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
-import type { IncomingMessage } from 'node:http';
 import { URL } from 'node:url';
 
+import type { CrawlingContext } from '@crawlee/core';
 import type {
     Dictionary,
     HttpCrawlerOptions,
@@ -20,14 +20,11 @@ import {
     RequestList,
     RequestQueueV2,
 } from '@crawlee/http';
+import { Browser, ImpitHttpClient } from '@crawlee/impit-client';
 import { discoverValidSitemaps, parseSitemap, sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
-import type {
-    CrawlerSetupOptions,
-    RequestMetadata,
-} from '@apify/scraper-tools';
 import {
     constants as scraperToolsConstants,
     tools,
@@ -37,6 +34,10 @@ import type { Input } from './consts.js';
 import { ProxyRotation } from './consts.js';
 
 const { META_KEY } = scraperToolsConstants;
+type RequestMetadata = {
+    parentRequestId?: string;
+    depth: number;
+};
 
 const { SESSION_MAX_USAGE_COUNTS } = scraperToolsConstants;
 const SCHEMA = JSON.parse(
@@ -53,8 +54,8 @@ const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
  * Holds all the information necessary for constructing a crawler
  * instance and creating a context for a pageFunction invocation.
  */
-export class CrawlerSetup implements CrawlerSetupOptions {
-    name = 'Sitemap Extractor';
+export class CrawlerSetup {
+    name = 'Sitemap Scraper';
     rawInput: string;
     env: ApifyEnv;
     /**
@@ -70,6 +71,11 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     dataset!: Dataset;
     pagesOutputted!: number;
     proxyConfiguration?: ProxyConfiguration;
+    private sitemapHttpClient = new ImpitHttpClient({
+        browser: Browser.Chrome,
+        ignoreTlsErrors: true,
+    });
+
     private initPromise: Promise<void>;
     protected readonly schema: object = SCHEMA;
 
@@ -108,16 +114,66 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         return router;
     }
 
+    private _wrapProxyConfiguration(
+        proxyConfiguration?: ProxyConfiguration,
+    ): ProxyConfiguration | undefined {
+        if (!proxyConfiguration) {
+            return proxyConfiguration;
+        }
+
+        const anyProxy = proxyConfiguration as any;
+        if (typeof anyProxy.newProxyInfo === 'function') {
+            const originalNewProxyInfo = anyProxy.newProxyInfo.bind(anyProxy);
+            anyProxy.newProxyInfo = (
+                sessionIdOrOptions?: any,
+                options?: any,
+            ) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewProxyInfo(undefined, sessionIdOrOptions);
+                }
+                return originalNewProxyInfo(sessionIdOrOptions, options);
+            };
+        }
+        if (typeof anyProxy.newUrl === 'function') {
+            const originalNewUrl = anyProxy.newUrl.bind(anyProxy);
+            anyProxy.newUrl = (sessionIdOrOptions?: any, options?: any) => {
+                if (
+                    sessionIdOrOptions &&
+                    typeof sessionIdOrOptions === 'object' &&
+                    options === undefined
+                ) {
+                    return originalNewUrl(undefined, sessionIdOrOptions);
+                }
+                return originalNewUrl(sessionIdOrOptions, options);
+            };
+        }
+        return anyProxy as ProxyConfiguration;
+    }
+
     private async _initializeAsync() {
+        // Proxy configuration
+        const proxyConfiguration = (await Actor.createProxyConfiguration(
+            this.input.proxyConfiguration as any,
+        )) as ProxyConfiguration | undefined;
+        this.proxyConfiguration =
+            this._wrapProxyConfiguration(proxyConfiguration);
+
         const discoveryPromise = Array.fromAsync(
             discoverValidSitemaps(
                 this.input.startUrls
                     .map((x) => x.url)
                     .filter((x) => x !== undefined),
-                { proxyUrl: await this.proxyConfiguration?.newUrl() },
+                {
+                    proxyUrl: await this.proxyConfiguration?.newUrl(),
+                    httpClient: this.sitemapHttpClient,
+                } as any,
             ),
         );
-        const discovered = await Promise.race([
+        const discovered = await Promise.race<string[] | void>([
             discoveryPromise,
             sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
         ]);
@@ -144,8 +200,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 url: sitemapUrl,
                 useExtendedUniqueKey: true,
                 keepUrlFragment: this.input.keepUrlFragments,
-                // sitemaps are fetched inside the handler
-                skipNavigation: true,
             }),
         );
 
@@ -183,11 +237,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.dataset = await Dataset.open();
         const info = await this.dataset.getInfo();
         this.pagesOutputted = info?.itemCount ?? 0;
-
-        // Proxy configuration
-        this.proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration,
-        )) as any as ProxyConfiguration;
     }
 
     /**
@@ -198,6 +247,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         const options: HttpCrawlerOptions = {
             proxyConfiguration: this.proxyConfiguration,
+            httpClient: this.sitemapHttpClient,
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
             postNavigationHooks: [],
@@ -253,7 +303,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         });
     }
 
-    private async _failedRequestHandler({ request }: HttpCrawlingContext) {
+    private async _failedRequestHandler({
+        request,
+    }: CrawlingContext<Dictionary> | HttpCrawlingContext) {
         const lastError =
             request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
@@ -270,19 +322,22 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     protected async _handleSitemapRequest(
         crawlingContext: HttpCrawlingContext,
     ) {
-        const { request } = crawlingContext;
+        const { request, body } = crawlingContext;
 
         // Make sure that an object containing internal metadata
         // is present on every request.
-        tools.ensureMetaData(request);
+        tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
+        const sitemapContent =
+            typeof body === 'string' ? body : body.toString('utf8');
         const parsed = parseSitemap(
-            [{ type: 'url', url: request.url }],
+            [{ type: 'raw', content: sitemapContent }],
             await this.proxyConfiguration?.newUrl(),
             {
                 emitNestedSitemaps: true,
                 maxDepth: 0,
+                httpClient: this.sitemapHttpClient,
             },
         );
 
@@ -353,27 +408,29 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         // Make sure that an object containing internal metadata
         // is present on every request.
-        tools.ensureMetaData(request);
+        tools.ensureMetaData(request as any);
 
+        const status =
+            (response as any)?.status ?? (response as any)?.statusCode;
         const result = {
             url: request.url,
-            status: response.statusCode,
+            status,
         };
 
         // Save the `pageFunction`s result to the default dataset.
-        await this._handleResult(request, response, result);
+        await this._handleResult(request, response as any, result);
     }
 
     private async _handleResult(
         request: Request,
-        response?: IncomingMessage,
+        response?: any,
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {
         const payload = tools.createDatasetPayload(
-            request,
-            response,
-            pageFunctionResult,
+            request as any,
+            response as any,
+            pageFunctionResult as any,
             isError,
         );
         await this.dataset.pushData(payload);
