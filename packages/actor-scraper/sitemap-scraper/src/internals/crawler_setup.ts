@@ -322,19 +322,28 @@ export class CrawlerSetup {
     }
 
     private _createNavigationHooks(options: HttpCrawlerOptions) {
-        options.preNavigationHooks!.push(async ({ request }) => {
-            // Normalize headers
-            request.headers = Object.entries(request.headers ?? {}).reduce(
-                (newHeaders, [key, value]) => {
-                    newHeaders[key.toLowerCase()] = value;
-                    return newHeaders;
-                },
-                {} as Dictionary<string>,
-            );
+        options.preNavigationHooks!.push(
+            async (context: any, ...hookArgs: any[]) => {
+                const { request } = context;
+                // Normalize headers
+                const normalizedHeaders: Dictionary<string> = {};
+                for (const [key, value] of Object.entries(
+                    request.headers ?? {},
+                )) {
+                    normalizedHeaders[key.toLowerCase()] = String(value);
+                }
+                request.headers = normalizedHeaders;
 
-            // Ensure requests stay stateless even if a cookie header appears upstream.
-            delete request.headers.cookie;
-        });
+                // Ensure requests stay stateless even if a cookie header appears upstream.
+                delete request.headers.cookie;
+
+                // Ensure HttpCrawler uses a no-op jar on the main navigation path too.
+                const gotOptions = hookArgs[0] as any;
+                if (gotOptions) {
+                    gotOptions.cookieJar = NOOP_COOKIE_JAR as any;
+                }
+            },
+        );
     }
 
     private async _failedRequestHandler({
