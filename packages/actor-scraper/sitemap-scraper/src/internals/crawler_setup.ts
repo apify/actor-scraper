@@ -50,6 +50,32 @@ const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
 
+const NOOP_COOKIE_JAR = {
+    async getCookies() {
+        return [];
+    },
+    async setCookie() {
+        // Intentionally ignore all Set-Cookie headers.
+    },
+};
+
+function createStatelessImpitHttpClient(
+    ...args: ConstructorParameters<typeof ImpitHttpClient>
+) {
+    const client = new ImpitHttpClient(...args);
+    const originalSendRequest = client.sendRequest.bind(client);
+    client.sendRequest = async (
+        ...sendRequestArgs: Parameters<ImpitHttpClient['sendRequest']>
+    ) => {
+        const [request, options] = sendRequestArgs;
+        return originalSendRequest(request, {
+            ...(options ?? {}),
+            cookieJar: NOOP_COOKIE_JAR as any,
+        });
+    };
+    return client;
+}
+
 /**
  * Holds all the information necessary for constructing a crawler
  * instance and creating a context for a pageFunction invocation.
@@ -71,7 +97,7 @@ export class CrawlerSetup {
     dataset!: Dataset;
     pagesOutputted!: number;
     proxyConfiguration?: ProxyConfiguration;
-    private sitemapHttpClient = new ImpitHttpClient({
+    private sitemapHttpClient = createStatelessImpitHttpClient({
         browser: Browser.Chrome,
         ignoreTlsErrors: true,
     });
@@ -248,6 +274,11 @@ export class CrawlerSetup {
         const options: HttpCrawlerOptions = {
             proxyConfiguration: this.proxyConfiguration,
             httpClient: this.sitemapHttpClient,
+            additionalMimeTypes: [
+                'application/rss+xml',
+                'application/atom+xml',
+                'text/plain',
+            ],
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
             postNavigationHooks: [],
@@ -267,7 +298,7 @@ export class CrawlerSetup {
                 (_, i) => 500 + i,
             ),
             useSessionPool: true,
-            persistCookiesPerSession: true,
+            persistCookiesPerSession: false,
             sessionPoolOptions: {
                 blockedStatusCodes: [],
                 sessionOptions: {
@@ -291,16 +322,28 @@ export class CrawlerSetup {
     }
 
     private _createNavigationHooks(options: HttpCrawlerOptions) {
-        options.preNavigationHooks!.push(async ({ request }) => {
-            // Normalize headers
-            request.headers = Object.entries(request.headers ?? {}).reduce(
-                (newHeaders, [key, value]) => {
-                    newHeaders[key.toLowerCase()] = value;
-                    return newHeaders;
-                },
-                {} as Dictionary<string>,
-            );
-        });
+        options.preNavigationHooks!.push(
+            async (context: any, ...hookArgs: any[]) => {
+                const { request } = context;
+                // Normalize headers
+                const normalizedHeaders: Dictionary<string> = {};
+                for (const [key, value] of Object.entries(
+                    request.headers ?? {},
+                )) {
+                    normalizedHeaders[key.toLowerCase()] = String(value);
+                }
+                request.headers = normalizedHeaders;
+
+                // Ensure requests stay stateless even if a cookie header appears upstream.
+                delete request.headers.cookie;
+
+                // Ensure HttpCrawler uses a no-op jar on the main navigation path too.
+                const gotOptions = hookArgs[0] as any;
+                if (gotOptions) {
+                    gotOptions.cookieJar = NOOP_COOKIE_JAR as any;
+                }
+            },
+        );
     }
 
     private async _failedRequestHandler({
