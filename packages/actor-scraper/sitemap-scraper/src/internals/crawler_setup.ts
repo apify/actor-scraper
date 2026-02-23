@@ -305,9 +305,6 @@ export class CrawlerSetup {
                 },
                 {} as Dictionary<string>,
             );
-
-            // Sitemap scraper should never send cookies.
-            delete request.headers.cookie;
         });
     }
 
