@@ -1,0 +1,13 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Sitemap Extractor Output",
+    "description": "Links to the default dataset containing extracted sitemap URLs and request metadata.",
+    "properties": {
+        "results": {
+            "type": "string",
+            "title": "Results",
+            "description": "Dataset items with discovered URLs and crawl status.",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
