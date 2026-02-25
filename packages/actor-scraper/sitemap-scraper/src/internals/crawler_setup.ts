@@ -188,28 +188,58 @@ export class CrawlerSetup {
         this.proxyConfiguration =
             this._wrapProxyConfiguration(proxyConfiguration);
 
-        const discoveryPromise = Array.fromAsync(
-            discoverValidSitemaps(
-                this.input.startUrls
-                    .map((x) => x.url)
-                    .filter((x) => x !== undefined),
-                {
-                    proxyUrl: await this.proxyConfiguration?.newUrl(),
-                    httpClient: this.sitemapHttpClient,
-                } as any,
-            ),
-        );
-        const discovered = await Promise.race<string[] | void>([
-            discoveryPromise,
-            sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
-        ]);
-        if (!discovered) {
+        const startUrls = this.input.startUrls
+            .map((request) => request.url)
+            .filter((url): url is string => url !== undefined);
+
+        const discoverWithTimeout = (proxyUrl?: string) =>
+            Promise.race<string[] | void>([
+                Array.fromAsync(
+                    discoverValidSitemaps(startUrls, {
+                        proxyUrl,
+                        httpClient: this.sitemapHttpClient,
+                    } as any),
+                ),
+                sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
+            ]);
+
+        const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
+        let discovered: string[] | void = undefined;
+        let discoveryError: unknown = undefined;
+        try {
+            discovered = await discoverWithTimeout(discoveryProxyUrl);
+        } catch (error) {
+            discoveryError = error;
+        }
+
+        if (
+            discoveryProxyUrl &&
+            (discoveryError || !discovered || discovered.length === 0)
+        ) {
+            log.warning(
+                'Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.',
+            );
+            discovered = undefined;
+            discoveryError = undefined;
+            try {
+                discovered = await discoverWithTimeout(undefined);
+            } catch (error) {
+                discoveryError = error;
+            }
+        }
+
+        if (!discovered && !discoveryError) {
             log.warning(
                 `Sitemap discovery timed out after ${Math.round(
                     SITEMAP_DISCOVERY_TIMEOUT_MILLIS / 1000,
-                )}s, continuing without sitemaps.`,
+                )}s.`,
             );
         }
+
+        if (discoveryError) {
+            throw discoveryError;
+        }
+
         const discoveredSitemaps =
             discovered && discovered.length > 0
                 ? new Set(discovered)
