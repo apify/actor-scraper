@@ -192,7 +192,7 @@ export class CrawlerSetup {
             .map((request) => request.url)
             .filter((url): url is string => url !== undefined);
 
-        const discoverWithTimeout = (proxyUrl?: string) =>
+        const discoverWithTimeout = async (proxyUrl?: string) =>
             Promise.race<string[] | void>([
                 Array.fromAsync(
                     discoverValidSitemaps(startUrls, {
@@ -204,18 +204,20 @@ export class CrawlerSetup {
             ]);
 
         const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
-        let discovered: string[] | void = undefined;
-        let discoveryError: unknown = undefined;
+        let discovered: string[] | void | null = null;
+        let discoveryError: unknown | null = null;
+        let disableProxyForRun = false;
         try {
             discovered = await discoverWithTimeout(discoveryProxyUrl);
         } catch (error) {
             discoveryError = error;
         }
 
-        if (
+        const proxyDiscoveryFailed =
             discoveryProxyUrl &&
-            (discoveryError || !discovered || discovered.length === 0)
-        ) {
+            (discoveryError || !discovered || discovered.length === 0);
+
+        if (proxyDiscoveryFailed) {
             log.warning(
                 'Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.',
             );
@@ -223,9 +225,19 @@ export class CrawlerSetup {
             discoveryError = undefined;
             try {
                 discovered = await discoverWithTimeout(undefined);
+                disableProxyForRun = Boolean(
+                    discovered && discovered.length > 0,
+                );
             } catch (error) {
                 discoveryError = error;
             }
+        }
+
+        if (disableProxyForRun) {
+            log.warning(
+                'Sitemap discovery succeeded only without proxy. Disabling proxy for the rest of this run.',
+            );
+            this.proxyConfiguration = undefined;
         }
 
         if (!discovered && !discoveryError) {
