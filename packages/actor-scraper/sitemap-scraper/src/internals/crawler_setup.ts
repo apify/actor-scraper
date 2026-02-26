@@ -46,6 +46,7 @@ const SCHEMA = JSON.parse(
 
 const REQUESTS_BATCH_SIZE = 25;
 const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
+const GZIP_MIME_TYPES = new Set(['application/gzip', 'application/x-gzip']);
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -278,6 +279,8 @@ export class CrawlerSetup {
                 'application/rss+xml',
                 'application/atom+xml',
                 'text/plain',
+                'application/gzip',
+                'application/x-gzip',
             ],
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
@@ -365,18 +368,21 @@ export class CrawlerSetup {
     protected async _handleSitemapRequest(
         crawlingContext: HttpCrawlingContext,
     ) {
-        const { request, body } = crawlingContext;
+        const { request, body, contentType, proxyInfo } = crawlingContext;
 
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
-        const sitemapContent =
-            typeof body === 'string' ? body : body.toString('utf8');
+        const sources = this._createSitemapSources(
+            request.url,
+            body,
+            contentType.type,
+        );
         const parsed = parseSitemap(
-            [{ type: 'raw', content: sitemapContent }],
-            await this.proxyConfiguration?.newUrl(),
+            sources,
+            proxyInfo?.url ?? (await this.proxyConfiguration?.newUrl()),
             {
                 emitNestedSitemaps: true,
                 maxDepth: 0,
@@ -539,6 +545,31 @@ export class CrawlerSetup {
         return {
             reachedMaxDepth: false,
         };
+    }
+
+    private _createSitemapSources(
+        requestUrl: string,
+        body: string | Buffer,
+        contentType: string,
+    ): Array<{ type: 'url'; url: string } | { type: 'raw'; content: string }> {
+        const normalizedContentType = contentType
+            .split(';')[0]
+            ?.trim()
+            .toLowerCase();
+
+        const shouldParseFromUrl =
+            normalizedContentType === 'text/plain' ||
+            GZIP_MIME_TYPES.has(normalizedContentType) ||
+            requestUrl.endsWith('.gz') ||
+            requestUrl.endsWith('.txt');
+
+        if (shouldParseFromUrl) {
+            return [{ type: 'url', url: requestUrl }];
+        }
+
+        const sitemapContent =
+            typeof body === 'string' ? body : body.toString('utf8');
+        return [{ type: 'raw', content: sitemapContent }];
     }
 
     private async _enqueuePageRequests(

@@ -62,4 +62,56 @@ describe('CrawlerSetup', () => {
         const setup = new CrawlerSetup(createInput());
         expect(setup.name).toBe('Sitemap Extractor');
     });
+
+    it('uses raw source for XML responses', async () => {
+        const setup = new CrawlerSetup(createInput());
+        const sources = (setup as any)._createSitemapSources(
+            'https://example.com/sitemap.xml',
+            '<urlset></urlset>',
+            'application/xml',
+        );
+
+        expect(sources).toStrictEqual([
+            { type: 'raw', content: '<urlset></urlset>' },
+        ]);
+    });
+
+    it('uses URL source for gzip MIME responses', async () => {
+        const setup = new CrawlerSetup(createInput());
+        const sources = (setup as any)._createSitemapSources(
+            'https://example.com/sitemap.xml.gz',
+            Buffer.from('binary'),
+            'application/gzip',
+        );
+
+        expect(sources).toStrictEqual([
+            { type: 'url', url: 'https://example.com/sitemap.xml.gz' },
+        ]);
+    });
+
+    it('uses URL source for text/plain sitemap responses', async () => {
+        const setup = new CrawlerSetup(createInput());
+        const sources = (setup as any)._createSitemapSources(
+            'https://example.com/sitemap.txt',
+            Buffer.from('https://example.com/page'),
+            'text/plain; charset=utf-8',
+        );
+
+        expect(sources).toStrictEqual([
+            { type: 'url', url: 'https://example.com/sitemap.txt' },
+        ]);
+    });
+
+    it('uses URL source for .gz URL even with unknown MIME', async () => {
+        const setup = new CrawlerSetup(createInput());
+        const sources = (setup as any)._createSitemapSources(
+            'https://example.com/sitemap_index.xml.gz',
+            Buffer.from('binary'),
+            'application/octet-stream',
+        );
+
+        expect(sources).toStrictEqual([
+            { type: 'url', url: 'https://example.com/sitemap_index.xml.gz' },
+        ]);
+    });
 });
