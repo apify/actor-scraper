@@ -217,7 +217,9 @@ export class CrawlerSetup {
         }
     }
 
-    private async _discoverSitemaps(startUrls: string[]) {
+    private async _discoverSitemaps(
+        startUrls: string[],
+    ): Promise<SitemapDiscoveryResult> {
         const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
         const proxyAttempt = await this._discoverSitemapsWithTimeout(
             startUrls,
@@ -234,7 +236,7 @@ export class CrawlerSetup {
             return {
                 ...proxyAttempt,
                 disableProxyForRun: false,
-            } satisfies SitemapDiscoveryResult;
+            };
         }
 
         log.warning(
@@ -249,7 +251,7 @@ export class CrawlerSetup {
                 noProxyAttempt.discovered &&
                     noProxyAttempt.discovered.length > 0,
             ),
-        } satisfies SitemapDiscoveryResult;
+        };
     }
 
     private async _initializeAsync() {
