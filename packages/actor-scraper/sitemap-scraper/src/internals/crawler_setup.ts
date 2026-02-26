@@ -50,6 +50,15 @@ const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
 
+type SitemapDiscoveryAttempt = {
+    discovered?: string[];
+    error?: unknown;
+};
+
+type SitemapDiscoveryResult = SitemapDiscoveryAttempt & {
+    disableProxyForRun: boolean;
+};
+
 const NOOP_COOKIE_JAR = {
     async getCookies() {
         return [];
@@ -180,20 +189,18 @@ export class CrawlerSetup {
         return anyProxy as ProxyConfiguration;
     }
 
-    private async _initializeAsync() {
-        // Proxy configuration
-        const proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration as any,
-        )) as ProxyConfiguration | undefined;
-        this.proxyConfiguration =
-            this._wrapProxyConfiguration(proxyConfiguration);
-
-        const startUrls = this.input.startUrls
+    private _getStartUrls() {
+        return this.input.startUrls
             .map((request) => request.url)
             .filter((url): url is string => url !== undefined);
+    }
 
-        const discoverWithTimeout = async (proxyUrl?: string) =>
-            Promise.race<string[] | void>([
+    private async _discoverSitemapsWithTimeout(
+        startUrls: string[],
+        proxyUrl?: string,
+    ): Promise<SitemapDiscoveryAttempt> {
+        try {
+            const discovered = await Promise.race<string[] | void>([
                 Array.fromAsync(
                     discoverValidSitemaps(startUrls, {
                         proxyUrl,
@@ -202,36 +209,63 @@ export class CrawlerSetup {
                 ),
                 sleep(SITEMAP_DISCOVERY_TIMEOUT_MILLIS),
             ]);
-
-        const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
-        let discovered: string[] | void | null = null;
-        let discoveryError: unknown | null = null;
-        let disableProxyForRun = false;
-        try {
-            discovered = await discoverWithTimeout(discoveryProxyUrl);
+            return {
+                discovered: discovered ?? undefined,
+            };
         } catch (error) {
-            discoveryError = error;
+            return { error };
         }
+    }
+
+    private async _discoverSitemaps(startUrls: string[]) {
+        const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
+        const proxyAttempt = await this._discoverSitemapsWithTimeout(
+            startUrls,
+            discoveryProxyUrl,
+        );
 
         const proxyDiscoveryFailed =
             discoveryProxyUrl &&
-            (discoveryError || !discovered || discovered.length === 0);
+            (proxyAttempt.error ||
+                !proxyAttempt.discovered ||
+                proxyAttempt.discovered.length === 0);
 
-        if (proxyDiscoveryFailed) {
-            log.warning(
-                'Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.',
-            );
-            discovered = undefined;
-            discoveryError = undefined;
-            try {
-                discovered = await discoverWithTimeout(undefined);
-                disableProxyForRun = Boolean(
-                    discovered && discovered.length > 0,
-                );
-            } catch (error) {
-                discoveryError = error;
-            }
+        if (!proxyDiscoveryFailed) {
+            return {
+                ...proxyAttempt,
+                disableProxyForRun: false,
+            } satisfies SitemapDiscoveryResult;
         }
+
+        log.warning(
+            'Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.',
+        );
+
+        const noProxyAttempt =
+            await this._discoverSitemapsWithTimeout(startUrls);
+        return {
+            ...noProxyAttempt,
+            disableProxyForRun: Boolean(
+                noProxyAttempt.discovered &&
+                    noProxyAttempt.discovered.length > 0,
+            ),
+        } satisfies SitemapDiscoveryResult;
+    }
+
+    private async _initializeAsync() {
+        // Proxy configuration
+        const proxyConfiguration = (await Actor.createProxyConfiguration(
+            this.input.proxyConfiguration as any,
+        )) as ProxyConfiguration | undefined;
+        this.proxyConfiguration =
+            this._wrapProxyConfiguration(proxyConfiguration);
+
+        const startUrls = this._getStartUrls();
+        const {
+            discovered,
+            error: discoveryError,
+            disableProxyForRun,
+        } = await this._discoverSitemaps(startUrls);
 
         if (disableProxyForRun) {
             log.warning(
