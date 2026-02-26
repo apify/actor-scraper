@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { URL } from 'node:url';
+import { promisify } from 'node:util';
+import { gunzip as zlibGunzip } from 'node:zlib';
 
 import type { CrawlingContext } from '@crawlee/core';
 import type {
@@ -47,6 +49,7 @@ const SCHEMA = JSON.parse(
 const REQUESTS_BATCH_SIZE = 25;
 const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
 const GZIP_MIME_TYPES = new Set(['application/gzip', 'application/x-gzip']);
+const gunzip = promisify(zlibGunzip);
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -368,28 +371,27 @@ export class CrawlerSetup {
     protected async _handleSitemapRequest(
         crawlingContext: HttpCrawlingContext,
     ) {
-        const { request, body, contentType, proxyInfo } = crawlingContext;
+        const { request, body, contentType } = crawlingContext;
 
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
-        const sources = this._createSitemapSources(
+        const sitemapContent = await this.getSitemapContent(
             request.url,
             body,
             contentType.type,
         );
         const parsed = parseSitemap(
-            sources,
-            proxyInfo?.url ?? (await this.proxyConfiguration?.newUrl()),
+            [{ type: 'raw', content: sitemapContent }],
+            await this.proxyConfiguration?.newUrl(),
             {
                 emitNestedSitemaps: true,
                 maxDepth: 0,
                 httpClient: this.sitemapHttpClient,
             },
         );
-
         const nestedSitemaps: string[] = [];
         const urls: string[] = [];
         let scrapedAnyPageUrls = false;
@@ -406,6 +408,7 @@ export class CrawlerSetup {
             await this._enqueueSitemapRequests(nestedSitemaps, crawlingContext);
             nestedSitemaps.length = 0;
         };
+
         for await (const item of parsed) {
             if (!item.originSitemapUrl) {
                 log.debug('Handling nested sitemap', {
@@ -547,29 +550,52 @@ export class CrawlerSetup {
         };
     }
 
-    private _createSitemapSources(
+    private async getSitemapContent(
         requestUrl: string,
         body: string | Buffer,
         contentType: string,
-    ): Array<{ type: 'url'; url: string } | { type: 'raw'; content: string }> {
-        const normalizedContentType = contentType
-            .split(';')[0]
-            ?.trim()
-            .toLowerCase();
-
-        const shouldParseFromUrl =
-            normalizedContentType === 'text/plain' ||
-            GZIP_MIME_TYPES.has(normalizedContentType) ||
-            requestUrl.endsWith('.gz') ||
-            requestUrl.endsWith('.txt');
-
-        if (shouldParseFromUrl) {
-            return [{ type: 'url', url: requestUrl }];
+    ): Promise<string> {
+        if (typeof body === 'string') {
+            return body;
         }
 
-        const sitemapContent =
-            typeof body === 'string' ? body : body.toString('utf8');
-        return [{ type: 'raw', content: sitemapContent }];
+        if (!this.isGzippedSitemapContent(requestUrl, body, contentType)) {
+            return body.toString('utf8');
+        }
+
+        try {
+            let decompressed = await gunzip(body);
+            // Some endpoints can apply transport gzip on top of .xml.gz payloads.
+            if (this.hasGzipMagicBytes(decompressed)) {
+                decompressed = await gunzip(decompressed);
+            }
+            return decompressed.toString('utf8');
+        } catch (error) {
+            throw new Error(
+                `Failed to decompress gzipped sitemap ${requestUrl}: ${String(error)}`,
+            );
+        }
+    }
+
+    private isGzippedSitemapContent(
+        requestUrl: string,
+        body: Buffer,
+        contentType: string,
+    ): boolean {
+        const normalizedContentType = this.normalizeContentType(contentType);
+        return (
+            GZIP_MIME_TYPES.has(normalizedContentType) ||
+            requestUrl.endsWith('.gz') ||
+            this.hasGzipMagicBytes(body)
+        );
+    }
+
+    private normalizeContentType(contentType: string): string {
+        return contentType.split(';')[0]?.trim().toLowerCase();
+    }
+
+    private hasGzipMagicBytes(body: Buffer): boolean {
+        return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
     }
 
     private async _enqueuePageRequests(
