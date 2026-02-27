@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { URL } from 'node:url';
+import { promisify } from 'node:util';
+import { gunzip as zlibGunzip } from 'node:zlib';
 
 import type { CrawlingContext } from '@crawlee/core';
 import type {
@@ -46,6 +48,8 @@ const SCHEMA = JSON.parse(
 
 const REQUESTS_BATCH_SIZE = 25;
 const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
+const GZIP_MIME_TYPES = new Set(['application/gzip', 'application/x-gzip']);
+const gunzip = promisify(zlibGunzip);
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -278,6 +282,8 @@ export class CrawlerSetup {
                 'application/rss+xml',
                 'application/atom+xml',
                 'text/plain',
+                'application/gzip',
+                'application/x-gzip',
             ],
             requestHandler: this._createRequestHandler(),
             preNavigationHooks: [],
@@ -365,15 +371,18 @@ export class CrawlerSetup {
     protected async _handleSitemapRequest(
         crawlingContext: HttpCrawlingContext,
     ) {
-        const { request, body } = crawlingContext;
+        const { request, body, contentType } = crawlingContext;
 
         // Make sure that an object containing internal metadata
         // is present on every request.
         tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
-        const sitemapContent =
-            typeof body === 'string' ? body : body.toString('utf8');
+        const sitemapContent = await this.getSitemapContent(
+            request.url,
+            body,
+            contentType.type,
+        );
         const parsed = parseSitemap(
             [{ type: 'raw', content: sitemapContent }],
             await this.proxyConfiguration?.newUrl(),
@@ -383,7 +392,6 @@ export class CrawlerSetup {
                 httpClient: this.sitemapHttpClient,
             },
         );
-
         const nestedSitemaps: string[] = [];
         const urls: string[] = [];
         let scrapedAnyPageUrls = false;
@@ -400,6 +408,7 @@ export class CrawlerSetup {
             await this._enqueueSitemapRequests(nestedSitemaps, crawlingContext);
             nestedSitemaps.length = 0;
         };
+
         for await (const item of parsed) {
             if (!item.originSitemapUrl) {
                 log.debug('Handling nested sitemap', {
@@ -539,6 +548,54 @@ export class CrawlerSetup {
         return {
             reachedMaxDepth: false,
         };
+    }
+
+    private async getSitemapContent(
+        requestUrl: string,
+        body: string | Buffer,
+        contentType: string,
+    ): Promise<string> {
+        if (typeof body === 'string') {
+            return body;
+        }
+
+        if (!this.isGzippedSitemapContent(requestUrl, body, contentType)) {
+            return body.toString('utf8');
+        }
+
+        try {
+            let decompressed = await gunzip(body);
+            // Some endpoints can apply transport gzip on top of .xml.gz payloads.
+            if (this.hasGzipMagicBytes(decompressed)) {
+                decompressed = await gunzip(decompressed);
+            }
+            return decompressed.toString('utf8');
+        } catch (error) {
+            throw new Error(
+                `Failed to decompress gzipped sitemap ${requestUrl}: ${String(error)}`,
+            );
+        }
+    }
+
+    private isGzippedSitemapContent(
+        requestUrl: string,
+        body: Buffer,
+        contentType: string,
+    ): boolean {
+        const normalizedContentType = this.normalizeContentType(contentType);
+        return (
+            GZIP_MIME_TYPES.has(normalizedContentType) ||
+            requestUrl.endsWith('.gz') ||
+            this.hasGzipMagicBytes(body)
+        );
+    }
+
+    private normalizeContentType(contentType: string): string {
+        return contentType.split(';')[0]?.trim().toLowerCase();
+    }
+
+    private hasGzipMagicBytes(body: Buffer): boolean {
+        return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
     }
 
     private async _enqueuePageRequests(
