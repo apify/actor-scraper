@@ -32,3 +32,4 @@ storage
 .turbo
 *.tgz
 mise.toml
+config.bat
