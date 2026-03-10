@@ -4,9 +4,9 @@
     "version": "0.1",
     "buildTag": "latest",
     "output": "./output_schema.json",
-    "defaultMemoryMbytes": 1024,
+    "defaultMemoryMbytes": 4096,
     "minMemoryMbytes": 256,
-    "maxMemoryMbytes": 4096,
+    "maxMemoryMbytes": 32768,
     "storages": {
         "dataset": {
             "actorSpecification": 1,
