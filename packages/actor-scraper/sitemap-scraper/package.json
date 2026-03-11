@@ -8,7 +8,7 @@
         "@apify/scraper-tools": "^1.1.4",
         "@crawlee/core": "4.0.0-beta.25",
         "@crawlee/http": "4.0.0-beta.25",
-        "@crawlee/impit-client": "4.0.0-beta.29",
+        "@crawlee/impit-client": "4.0.0-beta.33",
         "@crawlee/types": "4.0.0-beta.25",
         "@crawlee/utils": "4.0.0-beta.25",
         "apify": "4.0.0-beta.12"
