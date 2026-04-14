@@ -7,10 +7,13 @@ describe('DevToolsServer (regression)', () => {
 
         const startMock = vi.fn(async () => {});
         const stopMock = vi.fn(() => {});
-        const DevToolsCtorMock = vi.fn(() => ({
-            start: startMock,
-            stop: stopMock,
-        }));
+        const DevToolsCtorMock = vi.fn(function DevToolsServerMock(this: {
+            start: typeof startMock;
+            stop: typeof stopMock;
+        }) {
+            this.start = startMock;
+            this.stop = stopMock;
+        });
 
         try {
             process.env = { ...oldEnv };
@@ -27,7 +30,7 @@ describe('DevToolsServer (regression)', () => {
             );
             const { CrawlerSetup } = mod as any;
 
-            CrawlerSetup.devToolsServerPromise = null;
+            CrawlerSetup.devToolsStartPromise = null;
 
             const fn =
                 CrawlerSetup.getDevToolsServer ??

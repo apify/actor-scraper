@@ -253,7 +253,7 @@ export class CrawlerSetup {
             ...noProxyAttempt,
             disableProxyForRun: Boolean(
                 noProxyAttempt.discovered &&
-                    noProxyAttempt.discovered.length > 0,
+                noProxyAttempt.discovered.length > 0,
             ),
         };
     }
@@ -381,10 +381,9 @@ export class CrawlerSetup {
                 { length: 100 },
                 (_, i) => 500 + i,
             ),
-            useSessionPool: true,
+            blockedStatusCodes: [],
             persistCookiesPerSession: false,
             sessionPoolOptions: {
-                blockedStatusCodes: [],
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
