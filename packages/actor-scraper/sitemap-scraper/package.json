@@ -5,7 +5,7 @@
     "description": "Crawl web pages from a sitemap using HTTP HEAD requests",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "^1.1.4",
+        "@apify/scraper-tools": "workspace:*",
         "@crawlee/core": "4.0.0-beta.43",
         "@crawlee/http": "4.0.0-beta.43",
         "@crawlee/impit-client": "4.0.0-beta.43",
@@ -25,7 +25,7 @@
         "typescript": "~5.9.0"
     },
     "scripts": {
-        "start": "npm run start:dev",
+        "start": "pnpm start:dev",
         "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"

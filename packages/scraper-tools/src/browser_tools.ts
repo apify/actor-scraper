@@ -9,7 +9,7 @@ import { RESOURCE_LOAD_ERROR_MESSAGE, SNAPSHOT } from './consts.js';
 import { createRandomHash } from './tools.js';
 
 export interface Page extends CommonPage {
-    exposeFunction(name: string, callback: () => unknown): Promise<void>;
+    exposeFunction(name: string, callback: () => unknown): Promise<unknown>;
     on(eventName: string, handler: (msg: any) => Promise<void>): unknown;
     content(): unknown;
     screenshot(): unknown;
