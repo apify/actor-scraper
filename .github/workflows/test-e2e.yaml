@@ -38,7 +38,7 @@ jobs:
                       turbo-${{ github.job }}-${{ github.ref_name }}-
 
             - name: Install pnpm and dependencies
-              uses: ./.github/actions/pnpm-install
+              uses: apify/workflows/pnpm-install@main
 
             - name: Build
               run: pnpm ci:build
