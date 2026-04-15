@@ -18,3 +18,7 @@ onlyBuiltDependencies:
   - esbuild
   - playwright
   - puppeteer
+
+nodeLinker: hoisted
+linkWorkspacePackages: true
+preferWorkspacePackages: true
