@@ -6,7 +6,7 @@
     "main": "dist/main.js",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "workspace:*",
+        "@apify/scraper-tools": "^1.1.4",
         "@crawlee/puppeteer": "^3.16.0",
         "apify": "^3.2.6",
         "content-type": "^1.0.5",

@@ -5,7 +5,7 @@
     "description": "Crawl web pages from a sitemap using HTTP HEAD requests",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "workspace:*",
+        "@apify/scraper-tools": "^1.1.4",
         "@crawlee/core": "4.0.0-beta.43",
         "@crawlee/http": "4.0.0-beta.43",
         "@crawlee/impit-client": "4.0.0-beta.43",

@@ -120,7 +120,7 @@ importers:
   packages/actor-scraper/camoufox-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/core':
         specifier: ^3.14.1
@@ -160,7 +160,7 @@ importers:
   packages/actor-scraper/cheerio-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/cheerio':
         specifier: ^3.16.0
@@ -188,7 +188,7 @@ importers:
   packages/actor-scraper/jsdom-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/jsdom':
         specifier: ^3.14.1
@@ -216,7 +216,7 @@ importers:
   packages/actor-scraper/playwright-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/core':
         specifier: ^3.16.0
@@ -253,7 +253,7 @@ importers:
   packages/actor-scraper/puppeteer-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/puppeteer':
         specifier: ^3.16.0
@@ -284,7 +284,7 @@ importers:
   packages/actor-scraper/sitemap-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/core':
         specifier: 4.0.0-beta.43
@@ -321,7 +321,7 @@ importers:
   packages/actor-scraper/web-scraper:
     dependencies:
       '@apify/scraper-tools':
-        specifier: workspace:*
+        specifier: ^1.1.4
         version: link:../../scraper-tools
       '@crawlee/puppeteer':
         specifier: ^3.16.0
