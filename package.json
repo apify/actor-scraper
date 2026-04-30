@@ -2,10 +2,6 @@
     "name": "apify-sdk-js",
     "private": true,
     "description": "Apify SDK monorepo",
-    "workspaces": [
-        "packages/*",
-        "packages/actor-scraper/*"
-    ],
     "keywords": [
         "apify",
         "headless",
@@ -43,13 +39,14 @@
         "test:e2e": "node test/e2e/runScraperTests.mjs",
         "tsc-check-tests": "tsc --noEmit --project test/tsconfig.json",
         "coverage": "vitest --coverage",
-        "release": "npm run build && lerna publish from-package --contents dist",
+        "release": "pnpm build && lerna publish from-package --contents dist",
         "publish:next": "lerna publish --canary --preid beta --dist-tag next",
-        "release:next": "npm run build && npm run publish:next",
+        "release:next": "pnpm build && pnpm publish:next",
         "lint": "eslint",
         "lint:fix": "eslint --fix",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "preinstall": "npx only-allow pnpm"
     },
     "lint-staged": {
         "packages/*/src/**/*": [
@@ -67,6 +64,7 @@
         "@apify/log": "^2.5.22",
         "@apify/tsconfig": "^0.1.0",
         "@commitlint/config-conventional": "^20.0.0",
+        "@isaacs/brace-expansion": "^5.0.1",
         "@playwright/browser-chromium": "^1.46.0",
         "@types/content-type": "^1.1.8",
         "@types/fs-extra": "^11.0.4",
@@ -97,5 +95,5 @@
         "vite-tsconfig-paths": "^6.0.0",
         "vitest": "^4.0.0"
     },
-    "packageManager": "npm@11.12.1"
+    "packageManager": "pnpm@10.24.0"
 }

@@ -22,18 +22,15 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version: 24
-                  cache: 'npm'
-                  cache-dependency-path: 'package-lock.json'
 
-            - name: Install Dependencies
-              run: |
-                  npm ci
+            - name: Install pnpm and dependencies
+              uses: apify/workflows/pnpm-install@main
 
             - name: Build
-              run: npm run ci:build
+              run: pnpm ci:build
 
             - name: Tests
-              run: npm test
+              run: pnpm test
 
     lint:
         name: Lint
@@ -46,14 +43,12 @@ jobs:
               uses: actions/setup-node@v6
               with:
                   node-version: 24
-                  cache: 'npm'
-                  cache-dependency-path: 'package-lock.json'
 
-            - name: Install Dependencies
-              run: npm ci
+            - name: Install pnpm and dependencies
+              uses: apify/workflows/pnpm-install@main
 
             - name: ESLint
-              run: npm run lint
+              run: pnpm lint
 
             - name: Prettier
-              run: npm run format:check
+              run: pnpm format:check

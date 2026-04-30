@@ -25,7 +25,7 @@
     },
     "homepage": "https://github.com/apify/apify-sdk-js",
     "scripts": {
-        "build": "npm run clean && npm run compile && npm run copy",
+        "build": "pnpm clean && pnpm compile && pnpm copy",
         "clean": "rimraf ./dist",
         "compile": "tsc -p tsconfig.build.json && gen-esm-wrapper ./dist/index.js ./dist/index.mjs",
         "copy": "tsx ../../scripts/copy.ts --readme=false"

@@ -5,7 +5,7 @@
     "description": "Crawl web pages using HTTP requests and Cheerio",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "^1.1.4",
+        "@apify/scraper-tools": "workspace:*",
         "@crawlee/cheerio": "^3.16.0",
         "apify": "^3.2.6"
     },
@@ -19,7 +19,7 @@
         "cheerio": "^1.0.0-rc.12"
     },
     "scripts": {
-        "start": "npm run start:dev",
+        "start": "pnpm start:dev",
         "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"
