@@ -5,7 +5,7 @@
     "description": "Crawl web pages using HTTP requests and JSDOM parser",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "workspace:*",
+        "@apify/scraper-tools": "^1.1.4",
         "@crawlee/jsdom": "^3.14.1",
         "apify": "^3.2.6"
     },

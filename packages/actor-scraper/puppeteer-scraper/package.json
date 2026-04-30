@@ -5,7 +5,7 @@
     "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "workspace:*",
+        "@apify/scraper-tools": "^1.1.4",
         "@crawlee/puppeteer": "^3.16.0",
         "apify": "^3.2.6",
         "idcac-playwright": "^0.2.0",
