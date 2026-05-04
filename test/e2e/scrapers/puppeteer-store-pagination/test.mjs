@@ -1,11 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, validateDataset } from '../../tools.mjs';
 
 const testDir = getTestDir(import.meta.url);
 
@@ -51,10 +44,7 @@ await run(testDir, 'puppeteer-scraper', {
                 });
                 log.info(`Enqueued actors for page ${pageNo}`);
                 log.info('Loading the next page');
-                await page.evaluate(
-                    (el) => document.querySelector(el)?.click(),
-                    nextButtonSelector,
-                );
+                await page.evaluate((el) => document.querySelector(el)?.click(), nextButtonSelector);
             }
         }
 
@@ -65,20 +55,14 @@ await run(testDir, 'puppeteer-scraper', {
             const manufacturer = urlPart[0].split('-')[0]; // 'sennheiser'
 
             const results = await page.evaluate(() => {
-                const rawPrice = document
-                    .querySelector('span.price')
-                    .textContent.split('$')[1];
+                const rawPrice = document.querySelector('span.price').textContent.split('$')[1];
                 const price = Number(rawPrice.replaceAll(',', ''));
 
-                const inStock = document
-                    .querySelector('span.product-form__inventory')
-                    .textContent.includes('In stock');
+                const inStock = document.querySelector('span.product-form__inventory').textContent.includes('In stock');
 
                 return {
-                    title: document.querySelector('.product-meta h1')
-                        .textContent,
-                    sku: document.querySelector('span.product-meta__sku-number')
-                        .textContent,
+                    title: document.querySelector('.product-meta h1').textContent,
+                    sku: document.querySelector('span.product-meta__sku-number').textContent,
                     currentPrice: price,
                     availableInStock: inStock,
                 };
@@ -118,19 +102,9 @@ const stats = await getStats(testDir);
 await expect(stats.requestsFinished >= 30, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
+await expect(datasetItems.length > 25 && datasetItems.length < 50, 'Number of dataset items');
 await expect(
-    datasetItems.length > 25 && datasetItems.length < 50,
-    'Number of dataset items',
-);
-await expect(
-    validateDataset(datasetItems, [
-        'url',
-        'manufacturer',
-        'title',
-        'sku',
-        'currentPrice',
-        'availableInStock',
-    ]),
+    validateDataset(datasetItems, ['url', 'manufacturer', 'title', 'sku', 'currentPrice', 'availableInStock']),
     'Dataset items validation',
 );
 

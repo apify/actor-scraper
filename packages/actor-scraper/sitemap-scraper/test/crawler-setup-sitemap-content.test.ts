@@ -34,9 +34,7 @@ describe('CrawlerSetup sitemap content parsing', () => {
     let initSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-        initSpy = vi
-            .spyOn(CrawlerSetup.prototype as any, '_initializeAsync')
-            .mockResolvedValue(undefined);
+        initSpy = vi.spyOn(CrawlerSetup.prototype as any, '_initializeAsync').mockResolvedValue(undefined);
     });
 
     afterEach(() => {
@@ -56,8 +54,7 @@ describe('CrawlerSetup sitemap content parsing', () => {
 
     it('decompresses gzip sitemap body by MIME type', async () => {
         const setup = new CrawlerSetup(createInput());
-        const xml =
-            '<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://example.com/</loc></url></urlset>';
+        const xml = '<?xml version="1.0" encoding="UTF-8"?><urlset><url><loc>https://example.com/</loc></url></urlset>';
         const gzippedXml = gzipSync(Buffer.from(xml, 'utf8'));
 
         const sitemapContent = await (setup as any).getSitemapContent(

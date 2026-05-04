@@ -1,11 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, validateDataset } from '../../tools.mjs';
 
 const testDir = getTestDir(import.meta.url);
 
@@ -23,13 +16,7 @@ await run(testDir, 'web-scraper', {
     ],
     keepUrlFragments: false,
     pageFunction: async function pageFunction(context) {
-        const {
-            request,
-            jQuery: $,
-            enqueueRequest,
-            setValue,
-            getValue,
-        } = context;
+        const { request, jQuery: $, enqueueRequest, setValue, getValue } = context;
         const { url, userData } = request;
 
         const pageContent = JSON.parse($('pre').first().text());
@@ -47,9 +34,7 @@ await run(testDir, 'web-scraper', {
         }
 
         if (await getValue(clientIp)) {
-            throw new Error(
-                `The ip address ${clientIp} was already used. Proxy rotation does not work properly.`,
-            );
+            throw new Error(`The ip address ${clientIp} was already used. Proxy rotation does not work properly.`);
         }
         await setValue(clientIp, url);
 
@@ -78,9 +63,6 @@ await expect(stats.requestsFinished === 5, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
 await expect(datasetItems.length === 5, 'Number of dataset items');
-await expect(
-    validateDataset(datasetItems, ['url', 'clientIp']),
-    'Dataset items validation',
-);
+await expect(validateDataset(datasetItems, ['url', 'clientIp']), 'Dataset items validation');
 
 process.exit(0);
