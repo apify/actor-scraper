@@ -16,9 +16,9 @@ import contentTypeParser from 'content-type';
 import log from '@apify/log';
 
 import { saveSnapshot } from './browser_tools.js';
-import type { SnapshotOptions } from './browser_tools.ts';
+import type { SnapshotOptions } from './browser_tools.js';
 import { META_KEY } from './consts.js';
-import type { RequestMetadata } from './tools.ts';
+import type { RequestMetadata } from './tools.js';
 
 export interface MapLike<K, V> extends Omit<
     Map<K, V>,
@@ -64,6 +64,7 @@ const internalState = Symbol('request-internal-state');
  */
 class Context<
     Options extends ContextOptions = ContextOptions,
+    // oxlint-disable-next-line no-unused-vars -- declaration-merged interface below uses this generic
     ExtraFields = Options['pageFunctionArguments'],
 > {
     private readonly [setup]: CrawlerSetupOptions;
