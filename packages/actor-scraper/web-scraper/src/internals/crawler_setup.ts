@@ -821,7 +821,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         try {
             const { type } = contentType.parse(cTypeHeader);
             if (!/^(text|application)\/xml$|\+xml$/.test(type)) return;
-        } catch (err) {
+        } catch {
             // Invalid type is not XML.
             return;
         }
