@@ -17,10 +17,7 @@ describe('browserTools', () => {
     describe('createBrowserHandle()', () => {
         it('should work', async () => {
             const page = await browser.newPage();
-            const handle = await browserTools.createBrowserHandle(
-                page,
-                () => 42,
-            );
+            const handle = await browserTools.createBrowserHandle(page, () => 42);
             const result = await page.evaluate((browserHandle: string) => {
                 // @ts-expect-error We are not extending the window interface but we are extending the object
                 return window[browserHandle]();
@@ -36,11 +33,7 @@ describe('browserTools', () => {
             const instance = await KeyValueStore.open();
             const methods = ['getValue', 'setValue'] as const;
 
-            const handlesMap = await browserTools.createBrowserHandlesForObject(
-                page,
-                instance,
-                methods,
-            );
+            const handlesMap = await browserTools.createBrowserHandlesForObject(page, instance, methods);
 
             expect(typeof handlesMap.getValue).toBe('object');
             expect(typeof handlesMap.getValue.value).toBe('string');
@@ -48,9 +41,7 @@ describe('browserTools', () => {
             expect(typeof handlesMap.setValue).toBe('object');
             expect(typeof handlesMap.setValue.value).toBe('string');
             expect(handlesMap.setValue.type).toBe('METHOD');
-            expect(handlesMap.setValue.value).not.toStrictEqual(
-                handlesMap.getValue.value,
-            );
+            expect(handlesMap.setValue.value).not.toStrictEqual(handlesMap.getValue.value);
 
             await page.evaluate(async (setValueHandle: string) => {
                 // @ts-expect-error We are not extending the window interface but we are extending the object
@@ -64,13 +55,10 @@ describe('browserTools', () => {
             await instance.setValue('321', 'bye', {
                 contentType: 'text/plain',
             });
-            const valueFromBrowser = await page.evaluate(
-                async (getValueHandle: string) => {
-                    // @ts-expect-error We are not extending the window interface but we are extending the object
-                    return window[getValueHandle]('321');
-                },
-                handlesMap.getValue.value,
-            );
+            const valueFromBrowser = await page.evaluate(async (getValueHandle: string) => {
+                // @ts-expect-error We are not extending the window interface but we are extending the object
+                return window[getValueHandle]('321');
+            }, handlesMap.getValue.value);
             expect(valueFromBrowser).toBe('bye');
 
             const nodeContext = {

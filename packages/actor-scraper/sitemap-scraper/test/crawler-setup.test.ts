@@ -33,9 +33,7 @@ describe('CrawlerSetup', () => {
     let initSpy: ReturnType<typeof vi.spyOn>;
 
     beforeEach(() => {
-        initSpy = vi
-            .spyOn(CrawlerSetup.prototype as any, '_initializeAsync')
-            .mockResolvedValue(undefined);
+        initSpy = vi.spyOn(CrawlerSetup.prototype as any, '_initializeAsync').mockResolvedValue(undefined);
     });
 
     afterEach(() => {

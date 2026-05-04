@@ -19,10 +19,7 @@ export interface Page extends CommonPage {
  * Creates a string with an appended pageFunction to be evaluated in
  * the browser context and placed within the given namespace.
  */
-export function wrapPageFunction(
-    pageFunctionString: string,
-    namespace: string,
-) {
+export function wrapPageFunction(pageFunctionString: string, namespace: string) {
     return `if (typeof window['${namespace}'] !== 'object') window['${namespace}'] = {};
     window['${namespace}'].pageFunction = ${pageFunctionString}`;
 }
@@ -33,10 +30,7 @@ export function wrapPageFunction(
  * handle to be used to reference the exposed function in
  * the browser context.
  */
-export async function createBrowserHandle(
-    page: Page,
-    fun: (...args: unknown[]) => unknown,
-) {
+export async function createBrowserHandle(page: Page, fun: (...args: unknown[]) => unknown) {
     const handle = await createRandomHash();
     await page.exposeFunction(handle, fun);
     return handle;
@@ -46,10 +40,7 @@ export async function createBrowserHandle(
  * Looks up a property descriptor for the given key in
  * the given object and its prototype chain.
  */
-export function getPropertyDescriptor(
-    target: object,
-    key: PropertyKey,
-): PropertyDescriptor | null {
+export function getPropertyDescriptor(target: object, key: PropertyKey): PropertyDescriptor | null {
     const descriptor = Reflect.getOwnPropertyDescriptor(target, key);
     if (descriptor) {
         return descriptor;
@@ -70,12 +61,7 @@ export function getPropertyDescriptor(
 export async function createBrowserHandlesForObject<
     Instance extends object,
     Keys extends keyof Instance & string = keyof Instance & string,
->(
-    page: Page,
-    instance: Instance,
-    properties: readonly Keys[],
-    getters: readonly PropertyKey[] = [],
-) {
+>(page: Page, instance: Instance, properties: readonly Keys[], getters: readonly PropertyKey[] = []) {
     const promises = properties
         .map((prop) => {
             const descriptor = getPropertyDescriptor(instance, prop);
@@ -88,16 +74,11 @@ export async function createBrowserHandlesForObject<
                 return {
                     name: prop,
                     value: descriptor.value,
-                    type:
-                        typeof descriptor.value === 'function'
-                            ? 'METHOD'
-                            : 'VALUE',
+                    type: typeof descriptor.value === 'function' ? 'METHOD' : 'VALUE',
                 } as const;
             }
             if (descriptor.get) {
-                const value = getters.includes(prop)
-                    ? descriptor.get
-                    : descriptor.get();
+                const value = getters.includes(prop) ? descriptor.get : descriptor.get();
                 const type = getters.includes(prop) ? 'GETTER' : 'METHOD';
                 return { name: prop, value, type } as const;
             }
@@ -106,8 +87,7 @@ export async function createBrowserHandlesForObject<
             );
         })
         .map(async ({ name, value, type }) => {
-            if (/^METHOD|GETTER$/.test(type))
-                value = await createBrowserHandle(page, value.bind(instance));
+            if (/^METHOD|GETTER$/.test(type)) value = await createBrowserHandle(page, value.bind(instance));
             return { name, value, type };
         });
 
@@ -119,9 +99,7 @@ export async function createBrowserHandlesForObject<
         },
         {} as {
             [K in Keys]: {
-                value: Instance[K] extends (...args: any[]) => any
-                    ? string
-                    : Instance[K];
+                value: Instance[K] extends (...args: any[]) => any ? string : Instance[K];
                 type: 'METHOD' | 'VALUE' | 'GETTER';
             };
         },
@@ -169,16 +147,9 @@ export function dumpConsole(page: Page, options: DumpConsoleOptions = {}) {
             const msgPromises = msg.args().map((jsh: any) => {
                 return jsh
                     .jsonValue()
-                    .catch((e: Error) =>
-                        log.exception(
-                            e,
-                            `Stringification of console.${msgType} in browser failed.`,
-                        ),
-                    );
+                    .catch((e: Error) => log.exception(e, `Stringification of console.${msgType} in browser failed.`));
             });
-            message = (await Promise.all(msgPromises))
-                .map((m: string) => inspect(m))
-                .join(' '); // console.log('a', 'b') produces 'a b'
+            message = (await Promise.all(msgPromises)).map((m: string) => inspect(m)).join(' '); // console.log('a', 'b') produces 'a b'
         } else {
             message = msg.text();
         }
@@ -207,12 +178,7 @@ export interface SnapshotOptions {
  * Saves raw body and a screenshot to the default key value store
  * under the SNAPSHOT-BODY and SNAPSHOT-SCREENSHOT keys.
  */
-export async function saveSnapshot({
-    page,
-    body,
-    contentType,
-    json,
-}: SnapshotOptions) {
+export async function saveSnapshot({ page, body, contentType, json }: SnapshotOptions) {
     // Throttle snapshots.
     const now = Date.now();
     if (now - lastSnapshotTimestamp < SNAPSHOT.TIMEOUT_SECS * 1000) {
@@ -241,8 +207,6 @@ export async function saveSnapshot({
             }),
         ]);
     } else {
-        throw new Error(
-            'One of parameters "page" or "json" or "body" with "contentType" must be provided.',
-        );
+        throw new Error('One of parameters "page" or "json" or "body" with "contentType" must be provided.');
     }
 }

@@ -20,10 +20,7 @@ import type { SnapshotOptions } from './browser_tools.js';
 import { META_KEY } from './consts.js';
 import type { RequestMetadata } from './tools.js';
 
-export interface MapLike<K, V> extends Omit<
-    Map<K, V>,
-    'values' | 'keys' | 'entries' | 'set'
-> {
+export interface MapLike<K, V> extends Omit<Map<K, V>, 'values' | 'keys' | 'entries' | 'set'> {
     keys: () => K[];
     values: () => V[];
     entries: () => [K, V][];
@@ -95,10 +92,7 @@ class Context<
         // Page function arguments are directly passed from CrawlerSetup
         // and differ between Puppeteer and Cheerio Scrapers.
         // We must use properties and descriptors not to trigger getters / setters.
-        Object.defineProperties(
-            this,
-            Object.getOwnPropertyDescriptors(pageFunctionArguments),
-        );
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
 
         // Bind this to allow destructuring off context in pageFunction.
         this.saveSnapshot = this.saveSnapshot.bind(this);
@@ -112,11 +106,7 @@ class Context<
 
     async setValue<T>(...args: Parameters<KeyValueStore['setValue']>) {
         return this[setup].keyValueStore.setValue<T>(
-            ...(args as [
-                key: string,
-                value: T | null,
-                options?: RecordOptions,
-            ]),
+            ...(args as [key: string, value: T | null, options?: RecordOptions]),
         );
     }
 
@@ -124,9 +114,7 @@ class Context<
         return saveSnapshot({
             page: this.page as SnapshotOptions['page'],
             body: this.body as SnapshotOptions['body'],
-            contentType: this.contentType
-                ? contentTypeParser.format(this.contentType as MediaType)
-                : null,
+            contentType: this.contentType ? contentTypeParser.format(this.contentType as MediaType) : null,
             json: this.json,
         });
     }
@@ -153,9 +141,7 @@ class Context<
         const defaultUserData = {
             [META_KEY]: {
                 parentRequestId: castedRequest.id || castedRequest.uniqueKey,
-                depth:
-                    (castedRequest.userData?.[META_KEY] as RequestMetadata)
-                        .depth ?? 0 + 1,
+                depth: (castedRequest.userData?.[META_KEY] as RequestMetadata).depth ?? 0 + 1,
             },
         };
 
@@ -169,8 +155,7 @@ class Context<
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- intentional for better type inference
 interface Context<
     Options extends ContextOptions = ContextOptions,
-    ExtraFields extends ContextOptions['pageFunctionArguments'] =
-        Options['pageFunctionArguments'],
+    ExtraFields extends ContextOptions['pageFunctionArguments'] = Options['pageFunctionArguments'],
 > extends ExtraFields {}
 
 /**
@@ -179,8 +164,7 @@ interface Context<
  */
 export function createContext<
     Options extends ContextOptions = ContextOptions,
-    ExtraFields extends ContextOptions['pageFunctionArguments'] =
-        Options['pageFunctionArguments'],
+    ExtraFields extends ContextOptions['pageFunctionArguments'] = Options['pageFunctionArguments'],
 >(contextOptions: Options) {
     const context = new Context<Options, ExtraFields>(contextOptions);
     return {

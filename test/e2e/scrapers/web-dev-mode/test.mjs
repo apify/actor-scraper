@@ -1,12 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    skipTest,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, skipTest, validateDataset } from '../../tools.mjs';
 
 void skipTest('httpstat.us is very unstable');
 
@@ -84,9 +76,6 @@ await expect(stats.requestsFinished > 5, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
 await expect(datasetItems.length >= 5, 'Minimum number of dataset items');
-await expect(
-    validateDataset(datasetItems, ['url', 'text']),
-    'Dataset items validation',
-);
+await expect(validateDataset(datasetItems, ['url', 'text']), 'Dataset items validation');
 
 process.exit(0);

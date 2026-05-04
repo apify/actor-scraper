@@ -30,35 +30,19 @@ import { getInjectableScript } from 'idcac-playwright';
 import type { HTTPResponse, Page } from 'puppeteer';
 
 import type { CrawlerSetupOptions, createContext } from '@apify/scraper-tools';
-import {
-    browserTools,
-    constants as scraperToolsConstants,
-    tools,
-} from '@apify/scraper-tools';
+import { browserTools, constants as scraperToolsConstants, tools } from '@apify/scraper-tools';
 
 import { createBundle } from './bundle.browser.js';
 import type { Input } from './consts.js';
-import {
-    BreakpointLocation,
-    CHROME_DEBUGGER_PORT,
-    ProxyRotation,
-    RunMode,
-} from './consts.js';
+import { BreakpointLocation, CHROME_DEBUGGER_PORT, ProxyRotation, RunMode } from './consts.js';
 import { GlobalStore } from './global_store.js';
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
 
 const MAX_CONCURRENCY_IN_DEVELOPMENT = 1;
-const {
-    SESSION_MAX_USAGE_COUNTS,
-    DEFAULT_VIEWPORT,
-    DEVTOOLS_TIMEOUT_SECS,
-    META_KEY,
-} = scraperToolsConstants;
-const SCHEMA = JSON.parse(
-    await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'),
-);
+const { SESSION_MAX_USAGE_COUNTS, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, META_KEY } = scraperToolsConstants;
+const SCHEMA = JSON.parse(await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'));
 
 interface PageContext {
     apifyNamespace: string;
@@ -121,10 +105,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.rawInput = JSON.stringify(input);
 
         // Attempt to load page function from disk if not present on input.
-        tools.maybeLoadPageFunctionFromDisk(
-            input,
-            dirname(fileURLToPath(import.meta.url)),
-        );
+        tools.maybeLoadPageFunctionFromDisk(input, dirname(fileURLToPath(import.meta.url)));
 
         // Validate INPUT if not running on Apify Cloud Platform.
         if (!Actor.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
@@ -135,40 +116,27 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // Validations
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) {
-                throw new Error(
-                    'The pseudoUrls Array must only contain Objects.',
-                );
+                throw new Error('The pseudoUrls Array must only contain Objects.');
             }
             if (purl.userData && !tools.isPlainObject(purl.userData)) {
-                throw new Error(
-                    'The userData property of a pseudoUrl must be an Object.',
-                );
+                throw new Error('The userData property of a pseudoUrl must be an Object.');
             }
         });
 
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) {
-                throw new Error(
-                    'The initialCookies Array must only contain Objects.',
-                );
+                throw new Error('The initialCookies Array must only contain Objects.');
             }
         });
 
         this.input.waitUntil.forEach((event) => {
-            if (
-                !/^(domcontentloaded|load|networkidle2|networkidle0)$/.test(
-                    event,
-                )
-            ) {
-                throw new Error(
-                    'Navigation wait until events must be valid. See tooltip.',
-                );
+            if (!/^(domcontentloaded|load|networkidle2|networkidle0)$/.test(event)) {
+                throw new Error('Navigation wait until events must be valid. See tooltip.');
             }
         });
 
         // solving proxy rotation settings
-        this.maxSessionUsageCount =
-            SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         tools.evalFunctionOrThrow(this.input.pageFunction);
 
@@ -225,8 +193,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.initPromise = this._initializeAsync();
     }
 
-    private static devToolsStartPromise: Promise<DevToolsServer | null> | null =
-        null;
+    private static devToolsStartPromise: Promise<DevToolsServer | null> | null = null;
 
     private static async getDevToolsServer(): Promise<DevToolsServer | null> {
         if (this.devToolsStartPromise) return this.devToolsStartPromise;
@@ -270,33 +237,19 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // RequestQueue
         this.requestQueue = await RequestQueueV2.open(this.requestQueueName);
 
-        if (
-            !(await this.keyValueStore.recordExists(
-                REQUEST_QUEUE_INIT_FLAG_KEY,
-            ))
-        ) {
+        if (!(await this.keyValueStore.recordExists(REQUEST_QUEUE_INIT_FLAG_KEY))) {
             const requests: Request[] = [];
-            for await (const request of await RequestList.open(
-                null,
-                startUrls,
-            )) {
-                if (
-                    this.input.maxResultsPerCrawl > 0 &&
-                    requests.length >= 1.5 * this.input.maxResultsPerCrawl
-                ) {
+            for await (const request of await RequestList.open(null, startUrls)) {
+                if (this.input.maxResultsPerCrawl > 0 && requests.length >= 1.5 * this.input.maxResultsPerCrawl) {
                     break;
                 }
                 requests.push(request);
             }
 
-            const { waitForAllRequestsToBeAdded } =
-                await this.requestQueue.addRequestsBatched(requests);
+            const { waitForAllRequestsToBeAdded } = await this.requestQueue.addRequestsBatched(requests);
 
             void waitForAllRequestsToBeAdded.then(async () => {
-                await this.keyValueStore.setValue(
-                    REQUEST_QUEUE_INIT_FLAG_KEY,
-                    '1',
-                );
+                await this.keyValueStore.setValue(REQUEST_QUEUE_INIT_FLAG_KEY, '1');
             });
         }
 
@@ -315,27 +268,19 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         const args = ['--disable-dev-shm-usage'];
         if (this.input.ignoreCorsAndCsp) args.push('--disable-web-security');
-        if (this.isDevRun)
-            args.push(`--remote-debugging-port=${CHROME_DEBUGGER_PORT}`);
+        if (this.isDevRun) args.push(`--remote-debugging-port=${CHROME_DEBUGGER_PORT}`);
 
         const options: PuppeteerCrawlerOptions = {
             requestHandler: this._requestHandler.bind(this),
             requestQueue: this.requestQueue,
-            requestHandlerTimeoutSecs: this.isDevRun
-                ? DEVTOOLS_TIMEOUT_SECS
-                : this.input.pageFunctionTimeoutSecs,
+            requestHandlerTimeoutSecs: this.isDevRun ? DEVTOOLS_TIMEOUT_SECS : this.input.pageFunctionTimeoutSecs,
             preNavigationHooks: [],
             postNavigationHooks: [],
             failedRequestHandler: this._failedRequestHandler.bind(this),
             respectRobotsTxtFile: this.input.respectRobotsTxtFile,
-            maxConcurrency: this.isDevRun
-                ? MAX_CONCURRENCY_IN_DEVELOPMENT
-                : this.input.maxConcurrency,
+            maxConcurrency: this.isDevRun ? MAX_CONCURRENCY_IN_DEVELOPMENT : this.input.maxConcurrency,
             maxRequestRetries: this.input.maxRequestRetries,
-            maxRequestsPerCrawl:
-                this.input.maxPagesPerCrawl === 0
-                    ? undefined
-                    : this.input.maxPagesPerCrawl,
+            maxRequestsPerCrawl: this.input.maxPagesPerCrawl === 0 ? undefined : this.input.maxPagesPerCrawl,
             proxyConfiguration: (await Actor.createProxyConfiguration(
                 this.input.proxyConfiguration,
             )) as any as ProxyConfiguration,
@@ -359,9 +304,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             useSessionPool: !this.isDevRun,
             persistCookiesPerSession: !this.isDevRun,
             sessionPoolOptions: {
-                persistStateKeyValueStoreId: this.input.sessionPoolName
-                    ? SESSION_STORE_NAME
-                    : undefined,
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
@@ -388,142 +331,92 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private _createNavigationHooks(options: PuppeteerCrawlerOptions) {
-        options.preNavigationHooks!.push(
-            async ({ request, page, session }, gotoOptions) => {
-                const start = process.hrtime();
+        options.preNavigationHooks!.push(async ({ request, page, session }, gotoOptions) => {
+            const start = process.hrtime();
 
-                // Create a new page context with a new random key for Apify namespace.
-                const pageContext: PageContext = {
-                    apifyNamespace: await tools.createRandomHash(),
-                    skipLinks: false,
-                    timers: { start },
-                };
-                this.pageContexts.set(page, pageContext);
+            // Create a new page context with a new random key for Apify namespace.
+            const pageContext: PageContext = {
+                apifyNamespace: await tools.createRandomHash(),
+                skipLinks: false,
+                timers: { start },
+            };
+            this.pageContexts.set(page, pageContext);
 
-                // Attach a console listener to get all logs as soon as possible.
-                if (this.input.browserLog) browserTools.dumpConsole(page);
+            // Attach a console listener to get all logs as soon as possible.
+            if (this.input.browserLog) browserTools.dumpConsole(page);
 
-                // Prevent download of stylesheets and media, unless selected otherwise
-                if (this.blockedUrlPatterns.length) {
-                    await puppeteerUtils.blockRequests(page, {
-                        urlPatterns: this.blockedUrlPatterns,
-                    });
+            // Prevent download of stylesheets and media, unless selected otherwise
+            if (this.blockedUrlPatterns.length) {
+                await puppeteerUtils.blockRequests(page, {
+                    urlPatterns: this.blockedUrlPatterns,
+                });
+            }
+
+            // Add initial cookies, if any.
+            if (this.input.initialCookies && this.input.initialCookies.length) {
+                const cookiesToSet = session
+                    ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
+                    : this.input.initialCookies;
+                if (cookiesToSet && cookiesToSet.length) {
+                    // setting initial cookies that are not already in the session and page
+                    // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
+                    session?.setCookies(cookiesToSet, request.url);
+                    await page.setCookie(...cookiesToSet);
                 }
+            }
 
-                // Add initial cookies, if any.
-                if (
-                    this.input.initialCookies &&
-                    this.input.initialCookies.length
-                ) {
-                    const cookiesToSet = session
-                        ? tools.getMissingCookiesFromSession(
-                              session,
-                              this.input.initialCookies,
-                              request.url,
-                          )
-                        : this.input.initialCookies;
-                    if (cookiesToSet && cookiesToSet.length) {
-                        // setting initial cookies that are not already in the session and page
-                        // TODO: We can remove the condition when there is an option to define blocked status codes in sessionPool
-                        session?.setCookies(cookiesToSet, request.url);
-                        await page.setCookie(...cookiesToSet);
-                    }
+            // Disable content security policy.
+            if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+
+            tools.logPerformance(request, 'gotoFunction INIT', start);
+            const handleStart = process.hrtime();
+            pageContext.browserHandles = await this._injectBrowserHandles(page, pageContext);
+            tools.logPerformance(request, 'gotoFunction INJECTION HANDLES', handleStart);
+
+            const evalStart = process.hrtime();
+            await Promise.all([
+                page.evaluateOnNewDocument(createBundle, pageContext.apifyNamespace),
+                page.evaluateOnNewDocument(
+                    browserTools.wrapPageFunction(this.input.pageFunction, pageContext.apifyNamespace),
+                ),
+            ]);
+            tools.logPerformance(request, 'gotoFunction INJECTION EVAL', evalStart);
+
+            if (this.isDevRun) {
+                const cdpClient = await page.target().createCDPSession();
+                await cdpClient.send('Debugger.enable');
+                if (this.input.breakpointLocation === BreakpointLocation.BeforeGoto) {
+                    await cdpClient.send('Debugger.pause');
                 }
+            }
 
-                // Disable content security policy.
-                if (this.input.ignoreCorsAndCsp) await page.setBypassCSP(true);
+            pageContext.timers.navStart = process.hrtime();
+            if (gotoOptions) {
+                gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
+                gotoOptions.waitUntil = this.input.waitUntil;
+            }
+        });
 
-                tools.logPerformance(request, 'gotoFunction INIT', start);
-                const handleStart = process.hrtime();
-                pageContext.browserHandles = await this._injectBrowserHandles(
-                    page,
-                    pageContext,
-                );
-                tools.logPerformance(
-                    request,
-                    'gotoFunction INJECTION HANDLES',
-                    handleStart,
-                );
+        options.preNavigationHooks!.push(...this._runHookWithEnhancedContext(this.evaledPreNavigationHooks));
+        options.postNavigationHooks!.push(...this._runHookWithEnhancedContext(this.evaledPostNavigationHooks));
 
-                const evalStart = process.hrtime();
-                await Promise.all([
-                    page.evaluateOnNewDocument(
-                        createBundle,
-                        pageContext.apifyNamespace,
-                    ),
-                    page.evaluateOnNewDocument(
-                        browserTools.wrapPageFunction(
-                            this.input.pageFunction,
-                            pageContext.apifyNamespace,
-                        ),
-                    ),
-                ]);
-                tools.logPerformance(
-                    request,
-                    'gotoFunction INJECTION EVAL',
-                    evalStart,
-                );
+        options.postNavigationHooks!.push(async ({ request, page, response }) => {
+            await this._waitForLoadEventWhenXml(page, response);
+            const pageContext = this.pageContexts.get(page)!;
+            tools.logPerformance(request, 'gotoFunction NAVIGATION', pageContext.timers.navStart!);
 
-                if (this.isDevRun) {
-                    const cdpClient = await page.target().createCDPSession();
-                    await cdpClient.send('Debugger.enable');
-                    if (
-                        this.input.breakpointLocation ===
-                        BreakpointLocation.BeforeGoto
-                    ) {
-                        await cdpClient.send('Debugger.pause');
-                    }
-                }
+            const delayStart = process.hrtime();
+            await this._assertNamespace(page, pageContext.apifyNamespace);
 
-                pageContext.timers.navStart = process.hrtime();
-                if (gotoOptions) {
-                    gotoOptions.timeout = this.input.pageLoadTimeoutSecs * 1000;
-                    gotoOptions.waitUntil = this.input.waitUntil;
-                }
-            },
-        );
+            // Inject selected libraries
+            if (this.input.injectJQuery) await puppeteerUtils.injectJQuery(page);
 
-        options.preNavigationHooks!.push(
-            ...this._runHookWithEnhancedContext(this.evaledPreNavigationHooks),
-        );
-        options.postNavigationHooks!.push(
-            ...this._runHookWithEnhancedContext(this.evaledPostNavigationHooks),
-        );
-
-        options.postNavigationHooks!.push(
-            async ({ request, page, response }) => {
-                await this._waitForLoadEventWhenXml(page, response);
-                const pageContext = this.pageContexts.get(page)!;
-                tools.logPerformance(
-                    request,
-                    'gotoFunction NAVIGATION',
-                    pageContext.timers.navStart!,
-                );
-
-                const delayStart = process.hrtime();
-                await this._assertNamespace(page, pageContext.apifyNamespace);
-
-                // Inject selected libraries
-                if (this.input.injectJQuery)
-                    await puppeteerUtils.injectJQuery(page);
-
-                tools.logPerformance(
-                    request,
-                    'gotoFunction INJECTION DELAY',
-                    delayStart,
-                );
-                tools.logPerformance(
-                    request,
-                    'gotoFunction EXECUTION',
-                    pageContext.timers.start,
-                );
-            },
-        );
+            tools.logPerformance(request, 'gotoFunction INJECTION DELAY', delayStart);
+            tools.logPerformance(request, 'gotoFunction EXECUTION', pageContext.timers.start);
+        });
     }
 
-    private _runHookWithEnhancedContext(
-        hooks: ((...args: unknown[]) => Awaitable<void>)[],
-    ) {
+    private _runHookWithEnhancedContext(hooks: ((...args: unknown[]) => Awaitable<void>)[]) {
         return hooks.map((hook) => (ctx: Dictionary, ...args: unknown[]) => {
             const { customData } = this.input;
             return hook({ ...ctx, customData }, ...args);
@@ -531,8 +424,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _failedRequestHandler({ request }: PuppeteerCrawlingContext) {
-        const lastError =
-            request.errorMessages[request.errorMessages.length - 1];
+        const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(
             `Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`,
@@ -563,9 +455,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(
-            crawler.autoscaledPool,
-        );
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
         // Setup Context and pass the configuration down to Browser.
@@ -593,11 +483,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
          */
         tools.logPerformance(request, 'requestHandler PREPROCESSING', start);
 
-        if (
-            this.isDevRun &&
-            this.input.breakpointLocation ===
-                BreakpointLocation.BeforePageFunction
-        ) {
+        if (this.isDevRun && this.input.breakpointLocation === BreakpointLocation.BeforePageFunction) {
             await page.evaluate(async () => {
                 // eslint-disable-next-line no-debugger -- Debugger is enabled in dev run
                 debugger;
@@ -621,18 +507,14 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         const namespace = pageContext.apifyNamespace;
         const output = await page.evaluate(
             async (ctxOpts: typeof contextOptions, namespc: string) => {
-                const context: ReturnType<typeof createContext>['context'] =
-                    window[namespc].createContext(ctxOpts);
+                const context: ReturnType<typeof createContext>['context'] = window[namespc].createContext(ctxOpts);
                 // eslint-disable-next-line @typescript-eslint/no-shadow
                 const output = {} as Output;
                 try {
-                    output.pageFunctionResult =
-                        await window[namespc].pageFunction(context);
+                    output.pageFunctionResult = await window[namespc].pageFunction(context);
                 } catch (err) {
                     const casted = err as Error;
-                    output.pageFunctionError = Object.getOwnPropertyNames(
-                        casted,
-                    ).reduce((memo, name) => {
+                    output.pageFunctionError = Object.getOwnPropertyNames(casted).reduce((memo, name) => {
                         memo[name] = casted[name as keyof Error];
                         return memo;
                     }, {} as Dictionary);
@@ -649,15 +531,10 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                  */
                 function replaceAllDatesInObjectWithISOStrings(obj: Output) {
                     for (const [key, value] of Object.entries(obj)) {
-                        if (
-                            value instanceof Date &&
-                            typeof value.toISOString === 'function'
-                        ) {
+                        if (value instanceof Date && typeof value.toISOString === 'function') {
                             Reflect.set(obj, key, value.toISOString());
                         } else if (value && typeof value === 'object') {
-                            replaceAllDatesInObjectWithISOStrings(
-                                value as Output,
-                            );
+                            replaceAllDatesInObjectWithISOStrings(value as Output);
                         }
                     }
                     return obj;
@@ -669,18 +546,13 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             namespace,
         );
 
-        tools.logPerformance(
-            request,
-            'requestHandler USER FUNCTION',
-            startUserFn,
-        );
+        tools.logPerformance(request, 'requestHandler USER FUNCTION', startUserFn);
         const finishUserFn = process.hrtime();
 
         /**
          * POST-PROCESSING
          */
-        const { pageFunctionResult, requestFromBrowser, pageFunctionError } =
-            output;
+        const { pageFunctionResult, requestFromBrowser, pageFunctionError } = output;
         // Merge requestFromBrowser into request to preserve modifications that
         // may have been made in browser context.
         Object.assign(request, requestFromBrowser);
@@ -698,18 +570,10 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // Save the `pageFunction`s result (or just metadata) to the default dataset.
         await this._handleResult(request, response, pageFunctionResult);
 
-        tools.logPerformance(
-            request,
-            'requestHandler POSTPROCESSING',
-            finishUserFn,
-        );
+        tools.logPerformance(request, 'requestHandler POSTPROCESSING', finishUserFn);
         tools.logPerformance(request, 'requestHandler EXECUTION', start);
 
-        if (
-            this.isDevRun &&
-            this.input.breakpointLocation ===
-                BreakpointLocation.AfterPageFunction
-        ) {
+        if (this.isDevRun && this.input.breakpointLocation === BreakpointLocation.AfterPageFunction) {
             await page.evaluate(async () => {
                 // eslint-disable-next-line no-debugger -- Debugger is enabled in dev run
                 debugger;
@@ -718,36 +582,21 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _handleMaxResultsPerCrawl(autoscaledPool?: AutoscaledPool) {
-        if (
-            !this.input.maxResultsPerCrawl ||
-            this.pagesOutputted < this.input.maxResultsPerCrawl
-        )
-            return false;
+        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return false;
         if (!autoscaledPool) return false;
-        log.info(
-            `User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`,
-        );
+        log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
         await autoscaledPool.abort();
         return true;
     }
 
-    private async _handleLinks({
-        request,
-        enqueueLinks,
-    }: PuppeteerCrawlingContext) {
+    private async _handleLinks({ request, enqueueLinks }: PuppeteerCrawlingContext) {
         if (!(this.input.linkSelector && this.requestQueue)) return;
         const start = process.hrtime();
 
-        const currentDepth = (
-            request.userData![META_KEY] as tools.RequestMetadata
-        ).depth;
-        const hasReachedMaxDepth =
-            this.input.maxCrawlingDepth &&
-            currentDepth >= this.input.maxCrawlingDepth;
+        const currentDepth = (request.userData![META_KEY] as tools.RequestMetadata).depth;
+        const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
-            log.debug(
-                `Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`,
-            );
+            log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
 
@@ -779,12 +628,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         isError?: boolean,
     ) {
         const start = process.hrtime();
-        const payload = tools.createDatasetPayload(
-            request,
-            response,
-            pageFunctionResult,
-            isError,
-        );
+        const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
         await this.dataset.pushData(payload);
         this.pagesOutputted++;
         tools.logPerformance(request, 'handleResult EXECUTION', start);
@@ -810,10 +654,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         }
     }
 
-    private async _waitForLoadEventWhenXml(
-        page: Page,
-        response?: HTTPResponse,
-    ) {
+    private async _waitForLoadEventWhenXml(page: Page, response?: HTTPResponse) {
         // Response can sometimes be null.
         if (!response) return;
 
@@ -828,10 +669,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         try {
             const timeout = this.input.pageLoadTimeoutSecs * 1000;
-            await page.waitForFunction(
-                () => document.readyState === 'complete',
-                { timeout },
-            );
+            await page.waitForFunction(() => document.readyState === 'complete', { timeout });
         } catch (err) {
             const casted = err as Error;
             if (casted.stack!.startsWith('TimeoutError')) {
@@ -846,26 +684,14 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _injectBrowserHandles(page: Page, pageContext: PageContext) {
-        const saveSnapshotP = browserTools.createBrowserHandle(page, async () =>
-            browserTools.saveSnapshot({ page }),
-        );
+        const saveSnapshotP = browserTools.createBrowserHandle(page, async () => browserTools.saveSnapshot({ page }));
         const skipLinksP = browserTools.createBrowserHandle(page, () => {
             pageContext.skipLinks = true;
         });
         const globalStoreP = browserTools.createBrowserHandlesForObject(
             page,
             this.globalStore,
-            [
-                'size',
-                'clear',
-                'delete',
-                'entries',
-                'get',
-                'has',
-                'keys',
-                'set',
-                'values',
-            ],
+            ['size', 'clear', 'delete', 'entries', 'get', 'has', 'keys', 'set', 'values'],
             ['size'],
         );
         const logP = browserTools.createBrowserHandlesForObject(page, log, [
@@ -879,28 +705,13 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             'exception',
         ]);
         const requestQueueP = this.requestQueue
-            ? browserTools.createBrowserHandlesForObject(
-                  page,
-                  this.requestQueue,
-                  ['addRequest'],
-              )
+            ? browserTools.createBrowserHandlesForObject(page, this.requestQueue, ['addRequest'])
             : null;
         const keyValueStoreP = this.keyValueStore
-            ? browserTools.createBrowserHandlesForObject(
-                  page,
-                  this.keyValueStore,
-                  ['getValue', 'setValue'],
-              )
+            ? browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue'])
             : null;
 
-        const [
-            saveSnapshot,
-            skipLinks,
-            globalStore,
-            logHandle,
-            requestQueue,
-            keyValueStore,
-        ] = await Promise.all([
+        const [saveSnapshot, skipLinks, globalStore, logHandle, requestQueue, keyValueStore] = await Promise.all([
             saveSnapshotP,
             skipLinksP,
             globalStoreP,

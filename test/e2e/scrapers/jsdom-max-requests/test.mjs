@@ -1,12 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    skipTest,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, skipTest, validateDataset } from '../../tools.mjs';
 
 void skipTest('broken test');
 
@@ -32,16 +24,12 @@ await run(testDir, 'jsdom-scraper', {
             case 'DETAIL':
                 return handleDetail(context);
             default:
-                throw new Error(
-                    `Unrecognized request label: ${context.request.userData.label}`,
-                );
+                throw new Error(`Unrecognized request label: ${context.request.userData.label}`);
         }
 
         async function handleStart({ enqueueRequest, window }) {
             const { document } = window;
-            const links = Array.from(
-                document.querySelectorAll('[data-test="actorCard"] > a'),
-            ).map((x) => x.href);
+            const links = Array.from(document.querySelectorAll('[data-test="actorCard"] > a')).map((x) => x.href);
             for (const link of links) {
                 await enqueueRequest({
                     url: link,
@@ -58,15 +46,9 @@ await run(testDir, 'jsdom-scraper', {
 
             const uniqueIdentifier = url.split('/').slice(-2).join('/');
             const title = document.querySelector('header h1').textContent;
-            const description = document.querySelector(
-                'div.Section-body > div > p',
-            ).textContent;
-            const modifiedDate = document.querySelector(
-                'div:nth-of-type(2) > ul > li:nth-of-type(2)',
-            ).textContent;
-            const runCount = document.querySelector(
-                'div:nth-of-type(2) > ul > li:nth-of-type(1)',
-            ).textContent;
+            const description = document.querySelector('div.Section-body > div > p').textContent;
+            const modifiedDate = document.querySelector('div:nth-of-type(2) > ul > li:nth-of-type(2)').textContent;
+            const runCount = document.querySelector('div:nth-of-type(2) > ul > li:nth-of-type(1)').textContent;
 
             return {
                 url,
@@ -92,10 +74,7 @@ const stats = await getStats(testDir);
 await expect(stats.requestsFinished >= 10, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
-await expect(
-    datasetItems.length > 5 && datasetItems.length < 15,
-    'Number of dataset items',
-);
+await expect(datasetItems.length > 5 && datasetItems.length < 15, 'Number of dataset items');
 await expect(
     validateDataset(datasetItems, [
         'url',

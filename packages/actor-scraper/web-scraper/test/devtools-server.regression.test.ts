@@ -7,13 +7,12 @@ describe('DevToolsServer (regression)', () => {
 
         const startMock = vi.fn(async () => {});
         const stopMock = vi.fn(() => {});
-        const DevToolsCtorMock = vi.fn(function DevToolsServerMock(this: {
-            start: typeof startMock;
-            stop: typeof stopMock;
-        }) {
-            this.start = startMock;
-            this.stop = stopMock;
-        });
+        const DevToolsCtorMock = vi.fn(
+            function DevToolsServerMock(this: { start: typeof startMock; stop: typeof stopMock }) {
+                this.start = startMock;
+                this.stop = stopMock;
+            },
+        );
 
         try {
             process.env = { ...oldEnv };
@@ -24,29 +23,19 @@ describe('DevToolsServer (regression)', () => {
             vi.doMock('devtools-server', () => ({ default: DevToolsCtorMock }));
             vi.doMock('apify', () => ({ Actor: { on: actorOnMock } }));
 
-            const mod = await import(
-                new URL('../src/internals/crawler_setup.ts', import.meta.url)
-                    .href
-            );
+            const mod = await import(new URL('../src/internals/crawler_setup.ts', import.meta.url).href);
             const { CrawlerSetup } = mod as any;
 
             CrawlerSetup.devToolsStartPromise = null;
 
-            const fn =
-                CrawlerSetup.getDevToolsServer ??
-                CrawlerSetup.startDevToolsServerOnce;
+            const fn = CrawlerSetup.getDevToolsServer ?? CrawlerSetup.startDevToolsServerOnce;
 
-            await Promise.all(
-                Array.from({ length: 10 }, () => fn.call(CrawlerSetup)),
-            );
+            await Promise.all(Array.from({ length: 10 }, () => fn.call(CrawlerSetup)));
 
             expect(DevToolsCtorMock).toHaveBeenCalledTimes(1);
             expect(startMock).toHaveBeenCalledTimes(1);
             expect(actorOnMock).toHaveBeenCalledTimes(1);
-            expect(actorOnMock).toHaveBeenCalledWith(
-                'exit',
-                expect.any(Function),
-            );
+            expect(actorOnMock).toHaveBeenCalledWith('exit', expect.any(Function));
         } finally {
             process.env = oldEnv;
             vi.resetModules();
