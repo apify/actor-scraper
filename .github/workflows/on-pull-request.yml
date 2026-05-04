@@ -26,6 +26,9 @@ jobs:
             - name: Install pnpm and dependencies
               uses: apify/workflows/pnpm-install@main
 
+            - name: Install Chrome for puppeteer
+              run: pnpm exec puppeteer browsers install chrome
+
             - name: Build
               run: pnpm ci:build
 
