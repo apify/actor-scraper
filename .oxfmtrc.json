@@ -1,5 +1,4 @@
 {
-    "trailingComma": "all",
     "printWidth": 120,
     "ignorePatterns": [
         "**/*.md",
