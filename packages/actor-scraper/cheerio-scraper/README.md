@@ -592,6 +592,12 @@ For more information, see [Datasets](https://docs.apify.com/storage#dataset) in 
 or the [Get dataset items](https://docs.apify.com/api/v2#/reference/datasets/item-collection)
 endpoint in Apify API reference.
 
+## Integrations
+
+Cheerio Scraper can be connected with almost any cloud service or web app thanks to [integrations on the Apify platform](https://apify.com/integrations). You can integrate with Make, Zapier, ChatGPT, Slack, Airbyte, GitHub, Google Sheets, Asana, Google Drive, Keboola, MCP Servers, and more.
+
+You can also use [webhooks](https://docs.apify.com/integrations/webhooks) to carry out an action whenever an event occurs, e.g., get a notification whenever a Cheerio Scraper run successfully finishes.
+
 ## FAQ
 
 ### How do I build a page function?
@@ -623,12 +629,6 @@ Yes. With Apify's [MCP server](https://apify.com/apify/cheerio-scraper/api/mcp) 
 ### Do I need proxies to use Cheerio Scraper?
 
 You usually do, especially for sites with anti-scraping protections. Cheerio Scraper integrates with [Apify Proxy](https://apify.com/proxy): datacenter proxies are included in the Free plan; residential proxies are available on paid plans. Configure them under [**Proxy configuration**](#proxy-configuration).
-
-### Can I integrate Cheerio Scraper with other apps?
-
-Yes. Cheerio Scraper can be connected with almost any cloud service or web app thanks to [integrations on the Apify platform](https://apify.com/integrations). You can integrate with Make, Zapier, ChatGPT, Slack, Airbyte, GitHub, Google Sheets, Asana, Google Drive, Keboola, MCP Servers, and more.
-
-You can also use [webhooks](https://docs.apify.com/integrations/webhooks) to carry out an action whenever an event occurs, e.g., get a notification whenever a Cheerio Scraper run successfully finishes.
 
 ### Is it legal to scrape with Cheerio Scraper?
 
