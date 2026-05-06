@@ -606,13 +606,13 @@ The fastest way is the step-by-step [**Scraping with Cheerio Scraper**](https://
 
 If you'd rather skip the page function entirely, try the [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) — you describe what to extract in plain English and the Actor handles the rest.
 
-### When should I use Puppeteer Scraper instead of Cheerio Scraper?
+### When should I use Puppeteer instead of Cheerio?
 
-Use **Cheerio Scraper** for static HTML pages — it's faster and cheaper because it doesn't run a browser. Use [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (or the simpler [**Web Scraper**](https://apify.com/apify/web-scraper)) when the content you need is rendered by client-side JavaScript and isn't present in the raw HTML response.
+Use **Cheerio Scraper** for static HTML — it's faster and cheaper because no browser is involved. When the content needs client-side JavaScript to render, reach for a Puppeteer-based browser scraper: [**Web Scraper**](https://apify.com/apify/web-scraper) is the easy on-ramp (simpler API, runs in the browser context), while [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) gives you lower-level control over the Puppeteer library directly.
 
-### When should I use Playwright Scraper instead of Cheerio Scraper?
+### When should I use Playwright instead of Cheerio?
 
-Same trade-off as above: if the page needs a real browser to render its content, reach for [**Playwright Scraper**](https://apify.com/apify/playwright-scraper). Playwright also has stronger support for Firefox and WebKit than Puppeteer if your target site behaves differently across browsers.
+If the page needs a real browser to render its content — and you want stronger support for Firefox and WebKit than Puppeteer offers — reach for [**Playwright Scraper**](https://apify.com/apify/playwright-scraper).
 
 ### Can I build my own Actor with Cheerio?
 
