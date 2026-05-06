@@ -5,12 +5,24 @@ browser but instead constructs a DOM from an HTML string. It then provides the u
 
 Cheerio Scraper is ideal for scraping web pages that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
 
-If you're unfamiliar with web scraping or web development in general,
-you might prefer to start with [**Scraping with Web Scraper**](https://docs.apify.com/tutorials/apify-scrapers/web-scraper) tutorial from the Apify documentation and then continue with [**Scraping with Cheerio Scraper**](https://docs.apify.com/tutorials/apify-scrapers/cheerio-scraper), a tutorial which will walk you through all the steps and provide a number of examples.
+Cheerio Scraper is built for technical users comfortable with [jQuery](https://jquery.com) and [Cheerio](https://cheerio.js.org). If you're not a developer, you'll likely have a better experience with [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) — describe what you want to extract in plain English, no page function required. If you'd like to learn how Cheerio Scraper works step by step, follow the [**Scraping with Cheerio Scraper**](https://docs.apify.com/academy/apify-scrapers/cheerio-scraper) tutorial in the Apify Academy.
 
 ## Cost of usage
 
-You can find the average usage cost for this Actor on the [pricing page](https://apify.com/pricing) under the `Which plan do I need?` section. Cheerio Scraper is equivalent to `Simple HTML pages` while Web Scraper, Puppeteer Scraper and Playwright Scraper are equivalent to `Full web pages`. These cost estimates are based on averages and might be lower or higher depending on how heavy the pages you scrape are.
+Cheerio Scraper is billed by [platform usage](https://apify.com/pricing) (compute units, storage operations, data transfer) rather than a flat per-result fee, so the exact cost of a run is hard to predict. It depends on **how many pages you crawl**, **how rich your page function is**, **how many links each page produces**, **page size**, **proxy choice**, and **memory allocation**. Treat the numbers below as illustrative samples, not a guaranteed price — for your own use case, run a small test first and extrapolate.
+
+For a quick orientation, the [pricing page](https://apify.com/pricing) lists average estimates under `Which plan do I need?`. Cheerio Scraper is equivalent to `Simple HTML pages`; Web Scraper, Puppeteer Scraper and Playwright Scraper are equivalent to `Full web pages`.
+
+### Sample runs
+
+Both samples below crawled the same site ([`docs.apify.com`](https://docs.apify.com)) on default settings (1024 MB memory, Apify Proxy, concurrency 50). They differ in page-function complexity and crawl size.
+
+| Sample                                  | Pages | Page function                                                                            | Runtime  | Compute units | Total cost |
+|-----------------------------------------|------:|------------------------------------------------------------------------------------------|---------:|--------------:|-----------:|
+| Lightweight (title, h1, meta description) | 237   | 4 selectors                                                                              | 3 min 15 s | 0.054 CU      | **$0.024** |
+| Heavier (all h2/h3, internal link list, code-block count, word count) | 485   | 8+ selectors plus body word count                                                        | 6 min 38 s | 0.111 CU      | **$0.048** |
+
+Both samples worked out to roughly **$0.0001 per result** (~$0.10 per 1,000 results) on this site. Cost is dominated by compute units (~46%) and request-queue writes (~40%). On heavier sites — large pages, long link graphs, residential proxy, slower responses — the per-result figure can be several times higher, so use these numbers as a starting point only.
 
 ## Usage
 
@@ -36,32 +48,6 @@ Cheerio Scraper has a number of advanced configuration settings to improve perfo
 Under the hood, Cheerio Scraper is built using the [`CheerioCrawler`](https://crawlee.dev/api/cheerio-crawler/class/CheerioCrawler) class
 from Crawlee. If you'd like to learn more about the inner workings of the scraper, see the respective documentation.
 
-## Content types
-
-By default, Cheerio Scraper only processes web pages with the `text/html`, `application/json`, `application/xml`, `application/xhtml+xml` MIME content types (as reported by the `Content-Type` HTTP header),
-and skips pages with other content types.
-If you want the crawler to process other content types,
-use the **Additional MIME types** (`additionalMimeTypes`) input option.
-
-Note that while the default `Accept` HTTP header will allow any content type to be received,
-HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME
-types, and you're still receiving invalid responses, be sure to override the `Accept`
-HTTP header setting in the requests from the scraper,
-either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the **Prepare request function**.
-
-The web pages with various content types are parsed differently and
-thus the `context` parameter of the [**Page function**](#page-function) will have different values:
-
-| **Content types**                                       | [`context.body`](#body-stringbuffer) | [`context.$`](#-function) | [`context.json`](#json-object) |
-| ------------------------------------------------------- | ------------------------------------ | ------------------------- | ------------------------------ |
-| `text/html`, `application/xhtml+xml`, `application/xml` | `String`                             | `Function`                | `null`                         |
-| `application/json`                                      | `String`                             | `null`                    | `Object`                       |
-| Other                                                   | `Buffer`                             | `null`                    | `null`                         |
-
-The `Content-Type` HTTP header of the web page is parsed using the
-<a href="https://www.npmjs.com/package/content-type" target="_blank">content-type</a> NPM package
-and the result is stored in the [`context.contentType`](#contenttype-object) object.
-
 ## Limitations
 
 The Actor does not employ a full-featured web browser such as Chromium or Firefox, so it will not be sufficient for web pages that render their content dynamically using client-side JavaScript. To scrape such sites, you might prefer to use [**Web Scraper**](https://apify.com/apify/web-scraper) (`apify/web-scraper`), which loads pages in a full browser and renders dynamic content.
@@ -74,6 +60,8 @@ you can only use NPM modules that are already installed in this Actor.
 If you require other modules for your scraping, you'll need to develop a completely new Actor.
 You can use the [`CheerioCrawler`](https://crawlee.dev/api/cheerio-crawler/class/CheerioCrawler) class
 from Crawlee to get most of the functionality of Cheerio Scraper out of the box.
+
+Don't know how to code a page function? The [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) lets you describe what to extract in plain English instead — no JavaScript required.
 
 ## Input configuration
 
@@ -153,6 +141,33 @@ using `context.request.label` to determine which kind of page is currently loade
 Note that you don't need to use the **Pseudo-URLs** setting at all,
 because you can completely control which pages the scraper will access by calling `await context.enqueueRequest()`
 from the **[Page function](#page-function)**.
+
+### Content types
+
+By default, Cheerio Scraper only processes web pages with the `text/html`, `application/json`, `application/xml`, `application/xhtml+xml` MIME content types (as reported by the `Content-Type` HTTP header),
+and skips pages with other content types. This is an edge-case setting — most users won't need to change it. The most common reason to do so is when paginating through endpoints that return non-default content types (for example, a JSON API that drives the listing pages).
+
+If you want the crawler to process other content types,
+use the **Additional MIME types** (`additionalMimeTypes`) input option.
+
+Note that while the default `Accept` HTTP header will allow any content type to be received,
+HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME
+types, and you're still receiving invalid responses, be sure to override the `Accept`
+HTTP header setting in the requests from the scraper,
+either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the **Prepare request function**.
+
+The web pages with various content types are parsed differently and
+thus the `context` parameter of the [**Page function**](#page-function) will have different values:
+
+| **Content types**                                       | [`context.body`](#body-stringbuffer) | [`context.$`](#-function) | [`context.json`](#json-object) |
+| ------------------------------------------------------- | ------------------------------------ | ------------------------- | ------------------------------ |
+| `text/html`, `application/xhtml+xml`, `application/xml` | `String`                             | `Function`                | `null`                         |
+| `application/json`                                      | `String`                             | `null`                    | `Object`                       |
+| Other                                                   | `Buffer`                             | `null`                    | `null`                         |
+
+The `Content-Type` HTTP header of the web page is parsed using the
+<a href="https://www.npmjs.com/package/content-type" target="_blank">content-type</a> NPM package
+and the result is stored in the [`context.contentType`](#contenttype-object) object.
 
 ### Page function
 
@@ -565,6 +580,36 @@ To get the results in other formats, set the `format` query parameter to `xml`, 
 For more information, see [Datasets](https://docs.apify.com/storage#dataset) in documentation
 or the [Get dataset items](https://docs.apify.com/api/v2#/reference/datasets/item-collection)
 endpoint in Apify API reference.
+
+## Integrations
+
+Cheerio Scraper plugs into the rest of your stack through Apify's integrations layer. The most common ways to wire it up:
+
+- **[Zapier](https://apify.com/integrations/zapier)** — trigger runs and route scraped data to thousands of Zapier-compatible apps (Google Sheets, Airtable, Slack, HubSpot, and more) without writing code.
+- **[Make](https://apify.com/integrations/make)** — build no-code automations that start a Cheerio Scraper run, transform the dataset, and forward results to other services.
+- **[Apify API](https://docs.apify.com/api/v2)** — call the Actor programmatically, pass input as JSON, and pull results from the dataset. Ideal for embedding scraping into your own backend.
+
+For the full list, see [Apify integrations](https://docs.apify.com/platform/integrations).
+
+## FAQ
+
+### How do I build a page function?
+
+The fastest way is the step-by-step [**Scraping with Cheerio Scraper**](https://docs.apify.com/academy/apify-scrapers/cheerio-scraper) tutorial in the Apify Academy. It walks you through selecting elements with Cheerio, returning data, and following links.
+
+If you'd rather skip the page function entirely, try the [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) — you describe what to extract in plain English and the Actor handles the rest.
+
+### When should I use Puppeteer Scraper instead of Cheerio Scraper?
+
+Use **Cheerio Scraper** for static HTML pages — it's faster and cheaper because it doesn't run a browser. Use [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (or the simpler [**Web Scraper**](https://apify.com/apify/web-scraper)) when the content you need is rendered by client-side JavaScript and isn't present in the raw HTML response.
+
+### When should I use Playwright Scraper instead of Cheerio Scraper?
+
+Same trade-off as above: if the page needs a real browser to render its content, reach for [**Playwright Scraper**](https://apify.com/apify/playwright-scraper). Playwright also has stronger support for Firefox and WebKit than Puppeteer if your target site behaves differently across browsers.
+
+### Can I build my own Actor with Cheerio?
+
+Yes. Cheerio Scraper is open source — see the [source on GitHub](https://github.com/apify/actor-scraper/tree/master/packages/actor-scraper/cheerio-scraper). To build a custom Actor with the same engine, use Crawlee's [`CheerioCrawler`](https://crawlee.dev/js/api/cheerio-crawler) class directly — you get full control over the crawl while keeping Cheerio's parsing and Apify's platform features.
 
 ## Additional resources
 
