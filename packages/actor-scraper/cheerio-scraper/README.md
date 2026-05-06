@@ -1,11 +1,22 @@
-Cheerio Scraper is a ready-made solution for crawling websites using plain HTTP requests. It retrieves the HTML pages, parses them using the [Cheerio](https://cheerio.js.org) Node.js library and lets you extract any data from them. Fast.
+## What is Cheerio Scraper?
 
-Cheerio is a server-side version of the popular [jQuery](https://jquery.com) library. It does not require a
-browser but instead constructs a DOM from an HTML string. It then provides the user an API to work with that DOM.
+It's a fast, server-side scraper that pulls plain HTML over HTTP and parses it with [Cheerio](https://cheerio.js.org) — the server-side equivalent of [jQuery](https://jquery.com). No browser, no client-side JavaScript: just the raw HTML response and a familiar selector API. With Cheerio Scraper, you can:
 
-Cheerio Scraper is ideal for scraping web pages that do not rely on client-side JavaScript to serve their content and can be up to 20 times faster than using a full-browser solution such as Puppeteer.
+⚡ Run **up to 20× faster** than full-browser scrapers — no Chrome to spin up
 
-Cheerio Scraper is built for technical users comfortable with [jQuery](https://jquery.com) and [Cheerio](https://cheerio.js.org). If you're not a developer, you'll likely have a better experience with [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) — describe what you want to extract in plain English, no page function required. If you'd like to learn how Cheerio Scraper works step by step, follow the [**Scraping with Cheerio Scraper**](https://docs.apify.com/academy/apify-scrapers/cheerio-scraper) tutorial in the Apify Academy.
+🧩 Use **jQuery-style selectors** via [Cheerio](https://cheerio.js.org) to extract any data from the parsed DOM
+
+🔗 **Crawl recursively** with Link selector, Glob Patterns, and Pseudo-URLs — pagination, sitemaps, full-site crawls
+
+🛠 Write a **custom page function** in JavaScript with full access to Cheerio, the request, the response, the dataset, and the request queue
+
+📦 Export results as **JSON, CSV, XML, Excel, or HTML**, or pull them via the [Apify API](https://docs.apify.com/api/v2)
+
+🔌 Plug into **Make, Zapier, webhooks, MCP servers**, and the rest of [Apify's integrations](https://apify.com/integrations)
+
+🪪 **Open source** — see the [source on GitHub](https://github.com/apify/actor-scraper/tree/master/packages/actor-scraper/cheerio-scraper), or build your own with Crawlee's [`CheerioCrawler`](https://crawlee.dev/js/api/cheerio-crawler)
+
+Cheerio Scraper is built for technical users comfortable with [jQuery](https://jquery.com) and Cheerio. If you're not a developer, you'll likely have a better experience with [**AI Web Scraper**](https://apify.com/apify/ai-web-scraper) — describe what you want to extract in plain English, no page function required. To learn how Cheerio Scraper works step by step, follow the [**Scraping with Cheerio Scraper**](https://docs.apify.com/academy/apify-scrapers/cheerio-scraper) tutorial in the Apify Academy.
 
 ## Cost of usage
 
@@ -581,16 +592,6 @@ For more information, see [Datasets](https://docs.apify.com/storage#dataset) in 
 or the [Get dataset items](https://docs.apify.com/api/v2#/reference/datasets/item-collection)
 endpoint in Apify API reference.
 
-## Integrations
-
-Cheerio Scraper plugs into the rest of your stack through Apify's integrations layer. The most common ways to wire it up:
-
-- **[Zapier](https://apify.com/integrations/zapier)** — trigger runs and route scraped data to thousands of Zapier-compatible apps (Google Sheets, Airtable, Slack, HubSpot, and more) without writing code.
-- **[Make](https://apify.com/integrations/make)** — build no-code automations that start a Cheerio Scraper run, transform the dataset, and forward results to other services.
-- **[Apify API](https://docs.apify.com/api/v2)** — call the Actor programmatically, pass input as JSON, and pull results from the dataset. Ideal for embedding scraping into your own backend.
-
-For the full list, see [Apify integrations](https://docs.apify.com/platform/integrations).
-
 ## FAQ
 
 ### How do I build a page function?
@@ -610,6 +611,32 @@ Same trade-off as above: if the page needs a real browser to render its content,
 ### Can I build my own Actor with Cheerio?
 
 Yes. Cheerio Scraper is open source — see the [source on GitHub](https://github.com/apify/actor-scraper/tree/master/packages/actor-scraper/cheerio-scraper). To build a custom Actor with the same engine, use Crawlee's [`CheerioCrawler`](https://crawlee.dev/js/api/cheerio-crawler) class directly — you get full control over the crawl while keeping Cheerio's parsing and Apify's platform features.
+
+### Can I export Cheerio Scraper data using the Apify API?
+
+Yes. The Apify API gives you programmatic access to your runs and datasets. To access the API using Node.js, use the `apify-client` [NPM package](https://apify.com/apify/cheerio-scraper/api/javascript). To access the API using Python, use the `apify-client` [PyPI package](https://apify.com/apify/cheerio-scraper/api/python). Check out the [Apify API reference](https://docs.apify.com/api/v2) docs or click on the [API tab](https://apify.com/apify/cheerio-scraper/api) for code examples.
+
+### Can I use Cheerio Scraper through an MCP server?
+
+Yes. With Apify's [MCP server](https://apify.com/apify/cheerio-scraper/api/mcp) you can run Cheerio Scraper inside AI agent workflows from clients like Claude Desktop and LibreChat, or build your own. See the [MCP tab](https://apify.com/apify/cheerio-scraper/api/mcp) for setup details.
+
+### Do I need proxies to use Cheerio Scraper?
+
+You usually do, especially for sites with anti-scraping protections. Cheerio Scraper integrates with [Apify Proxy](https://apify.com/proxy): datacenter proxies are included in the Free plan; residential proxies are available on paid plans. Configure them under [**Proxy configuration**](#proxy-configuration).
+
+### Can I integrate Cheerio Scraper with other apps?
+
+Yes. Cheerio Scraper can be connected with almost any cloud service or web app thanks to [integrations on the Apify platform](https://apify.com/integrations). You can integrate with Make, Zapier, ChatGPT, Slack, Airbyte, GitHub, Google Sheets, Asana, Google Drive, Keboola, MCP Servers, and more.
+
+You can also use [webhooks](https://docs.apify.com/integrations/webhooks) to carry out an action whenever an event occurs, e.g., get a notification whenever a Cheerio Scraper run successfully finishes.
+
+### Is it legal to scrape with Cheerio Scraper?
+
+Cheerio Scraper extracts whatever the target site serves over public HTTP — your responsibility is to scrape ethically and respect the site's terms of service, `robots.txt`, and applicable law. You should not scrape personal data unless you have a legitimate reason to do so. Read more on the [legality of web scraping](https://blog.apify.com/is-web-scraping-legal/) and [ethical scraping](https://blog.apify.com/what-is-ethical-web-scraping-and-how-do-you-do-it/).
+
+### Cheerio Scraper is not working?
+
+We're always working on improving the performance of our Actors. If you've got technical feedback or found a bug, please create an issue on the Actor's [Issues tab](https://apify.com/apify/cheerio-scraper/issues/open).
 
 ## Additional resources
 
