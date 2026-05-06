@@ -616,7 +616,7 @@ If the page needs a real browser to render its content — and you want stronger
 
 ### Can I build my own Actor with Cheerio?
 
-Yes. Cheerio Scraper is open source — see the [source on GitHub](https://github.com/apify/actor-scraper/tree/master/packages/actor-scraper/cheerio-scraper). To build a custom Actor with the same engine, use Crawlee's [`CheerioCrawler`](https://crawlee.dev/js/api/cheerio-crawler) class directly — you get full control over the crawl while keeping Cheerio's parsing and Apify's platform features.
+Yes. Build a custom Actor on top of [Cheerio](https://cheerio.js.org) using Crawlee's [`CheerioCrawler`](https://crawlee.dev/js/api/cheerio-crawler) class — you get full control over the crawl while keeping Cheerio's parsing API and Apify's platform features.
 
 ### Can I export Cheerio Scraper data using the Apify API?
 
