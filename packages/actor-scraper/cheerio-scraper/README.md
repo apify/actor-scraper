@@ -90,7 +90,7 @@ Optionally, each URL can be associated with custom user data - a JSON object tha
 your JavaScript code in the [**Page function**](#page-function) under `context.request.userData`.
 This is useful for determining which start URL is currently loaded, in order to perform some page-specific actions. For example, when crawling an online store, you might want to perform different actions on a page listing the products vs. a product detail page. For details, see the [**Web scraping tutorial**](https://docs.apify.com/tutorials/apify-scrapers/getting-started#the-start-url) in the Apify documentation.
 
-<!-- TODO: Describe how the queue works, unique key etc. plus link -->
+Cheerio Scraper uses an Apify [request queue](https://docs.apify.com/platform/storage/request-queue) to track the URLs it has loaded and the URLs it still needs to load. Each request is identified by a `uniqueKey` — by default the request URL, with the URL fragment (`#...`) stripped unless the **Keep URL fragments** option is enabled. Requests whose `uniqueKey` has already been seen are skipped, so the same page isn't loaded twice. You can override `uniqueKey` per request when calling `context.enqueueRequest()` from the page function — useful when you need to scrape the same URL multiple times with different `userData`.
 
 ### Link selector
 
