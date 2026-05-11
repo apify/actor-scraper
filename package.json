@@ -45,8 +45,7 @@
         "lint": "oxlint --type-aware",
         "lint:fix": "oxlint --type-aware --fix",
         "format": "oxfmt",
-        "format:check": "oxfmt --check",
-        "preinstall": "npx only-allow pnpm"
+        "format:check": "oxfmt --check"
     },
     "lint-staged": {
         "*.{ts,mts,cts,js,mjs,cjs}": [
@@ -91,5 +90,12 @@
         "vite-tsconfig-paths": "^6.0.0",
         "vitest": "^4.0.0"
     },
-    "packageManager": "pnpm@10.24.0"
+    "packageManager": "pnpm@10.33.4",
+    "devEngines": {
+        "packageManager": {
+            "name": "pnpm",
+            "version": "10.33.4",
+            "onFail": "warn"
+        }
+    }
 }
