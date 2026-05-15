@@ -9,5 +9,6 @@
             "fields": {},
             "views": {}
         }
-    }
+    },
+    "minMemoryMbytes": 256
 }
