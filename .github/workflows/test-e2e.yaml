@@ -13,6 +13,7 @@ jobs:
     build_and_test:
         name: Build & Test
         runs-on: ubuntu-22.04
+        timeout-minutes: 60
 
         steps:
             - name: Cancel Workflow Action
@@ -26,7 +27,8 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  node-version: 24
+                  # Pinned: on Node 24.16.0 (Linux) `pnpm install` never exits after running
+                  node-version: 24.15.0
 
             - name: Turbo cache
               id: turbo-cache
@@ -39,6 +41,11 @@ jobs:
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2
+
+            - name: Install browsers
+              run: |
+                  pnpm exec puppeteer browsers install chrome
+                  pnpm exec playwright install chromium
 
             - name: Build
               run: pnpm ci:build

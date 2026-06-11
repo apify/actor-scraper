@@ -13,6 +13,7 @@ jobs:
         name: Build & Test
         if: (!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, 'docs:'))
         runs-on: ubuntu-22.04
+        timeout-minutes: 30
 
         steps:
             - name: Checkout repository
@@ -21,7 +22,8 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  node-version: 24
+                  # Pinned: on Node 24.16.0 (Linux) `pnpm install` never exits after running
+                  node-version: 24.15.0
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2
@@ -38,6 +40,7 @@ jobs:
     lint:
         name: Lint
         runs-on: ubuntu-22.04
+        timeout-minutes: 30
         steps:
             - name: Checkout repository
               uses: actions/checkout@v6
@@ -45,7 +48,7 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  node-version: 24
+                  node-version: 24.15.0
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2
