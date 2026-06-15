@@ -28,7 +28,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/apify/apify-sdk-js"
+        "url": "https://github.com/apify/actor-scraper"
     },
     "author": {
         "name": "Apify Technologies",
@@ -36,5 +36,5 @@
         "url": "https://apify.com"
     },
     "license": "Apache-2.0",
-    "homepage": "https://github.com/apify/apify-sdk-js"
+    "homepage": "https://github.com/apify/actor-scraper"
 }

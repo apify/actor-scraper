@@ -1,7 +1,7 @@
 {
-    "name": "apify-sdk-js",
+    "name": "actor-scraper",
     "private": true,
-    "description": "Apify SDK monorepo",
+    "description": "Apify generic scrapers monorepo",
     "keywords": [
         "apify",
         "headless",
@@ -23,12 +23,12 @@
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/apify/apify-ts"
+        "url": "git+https://github.com/apify/actor-scraper.git"
     },
     "bugs": {
-        "url": "https://github.com/apify/apify-ts/issues"
+        "url": "https://github.com/apify/actor-scraper/issues"
     },
-    "homepage": "https://sdk.apify.com",
+    "homepage": "https://github.com/apify/actor-scraper",
     "scripts": {
         "prepare": "husky",
         "prepublishOnly": "turbo run copy",

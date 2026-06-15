@@ -14,14 +14,14 @@ Please provide steps to reproduce if you found a bug or ideally fork the reposit
 
 Before you submit your pull request, consider the following guidelines:
 
-- Search [GitHub](https://github.com/apify/apify-sdk-js/pulls) for an open or closed PR that relates to your submission. You don't want to duplicate effort.
+- Search [GitHub](https://github.com/apify/actor-scraper/pulls) for an open or closed PR that relates to your submission. You don't want to duplicate effort.
 
-- Fork the project and install NPM dependencies.
+- Fork the project and install dependencies with pnpm.
 
 - Run tests before you start working, to be sure they all pass and your setup is working correctly:
 
     ```sh
-    npm run test
+    pnpm test
     ```
 
 - Be sure to **include appropriate test cases**. Tests help make it clear what the PR is fixing and also make sure the changes won't break over time.

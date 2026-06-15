@@ -141,7 +141,7 @@ class Context<
         const defaultUserData = {
             [META_KEY]: {
                 parentRequestId: castedRequest.id || castedRequest.uniqueKey,
-                depth: (castedRequest.userData?.[META_KEY] as RequestMetadata).depth ?? 0 + 1,
+                depth: ((castedRequest.userData?.[META_KEY] as RequestMetadata | undefined)?.depth ?? 0) + 1,
             },
         };
 
