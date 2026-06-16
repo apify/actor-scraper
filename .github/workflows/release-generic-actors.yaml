@@ -47,8 +47,7 @@ on:
                     - stable
                     - development
                     - custom
-                # development by default so an accidental run cannot publish to stable
-                default: development
+                default: stable
             version:
                 description: Custom version (only for custom build channel)
                 type: string
@@ -101,9 +100,7 @@ jobs:
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.camoufox-scraper }}
-                    # Platform actor is apify/sitemap-extractor (name in .actor/actor.json);
-                    # `actor` is the directory name. Stable tag is `latest` — that is how the
-                    # actor has been published so far, unlike the version-N scheme above.
+                    # Platform actor is apify/sitemap-extractor (name in .actor/actor.json)
                     - actor: sitemap-scraper
                       stable-version: '0.1'
                       stable-build-tag: latest
