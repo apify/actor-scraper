@@ -1,31 +1,40 @@
+# Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
+# so the build can use the pnpm workspace lockfile for a deterministic install.
 FROM apify/actor-node-playwright:22 AS builder
 
-COPY --chown=myuser package*.json ./
+# The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
+USER root
+WORKDIR /app
 
-RUN npm install --include=dev --audit=false
+RUN corepack enable
 
-COPY --chown=myuser . ./
+# Browsers ship with the base image; never let an npm postinstall download them.
+# puppeteer is pulled transitively via @crawlee/browser-pool even for non-puppeteer actors.
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-RUN npm run build
+# Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
+COPY . ./
+
+# Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
+RUN pnpm install --frozen-lockfile --filter actor-playwright-scraper...
+
+# Build the actor and its workspace dependency @apify/scraper-tools.
+RUN pnpm --filter actor-playwright-scraper... build
+
+# Self-contained production bundle; inject-workspace-packages copies the built
+# @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
+RUN pnpm config set inject-workspace-packages true \
+    && pnpm --filter actor-playwright-scraper deploy --prod /deploy
 
 FROM apify/actor-node-playwright:22
 
-COPY --from=builder --chown=myuser /home/myuser/dist ./dist
-
-COPY --chown=myuser package*.json ./
-
-RUN npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
-    && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
-    && echo "Node.js version:" \
-    && node --version \
-    && echo "NPM version:" \
-    && npm --version \
-    && rm -r ~/.npm
-
-COPY --chown=myuser . ./
+# Base WORKDIR is /home/myuser and ships a template node_modules plus the Xvfb entrypoint.
+# Drop the template's node_modules and overlay only the lean production bundle; the inherited
+# ENTRYPOINT (xvfb-entrypoint.sh) still wraps CMD with Xvfb, and the bundled browser is reused.
+RUN rm -rf node_modules
+COPY --from=builder --chown=myuser /deploy ./
 
 ENV APIFY_DISABLE_OUTDATED_WARNING=1
 
-CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent
+CMD ["node", "dist/main.js"]

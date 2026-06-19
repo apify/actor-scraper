@@ -3,6 +3,8 @@
     "name": "jsdom-scraper",
     "version": "0.1",
     "buildTag": "latest",
+    "dockerContextDir": "../../../..",
+    "dockerfile": "../Dockerfile",
     "storages": {
         "dataset": {
             "actorSpecification": 1,

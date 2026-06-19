@@ -22,8 +22,7 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  # Pinned: on Node 24.16.0 (Linux) `pnpm install` never exits after running
-                  node-version: 24.15.0
+                  node-version: 24
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2
@@ -48,7 +47,7 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  node-version: 24.15.0
+                  node-version: 24
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2

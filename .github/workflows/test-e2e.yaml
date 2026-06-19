@@ -27,8 +27,7 @@ jobs:
             - name: Use Node.js 24
               uses: actions/setup-node@v6
               with:
-                  # Pinned: on Node 24.16.0 (Linux) `pnpm install` never exits after running
-                  node-version: 24.15.0
+                  node-version: 24
 
             - name: Turbo cache
               id: turbo-cache

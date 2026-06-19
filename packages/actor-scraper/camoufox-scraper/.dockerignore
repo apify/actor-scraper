@@ -12,4 +12,3 @@ dist
 node_modules
 
 # local npm lock is a workspace-link lock; it breaks the isolated build (the platform builds without it)
-package-lock.json

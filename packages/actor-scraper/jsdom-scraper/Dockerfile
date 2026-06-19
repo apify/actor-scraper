@@ -1,29 +1,33 @@
+# Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
+# so the build can use the pnpm workspace lockfile for a deterministic install.
 FROM apify/actor-node:22 AS builder
 
-COPY package*.json ./
+WORKDIR /app
 
-RUN npm install --include=dev --audit=false
+RUN corepack enable
 
+# Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
 
-RUN npm run build
+# Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
+RUN pnpm install --frozen-lockfile --filter actor-jsdom-scraper...
+
+# Build the actor and its workspace dependency @apify/scraper-tools.
+RUN pnpm --filter actor-jsdom-scraper... build
+
+# Self-contained production bundle; inject-workspace-packages copies the built
+# @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
+RUN pnpm config set inject-workspace-packages true \
+    && pnpm --filter actor-jsdom-scraper deploy --prod /deploy
 
 FROM apify/actor-node:22
 
-COPY --from=builder /usr/src/app/dist ./dist
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+# Replace the base image's template with only the lean production bundle.
+RUN find /usr/src/app -mindepth 1 -delete
+COPY --from=builder /deploy ./
 
-RUN npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
-    && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
-    && echo "Node.js version:" \
-    && node --version \
-    && echo "NPM version:" \
-    && npm --version \
-    && rm -r ~/.npm
+ENV APIFY_DISABLE_OUTDATED_WARNING=1
 
-COPY . ./
-
-CMD npm run start:prod --silent
+CMD ["node", "dist/main.js"]

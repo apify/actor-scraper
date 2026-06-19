@@ -19,7 +19,6 @@ pids
 yarn.lock
 .yarn
 # npm locks are generated locally in actor dirs (the monorepo uses pnpm-lock.yaml)
-package-lock.json
 tmp
 jsconfig.json
 types

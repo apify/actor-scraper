@@ -3,6 +3,8 @@
     "name": "sitemap-extractor",
     "version": "0.1",
     "buildTag": "latest",
+    "dockerContextDir": "../../../..",
+    "dockerfile": "../Dockerfile",
     "output": "./output_schema.json",
     "defaultMemoryMbytes": 4096,
     "minMemoryMbytes": 256,
