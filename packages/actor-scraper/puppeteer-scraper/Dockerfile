@@ -1,6 +1,11 @@
-# Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
-# so the build can use the pnpm workspace lockfile for a deterministic install.
-FROM apify/actor-node-puppeteer-chrome:22 AS builder
+# Build context is the monorepo root (dockerContextDir in .actor/actor.json), so the build uses the
+# root pnpm-lock.yaml for a deterministic install.
+#
+# Browser determinism comes from pinning the base image by DIGEST below: the Chrome binary AND the
+# matching Puppeteer driver both live in the base and are frozen together by the digest. The actor
+# does NOT ship its own Puppeteer — it's dropped from the deploy bundle and resolved from the base at
+# runtime, so driver and binary can never drift.
+FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -9,7 +14,6 @@ WORKDIR /app
 RUN corepack enable
 
 # Browsers ship with the base image; never let an npm postinstall download them.
-# puppeteer is pulled transitively via @crawlee/browser-pool even for non-puppeteer actors.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
@@ -19,22 +23,31 @@ COPY . ./
 # Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
 RUN pnpm install --frozen-lockfile --filter actor-puppeteer-scraper...
 
-# Build the actor and its workspace dependency @apify/scraper-tools.
+# Build the actor and its workspace dependency @apify/scraper-tools (puppeteer is needed here for
+# type-checking only; the runtime copy comes from the base — see below).
 RUN pnpm --filter actor-puppeteer-scraper... build
 
-# Self-contained production bundle; inject-workspace-packages copies the built
-# @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
-RUN pnpm config set inject-workspace-packages true \
-    && pnpm --filter actor-puppeteer-scraper deploy --prod /deploy
+# Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
+# into node_modules instead of symlinking it.
+RUN pnpm --config.inject-workspace-packages=true --filter actor-puppeteer-scraper deploy --prod /deploy
 
-FROM apify/actor-node-puppeteer-chrome:22
+# Drop the bundle's Puppeteer so the runtime resolves it from the base image, where it matches the
+# Chrome binary. This is what keeps driver and binary in lockstep.
+RUN rm -rf \
+    /deploy/node_modules/puppeteer \
+    /deploy/node_modules/puppeteer-core \
+    /deploy/node_modules/.bin/puppeteer
 
-# Base WORKDIR is /home/myuser and ships a template node_modules plus the Xvfb entrypoint.
-# Drop the template's node_modules and overlay only the lean production bundle; the inherited
-# ENTRYPOINT (xvfb-entrypoint.sh) still wraps CMD with Xvfb, and the bundled browser is reused.
-RUN rm -rf node_modules
-COPY --from=builder --chown=myuser /deploy ./
+FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d
 
-ENV APIFY_DISABLE_OUTDATED_WARNING=1
+# Base WORKDIR is /home/myuser and ships Chrome plus the Xvfb entrypoint. Place the app in a child
+# directory so the driver dropped above resolves up to the base's copy.
+COPY --from=builder --chown=myuser /deploy ./app
+WORKDIR /home/myuser/app
+
+# The base announces its Chrome via APIFY_CHROME_EXECUTABLE_PATH, but apify@3.7/crawlee@3.16 read only
+# PUPPETEER_EXECUTABLE_PATH — mirror the base's own value so we follow whatever Chrome the base ships.
+ENV PUPPETEER_EXECUTABLE_PATH=${APIFY_CHROME_EXECUTABLE_PATH} \
+    APIFY_DISABLE_OUTDATED_WARNING=1
 
 CMD ["node", "dist/main.js"]

@@ -302,9 +302,9 @@ export class CrawlerSetup {
             },
             // this scraper just outputs the returned status code, so we don't treat any as an error
             ignoreHttpErrorStatusCodes: Array.from({ length: 100 }, (_, i) => 500 + i),
-            blockedStatusCodes: [],
             persistCookiesPerSession: false,
             sessionPoolOptions: {
+                blockedStatusCodes: [],
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },

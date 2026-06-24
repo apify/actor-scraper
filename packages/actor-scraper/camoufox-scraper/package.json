@@ -10,9 +10,10 @@
         "@crawlee/playwright": "^3.14.1",
         "@crawlee/utils": "^3.14.1",
         "apify": "^3.2.6",
-        "camoufox-js": "^0.9.0",
+        "camoufox-js": "0.11.1",
         "idcac-playwright": "^0.2.0",
-        "playwright": "*"
+        "playwright": "1.59.1",
+        "playwright-core": "1.59.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",

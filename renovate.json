@@ -31,6 +31,50 @@
                 "got-scraping"
             ],
             "minimumReleaseAge": "0 days"
+        },
+        {
+            "description": "Update the Sitemap Extractor Apify/Crawlee v4 beta stack together",
+            "matchManagers": ["npm", "pnpm"],
+            "matchFileNames": ["packages/actor-scraper/sitemap-scraper/package.json", "pnpm-workspace.yaml"],
+            "matchPackageNames": ["apify", "@crawlee/*"],
+            "groupName": "sitemap Crawlee v4 beta stack"
+        },
+        {
+            "description": "Update the Camoufox image and its JS drivers as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "packages/actor-scraper/camoufox-scraper/Dockerfile",
+                "packages/actor-scraper/camoufox-scraper/package.json"
+            ],
+            "matchPackageNames": [
+                "apify/actor-node-playwright-camoufox",
+                "camoufox-js",
+                "playwright",
+                "playwright-core"
+            ],
+            "groupName": "camoufox browser stack"
+        },
+        {
+            "description": "Update the Playwright image and driver as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "packages/actor-scraper/playwright-scraper/Dockerfile",
+                "packages/actor-scraper/playwright-scraper/package.json"
+            ],
+            "matchPackageNames": ["apify/actor-node-playwright", "playwright"],
+            "groupName": "playwright browser stack"
+        },
+        {
+            "description": "Update the Chrome image and Puppeteer drivers as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "packages/actor-scraper/puppeteer-scraper/Dockerfile",
+                "packages/actor-scraper/puppeteer-scraper/package.json",
+                "packages/actor-scraper/web-scraper/Dockerfile",
+                "packages/actor-scraper/web-scraper/package.json"
+            ],
+            "matchPackageNames": ["apify/actor-node-puppeteer-chrome", "puppeteer"],
+            "groupName": "puppeteer browser stack"
         }
     ],
     "schedule": ["every weekday"]

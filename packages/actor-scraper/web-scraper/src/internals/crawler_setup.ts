@@ -27,7 +27,6 @@ import contentType from 'content-type';
 // @ts-expect-error no typings
 import DevToolsServer from 'devtools-server';
 import { getInjectableScript } from 'idcac-playwright';
-import type { HTTPResponse, Page } from 'puppeteer';
 
 import type { CrawlerSetupOptions, createContext } from '@apify/scraper-tools';
 import { browserTools, constants as scraperToolsConstants, tools } from '@apify/scraper-tools';
@@ -43,6 +42,8 @@ const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
 const MAX_CONCURRENCY_IN_DEVELOPMENT = 1;
 const { SESSION_MAX_USAGE_COUNTS, DEFAULT_VIEWPORT, DEVTOOLS_TIMEOUT_SECS, META_KEY } = scraperToolsConstants;
 const SCHEMA = JSON.parse(await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'));
+
+type CrawleePuppeteerPage = PuppeteerCrawlingContext['page'];
 
 interface PageContext {
     apifyNamespace: string;
@@ -84,7 +85,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     /**
      * Used to store page specific data.
      */
-    pageContexts = new WeakMap<Page, PageContext>();
+    pageContexts = new WeakMap<CrawleePuppeteerPage, PageContext>();
 
     blockedUrlPatterns: string[] = [];
     isDevRun: boolean;
@@ -623,7 +624,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
     private async _handleResult(
         request: Request,
-        response?: HTTPResponse,
+        response?: PuppeteerCrawlingContext['response'],
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {
@@ -634,7 +635,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         tools.logPerformance(request, 'handleResult EXECUTION', start);
     }
 
-    private async _assertNamespace(page: Page, namespace: string) {
+    private async _assertNamespace(page: CrawleePuppeteerPage, namespace: string) {
         try {
             await page.waitForFunction(
                 (nmspc: string) => !!window[nmspc],
@@ -654,7 +655,10 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         }
     }
 
-    private async _waitForLoadEventWhenXml(page: Page, response?: HTTPResponse) {
+    private async _waitForLoadEventWhenXml(
+        page: CrawleePuppeteerPage,
+        response?: PuppeteerCrawlingContext['response'],
+    ) {
         // Response can sometimes be null.
         if (!response) return;
 
@@ -683,7 +687,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         }
     }
 
-    private async _injectBrowserHandles(page: Page, pageContext: PageContext) {
+    private async _injectBrowserHandles(page: CrawleePuppeteerPage, pageContext: PageContext) {
         const saveSnapshotP = browserTools.createBrowserHandle(page, async () => browserTools.saveSnapshot({ page }));
         const skipLinksP = browserTools.createBrowserHandle(page, () => {
             pageContext.skipLinks = true;

@@ -65,50 +65,68 @@ jobs:
             matrix:
                 settings:
                     - actor: web-scraper
+                      apify-actor: apify/web-scraper
                       stable-version: '3.0'
                       stable-build-tag: version-3
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.web-scraper }}
                     - actor: cheerio-scraper
+                      apify-actor: apify/cheerio-scraper
                       stable-version: '3.0'
                       stable-build-tag: version-3
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.cheerio-scraper }}
                     - actor: playwright-scraper
+                      apify-actor: apify/playwright-scraper
                       stable-version: '1.0'
                       stable-build-tag: version-1
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.playwright-scraper }}
                     - actor: puppeteer-scraper
+                      apify-actor: apify/puppeteer-scraper
                       stable-version: '3.0'
                       stable-build-tag: version-3
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.puppeteer-scraper }}
                     - actor: jsdom-scraper
+                      apify-actor: apify/jsdom-scraper
                       stable-version: '0.2'
                       stable-build-tag: version-0
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.jsdom-scraper }}
                     - actor: camoufox-scraper
+                      apify-actor: apify/camoufox-scraper
                       stable-version: '3.0'
                       stable-build-tag: version-3
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.camoufox-scraper }}
-                    # Platform actor is apify/sitemap-extractor (name in .actor/actor.json)
                     - actor: sitemap-scraper
+                      apify-actor: apify/sitemap-extractor
                       stable-version: '0.1'
                       stable-build-tag: latest
                       development-version: '0.0'
                       development-build-tag: development
                       should-build: ${{ github.event.inputs.sitemap-scraper }}
         steps:
-            - uses: actions/checkout@v6
+            - name: Check out current SHA
+              if: matrix.settings.should-build == 'true'
+              uses: actions/checkout@v6
+
+            - name: Set up Node.js
+              if: matrix.settings.should-build == 'true'
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 24
+
+            - name: Install pnpm and dependencies
+              if: matrix.settings.should-build == 'true'
+              uses: apify/actions/pnpm-install@v1.1.2
 
             - name: Log matrix
               run: |
@@ -130,11 +148,15 @@ jobs:
                       echo "build-tag=${{ github.event.inputs.build-tag }}" >> $GITHUB_ENV
                   fi
 
-            - name: Build ${{ matrix.settings.actor }}
-              uses: apify/push-actor-action@master
+            - name: Build ${{ matrix.settings.actor }} from current Git SHA
               if: matrix.settings.should-build == 'true'
-              with:
-                  token: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
-                  build-tag: ${{ env.build-tag }}
-                  version: ${{ env.version }}
-                  working-directory: packages/actor-scraper/${{ matrix.settings.actor }}
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
+                  APIFY_ACTOR: ${{ matrix.settings.apify-actor }}
+                  BUILD_VERSION: ${{ env.version }}
+                  BUILD_TAG: ${{ env.build-tag }}
+                  GIT_COMMIT_SHA: ${{ github.sha }}
+                  APIFY_RELEASE_BUILD_TIMEOUT_SECS: "900"
+              run: |
+                  set -euo pipefail
+                  node scripts/build-actor-from-current-sha.mjs

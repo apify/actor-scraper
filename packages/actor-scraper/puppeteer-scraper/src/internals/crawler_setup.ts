@@ -17,7 +17,6 @@ import { sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 import { getInjectableScript } from 'idcac-playwright';
-import type { HTTPResponse } from 'puppeteer';
 
 import type { CrawlerSetupOptions, RequestMetadata } from '@apify/scraper-tools';
 import { browserTools, constants as scraperToolsConstants, createContext, tools } from '@apify/scraper-tools';
@@ -437,7 +436,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
     private async _handleResult(
         request: Request,
-        response?: HTTPResponse,
+        response?: PuppeteerCrawlingContext['response'],
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {

@@ -14,6 +14,7 @@ minimumReleaseAgeExclude:
 onlyBuiltDependencies:
   - "@playwright/browser-chromium"
   - "@swc/core"
+  - better-sqlite3
   - camoufox-js
   - esbuild
   - playwright
@@ -22,3 +23,11 @@ onlyBuiltDependencies:
 nodeLinker: hoisted
 linkWorkspacePackages: true
 preferWorkspacePackages: true
+
+# Sitemap Extractor is the only actor on Apify/Crawlee v4 beta. Other generic actors intentionally
+# stay on Apify/Crawlee v3. apify@4 beta depends on @crawlee/* through broad beta ranges, so force
+# its internal Crawlee packages to the same beta versions used directly by the sitemap actor.
+overrides:
+  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-beta.25"
+  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-beta.25"
+  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-beta.25"

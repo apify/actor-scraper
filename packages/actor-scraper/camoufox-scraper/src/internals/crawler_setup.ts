@@ -18,7 +18,6 @@ import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 import { launchOptions } from 'camoufox-js';
 import { getInjectableScript } from 'idcac-playwright';
-import type { Response } from 'playwright';
 import { firefox } from 'playwright';
 
 import type { CrawlerSetupOptions, RequestMetadata } from '@apify/scraper-tools';
@@ -201,7 +200,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                     ...this.input,
                     humanize: this.input.humanize ? Number(this.input.humanize) : 0,
                 }),
-            } as PlaywrightLaunchContext,
+                // camoufox-js launch options intentionally diverge from Playwright's, and the pinned
+                // playwright-core type identity differs from @crawlee/playwright's — cast through unknown.
+            } as unknown as PlaywrightLaunchContext,
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
@@ -392,7 +393,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
     private async _handleResult(
         request: Request,
-        response?: Response,
+        response?: PlaywrightCrawlingContext['response'],
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {

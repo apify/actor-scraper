@@ -11,7 +11,7 @@
         "@crawlee/utils": "^3.16.0",
         "apify": "^3.2.6",
         "idcac-playwright": "^0.2.0",
-        "playwright": "*"
+        "playwright": "1.61.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",

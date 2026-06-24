@@ -1,10 +1,15 @@
 # Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
 # so the build can use the pnpm workspace lockfile for a deterministic install.
-FROM apify/actor-node:22 AS builder
+FROM apify/actor-node:24 AS builder
 
 WORKDIR /app
 
 RUN corepack enable
+
+# Browser packages can appear transitively through workspace/dev tooling, but this actor does not
+# use them. Keep the deterministic install without downloading browser binaries into the build cache.
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
@@ -17,10 +22,9 @@ RUN pnpm --filter actor-jsdom-scraper... build
 
 # Self-contained production bundle; inject-workspace-packages copies the built
 # @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
-RUN pnpm config set inject-workspace-packages true \
-    && pnpm --filter actor-jsdom-scraper deploy --prod /deploy
+RUN pnpm --config.inject-workspace-packages=true --filter actor-jsdom-scraper deploy --prod /deploy
 
-FROM apify/actor-node:22
+FROM apify/actor-node:24
 
 WORKDIR /usr/src/app
 
