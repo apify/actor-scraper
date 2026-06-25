@@ -147,15 +147,14 @@ jobs:
                       echo "build-tag=${{ github.event.inputs.build-tag }}" >> "$GITHUB_ENV"
                   fi
 
-            - name: Build ${{ matrix.settings.actor }} from current Git SHA
+            - name: Build ${{ matrix.settings.actor }} on Apify (Git source)
               if: matrix.settings.should-build == 'true'
               env:
                   APIFY_TOKEN: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
                   APIFY_ACTOR: ${{ matrix.settings.apify-actor }}
                   BUILD_VERSION: ${{ env.version }}
                   BUILD_TAG: ${{ env.build-tag }}
-                  GIT_COMMIT_SHA: ${{ github.sha }}
                   APIFY_RELEASE_BUILD_TIMEOUT_SECS: "900"
               run: |
                   set -euo pipefail
-                  node scripts/build-actor-from-current-sha.mjs
+                  node scripts/trigger-apify-build.mjs

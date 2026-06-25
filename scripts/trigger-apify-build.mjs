@@ -45,11 +45,6 @@ if (version.sourceType !== 'GIT_REPO') {
     );
 }
 
-// We build the Actor's Git source EXACTLY as configured on the platform (repo + branch + folder),
-// and only trigger the build + report its result here. We deliberately do NOT rewrite gitRepoUrl:
-// Apify resolves the `#<ref>` fragment as a branch or tag name, never a raw commit SHA, so pinning
-// to a SHA fails with "Could not find branch <sha>" (and dropping the `:<folder>` suffix builds the
-// wrong directory). For exact-commit reproducibility, point the Actor's source at a release *tag*.
 console.log(
     `Building ${actorId} version ${buildVersion} (tag ${buildTag}) from ${version.gitRepoUrl ?? '<configured Git source>'}`,
 );
