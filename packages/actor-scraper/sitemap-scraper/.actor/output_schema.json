@@ -6,7 +6,7 @@
         "results": {
             "type": "string",
             "title": "Results",
-            "description": "Dataset items with discovered URLs and crawl status.",
+            "description": "Dataset items with discovered URLs, crawl status, and last-modification info.",
             "template": "{{links.apiDefaultDatasetUrl}}/items"
         }
     }
