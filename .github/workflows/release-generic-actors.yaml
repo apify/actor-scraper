@@ -1,5 +1,4 @@
 name: Build generic Actors
-description: Build generic Actors and push them to Apify
 
 on:
     workflow_dispatch:
@@ -138,14 +137,14 @@ jobs:
               if: matrix.settings.should-build == 'true'
               run: |
                   if [ "${{ github.event.inputs.build-channel }}" = "stable" ]; then
-                      echo "version=${{ matrix.settings.stable-version }}" >> $GITHUB_ENV
-                      echo "build-tag=${{ matrix.settings.stable-build-tag }}" >> $GITHUB_ENV
+                      echo "version=${{ matrix.settings.stable-version }}" >> "$GITHUB_ENV"
+                      echo "build-tag=${{ matrix.settings.stable-build-tag }}" >> "$GITHUB_ENV"
                   elif [ "${{ github.event.inputs.build-channel }}" = "development" ]; then
-                      echo "version=${{ matrix.settings.development-version }}" >> $GITHUB_ENV
-                      echo "build-tag=${{ matrix.settings.development-build-tag }}" >> $GITHUB_ENV
+                      echo "version=${{ matrix.settings.development-version }}" >> "$GITHUB_ENV"
+                      echo "build-tag=${{ matrix.settings.development-build-tag }}" >> "$GITHUB_ENV"
                   else
-                      echo "version=${{ github.event.inputs.version }}" >> $GITHUB_ENV
-                      echo "build-tag=${{ github.event.inputs.build-tag }}" >> $GITHUB_ENV
+                      echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_ENV"
+                      echo "build-tag=${{ github.event.inputs.build-tag }}" >> "$GITHUB_ENV"
                   fi
 
             - name: Build ${{ matrix.settings.actor }} from current Git SHA
