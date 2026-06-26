@@ -32,7 +32,7 @@ const createInput = (overrides: Partial<Input> = {}): Input => ({
     ...overrides,
 });
 
-const createPageContext = (userData: Record<string, unknown>, headers: Record<string, string> = {}): any => ({
+const createPageContext = (userData: Record<string, unknown>, headers: Headers | Record<string, string> = {}): any => ({
     request: {
         url: 'https://example.com/page',
         userData,
@@ -79,11 +79,26 @@ describe('CrawlerSetup lastmod handling', () => {
         const handleResult = vi.spyOn(setup as any, '_handleResult').mockResolvedValue(undefined);
 
         await (setup as any)._handlePageRequest(
-            createPageContext({ [META_KEY]: { depth: 1 } }, { 'Last-Modified': 'Wed, 21 Oct 2015 07:28:00 GMT' }),
+            createPageContext({ [META_KEY]: { depth: 1 } }, { 'last-modified': 'Wed, 21 Oct 2015 07:28:00 GMT' }),
         );
 
         const result = handleResult.mock.calls[0][2];
         expect(result).toMatchObject({ lastmod: '2015-10-21T07:28:00.000Z' });
+    });
+
+    it('reads the Last-Modified header from Web Headers returned by the HTTP client', async () => {
+        const setup = new CrawlerSetup(createInput());
+        const handleResult = vi.spyOn(setup as any, '_handleResult').mockResolvedValue(undefined);
+
+        await (setup as any)._handlePageRequest(
+            createPageContext(
+                { [META_KEY]: { depth: 1 } },
+                new Headers({ 'last-modified': 'Fri, 26 Jun 2026 11:10:48 GMT' }),
+            ),
+        );
+
+        const result = handleResult.mock.calls[0][2];
+        expect(result).toMatchObject({ lastmod: '2026-06-26T11:10:48.000Z' });
     });
 
     it('reports null lastmod when neither source provides last-modification data', async () => {

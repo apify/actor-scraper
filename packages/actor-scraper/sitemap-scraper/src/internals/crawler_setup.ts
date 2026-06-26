@@ -465,7 +465,16 @@ export class CrawlerSetup {
 
     private _getLastModifiedHeader(response: any): string | null {
         const headers = response?.headers;
-        if (!headers || typeof headers !== 'object') {
+        if (!headers) {
+            return null;
+        }
+
+        if (typeof headers.get === 'function') {
+            const headerValue = headers.get('last-modified');
+            return typeof headerValue === 'string' ? headerValue : null;
+        }
+
+        if (typeof headers !== 'object') {
             return null;
         }
 
