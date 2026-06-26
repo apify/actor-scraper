@@ -20,7 +20,6 @@
     },
     "scripts": {
         "start": "pnpm start:dev",
-        "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"
     },
