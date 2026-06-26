@@ -200,8 +200,10 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                     ...this.input,
                     humanize: this.input.humanize ? Number(this.input.humanize) : 0,
                 }),
-                // camoufox-js launch options intentionally diverge from Playwright's, and the pinned
-                // playwright-core type identity differs from @crawlee/playwright's — cast through unknown.
+                // `firefox` and @crawlee/playwright's PlaywrightLaunchContext resolve to two different
+                // playwright-core copies (camoufox pins playwright 1.59.1 to match its base image,
+                // while the rest of the workspace is on 1.61.0), so the BrowserType identities don't
+                // line up. This is a workspace dual-install, not a camoufox-js/crawlee issue.
             } as unknown as PlaywrightLaunchContext,
             useSessionPool: true,
             persistCookiesPerSession: true,

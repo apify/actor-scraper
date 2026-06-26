@@ -18,7 +18,6 @@ pids
 .vscode
 yarn.lock
 .yarn
-# npm locks are generated locally in actor dirs (the monorepo uses pnpm-lock.yaml)
 tmp
 jsconfig.json
 types
