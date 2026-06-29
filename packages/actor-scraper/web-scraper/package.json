@@ -10,10 +10,9 @@
         "@crawlee/puppeteer": "^3.16.0",
         "apify": "^3.2.6",
         "content-type": "^1.0.5",
-        "crawlee": "^3.16.0",
         "devtools-server": "^0.0.2",
         "idcac-playwright": "^0.2.0",
-        "puppeteer": "*"
+        "puppeteer": "25.2.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
@@ -24,13 +23,12 @@
     },
     "scripts": {
         "start": "pnpm start:dev",
-        "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/apify/apify-sdk-js"
+        "url": "https://github.com/apify/actor-scraper"
     },
     "author": {
         "name": "Apify Technologies",
@@ -42,5 +40,5 @@
         "Ondra Urban <ondra@apify.com>"
     ],
     "license": "Apache-2.0",
-    "homepage": "https://github.com/apify/apify-sdk-js"
+    "homepage": "https://github.com/apify/actor-scraper"
 }

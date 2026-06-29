@@ -23,11 +23,11 @@ import {
 } from '@crawlee/puppeteer';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
+import type { HTTPResponse, Page } from 'puppeteer';
 import contentType from 'content-type';
 // @ts-expect-error no typings
 import DevToolsServer from 'devtools-server';
 import { getInjectableScript } from 'idcac-playwright';
-import type { HTTPResponse, Page } from 'puppeteer';
 
 import type { CrawlerSetupOptions, createContext } from '@apify/scraper-tools';
 import { browserTools, constants as scraperToolsConstants, tools } from '@apify/scraper-tools';

@@ -18,7 +18,6 @@ import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 import { launchOptions } from 'camoufox-js';
 import { getInjectableScript } from 'idcac-playwright';
-import type { Response } from 'playwright';
 import { firefox } from 'playwright';
 
 import type { CrawlerSetupOptions, RequestMetadata } from '@apify/scraper-tools';
@@ -201,7 +200,11 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                     ...this.input,
                     humanize: this.input.humanize ? Number(this.input.humanize) : 0,
                 }),
-            } as PlaywrightLaunchContext,
+                // `firefox` and @crawlee/playwright's PlaywrightLaunchContext resolve to two different
+                // playwright-core copies (camoufox pins playwright 1.59.1 to match its base image,
+                // while the rest of the workspace is on 1.61.0), so the BrowserType identities don't
+                // line up. This is a workspace dual-install, not a camoufox-js/crawlee issue.
+            } as unknown as PlaywrightLaunchContext,
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
@@ -392,7 +395,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
     private async _handleResult(
         request: Request,
-        response?: Response,
+        response?: PlaywrightCrawlingContext['response'],
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {

@@ -1,31 +1,42 @@
-FROM apify/actor-node-playwright:22 AS builder
+# Build context is the monorepo root (dockerContextDir in .actor/actor.json), so the build uses the
+# root pnpm-lock.yaml for a deterministic install.
+#
+# The base is pinned by digest (reproducible Chromium + OS deps). The actor pins playwright to the
+# version this base ships (24-1.61.0 -> playwright 1.61.0) and bundles it, so the bundled driver
+# matches the Chromium binary it drives. Renovate bumps the base digest and the playwright pin together.
+FROM apify/actor-node-playwright:24-1.61.0@sha256:5c0155bb5a0a90572ef021c2b4e2e195c50971e0c1ae00f081ffa47e62036c60 AS builder
 
-COPY --chown=myuser package*.json ./
+# The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
+USER root
+WORKDIR /app
 
-RUN npm install --include=dev --audit=false
+RUN corepack enable
 
-COPY --chown=myuser . ./
+# Browsers ship with the base image; never let an npm postinstall download them.
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-RUN npm run build
+# Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
+COPY . ./
 
-FROM apify/actor-node-playwright:22
+# Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
+RUN pnpm install --frozen-lockfile --filter actor-playwright-scraper...
 
-COPY --from=builder --chown=myuser /home/myuser/dist ./dist
+# Build the actor and its workspace dependency @apify/scraper-tools.
+RUN pnpm --filter actor-playwright-scraper... build
 
-COPY --chown=myuser package*.json ./
+# Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
+# into node_modules instead of symlinking it.
+RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scraper deploy --prod /deploy
 
-RUN npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
-    && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
-    && echo "Node.js version:" \
-    && node --version \
-    && echo "NPM version:" \
-    && npm --version \
-    && rm -r ~/.npm
+FROM apify/actor-node-playwright:24-1.61.0@sha256:5c0155bb5a0a90572ef021c2b4e2e195c50971e0c1ae00f081ffa47e62036c60
 
-COPY --chown=myuser . ./
+# Base WORKDIR is /home/myuser and ships the browser plus the Xvfb entrypoint. Replace only the
+# template node_modules with the lean production bundle (which carries the matching playwright); the
+# browser binary itself stays in the base image.
+RUN rm -rf node_modules
+COPY --from=builder --chown=myuser /deploy ./
 
 ENV APIFY_DISABLE_OUTDATED_WARNING=1
 
-CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent
+CMD ["node", "dist/main.js"]

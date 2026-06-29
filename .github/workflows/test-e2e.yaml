@@ -13,6 +13,7 @@ jobs:
     build_and_test:
         name: Build & Test
         runs-on: ubuntu-22.04
+        timeout-minutes: 60
 
         steps:
             - name: Cancel Workflow Action
@@ -39,6 +40,11 @@ jobs:
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.1.2
+
+            - name: Install browsers
+              run: |
+                  pnpm exec puppeteer browsers install chrome
+                  pnpm exec playwright install chromium
 
             - name: Build
               run: pnpm ci:build

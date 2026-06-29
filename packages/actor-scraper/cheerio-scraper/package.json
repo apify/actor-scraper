@@ -20,13 +20,12 @@
     },
     "scripts": {
         "start": "pnpm start:dev",
-        "start:prod": "node dist/main.js",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/apify/apify-sdk-js"
+        "url": "https://github.com/apify/actor-scraper"
     },
     "author": {
         "name": "Apify Technologies",
@@ -38,5 +37,5 @@
         "Ondra Urban <ondra@apify.com>"
     ],
     "license": "Apache-2.0",
-    "homepage": "https://github.com/apify/apify-sdk-js"
+    "homepage": "https://github.com/apify/actor-scraper"
 }

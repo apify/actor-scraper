@@ -1,31 +1,45 @@
-FROM apify/actor-node-puppeteer-chrome:22 AS builder
+# Build context is the monorepo root (dockerContextDir in .actor/actor.json), so the build uses the
+# root pnpm-lock.yaml for a deterministic install.
+#
+# The base is pinned by digest (reproducible Chrome + OS deps). The actor pins puppeteer to the version
+# this base ships (24-25.2.0 -> puppeteer 25.2.0) and bundles it, so the bundled driver matches the
+# Chrome binary it drives. Renovate bumps the base digest and the puppeteer pin together.
+FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d AS builder
 
-COPY --chown=myuser package*.json ./
+# The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
+USER root
+WORKDIR /app
 
-RUN npm install --include=dev --audit=false
+RUN corepack enable
 
-COPY --chown=myuser . ./
+# Browsers ship with the base image; never let an npm postinstall download them.
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
-RUN npm run build
+# Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
+COPY . ./
 
-FROM apify/actor-node-puppeteer-chrome:22
+# Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
+RUN pnpm install --frozen-lockfile --filter actor-puppeteer-scraper...
 
-COPY --from=builder --chown=myuser /home/myuser/dist ./dist
+# Build the actor and its workspace dependency @apify/scraper-tools.
+RUN pnpm --filter actor-puppeteer-scraper... build
 
-COPY --chown=myuser package*.json ./
+# Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
+# into node_modules instead of symlinking it.
+RUN pnpm --config.inject-workspace-packages=true --filter actor-puppeteer-scraper deploy --prod /deploy
 
-RUN npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
-    && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
-    && echo "Node.js version:" \
-    && node --version \
-    && echo "NPM version:" \
-    && npm --version \
-    && rm -r ~/.npm
+FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d
 
-COPY --chown=myuser . ./
+# Base WORKDIR is /home/myuser and ships Chrome plus the Xvfb entrypoint. Replace only the template
+# node_modules with the lean production bundle (which carries the matching puppeteer); Chrome itself
+# stays in the base image.
+RUN rm -rf node_modules
+COPY --from=builder --chown=myuser /deploy ./
 
-ENV APIFY_DISABLE_OUTDATED_WARNING=1
+# The base announces its Chrome via APIFY_CHROME_EXECUTABLE_PATH, but apify@3.7/crawlee@3.16 read only
+# PUPPETEER_EXECUTABLE_PATH — mirror the base's own value so we follow whatever Chrome the base ships.
+ENV PUPPETEER_EXECUTABLE_PATH=${APIFY_CHROME_EXECUTABLE_PATH} \
+    APIFY_DISABLE_OUTDATED_WARNING=1
 
-CMD ./start_xvfb_and_run_cmd.sh && npm run start:prod --silent
+CMD ["node", "dist/main.js"]
