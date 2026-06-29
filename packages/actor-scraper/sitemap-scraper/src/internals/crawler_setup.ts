@@ -28,6 +28,12 @@ const { META_KEY } = scraperToolsConstants;
 type RequestMetadata = {
     parentRequestId?: string;
     depth: number;
+    sitemapLastmod?: string;
+};
+
+type SitemapPageEntry = {
+    url: string;
+    lastmod?: string;
 };
 
 const { SESSION_MAX_USAGE_COUNTS } = scraperToolsConstants;
@@ -378,14 +384,14 @@ export class CrawlerSetup {
             },
         );
         const nestedSitemaps: string[] = [];
-        const urls: string[] = [];
+        const pages: SitemapPageEntry[] = [];
         let scrapedAnyPageUrls = false;
         let scrapedAnySitemapUrls = false;
 
         const flushUrls = async () => {
-            if (urls.length === 0) return;
-            await this._enqueuePageRequests(urls, crawlingContext);
-            urls.length = 0;
+            if (pages.length === 0) return;
+            await this._enqueuePageRequests(pages, crawlingContext);
+            pages.length = 0;
         };
 
         const flushSitemaps = async () => {
@@ -407,7 +413,7 @@ export class CrawlerSetup {
                     url: item.loc,
                 });
 
-                urls.push(item.loc);
+                pages.push({ url: item.loc, lastmod: this._normalizeToIsoString(item.lastmod) ?? undefined });
                 scrapedAnyPageUrls = true;
             }
 
@@ -415,7 +421,7 @@ export class CrawlerSetup {
                 await flushSitemaps();
             }
 
-            if (urls.length >= REQUESTS_BATCH_SIZE) {
+            if (pages.length >= REQUESTS_BATCH_SIZE) {
                 await flushUrls();
             }
         }
@@ -443,13 +449,51 @@ export class CrawlerSetup {
         tools.ensureMetaData(request as any);
 
         const status = (response as any)?.status ?? (response as any)?.statusCode;
+
+        const sitemapLastmod = (request.userData?.[META_KEY] as RequestMetadata | undefined)?.sitemapLastmod ?? null;
+        const lastModifiedHeader = this._getLastModifiedHeader(response);
+
         const result = {
             url: request.url,
             status,
+            lastmod: sitemapLastmod ?? this._normalizeToIsoString(lastModifiedHeader),
         };
 
         // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response as any, result);
+    }
+
+    private _getLastModifiedHeader(response: any): string | null {
+        const headers = response?.headers;
+        if (!headers) {
+            return null;
+        }
+
+        if (typeof headers.get === 'function') {
+            const headerValue = headers.get('last-modified');
+            return typeof headerValue === 'string' ? headerValue : null;
+        }
+
+        if (typeof headers !== 'object') {
+            return null;
+        }
+
+        for (const [key, value] of Object.entries(headers)) {
+            if (key.toLowerCase() !== 'last-modified') continue;
+            const headerValue = Array.isArray(value) ? value[0] : value;
+            return typeof headerValue === 'string' ? headerValue : null;
+        }
+
+        return null;
+    }
+
+    private _normalizeToIsoString(value: Date | string | null | undefined): string | null {
+        if (!value) {
+            return null;
+        }
+
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? null : date.toISOString();
     }
 
     private async _handleResult(request: Request, response?: any, pageFunctionResult?: Dictionary, isError?: boolean) {
@@ -545,20 +589,32 @@ export class CrawlerSetup {
         return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
     }
 
-    private async _enqueuePageRequests(urls: string[], { request, enqueueLinks }: HttpCrawlingContext) {
+    private async _enqueuePageRequests(pages: SitemapPageEntry[], { request, enqueueLinks }: HttpCrawlingContext) {
         const currentDepth = (request.userData![META_KEY] as RequestMetadata).depth;
 
         // NOTE: depth check when enqueueing pages is not needed, since the one
         // for sitemaps will do the job
 
+        // Key by `new URL(url).href` — the normalized form enqueueLinks passes to our transform.
+        const lastmodByUrl = new Map<string, string>();
+        for (const { url, lastmod } of pages) {
+            if (!lastmod) continue;
+            try {
+                lastmodByUrl.set(new URL(url).href, lastmod);
+            } catch {
+                // ignore invalid URLs (enqueueLinks drops them too)
+            }
+        }
+
         await enqueueLinks({
-            urls,
+            urls: pages.map((page) => page.url),
             label: this.PAGE_LABEL,
             transformRequestFunction: (requestOptions) => {
                 requestOptions.userData ??= {};
                 requestOptions.userData[META_KEY] = {
                     parentRequestId: request.id || request.uniqueKey,
                     depth: currentDepth + 1,
+                    sitemapLastmod: lastmodByUrl.get(requestOptions.url),
                 };
 
                 requestOptions.useExtendedUniqueKey = true;
