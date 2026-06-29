@@ -21,6 +21,11 @@
                     "title": "Status code",
                     "description": "HTTP status code from the HEAD request."
                 },
+                "lastmod": {
+                    "type": ["string", "null"],
+                    "title": "Last modified",
+                    "description": "Last-modification time (ISO 8601) from the sitemap <lastmod> tag, falling back to the page's Last-Modified header. Null when neither is available."
+                },
                 "#error": {
                     "type": "boolean",
                     "title": "Error flag",
@@ -32,7 +37,29 @@
                     "description": "Request debug info (id, retry count, errors, etc.)."
                 }
             },
-            "views": {}
+            "views": {
+                "overview": {
+                    "title": "Overview",
+                    "transformation": {
+                        "fields": ["url", "status", "lastmod"]
+                    },
+                    "display": {
+                        "component": "table",
+                        "properties": {
+                            "url": {
+                                "label": "URL",
+                                "format": "link"
+                            },
+                            "status": {
+                                "label": "Status code"
+                            },
+                            "lastmod": {
+                                "label": "Last modified"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
