@@ -45,7 +45,7 @@
         "@crawlee/core": "^3.8.2",
         "@crawlee/types": "^3.8.2",
         "@crawlee/utils": "^3.8.2",
-        "apify": "^3.1.8"
+        "apify": "^3.7.1"
     },
     "peerDependencies": {
         "@crawlee/browser-pool": "^3.8.2 || ^4.0.0-beta.0",

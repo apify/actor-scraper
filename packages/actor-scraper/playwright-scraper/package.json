@@ -9,7 +9,7 @@
         "@crawlee/core": "^3.16.0",
         "@crawlee/playwright": "^3.16.0",
         "@crawlee/utils": "^3.16.0",
-        "apify": "^3.2.6",
+        "apify": "^3.7.1",
         "idcac-playwright": "^0.2.0",
         "playwright": "1.61.0"
     },
