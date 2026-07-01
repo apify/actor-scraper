@@ -58,7 +58,7 @@
         "@apify/input_secrets": "^1.2.0",
         "@apify/log": "^2.5.22",
         "@apify/oxlint-config": "^0.2.5",
-        "@apify/tsconfig": "^0.1.2",
+        "@apify/tsconfig": "^0.2.0",
         "@commitlint/config-conventional": "^20.0.0",
         "@isaacs/brace-expansion": "^5.0.1",
         "@playwright/browser-chromium": "^1.61.0",
