@@ -10,6 +10,8 @@ minimumReleaseAgeExclude:
   - "apify"
   - "crawlee"
   - "got-scraping"
+  # Renovate security update: turbo@2.9.14
+  - turbo@2.9.14
 
 onlyBuiltDependencies:
   - "@playwright/browser-chromium"
