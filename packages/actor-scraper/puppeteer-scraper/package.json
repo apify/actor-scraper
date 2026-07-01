@@ -7,7 +7,7 @@
     "dependencies": {
         "@apify/scraper-tools": "^1.1.4",
         "@crawlee/puppeteer": "^3.16.0",
-        "apify": "^3.2.6",
+        "apify": "^3.7.1",
         "idcac-playwright": "^0.2.0",
         "puppeteer": "25.2.0"
     },

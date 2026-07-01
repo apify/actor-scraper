@@ -7,7 +7,7 @@
     "dependencies": {
         "@apify/scraper-tools": "^1.1.4",
         "@crawlee/cheerio": "^3.16.0",
-        "apify": "^3.2.6"
+        "apify": "^3.7.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
