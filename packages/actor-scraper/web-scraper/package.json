@@ -12,7 +12,7 @@
         "content-type": "^1.0.5",
         "devtools-server": "^0.0.2",
         "idcac-playwright": "^0.2.0",
-        "puppeteer": "25.2.0"
+        "puppeteer": "25.2.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.1.0",
