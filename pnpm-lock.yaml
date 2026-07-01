@@ -26,8 +26,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(oxlint@1.62.0(oxlint-tsgolint@0.24.0))
       '@apify/tsconfig':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.5.0
@@ -150,8 +150,8 @@ importers:
         version: 1.59.1
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -178,8 +178,8 @@ importers:
         version: 1.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -206,8 +206,8 @@ importers:
         version: 29.0.2
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -243,8 +243,8 @@ importers:
         version: 1.61.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -274,8 +274,8 @@ importers:
         version: 25.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -311,8 +311,8 @@ importers:
         version: 4.0.0-beta.12
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -348,8 +348,8 @@ importers:
         version: 25.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/content-type':
         specifier: ^1.1.8
         version: 1.1.9
@@ -424,8 +424,8 @@ packages:
   '@apify/timeout@0.3.2':
     resolution: {integrity: sha512-JnOLIOpqfm366q7opKrA6HrL0iYRpYYDn8Mi77sMR2GZ1fPbwMWCVzN23LJWfJV7izetZbCMrqRUXsR1etZ7dA==}
 
-  '@apify/tsconfig@0.1.2':
-    resolution: {integrity: sha512-9dzEI1ZQ5+iM0k0fmPJrpdSSPUolVdeI1nDGFZMjD9UabTmIvjQrzui+1a25uy913AUEBrKTojEPj87pU9/Ekg==}
+  '@apify/tsconfig@0.2.0':
+    resolution: {integrity: sha512-0i6rF+hgXw6mQXhENYNTnP+Yo4WY38d698k/pk4rIpdCx/sSuEprR2N5WdtMaN628vCB+aZjff0jPN2EnQYtjQ==}
 
   '@apify/utilities@2.25.6':
     resolution: {integrity: sha512-pCANZm6kZ631PCpzBcICESU850Jn2L7hqpOl1zuAR1Q7U7g8b2JYtnvIH3mDFfP/yWbCrse6algH5dRPqWXAqw==}
@@ -5374,7 +5374,7 @@ snapshots:
 
   '@apify/timeout@0.3.2': {}
 
-  '@apify/tsconfig@0.1.2': {}
+  '@apify/tsconfig@0.2.0': {}
 
   '@apify/utilities@2.25.6':
     dependencies:
