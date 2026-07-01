@@ -2,6 +2,7 @@
     "extends": "@apify/tsconfig",
     "compilerOptions": {
         "outDir": "dist",
+        "rootDir": "src",
         "module": "ESNext",
         "moduleResolution": "bundler",
         "allowJs": true,
