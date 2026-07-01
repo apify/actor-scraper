@@ -6,7 +6,7 @@
 # bundles them, so the bundled drivers match the Camoufox binary they drive. The binary itself lives in
 # ~/.cache/camoufox (outside node_modules) and stays in the base. Tag 24-1.59.1 is the newest Camoufox
 # base that survives page JS errors (24-1.60.0 crashes the process on them).
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:eadc96fa9492284eb45ef70b6b91c841fae7f142d25a22ae2887a21bb78b3469 AS builder
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:f1647a8ea73df878761449dc9898cf8be08bcd5648481c66ae3a4a99feba3c7e AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -32,7 +32,7 @@ RUN pnpm --filter actor-camoufox-scraper... build
 # compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:eadc96fa9492284eb45ef70b6b91c841fae7f142d25a22ae2887a21bb78b3469
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:f1647a8ea73df878761449dc9898cf8be08bcd5648481c66ae3a4a99feba3c7e
 
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean
