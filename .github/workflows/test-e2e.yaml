@@ -39,7 +39,7 @@ jobs:
                       turbo-${{ github.job }}-${{ github.ref_name }}-
 
             - name: Install pnpm and dependencies
-              uses: apify/actions/pnpm-install@v1.1.2
+              uses: apify/actions/pnpm-install@v1.3.1
 
             - name: Install browsers
               run: |
