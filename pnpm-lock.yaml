@@ -26,8 +26,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(oxlint@1.62.0(oxlint-tsgolint@0.24.0))
       '@apify/tsconfig':
-        specifier: ^0.1.2
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.5.0
@@ -63,7 +63,7 @@ importers:
         version: 2.22.3
       commitlint:
         specifier: ^20.0.0
-        version: 20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@5.9.3)
+        version: 20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
       crawlee:
         specifier: ^3.16.0
         version: 3.16.0(@types/node@24.12.2)(idcac-playwright@0.2.0)(playwright@1.61.0)(puppeteer@25.2.0)
@@ -110,11 +110,11 @@ importers:
         specifier: 2.9.1
         version: 2.9.1
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
       vite-tsconfig-paths:
         specifier: ^6.0.0
-        version: 6.1.1(typescript@5.9.3)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
+        version: 6.1.1(typescript@6.0.3)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
       vitest:
         specifier: ^4.0.0
         version: 4.1.4(@types/node@24.12.2)(jsdom@29.0.2)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -129,7 +129,7 @@ importers:
         version: 3.16.0
       '@crawlee/playwright':
         specifier: ^3.14.1
-        version: 3.16.0(idcac-playwright@0.2.0)(playwright@1.59.1)(puppeteer@25.2.0)
+        version: 3.16.0(idcac-playwright@0.2.0)(playwright@1.59.1)(puppeteer@25.2.1)
       '@crawlee/utils':
         specifier: ^3.14.1
         version: 3.16.0
@@ -150,8 +150,8 @@ importers:
         version: 1.59.1
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -159,8 +159,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/cheerio-scraper:
     dependencies:
@@ -178,8 +178,8 @@ importers:
         version: 1.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -187,8 +187,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/jsdom-scraper:
     dependencies:
@@ -206,8 +206,8 @@ importers:
         version: 29.0.2
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -215,8 +215,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/playwright-scraper:
     dependencies:
@@ -228,7 +228,7 @@ importers:
         version: 3.16.0
       '@crawlee/playwright':
         specifier: ^3.16.0
-        version: 3.16.0(idcac-playwright@0.2.0)(playwright@1.61.0)(puppeteer@25.2.0)
+        version: 3.16.0(idcac-playwright@0.2.0)(playwright@1.61.0)(puppeteer@25.2.1)
       '@crawlee/utils':
         specifier: ^3.16.0
         version: 3.16.0
@@ -243,8 +243,8 @@ importers:
         version: 1.61.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -252,8 +252,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/puppeteer-scraper:
     dependencies:
@@ -274,8 +274,8 @@ importers:
         version: 25.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -283,8 +283,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/sitemap-scraper:
     dependencies:
@@ -311,8 +311,8 @@ importers:
         version: 4.0.0-beta.12
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
@@ -320,8 +320,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/actor-scraper/web-scraper:
     dependencies:
@@ -348,8 +348,8 @@ importers:
         version: 25.2.0
     devDependencies:
       '@apify/tsconfig':
-        specifier: ^0.1.0
-        version: 0.1.2
+        specifier: ^0.2.0
+        version: 0.2.0
       '@types/content-type':
         specifier: ^1.1.8
         version: 1.1.9
@@ -360,8 +360,8 @@ importers:
         specifier: ^4.19.1
         version: 4.21.0
       typescript:
-        specifier: ~5.9.0
-        version: 5.9.3
+        specifier: ~6.0.0
+        version: 6.0.3
 
   packages/scraper-tools:
     dependencies:
@@ -380,7 +380,7 @@ importers:
     devDependencies:
       '@crawlee/browser-pool':
         specifier: ^3.8.2
-        version: 3.16.0(playwright@1.61.1)(puppeteer@25.2.0)
+        version: 3.16.0(playwright@1.61.1)(puppeteer@25.2.1)
       '@crawlee/core':
         specifier: ^3.8.2
         version: 3.16.0
@@ -424,8 +424,8 @@ packages:
   '@apify/timeout@0.3.2':
     resolution: {integrity: sha512-JnOLIOpqfm366q7opKrA6HrL0iYRpYYDn8Mi77sMR2GZ1fPbwMWCVzN23LJWfJV7izetZbCMrqRUXsR1etZ7dA==}
 
-  '@apify/tsconfig@0.1.2':
-    resolution: {integrity: sha512-9dzEI1ZQ5+iM0k0fmPJrpdSSPUolVdeI1nDGFZMjD9UabTmIvjQrzui+1a25uy913AUEBrKTojEPj87pU9/Ekg==}
+  '@apify/tsconfig@0.2.0':
+    resolution: {integrity: sha512-0i6rF+hgXw6mQXhENYNTnP+Yo4WY38d698k/pk4rIpdCx/sSuEprR2N5WdtMaN628vCB+aZjff0jPN2EnQYtjQ==}
 
   '@apify/utilities@2.25.6':
     resolution: {integrity: sha512-pCANZm6kZ631PCpzBcICESU850Jn2L7hqpOl1zuAR1Q7U7g8b2JYtnvIH3mDFfP/yWbCrse6algH5dRPqWXAqw==}
@@ -4397,8 +4397,17 @@ packages:
     resolution: {integrity: sha512-jGhuGAlkgOcbyGRc0Cm9b/y4vvqoxhyAyl6a1diVe8F3sHsgTaQ60QQT5F3rGegTZV3prysgHVc+0LsvPZo3GA==}
     engines: {node: '>=22.12.0'}
 
+  puppeteer-core@25.2.1:
+    resolution: {integrity: sha512-MwEZ4FFGJ1ZLOmu/04eISxoEMKtCnHyJBRFfgpwPPSYNG6gT6Xw1laNziFSV7uwDcx3jK+ATYIo9SfOd8Uhc3w==}
+    engines: {node: '>=22.12.0'}
+
   puppeteer@25.2.0:
     resolution: {integrity: sha512-JPMPd/2+lgdkLhEyPqH895oR3ccMt1wSra6oewgjjTuLmo2s9zPZpKXQTFEIiA/fMKpiL01kjU3+2zPEReRWNg==}
+    engines: {node: '>=22.12.0'}
+    hasBin: true
+
+  puppeteer@25.2.1:
+    resolution: {integrity: sha512-2D5RMkQH9FRhDU57a1/jV9xWoxqZvUjaZOYjAAPdRCEY8A01V5sxzyGOMs8XiKU9fPF91SOSwNYpHRu5SD958g==}
     engines: {node: '>=22.12.0'}
     hasBin: true
 
@@ -4997,6 +5006,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ua-is-frozen@0.1.2:
     resolution: {integrity: sha512-RwKDW2p3iyWn4UbaxpP2+VxwqXh0jpvdxsYpZ5j/MLLiQOfbsV5shpgQiw93+KMYQPcteeMQ289MaAFzs3G9pw==}
 
@@ -5374,7 +5388,7 @@ snapshots:
 
   '@apify/timeout@0.3.2': {}
 
-  '@apify/tsconfig@0.1.2': {}
+  '@apify/tsconfig@0.2.0': {}
 
   '@apify/utilities@2.25.6':
     dependencies:
@@ -5423,11 +5437,11 @@ snapshots:
     dependencies:
       css-tree: 3.2.1
 
-  '@commitlint/cli@20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@5.9.3)':
+  '@commitlint/cli@20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3)':
     dependencies:
       '@commitlint/format': 20.5.0
       '@commitlint/lint': 20.5.0
-      '@commitlint/load': 20.5.0(@types/node@24.12.2)(typescript@5.9.3)
+      '@commitlint/load': 20.5.0(@types/node@24.12.2)(typescript@6.0.3)
       '@commitlint/read': 20.5.0(conventional-commits-parser@6.4.0)
       '@commitlint/types': 20.5.0
       tinyexec: 1.1.1
@@ -5476,14 +5490,14 @@ snapshots:
       '@commitlint/rules': 20.5.0
       '@commitlint/types': 20.5.0
 
-  '@commitlint/load@20.5.0(@types/node@24.12.2)(typescript@5.9.3)':
+  '@commitlint/load@20.5.0(@types/node@24.12.2)(typescript@6.0.3)':
     dependencies:
       '@commitlint/config-validator': 20.5.0
       '@commitlint/execute-rule': 20.0.0
       '@commitlint/resolve-extends': 20.5.0
       '@commitlint/types': 20.5.0
-      cosmiconfig: 9.0.1(typescript@5.9.3)
-      cosmiconfig-typescript-loader: 6.3.0(@types/node@24.12.2)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3)
+      cosmiconfig: 9.0.1(typescript@6.0.3)
+      cosmiconfig-typescript-loader: 6.3.0(@types/node@24.12.2)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3)
       is-plain-obj: 4.1.0
       lodash.mergewith: 4.6.2
       picocolors: 1.1.1
@@ -5581,14 +5595,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@crawlee/browser-pool@3.16.0(playwright@1.59.1)(puppeteer@25.2.0)':
+  '@crawlee/browser-pool@3.16.0(playwright@1.59.1)(puppeteer@25.2.1)':
     dependencies:
       '@apify/log': 2.5.34
       '@apify/timeout': 0.3.2
       '@crawlee/core': 3.16.0
       '@crawlee/types': 3.16.0
       fingerprint-generator: 2.1.82
-      fingerprint-injector: 2.1.82(playwright@1.59.1)(puppeteer@25.2.0)
+      fingerprint-injector: 2.1.82(playwright@1.59.1)(puppeteer@25.2.1)
       lodash.merge: 4.6.2
       nanoid: 3.3.11
       ow: 0.28.2
@@ -5599,7 +5613,7 @@ snapshots:
       tslib: 2.8.1
     optionalDependencies:
       playwright: 1.59.1
-      puppeteer: 25.2.0
+      puppeteer: 25.2.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5625,6 +5639,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@crawlee/browser-pool@3.16.0(playwright@1.61.0)(puppeteer@25.2.1)':
+    dependencies:
+      '@apify/log': 2.5.34
+      '@apify/timeout': 0.3.2
+      '@crawlee/core': 3.16.0
+      '@crawlee/types': 3.16.0
+      fingerprint-generator: 2.1.82
+      fingerprint-injector: 2.1.82(playwright@1.61.0)(puppeteer@25.2.1)
+      lodash.merge: 4.6.2
+      nanoid: 3.3.11
+      ow: 0.28.2
+      p-limit: 3.1.0
+      proxy-chain: 2.7.1
+      quick-lru: 5.1.1
+      tiny-typed-emitter: 2.1.0
+      tslib: 2.8.1
+    optionalDependencies:
+      playwright: 1.61.0
+      puppeteer: 25.2.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@crawlee/browser-pool@3.16.0(playwright@1.61.1)(puppeteer@25.2.0)':
     dependencies:
       '@apify/log': 2.5.34
@@ -5647,11 +5683,33 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@crawlee/browser@3.16.0(playwright@1.59.1)(puppeteer@25.2.0)':
+  '@crawlee/browser-pool@3.16.0(playwright@1.61.1)(puppeteer@25.2.1)':
+    dependencies:
+      '@apify/log': 2.5.34
+      '@apify/timeout': 0.3.2
+      '@crawlee/core': 3.16.0
+      '@crawlee/types': 3.16.0
+      fingerprint-generator: 2.1.82
+      fingerprint-injector: 2.1.82(playwright@1.61.1)(puppeteer@25.2.1)
+      lodash.merge: 4.6.2
+      nanoid: 3.3.11
+      ow: 0.28.2
+      p-limit: 3.1.0
+      proxy-chain: 2.7.1
+      quick-lru: 5.1.1
+      tiny-typed-emitter: 2.1.0
+      tslib: 2.8.1
+    optionalDependencies:
+      playwright: 1.61.1
+      puppeteer: 25.2.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@crawlee/browser@3.16.0(playwright@1.59.1)(puppeteer@25.2.1)':
     dependencies:
       '@apify/timeout': 0.3.2
       '@crawlee/basic': 3.16.0
-      '@crawlee/browser-pool': 3.16.0(playwright@1.59.1)(puppeteer@25.2.0)
+      '@crawlee/browser-pool': 3.16.0(playwright@1.59.1)(puppeteer@25.2.1)
       '@crawlee/types': 3.16.0
       '@crawlee/utils': 3.16.0
       ow: 0.28.2
@@ -5659,7 +5717,7 @@ snapshots:
       type-fest: 4.41.0
     optionalDependencies:
       playwright: 1.59.1
-      puppeteer: 25.2.0
+      puppeteer: 25.2.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5676,6 +5734,22 @@ snapshots:
     optionalDependencies:
       playwright: 1.61.0
       puppeteer: 25.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@crawlee/browser@3.16.0(playwright@1.61.0)(puppeteer@25.2.1)':
+    dependencies:
+      '@apify/timeout': 0.3.2
+      '@crawlee/basic': 3.16.0
+      '@crawlee/browser-pool': 3.16.0(playwright@1.61.0)(puppeteer@25.2.1)
+      '@crawlee/types': 3.16.0
+      '@crawlee/utils': 3.16.0
+      ow: 0.28.2
+      tslib: 2.8.1
+      type-fest: 4.41.0
+    optionalDependencies:
+      playwright: 1.61.0
+      puppeteer: 25.2.1
     transitivePeerDependencies:
       - supports-color
 
@@ -5889,13 +5963,13 @@ snapshots:
       proper-lockfile: 4.1.2
       tslib: 2.8.1
 
-  '@crawlee/playwright@3.16.0(idcac-playwright@0.2.0)(playwright@1.59.1)(puppeteer@25.2.0)':
+  '@crawlee/playwright@3.16.0(idcac-playwright@0.2.0)(playwright@1.59.1)(puppeteer@25.2.1)':
     dependencies:
       '@apify/datastructures': 2.0.3
       '@apify/log': 2.5.34
       '@apify/timeout': 0.3.2
-      '@crawlee/browser': 3.16.0(playwright@1.59.1)(puppeteer@25.2.0)
-      '@crawlee/browser-pool': 3.16.0(playwright@1.59.1)(puppeteer@25.2.0)
+      '@crawlee/browser': 3.16.0(playwright@1.59.1)(puppeteer@25.2.1)
+      '@crawlee/browser-pool': 3.16.0(playwright@1.59.1)(puppeteer@25.2.1)
       '@crawlee/core': 3.16.0
       '@crawlee/types': 3.16.0
       '@crawlee/utils': 3.16.0
@@ -5921,6 +5995,31 @@ snapshots:
       '@apify/timeout': 0.3.2
       '@crawlee/browser': 3.16.0(playwright@1.61.0)(puppeteer@25.2.0)
       '@crawlee/browser-pool': 3.16.0(playwright@1.61.0)(puppeteer@25.2.0)
+      '@crawlee/core': 3.16.0
+      '@crawlee/types': 3.16.0
+      '@crawlee/utils': 3.16.0
+      cheerio: 1.0.0-rc.12
+      jquery: 3.7.1
+      lodash.isequal: 4.5.0
+      ml-logistic-regression: 2.0.0
+      ml-matrix: 6.12.1
+      ow: 0.28.2
+      string-comparison: 1.3.0
+      tslib: 2.8.1
+    optionalDependencies:
+      idcac-playwright: 0.2.0
+      playwright: 1.61.0
+    transitivePeerDependencies:
+      - puppeteer
+      - supports-color
+
+  '@crawlee/playwright@3.16.0(idcac-playwright@0.2.0)(playwright@1.61.0)(puppeteer@25.2.1)':
+    dependencies:
+      '@apify/datastructures': 2.0.3
+      '@apify/log': 2.5.34
+      '@apify/timeout': 0.3.2
+      '@crawlee/browser': 3.16.0(playwright@1.61.0)(puppeteer@25.2.1)
+      '@crawlee/browser-pool': 3.16.0(playwright@1.61.0)(puppeteer@25.2.1)
       '@crawlee/core': 3.16.0
       '@crawlee/types': 3.16.0
       '@crawlee/utils': 3.16.0
@@ -7483,9 +7582,9 @@ snapshots:
 
   commander@14.0.3: {}
 
-  commitlint@20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@5.9.3):
+  commitlint@20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3):
     dependencies:
-      '@commitlint/cli': 20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@5.9.3)
+      '@commitlint/cli': 20.5.0(@types/node@24.12.2)(conventional-commits-parser@6.4.0)(typescript@6.0.3)
       '@commitlint/types': 20.5.0
     transitivePeerDependencies:
       - '@types/node'
@@ -7584,12 +7683,12 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@6.3.0(@types/node@24.12.2)(cosmiconfig@9.0.1(typescript@5.9.3))(typescript@5.9.3):
+  cosmiconfig-typescript-loader@6.3.0(@types/node@24.12.2)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3):
     dependencies:
       '@types/node': 24.12.2
-      cosmiconfig: 9.0.1(typescript@5.9.3)
+      cosmiconfig: 9.0.1(typescript@6.0.3)
       jiti: 2.6.1
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   cosmiconfig@9.0.0(typescript@5.9.3):
     dependencies:
@@ -7600,14 +7699,14 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  cosmiconfig@9.0.1(typescript@5.9.3):
+  cosmiconfig@9.0.1(typescript@6.0.3):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   crawlee@3.16.0(@types/node@24.12.2)(idcac-playwright@0.2.0)(playwright@1.61.0)(puppeteer@25.2.0):
     dependencies:
@@ -8029,13 +8128,13 @@ snapshots:
       header-generator: 2.1.82
       tslib: 2.8.1
 
-  fingerprint-injector@2.1.82(playwright@1.59.1)(puppeteer@25.2.0):
+  fingerprint-injector@2.1.82(playwright@1.59.1)(puppeteer@25.2.1):
     dependencies:
       fingerprint-generator: 2.1.82
       tslib: 2.8.1
     optionalDependencies:
       playwright: 1.59.1
-      puppeteer: 25.2.0
+      puppeteer: 25.2.1
 
   fingerprint-injector@2.1.82(playwright@1.61.0)(puppeteer@25.2.0):
     dependencies:
@@ -8045,6 +8144,14 @@ snapshots:
       playwright: 1.61.0
       puppeteer: 25.2.0
 
+  fingerprint-injector@2.1.82(playwright@1.61.0)(puppeteer@25.2.1):
+    dependencies:
+      fingerprint-generator: 2.1.82
+      tslib: 2.8.1
+    optionalDependencies:
+      playwright: 1.61.0
+      puppeteer: 25.2.1
+
   fingerprint-injector@2.1.82(playwright@1.61.1)(puppeteer@25.2.0):
     dependencies:
       fingerprint-generator: 2.1.82
@@ -8052,6 +8159,14 @@ snapshots:
     optionalDependencies:
       playwright: 1.61.1
       puppeteer: 25.2.0
+
+  fingerprint-injector@2.1.82(playwright@1.61.1)(puppeteer@25.2.1):
+    dependencies:
+      fingerprint-generator: 2.1.82
+      tslib: 2.8.1
+    optionalDependencies:
+      playwright: 1.61.1
+      puppeteer: 25.2.1
 
   flat@5.0.2: {}
 
@@ -9854,6 +9969,20 @@ snapshots:
       - proxy-agent
       - utf-8-validate
 
+  puppeteer-core@25.2.1:
+    dependencies:
+      '@puppeteer/browsers': 3.0.5
+      chromium-bidi: 16.0.1(devtools-protocol@0.0.1638949)
+      devtools-protocol: 0.0.1638949
+      typed-query-selector: 2.12.2
+      webdriver-bidi-protocol: 0.4.2
+      ws: 8.21.0
+    transitivePeerDependencies:
+      - bufferutil
+      - proxy-agent
+      - utf-8-validate
+    optional: true
+
   puppeteer@25.2.0:
     dependencies:
       '@puppeteer/browsers': 3.0.5
@@ -9866,6 +9995,20 @@ snapshots:
       - bufferutil
       - proxy-agent
       - utf-8-validate
+
+  puppeteer@25.2.1:
+    dependencies:
+      '@puppeteer/browsers': 3.0.5
+      chromium-bidi: 16.0.1(devtools-protocol@0.0.1638949)
+      devtools-protocol: 0.0.1638949
+      lilconfig: 3.1.3
+      puppeteer-core: 25.2.1
+      typed-query-selector: 2.12.2
+    transitivePeerDependencies:
+      - bufferutil
+      - proxy-agent
+      - utf-8-validate
+    optional: true
 
   queue-microtask@1.2.3: {}
 
@@ -10386,9 +10529,9 @@ snapshots:
 
   trim-newlines@3.0.1: {}
 
-  tsconfck@3.1.6(typescript@5.9.3):
+  tsconfck@3.1.6(typescript@6.0.3):
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 6.0.3
 
   tsconfig-paths@4.2.0:
     dependencies:
@@ -10446,6 +10589,8 @@ snapshots:
 
   typescript@5.9.3: {}
 
+  typescript@6.0.3: {}
+
   ua-is-frozen@0.1.2: {}
 
   ua-parser-js@2.0.9:
@@ -10496,11 +10641,11 @@ snapshots:
 
   validate-npm-package-name@6.0.2: {}
 
-  vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)):
+  vite-tsconfig-paths@6.1.1(typescript@6.0.3)(vite@7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
-      tsconfck: 3.1.6(typescript@5.9.3)
+      tsconfck: 3.1.6(typescript@6.0.3)
       vite: 7.3.2(@types/node@24.12.2)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - supports-color

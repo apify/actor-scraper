@@ -125,7 +125,7 @@ jobs:
 
             - name: Install pnpm and dependencies
               if: matrix.settings.should-build == 'true'
-              uses: apify/actions/pnpm-install@v1.1.2
+              uses: apify/actions/pnpm-install@v1.3.0
 
             - name: Log matrix
               run: |

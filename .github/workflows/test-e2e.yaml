@@ -12,7 +12,7 @@ on:
 jobs:
     build_and_test:
         name: Build & Test
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         timeout-minutes: 60
 
         steps:
@@ -39,7 +39,7 @@ jobs:
                       turbo-${{ github.job }}-${{ github.ref_name }}-
 
             - name: Install pnpm and dependencies
-              uses: apify/actions/pnpm-install@v1.1.2
+              uses: apify/actions/pnpm-install@v1.3.0
 
             - name: Install browsers
               run: |
@@ -48,6 +48,11 @@ jobs:
 
             - name: Build
               run: pnpm ci:build
+
+            # ubuntu-24.04 restricts unprivileged user namespaces via AppArmor, which breaks
+            # Chrome's sandbox and fails the browser-launch tests. Re-enable it for the runner.
+            - name: Enable unprivileged user namespaces (Chrome sandbox)
+              run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
             - name: Test
               run: pnpm test:e2e
