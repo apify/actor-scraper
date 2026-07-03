@@ -108,7 +108,8 @@
             "description": "The provided cookies will be pre-set to all pages the scraper opens.",
             "default": [],
             "prefill": [],
-            "editor": "json"
+            "editor": "json",
+            "isSecret": true
         },
         "launcher": {
             "sectionCaption": "Browser configuration",
