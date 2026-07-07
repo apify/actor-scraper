@@ -25,7 +25,7 @@ jobs:
                   node-version: 24
 
             - name: Install pnpm and dependencies
-              uses: apify/actions/pnpm-install@v1.3.0
+              uses: apify/actions/pnpm-install@v1.4.0
 
             - name: Install Chrome for puppeteer
               run: pnpm exec puppeteer browsers install chrome
@@ -55,7 +55,7 @@ jobs:
                   node-version: 24
 
             - name: Install pnpm and dependencies
-              uses: apify/actions/pnpm-install@v1.3.0
+              uses: apify/actions/pnpm-install@v1.4.0
 
             - name: Lint
               run: pnpm lint
