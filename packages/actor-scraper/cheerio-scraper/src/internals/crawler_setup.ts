@@ -86,7 +86,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             }
         });
 
-        this.input.initialCookies.forEach((cookie) => {
+        this.input.initialCookies?.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) {
                 throw new Error('The initialCookies Array must only contain Objects.');
             }
