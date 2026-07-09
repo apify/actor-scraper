@@ -107,7 +107,6 @@
             "title": "Initial cookies",
             "type": "array",
             "description": "A JSON array with cookies that will be send with every HTTP request made by the Cheerio Scraper, in the format accepted by the <a href='https://www.npmjs.com/package/tough-cookie' target='_blank' rel='noopener noreferrer'>tough-cookie</a> NPM package. This option is useful for transferring a logged-in session from an external web browser. For details how to do this, read this <a href='https://help.apify.com/en/articles/1444249-log-in-to-website-by-transferring-cookies-from-web-browser-legacy' target='_blank' rel='noopener'>help article</a>.",
-            "default": [],
             "prefill": [],
             "editor": "json",
             "isSecret": true
