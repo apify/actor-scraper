@@ -390,7 +390,11 @@ export class CrawlerSetup {
 
         const flushUrls = async () => {
             if (pages.length === 0) return;
-            await this._enqueuePageRequests(pages, crawlingContext);
+            if (this.input.skipStatusCheck) {
+                await this._outputSitemapPages(pages);
+            } else {
+                await this._enqueuePageRequests(pages, crawlingContext);
+            }
             pages.length = 0;
         };
 
@@ -587,6 +591,26 @@ export class CrawlerSetup {
 
     private hasGzipMagicBytes(body: Buffer): boolean {
         return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
+    }
+
+    /**
+     * When `skipStatusCheck` is enabled, page URLs discovered in a sitemap are
+     * pushed directly to the dataset without sending a HEAD request per page.
+     */
+    private async _outputSitemapPages(pages: SitemapPageEntry[]) {
+        const items = pages.map((page) => ({
+            url: page.url,
+            lastmod: page.lastmod ?? null,
+        }));
+
+        await this.dataset.pushData(items);
+
+        for (let i = 0; i < items.length; i++) {
+            if (this.pagesOutputted > 0 && this.pagesOutputted % 100 === 0) {
+                log.info(`Pushed ${this.pagesOutputted} items to the dataset so far.`);
+            }
+            this.pagesOutputted++;
+        }
     }
 
     private async _enqueuePageRequests(pages: SitemapPageEntry[], { request, enqueueLinks }: HttpCrawlingContext) {
