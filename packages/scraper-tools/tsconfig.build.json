@@ -1,6 +1,7 @@
 {
     "extends": "../../tsconfig.build.json",
     "compilerOptions": {
+        "incremental": false,
         "outDir": "./dist",
         "rootDir": "./src"
     },

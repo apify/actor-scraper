@@ -1,6 +1,5 @@
 {
-    "extends": ["config:base", ":semanticCommitTypeAll(chore)"],
-    "pinVersions": false,
+    "extends": ["config:recommended", ":semanticCommitTypeAll(chore)"],
     "separateMajorMinor": false,
     "dependencyDashboard": false,
     "semanticCommits": "enabled",
@@ -62,7 +61,7 @@
                 "packages/actor-scraper/playwright-scraper/Dockerfile",
                 "packages/actor-scraper/playwright-scraper/package.json"
             ],
-            "matchPackageNames": ["apify/actor-node-playwright", "playwright"],
+            "matchPackageNames": ["apify/actor-node-playwright", "playwright", "@playwright/browser-chromium"],
             "groupName": "playwright browser stack"
         },
         {
