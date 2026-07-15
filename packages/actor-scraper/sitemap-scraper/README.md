@@ -21,7 +21,7 @@ This Actor is designed to bridge the gap between discovery and crawling. By trav
 By default (**Check page status** enabled), the Actor sends an HTTP HEAD request to every page found in the sitemaps and reports its status code. If you only need the list of URLs contained in the sitemaps and don't care about status codes, disable the **Check page status** option. In this mode the Actor:
 
 - does **not** send any request to the individual pages. It only downloads and parses the sitemaps themselves;
-- outputs each discovered URL together with its `lastmod` value taken from the sitemap;
+- outputs each discovered URL with the `lastmod` value from the sitemap's `<lastmod>` tag, whenever the sitemap provides one. Since no pages are requested, the `Last-Modified` header fallback is not used, so URLs whose sitemap entry has no `<lastmod>` will have `lastmod: null`;
 - omits the `status` field from the output.
 
 This is dramatically faster and lighter on large sites, since it replaces one request per page with just a handful of requests for the sitemap files.
