@@ -27,7 +27,7 @@ export interface Input {
     proxyRotation: ProxyRotation;
     maxRequestRetries: number;
     maxCrawlingDepth: number;
-    skipStatusCheck: boolean;
+    checkPageStatus: boolean;
     debugLog: boolean;
     customData: Dictionary;
 }

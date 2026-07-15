@@ -390,10 +390,10 @@ export class CrawlerSetup {
 
         const flushUrls = async () => {
             if (pages.length === 0) return;
-            if (this.input.skipStatusCheck) {
-                await this._outputSitemapPages(pages);
-            } else {
+            if (this.input.checkPageStatus) {
                 await this._enqueuePageRequests(pages, crawlingContext);
+            } else {
+                await this._outputSitemapPages(pages);
             }
             pages.length = 0;
         };
@@ -594,7 +594,7 @@ export class CrawlerSetup {
     }
 
     /**
-     * When `skipStatusCheck` is enabled, page URLs discovered in a sitemap are
+     * When `checkPageStatus` is disabled, page URLs discovered in a sitemap are
      * pushed directly to the dataset without sending a HEAD request per page.
      */
     private async _outputSitemapPages(pages: SitemapPageEntry[]) {

@@ -13,12 +13,12 @@ This Actor is designed to bridge the gap between discovery and crawling. By trav
 
 1.  **Input:** You provide one or more "Start URLs" pointing to the domain name root, sitemaps or sitemap indexes.
 2.  **Extraction:** The Actor parses the XML, extracting both page URLs and links to further sitemaps.
-3.  **Validation:** For every page URL found, the Actor performs a status check (unless **List sitemap URLs only** is enabled, see below).
+3.  **Validation:** For every page URL found, the Actor performs a status check (unless **Check page status** is disabled, see below).
 4.  **Deduplication:** The crawler uses unique keys to ensure that even if a URL appears in multiple sitemaps, it is only checked once.
 
-## List sitemap URLs only
+## Listing sitemap URLs without status checks
 
-By default, the Actor sends an HTTP HEAD request to every page found in the sitemaps and reports its status code. If you only need the list of URLs contained in the sitemaps and don't care about status codes, enable the **List sitemap URLs only (skip status check)** option. In this mode the Actor:
+By default (**Check page status** enabled), the Actor sends an HTTP HEAD request to every page found in the sitemaps and reports its status code. If you only need the list of URLs contained in the sitemaps and don't care about status codes, disable the **Check page status** option. In this mode the Actor:
 
 - does **not** send any request to the individual pages. It only downloads and parses the sitemaps themselves;
 - outputs each discovered URL together with its `lastmod` value taken from the sitemap;
@@ -33,7 +33,7 @@ For each page URL, the Actor outputs:
 | Field    |                                       Description                                       |
 | :------- | :-------------------------------------------------------------------------------------: |
 | `url`    |                                The page URL from the sitemap.                           |
-| `status` | The HTTP status code returned by the HEAD request. Omitted when **List sitemap URLs only** is enabled. |
+| `status` | The HTTP status code returned by the HEAD request. Omitted when **Check page status** is disabled. |
 | `lastmod` | Best-effort last-modification time (ISO 8601). See the note below.                      |
 
 ### A note on last-modification data
@@ -45,7 +45,7 @@ The `lastmod` field is a single best-effort timestamp derived from two sources, 
 
 **We cannot guarantee that this information is available.** Both sources are optional: many sitemaps omit `<lastmod>` entirely, and a lot of servers don't send a `Last-Modified` header (this is especially common for dynamically generated pages). When neither source provides a value, `lastmod` is `null`. Even when present, the value is self-reported by the site and may not reflect the true last-modification time of the content.
 
-When **List sitemap URLs only** is enabled, no page requests are made, so only the first source (the sitemap's `<lastmod>` tag) is used.
+When **Check page status** is disabled, no page requests are made, so only the first source (the sitemap's `<lastmod>` tag) is used.
 
 ## Usage
 
