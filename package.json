@@ -62,7 +62,7 @@
         "@commitlint/config-conventional": "^21.0.0",
         "@isaacs/brace-expansion": "^5.0.1",
         "@playwright/browser-chromium": "^1.61.0",
-        "@types/content-type": "^1.1.8",
+        "@types/content-type": "^2.0.0",
         "@types/fs-extra": "^11.0.4",
         "@types/node": "^24.0.0",
         "@types/semver": "^7.5.8",

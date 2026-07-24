@@ -9,14 +9,14 @@
         "@apify/scraper-tools": "^1.1.4",
         "@crawlee/puppeteer": "^3.16.0",
         "apify": "^3.7.1",
-        "content-type": "^1.0.5",
+        "content-type": "^2.0.0",
         "devtools-server": "^0.0.2",
         "idcac-playwright": "^0.2.0",
         "puppeteer": "25.3.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
-        "@types/content-type": "^1.1.8",
+        "@types/content-type": "^2.0.0",
         "@types/node": "^24.0.0",
         "tsx": "^4.19.1",
         "typescript": "~6.0.0"
