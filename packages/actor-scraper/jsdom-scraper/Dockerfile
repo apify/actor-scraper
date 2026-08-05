@@ -1,10 +1,13 @@
 # Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
 # so the build can use the pnpm workspace lockfile for a deterministic install.
-FROM apify/actor-node:24 AS builder
+FROM apify/actor-node:26 AS builder
 
 WORKDIR /app
 
-RUN corepack enable
+# Node 26 no longer bundles corepack, so install it before enabling the pinned pnpm. --force is needed
+# because the browser bases already ship a /usr/bin/yarn that corepack's shims would collide with,
+# and only the pnpm shim is enabled so the rest of the base is left alone.
+RUN npm install -g --force corepack@latest && corepack enable pnpm
 
 # Browser packages can appear transitively through workspace/dev tooling, but this actor does not
 # use them. Keep the deterministic install without downloading browser binaries into the build cache.
@@ -24,7 +27,7 @@ RUN pnpm --filter actor-jsdom-scraper... build
 # @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-jsdom-scraper deploy --prod /deploy
 
-FROM apify/actor-node:24
+FROM apify/actor-node:26
 
 WORKDIR /usr/src/app
 

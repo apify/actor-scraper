@@ -5,17 +5,17 @@
     "description": "Crawl web pages using Apify, headless Chrome and Puppeteer",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "^1.1.4",
-        "@crawlee/puppeteer": "^3.16.0",
-        "apify": "^3.7.1",
+        "@apify/scraper-tools": "workspace:^",
+        "@crawlee/puppeteer": "^3.18.0",
+        "apify": "^3.7.2",
         "idcac-playwright": "^0.2.0",
         "puppeteer": "25.4.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
-        "@types/node": "^24.0.0",
-        "tsx": "^4.19.1",
-        "typescript": "~6.0.0"
+        "@types/node": "^24.13.3",
+        "tsx": "^4.23.5",
+        "typescript": "~6.0.3"
     },
     "scripts": {
         "start": "pnpm start:dev",

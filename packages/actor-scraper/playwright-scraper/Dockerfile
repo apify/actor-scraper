@@ -2,15 +2,18 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Chromium + OS deps). The actor pins playwright to the
-# version this base ships (24-1.61.0 -> playwright 1.61.0) and bundles it, so the bundled driver
+# version this base ships (26-1.62.1 -> playwright 1.62.1) and bundles it, so the bundled driver
 # matches the Chromium binary it drives. Renovate bumps the base digest and the playwright pin together.
-FROM apify/actor-node-playwright:24-1.61.0@sha256:5c0155bb5a0a90572ef021c2b4e2e195c50971e0c1ae00f081ffa47e62036c60 AS builder
+FROM apify/actor-node-playwright:26-1.62.1@sha256:c938126b0cd9fc3be738cc0c2f73566bb06989004b3d6316894ff54dc8c4dff3 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
 WORKDIR /app
 
-RUN corepack enable
+# Node 26 no longer bundles corepack, so install it before enabling the pinned pnpm. --force is needed
+# because the browser bases already ship a /usr/bin/yarn that corepack's shims would collide with,
+# and only the pnpm shim is enabled so the rest of the base is left alone.
+RUN npm install -g --force corepack@latest && corepack enable pnpm
 
 # Browsers ship with the base image; never let an npm postinstall download them.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
@@ -29,7 +32,7 @@ RUN pnpm --filter actor-playwright-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright:24-1.61.0@sha256:5c0155bb5a0a90572ef021c2b4e2e195c50971e0c1ae00f081ffa47e62036c60
+FROM apify/actor-node-playwright:26-1.62.1@sha256:c938126b0cd9fc3be738cc0c2f73566bb06989004b3d6316894ff54dc8c4dff3
 
 # Base WORKDIR is /home/myuser and ships the browser plus the Xvfb entrypoint. Replace only the
 # template node_modules with the lean production bundle (which carries the matching playwright); the

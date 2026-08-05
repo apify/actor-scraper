@@ -202,7 +202,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 }),
                 // `firefox` and @crawlee/playwright's PlaywrightLaunchContext resolve to two different
                 // playwright-core copies (camoufox pins playwright 1.59.1 to match its base image,
-                // while the rest of the workspace is on 1.61.0), so the BrowserType identities don't
+                // while the rest of the workspace is on 1.62.1), so the BrowserType identities don't
                 // line up. This is a workspace dual-install, not a camoufox-js/crawlee issue.
             } as unknown as PlaywrightLaunchContext,
             useSessionPool: true,
