@@ -32,6 +32,13 @@
             "minimumReleaseAge": "0 days"
         },
         {
+            "description": "Update the Sitemap Extractor Apify/Crawlee v4 beta stack together",
+            "matchManagers": ["npm", "pnpm"],
+            "matchFileNames": ["packages/actor-scraper/sitemap-scraper/package.json", "pnpm-workspace.yaml"],
+            "matchPackageNames": ["apify", "@crawlee/*"],
+            "groupName": "sitemap Crawlee v4 beta stack"
+        },
+        {
             "description": "Update the Camoufox image and its JS drivers as one tested stack",
             "matchManagers": ["dockerfile", "npm"],
             "matchFileNames": [

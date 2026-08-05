@@ -3,7 +3,7 @@ import { URL } from 'node:url';
 import { promisify } from 'node:util';
 import { gunzip as zlibGunzip } from 'node:zlib';
 
-import type { CrawlingContext, HttpRequest, ResponseTypes } from '@crawlee/core';
+import type { CrawlingContext } from '@crawlee/core';
 import type {
     Dictionary,
     HttpCrawlerOptions,
@@ -68,9 +68,13 @@ const NOOP_COOKIE_JAR = {
 function createStatelessImpitHttpClient(...args: ConstructorParameters<typeof ImpitHttpClient>) {
     const client = new ImpitHttpClient(...args);
     const originalSendRequest = client.sendRequest.bind(client);
-    // The cookie jar travels on the request itself; there is no separate options argument.
-    client.sendRequest = async <TResponseType extends keyof ResponseTypes>(request: HttpRequest<TResponseType>) =>
-        originalSendRequest<TResponseType>({ ...request, cookieJar: NOOP_COOKIE_JAR as any });
+    client.sendRequest = async (...sendRequestArgs: Parameters<ImpitHttpClient['sendRequest']>) => {
+        const [request, options] = sendRequestArgs;
+        return originalSendRequest(request, {
+            ...(options ?? {}),
+            cookieJar: NOOP_COOKIE_JAR as any,
+        });
+    };
     return client;
 }
 
