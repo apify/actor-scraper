@@ -2,7 +2,7 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Camoufox binary + OS deps). The actor pins playwright to
-# the version this base ships (26-1.59.1 -> playwright 1.59.1) and bundles it, so the bundled driver
+# the version this base ships (24-1.59.1 -> playwright 1.59.1) and bundles it, so the bundled driver
 # matches the Camoufox binary it drives, which is why this actor deliberately trails the playwright
 # version the rest of the workspace uses. The binary itself lives in ~/.cache/camoufox (outside
 # node_modules) and stays in the base. Tag 1.59.1 is the newest Camoufox base that survives page JS
@@ -10,16 +10,13 @@
 #
 # camoufox-js stays on 0.11.2: 0.12.0 requires better-sqlite3 ^13, which dropped prebuilt binaries and
 # so needs a C++ toolchain that the Apify base images do not carry.
-FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:18d2a19dfcc41194b96a471a45c60d7c510e0ab97123134eedb5c1a24509e458 AS builder
+FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
 WORKDIR /app
 
-# Node 26 no longer bundles corepack, so install it before enabling the pinned pnpm. --force is needed
-# because the browser bases already ship a /usr/bin/yarn that corepack's shims would collide with,
-# and only the pnpm shim is enabled so the rest of the base is left alone.
-RUN npm install -g --force corepack@latest && corepack enable pnpm
+RUN corepack enable
 
 # Browsers ship with the base image; never let an npm postinstall download them.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
@@ -36,10 +33,10 @@ RUN pnpm --filter actor-camoufox-scraper... build
 
 # Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
 # into node_modules instead of symlinking it. The native better-sqlite3 binding (a camoufox-js dep) is
-# compiled here against the base's Node 26, and the runtime stage uses that same base, so it matches.
+# compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:18d2a19dfcc41194b96a471a45c60d7c510e0ab97123134eedb5c1a24509e458
+FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88
 
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean

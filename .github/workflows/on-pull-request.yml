@@ -19,10 +19,10 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v7
 
-            - name: Use Node.js 26
+            - name: Use Node.js 24
               uses: actions/setup-node@v7
               with:
-                  node-version: 26
+                  node-version: 24
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.4.0
@@ -49,10 +49,10 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v7
 
-            - name: Use Node.js 26
+            - name: Use Node.js 24
               uses: actions/setup-node@v7
               with:
-                  node-version: 26
+                  node-version: 24
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.4.0

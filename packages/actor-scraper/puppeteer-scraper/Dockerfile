@@ -2,18 +2,15 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Chrome + OS deps). The actor pins puppeteer to the version
-# this base ships (26-25.4.0 -> puppeteer 25.4.0) and bundles it, so the bundled driver matches the
+# this base ships (24-25.4.0 -> puppeteer 25.4.0) and bundles it, so the bundled driver matches the
 # Chrome binary it drives. Renovate bumps the base digest and the puppeteer pin together.
-FROM apify/actor-node-puppeteer-chrome:26-25.4.0@sha256:0b2f6e1663c0ec65e6cfdd1818d392c0d70ab242a28e80711ea0c41615ac4d85 AS builder
+FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
 WORKDIR /app
 
-# Node 26 no longer bundles corepack, so install it before enabling the pinned pnpm. --force is needed
-# because the browser bases already ship a /usr/bin/yarn that corepack's shims would collide with,
-# and only the pnpm shim is enabled so the rest of the base is left alone.
-RUN npm install -g --force corepack@latest && corepack enable pnpm
+RUN corepack enable
 
 # Browsers ship with the base image; never let an npm postinstall download them.
 ENV PUPPETEER_SKIP_DOWNLOAD=true \
@@ -32,7 +29,7 @@ RUN pnpm --filter actor-puppeteer-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-puppeteer-scraper deploy --prod /deploy
 
-FROM apify/actor-node-puppeteer-chrome:26-25.4.0@sha256:0b2f6e1663c0ec65e6cfdd1818d392c0d70ab242a28e80711ea0c41615ac4d85
+FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62
 
 # Base WORKDIR is /home/myuser and ships Chrome plus the Xvfb entrypoint. Replace only the template
 # node_modules with the lean production bundle (which carries the matching puppeteer); Chrome itself
