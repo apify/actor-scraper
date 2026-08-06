@@ -10,7 +10,7 @@ import type {
 import type { Dictionary } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
-import type { MediaType } from 'content-type';
+import type { ContentType } from 'content-type';
 import contentTypeParser from 'content-type';
 
 import log from '@apify/log';
@@ -114,7 +114,7 @@ class Context<
         return saveSnapshot({
             page: this.page as SnapshotOptions['page'],
             body: this.body as SnapshotOptions['body'],
-            contentType: this.contentType ? contentTypeParser.format(this.contentType as MediaType) : null,
+            contentType: this.contentType ? contentTypeParser.format(this.contentType as ContentType) : null,
             json: this.json,
         });
     }

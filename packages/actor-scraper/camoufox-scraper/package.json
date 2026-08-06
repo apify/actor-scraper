@@ -5,21 +5,21 @@
     "description": "Crawl web pages using Apify, headless browser and Playwright with Camoufox",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "^1.1.4",
-        "@crawlee/core": "^3.14.1",
-        "@crawlee/playwright": "^3.14.1",
-        "@crawlee/utils": "^3.14.1",
-        "apify": "^3.7.1",
+        "@apify/scraper-tools": "workspace:^",
+        "@crawlee/core": "^3.18.0",
+        "@crawlee/playwright": "^3.18.0",
+        "@crawlee/utils": "^3.18.0",
+        "apify": "^3.7.2",
         "camoufox-js": "0.11.2",
         "idcac-playwright": "^0.2.0",
-        "playwright": "1.61.1",
-        "playwright-core": "1.61.1"
+        "playwright": "1.59.1",
+        "playwright-core": "1.59.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
-        "@types/node": "^24.0.0",
-        "tsx": "^4.19.1",
-        "typescript": "~6.0.0"
+        "@types/node": "^24.13.3",
+        "tsx": "^4.23.5",
+        "typescript": "~6.0.3"
     },
     "scripts": {
         "start": "pnpm start:dev",

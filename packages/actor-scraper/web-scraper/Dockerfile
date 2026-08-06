@@ -2,9 +2,9 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Chrome + OS deps). The actor pins puppeteer to the version
-# this base ships (24-25.2.0 -> puppeteer 25.2.0) and bundles it, so the bundled driver matches the
+# this base ships (24-25.4.0 -> puppeteer 25.4.0) and bundles it, so the bundled driver matches the
 # Chrome binary it drives. Renovate bumps the base digest and the puppeteer pin together.
-FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d AS builder
+FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -29,7 +29,7 @@ RUN pnpm --filter actor-web-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-web-scraper deploy --prod /deploy
 
-FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476be7dd3ba87b8ca3b4136e2e081e5fa0e3c940d50d
+FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62
 
 # Base WORKDIR is /home/myuser and ships Chrome plus the Xvfb entrypoint. Replace only the template
 # node_modules with the lean production bundle (which carries the matching puppeteer); Chrome itself
@@ -37,8 +37,9 @@ FROM apify/actor-node-puppeteer-chrome:24-25.2.0@sha256:e9f588cd827e542bdc7b476b
 RUN rm -rf node_modules
 COPY --from=builder --chown=myuser /deploy ./
 
-# The base announces its Chrome via APIFY_CHROME_EXECUTABLE_PATH, but apify@3.7/crawlee@3.16 read only
-# PUPPETEER_EXECUTABLE_PATH — mirror the base's own value so we follow whatever Chrome the base ships.
+# The base announces its Chrome via APIFY_CHROME_EXECUTABLE_PATH, but the apify 3.x / crawlee 3.x
+# launcher reads only PUPPETEER_EXECUTABLE_PATH — mirror the base's own value so we follow whatever
+# Chrome the base ships.
 ENV PUPPETEER_EXECUTABLE_PATH=${APIFY_CHROME_EXECUTABLE_PATH} \
     APIFY_DISABLE_OUTDATED_WARNING=1
 

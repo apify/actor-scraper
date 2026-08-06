@@ -1,12 +1,16 @@
 # Build context is the monorepo root (dockerContextDir in .actor/actor.json), so the build uses the
 # root pnpm-lock.yaml for a deterministic install.
 #
-# The base is pinned by digest (reproducible Camoufox binary + OS deps). The actor pins playwright and
-# camoufox-js to the versions this base ships (24-1.59.1 -> playwright 1.59.1, camoufox-js 0.11.1) and
-# bundles them, so the bundled drivers match the Camoufox binary they drive. The binary itself lives in
-# ~/.cache/camoufox (outside node_modules) and stays in the base. Tag 24-1.59.1 is the newest Camoufox
-# base that survives page JS errors (24-1.60.0 crashes the process on them).
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:eadc96fa9492284eb45ef70b6b91c841fae7f142d25a22ae2887a21bb78b3469 AS builder
+# The base is pinned by digest (reproducible Camoufox binary + OS deps). The actor pins playwright to
+# the version this base ships (24-1.59.1 -> playwright 1.59.1) and bundles it, so the bundled driver
+# matches the Camoufox binary it drives, which is why this actor deliberately trails the playwright
+# version the rest of the workspace uses. The binary itself lives in ~/.cache/camoufox (outside
+# node_modules) and stays in the base. Tag 1.59.1 is the newest Camoufox base that survives page JS
+# errors (1.60.0 crashes the process on them).
+#
+# camoufox-js stays on 0.11.2: 0.12.0 requires better-sqlite3 ^13, which dropped prebuilt binaries and
+# so needs a C++ toolchain that the Apify base images do not carry.
+FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -32,7 +36,7 @@ RUN pnpm --filter actor-camoufox-scraper... build
 # compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:eadc96fa9492284eb45ef70b6b91c841fae7f142d25a22ae2887a21bb78b3469
+FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88
 
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean
