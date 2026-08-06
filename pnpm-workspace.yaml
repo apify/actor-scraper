@@ -39,9 +39,9 @@ preferWorkspacePackages: true
 #    (lerna 10 ships patched ones, but that is a major bump of the release tooling). Drop an entry
 #    once its owner has moved on.
 overrides:
-  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-beta.25"
+  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-beta.105"
+  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-beta.106"
+  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-beta.106"
   vite: "^7.3.6"
   postcss: "^8.5.25"
   js-yaml: "^4.3.1"
