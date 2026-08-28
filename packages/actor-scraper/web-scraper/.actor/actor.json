@@ -3,6 +3,7 @@
     "name": "web-scraper",
     "version": "0.1",
     "buildTag": "latest",
+    "output": "./output_schema.json",
     "dockerContextDir": "../../../..",
     "dockerfile": "../Dockerfile",
     "storages": {
