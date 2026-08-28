@@ -1,0 +1,13 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Cheerio Scraper Output",
+    "description": "Links to the default dataset containing the results of the Page function.",
+    "properties": {
+        "results": {
+            "type": "string",
+            "title": "Results",
+            "description": "Dataset items returned by the Page function, each with the #error flag and #debug request metadata.",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
