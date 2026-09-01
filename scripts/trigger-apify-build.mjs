@@ -16,6 +16,7 @@ const token = requiredEnv('APIFY_TOKEN');
 const actorId = requiredEnv('APIFY_ACTOR');
 const buildVersion = requiredEnv('BUILD_VERSION');
 const buildTag = requiredEnv('BUILD_TAG');
+const expectedBuildNumber = process.env.EXPECTED_BUILD_NUMBER;
 const timeoutSecs = Number(process.env.APIFY_RELEASE_BUILD_TIMEOUT_SECS ?? 900);
 
 if (!Number.isInteger(timeoutSecs) || timeoutSecs <= 0) {
@@ -73,3 +74,13 @@ if (status !== 'SUCCEEDED') {
 }
 
 console.log(`Build ${build.id} SUCCEEDED`);
+
+// The changelog entry is written and committed before the build is triggered, so its heading is a
+// prediction of the build number Apify assigns. Anything that consumed the number in the meantime (a
+// manual build, a concurrent release) makes that heading wrong, and only a human can fix it.
+if (expectedBuildNumber && build.buildNumber !== expectedBuildNumber) {
+    throw new Error(
+        `Build ${build.id} was published as ${build.buildNumber}, but the changelog of ${actorId} ` +
+            `documents ${expectedBuildNumber}. Fix the heading in the Actor's CHANGELOG.md.`,
+    );
+}

@@ -1,0 +1,51 @@
+[
+    {
+        "actor": "web-scraper",
+        "apifyActor": "apify/web-scraper",
+        "path": "packages/actor-scraper/web-scraper",
+        "stable": { "version": "3.0", "buildTag": "version-3" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "cheerio-scraper",
+        "apifyActor": "apify/cheerio-scraper",
+        "path": "packages/actor-scraper/cheerio-scraper",
+        "stable": { "version": "3.0", "buildTag": "version-3" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "playwright-scraper",
+        "apifyActor": "apify/playwright-scraper",
+        "path": "packages/actor-scraper/playwright-scraper",
+        "stable": { "version": "1.0", "buildTag": "version-1" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "puppeteer-scraper",
+        "apifyActor": "apify/puppeteer-scraper",
+        "path": "packages/actor-scraper/puppeteer-scraper",
+        "stable": { "version": "3.0", "buildTag": "version-3" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "jsdom-scraper",
+        "apifyActor": "apify/jsdom-scraper",
+        "path": "packages/actor-scraper/jsdom-scraper",
+        "stable": { "version": "0.2", "buildTag": "version-0" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "camoufox-scraper",
+        "apifyActor": "apify/camoufox-scraper",
+        "path": "packages/actor-scraper/camoufox-scraper",
+        "stable": { "version": "3.0", "buildTag": "version-3" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    },
+    {
+        "actor": "sitemap-scraper",
+        "apifyActor": "apify/sitemap-extractor",
+        "path": "packages/actor-scraper/sitemap-scraper",
+        "stable": { "version": "0.1", "buildTag": "latest" },
+        "development": { "version": "0.0", "buildTag": "development" }
+    }
+]
