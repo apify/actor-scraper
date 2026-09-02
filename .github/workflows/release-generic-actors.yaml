@@ -62,6 +62,9 @@ concurrency:
     group: release-generic-actors
     cancel-in-progress: false
 
+permissions:
+    contents: read
+
 jobs:
     resolve-matrix:
         name: Resolve release matrix
@@ -78,6 +81,8 @@ jobs:
 
             - name: Check out current SHA
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Set up Node.js
               uses: actions/setup-node@v7
@@ -104,6 +109,8 @@ jobs:
         steps:
             - name: Check out current SHA
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Check the Actor's tag namespace
               id: guard
@@ -322,6 +329,8 @@ jobs:
         steps:
             - name: Check out current SHA
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Set up Node.js
               uses: actions/setup-node@v7
