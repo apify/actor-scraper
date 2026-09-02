@@ -91,35 +91,35 @@ split_commits = false
 commit_preprocessors = []
 # regex for parsing and grouping commits
 commit_parsers = [
-  # A commit scoped to another Actor's directory is that Actor's business. The release workflow
-  # replaces the placeholder with the other six directory names before each run; left unsubstituted it
-  # is a literal that matches nothing, so a broken run is noisier rather than wrong. Commits with no
-  # scope, or a scope that is not an Actor directory, still reach every changelog - most work here
-  # spans several Actors at once and dropping it would leave real releases undocumented.
-  { message = "^\\w+\\((OTHER_ACTOR_SCOPES)\\)", skip = true },
-  { message = "^feat|^patch", group = "<!-- 0 -->🚀 Features" },
-  { message = "^fix|^bug", group = "<!-- 1 -->🐛 Bug Fixes" },
-  { message = "^docs(\\(.+\\))?!:", group = "<!-- 3 -->📚 Documentation" },
-  { message = "^docs", skip = true },
-  { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
-  { message = "^refactor(\\(.+\\))?!:", group = "<!-- 2 -->🚜 Refactor" },
-  { message = "^refactor", skip = true },
-  { message = "^style(\\(.+\\))?!:", group = "<!-- 5 -->🎨 Styling" },
-  { message = "^style", skip = true },
-  { message = "^test(\\(.+\\))?!:", group = "<!-- 6 -->🧪 Testing" },
-  { message = "^test", skip = true },
-  { message = "^chore\\(release\\): prepare for", skip = true },
-  # Bumps of the repo's own tooling say nothing about the Actor a Store user runs.
-  { message = "^chore\\(deps.*\\).*(oxfmt|oxlint|lerna|commitlint|husky|lint-staged|vitest|turbo|tsx|typescript|@types/|renovate|actions/|ubuntu|codecov)", skip = true },
-  { message = "^chore\\(deps.*\\)", group = "<!-- 10 -->⬆️ Dependencies" },
-  { message = "^chore\\(pr\\)", skip = true },
-  { message = "^chore\\(pull\\)", skip = true },
-  { message = "^(chore|ci)(\\(.+\\))?!:", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
-  { message = "^chore|^ci", skip = true },
-  { message = "^build(\\(.+\\))?!:", group = "<!-- 7 -->🏗️ Build" },
-  { message = "^build", skip = true },
-  { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
-  { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+    # A commit scoped to another Actor's directory is that Actor's business. The release workflow
+    # replaces the placeholder with the other six directory names before each run; left unsubstituted it
+    # is a literal that matches nothing, so a broken run is noisier rather than wrong. Commits with no
+    # scope, or a scope that is not an Actor directory, still reach every changelog - most work here
+    # spans several Actors at once and dropping it would leave real releases undocumented.
+    { message = "^\\w+\\((OTHER_ACTOR_SCOPES)\\)", skip = true },
+    { message = "^feat|^patch", group = "<!-- 0 -->🚀 Features" },
+    { message = "^fix|^bug", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^docs(\\(.+\\))?!:", group = "<!-- 3 -->📚 Documentation" },
+    { message = "^docs", skip = true },
+    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor(\\(.+\\))?!:", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^refactor", skip = true },
+    { message = "^style(\\(.+\\))?!:", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^style", skip = true },
+    { message = "^test(\\(.+\\))?!:", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^test", skip = true },
+    { message = "^chore\\(release\\): prepare for", skip = true },
+    # Bumps of the repo's own tooling say nothing about the Actor a Store user runs.
+    { message = "^chore\\(deps.*\\).*(oxfmt|oxlint|lerna|commitlint|husky|lint-staged|vitest|turbo|tsx|typescript|@types/|renovate|actions/|ubuntu|codecov)", skip = true },
+    { message = "^chore\\(deps.*\\)", group = "<!-- 10 -->⬆️ Dependencies" },
+    { message = "^chore\\(pr\\)", skip = true },
+    { message = "^chore\\(pull\\)", skip = true },
+    { message = "^(chore|ci)(\\(.+\\))?!:", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { message = "^chore|^ci", skip = true },
+    { message = "^build(\\(.+\\))?!:", group = "<!-- 7 -->🏗️ Build" },
+    { message = "^build", skip = true },
+    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
 ]
 # protect breaking changes from being skipped due to matching a skipping commit_parser
 # Off, because the protection outranks the sibling-scope rule above: a breaking change in another
