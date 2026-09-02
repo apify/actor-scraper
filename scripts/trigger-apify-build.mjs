@@ -75,9 +75,9 @@ if (status !== 'SUCCEEDED') {
 
 console.log(`Build ${build.id} SUCCEEDED`);
 
-// The changelog entry is written and committed before the build is triggered, so its heading is a
-// prediction of the build number Apify assigns. Anything that consumed the number in the meantime (a
-// manual build, a concurrent release) makes that heading wrong, and only a human can fix it.
+// The changelog heading is a prediction: it is committed before the build is triggered. Runs of the
+// release workflow are serialised by its concurrency group, but a build started outside it - from the
+// Console, the API or the CLI - can still consume the number and leave the heading wrong.
 if (expectedBuildNumber && build.buildNumber !== expectedBuildNumber) {
     throw new Error(
         `Build ${build.id} was published as ${build.buildNumber}, but the changelog of ${actorId} ` +
