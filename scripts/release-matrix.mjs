@@ -45,10 +45,10 @@ function nextBuildNumber(current, version) {
     return `${prefix}${patch + 1}`;
 }
 
-async function predictBuildNumber({ apifyActor, version, buildTag, token }) {
-    const response = await fetch(`https://api.apify.com/v2/acts/${apifyActor.replace('/', '~')}`, {
-        headers: token ? { authorization: `Bearer ${token}` } : {},
-    });
+async function predictBuildNumber({ apifyActor, version, buildTag }) {
+    // Every generic scraper is public, so this read needs no token - and sending one would add a 401
+    // to a step that has nothing to authenticate. A private Actor would fail here with a 404.
+    const response = await fetch(`https://api.apify.com/v2/acts/${apifyActor.replace('/', '~')}`);
 
     if (!response.ok) {
         throw new Error(`Cannot read "${apifyActor}" from the Apify API: ${response.status} ${response.statusText}`);
@@ -81,12 +81,13 @@ if (channel === 'custom' && !(customVersion && customBuildTag)) {
 
 const actors = JSON.parse(await readFile('.github/release-actors.json', 'utf8'));
 const selection = JSON.parse(requiredEnv('SELECTED_ACTORS'));
-const token = process.env.APIFY_TOKEN;
 
 const include = [];
 
 for (const actor of actors) {
-    if (selection[actor.actor] !== 'true') {
+    // `github.event.inputs` renders booleans as strings, the `inputs` context keeps them as
+    // booleans - accept both so the workflow can use either context.
+    if (String(selection[actor.actor]) !== 'true') {
         continue;
     }
 
@@ -108,7 +109,7 @@ for (const actor of actors) {
     // Only stable releases get a changelog entry, a Git tag and a GitHub release - development and
     // custom builds are throwaway and would just pollute the changelog with versions nobody can run.
     if (channel === 'stable') {
-        entry.buildNumber = await predictBuildNumber({ ...entry, token });
+        entry.buildNumber = await predictBuildNumber(entry);
         entry.tag = `${actor.actor}-v${entry.buildNumber}`;
     }
 

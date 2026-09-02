@@ -87,7 +87,6 @@ jobs:
             - name: Resolve the Actors to release
               id: matrix
               env:
-                  APIFY_TOKEN: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
                   BUILD_CHANNEL: ${{ github.event.inputs.build-channel }}
                   CUSTOM_VERSION: ${{ github.event.inputs.version }}
                   CUSTOM_BUILD_TAG: ${{ github.event.inputs.build-tag }}
@@ -110,6 +109,8 @@ jobs:
               id: guard
               env:
                   ACTOR: ${{ matrix.actor }}
+                  BUILD_NUMBER: ${{ matrix.buildNumber }}
+                  CHANGELOG: ${{ matrix.path }}/CHANGELOG.md
                   GH_TOKEN: ${{ github.token }}
                   TAG: ${{ matrix.tag }}
               run: |
@@ -122,10 +123,14 @@ jobs:
                       exit 1
                   fi
 
-                  # A re-run after a failed build would otherwise append a second, empty entry for a
-                  # build number whose changelog is already on the default branch.
+                  # Both halves matter after a partly failed release: the tag covers a re-run of this
+                  # very run, the changelog covers a fresh run over a commit that already landed.
+                  # Without them a second entry for the same build number would be prepended.
                   if gh api "repos/${{ github.repository }}/git/ref/tags/$TAG" --silent 2> /dev/null; then
-                      echo "::notice title=Changelog already written::$TAG exists, an earlier run prepared this entry"
+                      echo "::notice title=Already released::$TAG exists, leaving the changelog alone"
+                      echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
+                  elif grep -q "^## $BUILD_NUMBER (" "$CHANGELOG"; then
+                      echo "::notice title=Changelog already written::$CHANGELOG documents $BUILD_NUMBER already"
                       echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
                   else
                       echo 'skip=false' | tee -a "$GITHUB_OUTPUT"
@@ -139,9 +144,36 @@ jobs:
                   set -euo pipefail
 
                   # Every Actor keeps its own release history under its own tag namespace, so the
-                  # changelog covers the commits since *this* Actor was last released.
-                  sed -E "s|^tag_pattern = .*|tag_pattern = \"^${ACTOR}-v\"|" .github/cliff.toml > "$RUNNER_TEMP/cliff.toml"
-                  grep '^tag_pattern' "$RUNNER_TEMP/cliff.toml"
+                  # changelog covers the commits since *this* Actor was last released, and commits
+                  # scoped to one of the other Actors are left out of it.
+                  others=$(jq -r --arg a "$ACTOR" '[.[].actor | select(. != $a)] | join("|")' .github/release-actors.json)
+
+                  if [ -z "$others" ]; then
+                      echo "::error title=Empty scope list::Could not read the other Actors from .github/release-actors.json"
+                      exit 1
+                  fi
+
+                  # "#" as the delimiter: the scope list is a regex alternation full of "|".
+                  sed -E \
+                      -e "s#^tag_pattern = .*#tag_pattern = \"^${ACTOR}-v\"#" \
+                      -e "s#OTHER_ACTOR_SCOPES#${others}#" \
+                      .github/cliff.toml > "$RUNNER_TEMP/cliff.toml"
+
+                  # A substitution that stops matching leaves git-cliff working, just on the wrong
+                  # range or without the scope filter, and reports nothing - so assert both landed.
+                  if ! grep -q "^tag_pattern = \"\\^${ACTOR}-v\"$" "$RUNNER_TEMP/cliff.toml"; then
+                      echo "::error title=Config not scoped::tag_pattern was not rewritten for $ACTOR"
+                      exit 1
+                  fi
+
+                  # Asserting the list is present also covers a placeholder that was never there,
+                  # which a check for the leftover placeholder alone would pass.
+                  if ! grep -qF "$others" "$RUNNER_TEMP/cliff.toml"; then
+                      echo "::error title=Config not scoped::the sibling scope list is missing - check the OTHER_ACTOR_SCOPES placeholder in .github/cliff.toml"
+                      exit 1
+                  fi
+
+                  grep -F -e 'tag_pattern = ' -e "$others" "$RUNNER_TEMP/cliff.toml"
 
             - name: Prepare release metadata
               id: metadata
@@ -192,23 +224,34 @@ jobs:
                   if-no-files-found: error
                   retention-days: 7
 
+    # Runs on every channel, doing nothing when there is no changelog to write, so that the build job
+    # can depend on it plainly. That keeps `always()` away from a job whose matrix comes from
+    # `fromJSON`, where an unresolved output would be evaluated as an empty string.
     commit-changelogs:
         name: Commit changelogs
         needs: [resolve-matrix, prepare-changelog]
+        if: >-
+            ${{ always() && needs.resolve-matrix.result == 'success'
+            && needs.prepare-changelog.result != 'failure' && needs.prepare-changelog.result != 'cancelled' }}
         runs-on: ubuntu-latest
+        env:
+            CHANGELOG_ENABLED: ${{ needs.resolve-matrix.outputs.changelog-enabled }}
         steps:
             - name: Check out ${{ github.ref_name }}
+              if: env.CHANGELOG_ENABLED == 'true'
               uses: actions/checkout@v7
               with:
                   token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
 
             - name: Download the prepared changelogs
+              if: env.CHANGELOG_ENABLED == 'true'
               uses: actions/download-artifact@v8
               with:
                   path: ${{ runner.temp }}/release
 
             - name: Apply the changelogs
               id: apply
+              if: env.CHANGELOG_ENABLED == 'true'
               run: |
                   set -euo pipefail
                   shopt -s nullglob
@@ -243,7 +286,7 @@ jobs:
             # One commit for the whole release, so every Actor in it is built from the same tree.
             - name: Commit the changelogs
               id: commit
-              if: steps.apply.outputs.applied != '0'
+              if: steps.apply.outputs.applied != '' && steps.apply.outputs.applied != '0'
               uses: apify/actions/signed-commit@v1.4.1
               with:
                   message: 'chore(release): update Actor changelogs [skip ci]'
@@ -251,7 +294,7 @@ jobs:
                   add: 'packages/actor-scraper/*/CHANGELOG.md'
 
             - name: Create the GitHub releases
-              if: steps.apply.outputs.applied != '0'
+              if: steps.apply.outputs.applied != '' && steps.apply.outputs.applied != '0'
               env:
                   COMMIT_SHA: ${{ steps.commit.outputs.commit_long_sha }}
                   GH_TOKEN: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
@@ -272,10 +315,6 @@ jobs:
     push-to-apify:
         name: Build ${{ matrix.actor }}
         needs: [resolve-matrix, commit-changelogs]
-        if: >-
-            ${{ always() && needs.resolve-matrix.result == 'success'
-            && (needs.commit-changelogs.result == 'success'
-            || (needs.resolve-matrix.outputs.changelog-enabled != 'true' && needs.commit-changelogs.result == 'skipped')) }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
