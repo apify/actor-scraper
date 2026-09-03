@@ -4,7 +4,7 @@
 # The base is pinned by digest (reproducible Chromium + OS deps). The actor pins playwright to the
 # version this base ships (24-1.62.1 -> playwright 1.62.1) and bundles it, so the bundled driver
 # matches the Chromium binary it drives. Renovate bumps the base digest and the playwright pin together.
-FROM apify/actor-node-playwright:24-1.62.1@sha256:69172fc9daa6c6e7d3d1e57491c91852a0d6af2818378d341f65e69795e68ab4 AS builder
+FROM apify/actor-node-playwright:26-1.62.1@sha256:987aa9ced2797348363ba60023b74d8a4234cc95f91193ce6daa40721c310919 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -29,7 +29,7 @@ RUN pnpm --filter actor-playwright-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright:24-1.62.1@sha256:69172fc9daa6c6e7d3d1e57491c91852a0d6af2818378d341f65e69795e68ab4
+FROM apify/actor-node-playwright:26-1.62.1@sha256:987aa9ced2797348363ba60023b74d8a4234cc95f91193ce6daa40721c310919
 
 # Base WORKDIR is /home/myuser and ships the browser plus the Xvfb entrypoint. Replace only the
 # template node_modules with the lean production bundle (which carries the matching playwright); the
