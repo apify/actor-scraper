@@ -16,6 +16,7 @@ const token = requiredEnv('APIFY_TOKEN');
 const actorId = requiredEnv('APIFY_ACTOR');
 const buildVersion = requiredEnv('BUILD_VERSION');
 const buildTag = requiredEnv('BUILD_TAG');
+const expectedBuildNumber = process.env.EXPECTED_BUILD_NUMBER;
 const timeoutSecs = Number(process.env.APIFY_RELEASE_BUILD_TIMEOUT_SECS ?? 900);
 
 if (!Number.isInteger(timeoutSecs) || timeoutSecs <= 0) {
@@ -73,3 +74,13 @@ if (status !== 'SUCCEEDED') {
 }
 
 console.log(`Build ${build.id} SUCCEEDED`);
+
+// The changelog heading is a prediction: it is committed before the build is triggered. Runs of the
+// release workflow are serialised by its concurrency group, but a build started outside it - from the
+// Console, the API or the CLI - can still consume the number and leave the heading wrong.
+if (expectedBuildNumber && build.buildNumber !== expectedBuildNumber) {
+    throw new Error(
+        `Build ${build.id} was published as ${build.buildNumber}, but the changelog of ${actorId} ` +
+            `documents ${expectedBuildNumber}. Fix the heading in the Actor's CHANGELOG.md.`,
+    );
+}

@@ -56,105 +56,296 @@ on:
                 type: string
                 required: false
 
+# The Actors build from the Git source on the default branch, so a release has to own that branch
+# from the changelog commit until every build has been triggered.
+concurrency:
+    group: release-generic-actors
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
 jobs:
-    push-to-apify:
+    resolve-matrix:
+        name: Resolve release matrix
+        runs-on: ubuntu-latest
+        outputs:
+            matrix: ${{ steps.matrix.outputs.matrix }}
+            changelog-enabled: ${{ steps.matrix.outputs.changelog-enabled }}
+        steps:
+            - name: Refuse stable releases from other branches
+              if: ${{ github.event.inputs.build-channel == 'stable' && github.ref_name != github.event.repository.default_branch }}
+              run: |
+                  echo "::error title=Wrong branch::Stable releases must be dispatched from ${{ github.event.repository.default_branch }}, because that is the branch the Actors build from."
+                  exit 1
+
+            - name: Check out current SHA
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 24
+
+            - name: Resolve the Actors to release
+              id: matrix
+              env:
+                  BUILD_CHANNEL: ${{ github.event.inputs.build-channel }}
+                  CUSTOM_VERSION: ${{ github.event.inputs.version }}
+                  CUSTOM_BUILD_TAG: ${{ github.event.inputs.build-tag }}
+                  SELECTED_ACTORS: ${{ toJSON(github.event.inputs) }}
+              run: node scripts/release-matrix.mjs
+
+    prepare-changelog:
+        name: Prepare changelog (${{ matrix.actor }})
+        needs: resolve-matrix
+        if: ${{ needs.resolve-matrix.outputs.changelog-enabled == 'true' }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
-            matrix:
-                settings:
-                    - actor: web-scraper
-                      apify-actor: apify/web-scraper
-                      stable-version: '3.0'
-                      stable-build-tag: version-3
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.web-scraper }}
-                    - actor: cheerio-scraper
-                      apify-actor: apify/cheerio-scraper
-                      stable-version: '3.0'
-                      stable-build-tag: version-3
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.cheerio-scraper }}
-                    - actor: playwright-scraper
-                      apify-actor: apify/playwright-scraper
-                      stable-version: '1.0'
-                      stable-build-tag: version-1
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.playwright-scraper }}
-                    - actor: puppeteer-scraper
-                      apify-actor: apify/puppeteer-scraper
-                      stable-version: '3.0'
-                      stable-build-tag: version-3
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.puppeteer-scraper }}
-                    - actor: jsdom-scraper
-                      apify-actor: apify/jsdom-scraper
-                      stable-version: '0.2'
-                      stable-build-tag: version-0
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.jsdom-scraper }}
-                    - actor: camoufox-scraper
-                      apify-actor: apify/camoufox-scraper
-                      stable-version: '3.0'
-                      stable-build-tag: version-3
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.camoufox-scraper }}
-                    - actor: sitemap-scraper
-                      apify-actor: apify/sitemap-extractor
-                      stable-version: '0.1'
-                      stable-build-tag: latest
-                      development-version: '0.0'
-                      development-build-tag: development
-                      should-build: ${{ github.event.inputs.sitemap-scraper }}
+            matrix: ${{ fromJSON(needs.resolve-matrix.outputs.matrix) }}
         steps:
             - name: Check out current SHA
-              if: matrix.settings.should-build == 'true'
               uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Check the Actor's tag namespace
+              id: guard
+              env:
+                  ACTOR: ${{ matrix.actor }}
+                  BUILD_NUMBER: ${{ matrix.buildNumber }}
+                  CHANGELOG: ${{ matrix.path }}/CHANGELOG.md
+                  GH_TOKEN: ${{ github.token }}
+                  TAG: ${{ matrix.tag }}
+              run: |
+                  set -euo pipefail
+
+                  # Without a tag to start from, git-cliff walks back to the first commit in the repo
+                  # and the "release" would document years of unrelated history.
+                  if [ "$(gh api "repos/${{ github.repository }}/git/matching-refs/tags/$ACTOR-v" --jq 'length')" = '0' ]; then
+                      echo "::error title=Missing seed tag::No $ACTOR-v* tag exists. Tag the commit $ACTOR was last released from as $ACTOR-v<its build number> before releasing it through this workflow."
+                      exit 1
+                  fi
+
+                  # Both halves matter after a partly failed release: the tag covers a re-run of this
+                  # very run, the changelog covers a fresh run over a commit that already landed.
+                  # Without them a second entry for the same build number would be prepended.
+                  if gh api "repos/${{ github.repository }}/git/ref/tags/$TAG" --silent 2> /dev/null; then
+                      echo "::notice title=Already released::$TAG exists, leaving the changelog alone"
+                      echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
+                  elif grep -q "^## $BUILD_NUMBER (" "$CHANGELOG"; then
+                      echo "::notice title=Changelog already written::$CHANGELOG documents $BUILD_NUMBER already"
+                      echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
+                  else
+                      echo 'skip=false' | tee -a "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Scope git-cliff to this Actor
+              if: steps.guard.outputs.skip == 'false'
+              env:
+                  ACTOR: ${{ matrix.actor }}
+              run: |
+                  set -euo pipefail
+
+                  # Every Actor keeps its own release history under its own tag namespace, so the
+                  # changelog covers the commits since *this* Actor was last released, and commits
+                  # scoped to one of the other Actors are left out of it.
+                  others=$(jq -r --arg a "$ACTOR" '[.[].actor | select(. != $a)] | join("|")' .github/release-actors.json)
+
+                  if [ -z "$others" ]; then
+                      echo "::error title=Empty scope list::Could not read the other Actors from .github/release-actors.json"
+                      exit 1
+                  fi
+
+                  # "#" as the delimiter: the scope list is a regex alternation full of "|".
+                  sed -E \
+                      -e "s#^tag_pattern = .*#tag_pattern = \"^${ACTOR}-v\"#" \
+                      -e "s#OTHER_ACTOR_SCOPES#${others}#" \
+                      .github/cliff.toml > "$RUNNER_TEMP/cliff.toml"
+
+                  # A substitution that stops matching leaves git-cliff working, just on the wrong
+                  # range or without the scope filter, and reports nothing - so assert both landed.
+                  if ! grep -q "^tag_pattern = \"\\^${ACTOR}-v\"$" "$RUNNER_TEMP/cliff.toml"; then
+                      echo "::error title=Config not scoped::tag_pattern was not rewritten for $ACTOR"
+                      exit 1
+                  fi
+
+                  # Asserting the list is present also covers a placeholder that was never there,
+                  # which a check for the leftover placeholder alone would pass.
+                  if ! grep -qF "$others" "$RUNNER_TEMP/cliff.toml"; then
+                      echo "::error title=Config not scoped::the sibling scope list is missing - check the OTHER_ACTOR_SCOPES placeholder in .github/cliff.toml"
+                      exit 1
+                  fi
+
+                  grep -F -e 'tag_pattern = ' -e "$others" "$RUNNER_TEMP/cliff.toml"
+
+            - name: Prepare release metadata
+              id: metadata
+              if: steps.guard.outputs.skip == 'false'
+              uses: apify/actions/git-cliff-release@v1.4.1
+              with:
+                  release_type: custom
+                  custom_version: ${{ matrix.buildNumber }}
+                  cliff_config_path: ${{ runner.temp }}/cliff.toml
+                  existing_changelog_path: ${{ matrix.path }}/CHANGELOG.md
+                  changelog_artifact_name: changelog-${{ matrix.actor }}
+                  add-github-links: false
+
+            - name: Record the release metadata
+              env:
+                  ACTOR: ${{ matrix.actor }}
+                  ACTOR_PATH: ${{ matrix.path }}
+                  BUILD_NUMBER: ${{ matrix.buildNumber }}
+                  RELEASE_NOTES: ${{ steps.metadata.outputs.release_notes }}
+                  SKIPPED: ${{ steps.guard.outputs.skip }}
+                  TAG: ${{ matrix.tag }}
+              run: |
+                  set -euo pipefail
+                  mkdir -p "$RUNNER_TEMP/meta"
+                  printf '%s\n' "$RELEASE_NOTES" > "$RUNNER_TEMP/meta/release-notes.md"
+
+                  # git-cliff renders a bare heading when nothing in the range survives the commit
+                  # parsers; publishing that would put an empty version on the Actor's Store page.
+                  apply=true
+
+                  if [ "$SKIPPED" = 'true' ]; then
+                      apply=false
+                  elif ! grep -q '^### ' "$RUNNER_TEMP/meta/release-notes.md"; then
+                      echo "::notice title=Nothing to document::No changelog-worthy commits since the last $ACTOR release"
+                      apply=false
+                  fi
+
+                  jq -n --arg actor "$ACTOR" --arg path "$ACTOR_PATH" --arg tag "$TAG" \
+                      --arg buildNumber "$BUILD_NUMBER" --argjson apply "$apply" \
+                      '{actor: $actor, path: $path, tag: $tag, buildNumber: $buildNumber, apply: $apply}' \
+                      | tee "$RUNNER_TEMP/meta/meta.json"
+
+            - name: Upload the release metadata
+              uses: actions/upload-artifact@v7
+              with:
+                  name: meta-${{ matrix.actor }}
+                  path: ${{ runner.temp }}/meta
+                  if-no-files-found: error
+                  retention-days: 7
+
+    # Runs on every channel, doing nothing when there is no changelog to write, so that the build job
+    # can depend on it plainly. That keeps `always()` away from a job whose matrix comes from
+    # `fromJSON`, where an unresolved output would be evaluated as an empty string.
+    commit-changelogs:
+        name: Commit changelogs
+        needs: [resolve-matrix, prepare-changelog]
+        if: >-
+            ${{ always() && needs.resolve-matrix.result == 'success'
+            && needs.prepare-changelog.result != 'failure' && needs.prepare-changelog.result != 'cancelled' }}
+        runs-on: ubuntu-latest
+        env:
+            CHANGELOG_ENABLED: ${{ needs.resolve-matrix.outputs.changelog-enabled }}
+        steps:
+            - name: Check out ${{ github.ref_name }}
+              if: env.CHANGELOG_ENABLED == 'true'
+              uses: actions/checkout@v7
+              with:
+                  token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+
+            - name: Download the prepared changelogs
+              if: env.CHANGELOG_ENABLED == 'true'
+              uses: actions/download-artifact@v8
+              with:
+                  path: ${{ runner.temp }}/release
+
+            - name: Apply the changelogs
+              id: apply
+              if: env.CHANGELOG_ENABLED == 'true'
+              run: |
+                  set -euo pipefail
+                  shopt -s nullglob
+                  applied=0
+
+                  for meta in "$RUNNER_TEMP"/release/meta-*/meta.json; do
+                      actor=$(jq -r .actor "$meta")
+
+                      if [ "$(jq -r .apply "$meta")" != 'true' ]; then
+                          echo "Leaving the changelog of $actor untouched"
+                          continue
+                      fi
+
+                      build=$(jq -r .buildNumber "$meta")
+                      target="$(jq -r .path "$meta")/CHANGELOG.md"
+                      cp "$RUNNER_TEMP/release/changelog-$actor/CHANGELOG.md" "$target"
+
+                      # git-cliff falls back to its built-in configuration with nothing but a warning
+                      # when it cannot read the one it was pointed at, so check the result rather than
+                      # trusting the exit code.
+                      if [ "$(head -1 "$target")" != '# Changelog' ] || ! grep -q "^## $build (" "$target"; then
+                          echo "::error title=Unexpected changelog::$target does not look like a git-cliff render of $build"
+                          exit 1
+                      fi
+
+                      echo "Updated the changelog of $actor to $build"
+                      applied=$((applied + 1))
+                  done
+
+                  echo "applied=$applied" | tee -a "$GITHUB_OUTPUT"
+
+            # One commit for the whole release, so every Actor in it is built from the same tree.
+            - name: Commit the changelogs
+              id: commit
+              if: steps.apply.outputs.applied != '' && steps.apply.outputs.applied != '0'
+              uses: apify/actions/signed-commit@v1.4.1
+              with:
+                  message: 'chore(release): update Actor changelogs [skip ci]'
+                  github-token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+                  add: 'packages/actor-scraper/*/CHANGELOG.md'
+
+            - name: Create the GitHub releases
+              if: steps.apply.outputs.applied != '' && steps.apply.outputs.applied != '0'
+              env:
+                  COMMIT_SHA: ${{ steps.commit.outputs.commit_long_sha }}
+                  GH_TOKEN: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
+              run: |
+                  set -euo pipefail
+                  shopt -s nullglob
+
+                  for meta in "$RUNNER_TEMP"/release/meta-*/meta.json; do
+                      [ "$(jq -r .apply "$meta")" = 'true' ] || continue
+
+                      # The tag doubles as the range marker git-cliff uses for the next release.
+                      gh release create "$(jq -r .tag "$meta")" \
+                          --target "$COMMIT_SHA" \
+                          --title "$(jq -r '"\(.actor) \(.buildNumber)"' "$meta")" \
+                          --notes-file "$(dirname "$meta")/release-notes.md"
+                  done
+
+    push-to-apify:
+        name: Build ${{ matrix.actor }}
+        needs: [resolve-matrix, commit-changelogs]
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix: ${{ fromJSON(needs.resolve-matrix.outputs.matrix) }}
+        steps:
+            - name: Check out current SHA
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
 
             - name: Set up Node.js
-              if: matrix.settings.should-build == 'true'
               uses: actions/setup-node@v7
               with:
                   node-version: 24
 
             - name: Install pnpm and dependencies
-              if: matrix.settings.should-build == 'true'
               uses: apify/actions/pnpm-install@v1.4.1
 
-            - name: Log matrix
-              run: |
-                  echo "Actor: ${{ matrix.settings.actor }}"
-                  echo "Should build: ${{ matrix.settings.should-build }}"
-
-            - name: Calculate versions and tags
-              id: calculate-versions
-              if: matrix.settings.should-build == 'true'
-              run: |
-                  if [ "${{ github.event.inputs.build-channel }}" = "stable" ]; then
-                      echo "version=${{ matrix.settings.stable-version }}" >> "$GITHUB_ENV"
-                      echo "build-tag=${{ matrix.settings.stable-build-tag }}" >> "$GITHUB_ENV"
-                  elif [ "${{ github.event.inputs.build-channel }}" = "development" ]; then
-                      echo "version=${{ matrix.settings.development-version }}" >> "$GITHUB_ENV"
-                      echo "build-tag=${{ matrix.settings.development-build-tag }}" >> "$GITHUB_ENV"
-                  else
-                      echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_ENV"
-                      echo "build-tag=${{ github.event.inputs.build-tag }}" >> "$GITHUB_ENV"
-                  fi
-
-            - name: Build ${{ matrix.settings.actor }} on Apify (Git source)
-              if: matrix.settings.should-build == 'true'
+            - name: Build ${{ matrix.actor }} on Apify (Git source)
               env:
                   APIFY_TOKEN: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
-                  APIFY_ACTOR: ${{ matrix.settings.apify-actor }}
-                  BUILD_VERSION: ${{ env.version }}
-                  BUILD_TAG: ${{ env.build-tag }}
-                  APIFY_RELEASE_BUILD_TIMEOUT_SECS: "900"
-              run: |
-                  set -euo pipefail
-                  node scripts/trigger-apify-build.mjs
+                  APIFY_ACTOR: ${{ matrix.apifyActor }}
+                  BUILD_VERSION: ${{ matrix.version }}
+                  BUILD_TAG: ${{ matrix.buildTag }}
+                  EXPECTED_BUILD_NUMBER: ${{ matrix.buildNumber }}
+                  APIFY_RELEASE_BUILD_TIMEOUT_SECS: '900'
+              run: node scripts/trigger-apify-build.mjs
