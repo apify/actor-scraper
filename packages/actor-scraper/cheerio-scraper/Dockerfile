@@ -1,6 +1,6 @@
 # Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
 # so the build can use the pnpm workspace lockfile for a deterministic install.
-FROM apify/actor-node:24 AS builder
+FROM apify/actor-node:26 AS builder
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ RUN pnpm --filter actor-cheerio-scraper... build
 # @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-cheerio-scraper deploy --prod /deploy
 
-FROM apify/actor-node:24
+FROM apify/actor-node:26
 
 WORKDIR /usr/src/app
 
