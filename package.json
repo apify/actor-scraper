@@ -78,7 +78,7 @@
         "lerna": "^10.0.0",
         "lint-staged": "^17.3.0",
         "oxfmt": "0.66.0",
-        "oxlint": "1.80.0",
+        "oxlint": "1.81.0",
         "oxlint-tsgolint": "7.0.2001",
         "playwright": "^1.62.1",
         "puppeteer": "25.4.0",
@@ -89,7 +89,7 @@
         "vite-tsconfig-paths": "^6.1.1",
         "vitest": "^4.1.10"
     },
-    "packageManager": "pnpm@11.24.0",
+    "packageManager": "pnpm@11.25.0",
     "devEngines": {
         "packageManager": {
             "name": "pnpm",
