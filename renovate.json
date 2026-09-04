@@ -76,6 +76,22 @@
             ],
             "matchPackageNames": ["apify/actor-node-puppeteer-chrome", "puppeteer"],
             "groupName": "puppeteer browser stack"
+        },
+        {
+            "description": "HELD at 1.61.x: playwright 1.62.0 stopped disabling Chromium's RenderDocument (microsoft/playwright#41303), which makes page.close() hang and leaks the page in Crawlee's browser pool (microsoft/playwright#42068, apify/crawlee#1829). Lift once upstream ships the fix or the pool survives a close that never settles.",
+            "matchManagers": ["npm"],
+            "matchFileNames": ["package.json", "packages/actor-scraper/playwright-scraper/package.json"],
+            "matchPackageNames": ["playwright", "@playwright/browser-chromium"],
+            "allowedVersions": "<1.62.0",
+            "automerge": false
+        },
+        {
+            "description": "HELD at 1.61.x: keep the Playwright base image on the line matching the driver pin, see the rule above. Digest updates within the tag still flow.",
+            "matchManagers": ["dockerfile"],
+            "matchFileNames": ["packages/actor-scraper/playwright-scraper/Dockerfile"],
+            "matchPackageNames": ["apify/actor-node-playwright"],
+            "allowedVersions": "/^24-1\\.61\\./",
+            "automerge": false
         }
     ],
     "schedule": ["every weekday"]
