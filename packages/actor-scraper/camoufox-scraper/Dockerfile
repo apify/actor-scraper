@@ -10,7 +10,7 @@
 #
 # camoufox-js stays on 0.11.2: 0.12.0 requires better-sqlite3 ^13, which dropped prebuilt binaries and
 # so needs a C++ toolchain that the Apify base images do not carry.
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88 AS builder
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:c901451fed65cb2865366eb792af8a7d7f42c57ee0c01b82871784bf692a8f4d AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -36,7 +36,7 @@ RUN pnpm --filter actor-camoufox-scraper... build
 # compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:c901451fed65cb2865366eb792af8a7d7f42c57ee0c01b82871784bf692a8f4d
 
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean
