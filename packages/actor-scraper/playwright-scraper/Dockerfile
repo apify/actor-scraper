@@ -11,7 +11,7 @@
 # disabled. Crawlee then leaks the page and its BrowserController never recovers (apify/crawlee#1829).
 # Do not move past 1.61.1 until microsoft/playwright#42068 ships (milestone v1.64) or crawlee's
 # browser pool survives a close that never settles.
-FROM apify/actor-node-playwright:24-1.61.1@sha256:ec39f7a735c35c3f78e450bf6833c1adcc0b6d0e132c0e4fd9010317a9d7a212 AS builder
+FROM apify/actor-node-playwright:24-1.61.1@sha256:309741574094c2f5e9f943384f04364fe2a3c1e5c88ce077f685e3b5c520c14c AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -36,7 +36,7 @@ RUN pnpm --filter actor-playwright-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright:24-1.61.1@sha256:ec39f7a735c35c3f78e450bf6833c1adcc0b6d0e132c0e4fd9010317a9d7a212
+FROM apify/actor-node-playwright:24-1.61.1@sha256:309741574094c2f5e9f943384f04364fe2a3c1e5c88ce077f685e3b5c520c14c
 
 # Base WORKDIR is /home/myuser and ships the browser plus the Xvfb entrypoint. Replace only the
 # template node_modules with the lean production bundle (which carries the matching playwright); the
