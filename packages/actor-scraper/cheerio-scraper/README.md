@@ -66,7 +66,7 @@ The Actor does not employ a full-featured web browser such as Chromium or Firefo
 Since Cheerio Scraper's **Page function** is executed in the context of the server, it only supports server-side code running in Node.js. If you need to combine client- and server-side libraries in Chromium using the [Puppeteer](https://github.com/puppeteer/puppeteer) library, you might prefer to use
 [**Puppeteer Scraper**](https://apify.com/apify/puppeteer-scraper) (`apify/puppeteer-scraper`). If you prefer Firefox and/or [Playwright](https://github.com/microsoft/playwright), check out [**Playwright Scraper**](https://apify.com/apify/playwright-scraper) (`apify/playwright-scraper`). For even more flexibility and control, you might develop a new Actor from scratch in Node.js using [Apify SDK](https://sdk.apify.com/) and [Crawlee](https://crawlee.dev).
 
-In the [**Page function**](#page-function) and **Prepare request function**,
+In the [**Page function**](#page-function) and the navigation hooks,
 you can only use npm modules that are already installed in this Actor.
 If you require other modules for your scraping, you'll need to develop a completely new Actor.
 You can use the [`CheerioCrawler`](https://crawlee.dev/api/cheerio-crawler/class/CheerioCrawler) class
@@ -165,7 +165,7 @@ Note that while the default `Accept` HTTP header will allow any content type to 
 HTML and XML are preferred over JSON and other types. Thus, if you're allowing additional MIME
 types, and you're still receiving invalid responses, be sure to override the `Accept`
 HTTP header setting in the requests from the scraper,
-either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the **Prepare request function**.
+either in [**Start URLs**](#start-urls), [**Pseudo URLs**](#pseudo-urls) or in the [**Pre-navigation hooks**](#pre-navigation-hooks).
 
 The web pages with various content types are parsed differently and
 thus the `context` parameter of the [**Page function**](#page-function) will have different values:
@@ -447,9 +447,6 @@ visit the [Mozilla documentation](https://developer.mozilla.org/en-US/docs/Web/J
       }
     }
     ```
-
-<!-- TODO: We're missing more detailed description for prepareRequestFunction, what is it good for?
-Give some example, also better prefill -->
 
 ## Proxy configuration
 
