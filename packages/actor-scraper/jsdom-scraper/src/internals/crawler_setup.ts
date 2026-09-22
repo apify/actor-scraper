@@ -12,34 +12,18 @@ import type {
     ProxyConfiguration,
     Request,
 } from '@crawlee/jsdom';
-import {
-    Dataset,
-    JSDOMCrawler,
-    KeyValueStore,
-    log,
-    RequestList,
-    RequestQueueV2,
-} from '@crawlee/jsdom';
+import { Dataset, JSDOMCrawler, KeyValueStore, log, RequestList, RequestQueueV2 } from '@crawlee/jsdom';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
-import type {
-    CrawlerSetupOptions,
-    RequestMetadata,
-} from '@apify/scraper-tools';
-import {
-    constants as scraperToolsConstants,
-    createContext,
-    tools,
-} from '@apify/scraper-tools';
+import type { CrawlerSetupOptions, RequestMetadata } from '@apify/scraper-tools';
+import { constants as scraperToolsConstants, createContext, tools } from '@apify/scraper-tools';
 
 import type { Input } from './consts.js';
 import { ProxyRotation } from './consts.js';
 
 const { SESSION_MAX_USAGE_COUNTS, META_KEY } = scraperToolsConstants;
-const SCHEMA = JSON.parse(
-    await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'),
-);
+const SCHEMA = JSON.parse(await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'));
 
 const MAX_EVENT_LOOP_OVERLOADED_RATIO = 0.9;
 const SESSION_STORE_NAME = 'APIFY-JSDOM-SCRAPER-SESSION-STORE';
@@ -83,10 +67,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         this.rawInput = JSON.stringify(input);
 
         // Attempt to load page function from disk if not present on input.
-        tools.maybeLoadPageFunctionFromDisk(
-            input,
-            dirname(fileURLToPath(import.meta.url)),
-        );
+        tools.maybeLoadPageFunctionFromDisk(input, dirname(fileURLToPath(import.meta.url)));
 
         // Validate INPUT if not running on Apify Cloud Platform.
         if (!Actor.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
@@ -97,33 +78,24 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // Validations
         this.input.pseudoUrls.forEach((purl) => {
             if (!tools.isPlainObject(purl)) {
-                throw new Error(
-                    'The pseudoUrls Array must only contain Objects.',
-                );
+                throw new Error('The pseudoUrls Array must only contain Objects.');
             }
             if (purl.userData && !tools.isPlainObject(purl.userData)) {
-                throw new Error(
-                    'The userData property of a pseudoUrl must be an Object.',
-                );
+                throw new Error('The userData property of a pseudoUrl must be an Object.');
             }
         });
 
         this.input.initialCookies.forEach((cookie) => {
             if (!tools.isPlainObject(cookie)) {
-                throw new Error(
-                    'The initialCookies Array must only contain Objects.',
-                );
+                throw new Error('The initialCookies Array must only contain Objects.');
             }
         });
 
         // solving proxy rotation settings
-        this.maxSessionUsageCount =
-            SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         // Functions need to be evaluated.
-        this.evaledPageFunction = tools.evalFunctionOrThrow(
-            this.input.pageFunction,
-        );
+        this.evaledPageFunction = tools.evalFunctionOrThrow(this.input.pageFunction);
 
         if (this.input.preNavigationHooks) {
             this.evaledPreNavigationHooks = tools.evalFunctionArrayOrThrow(
@@ -171,33 +143,19 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // RequestQueue
         this.requestQueue = await RequestQueueV2.open(this.requestQueueName);
 
-        if (
-            !(await this.keyValueStore.recordExists(
-                REQUEST_QUEUE_INIT_FLAG_KEY,
-            ))
-        ) {
+        if (!(await this.keyValueStore.recordExists(REQUEST_QUEUE_INIT_FLAG_KEY))) {
             const requests: Request[] = [];
-            for await (const request of await RequestList.open(
-                null,
-                startUrls,
-            )) {
-                if (
-                    this.input.maxResultsPerCrawl > 0 &&
-                    requests.length >= 1.5 * this.input.maxResultsPerCrawl
-                ) {
+            for await (const request of await RequestList.open(null, startUrls)) {
+                if (this.input.maxResultsPerCrawl > 0 && requests.length >= 1.5 * this.input.maxResultsPerCrawl) {
                     break;
                 }
                 requests.push(request);
             }
 
-            const { waitForAllRequestsToBeAdded } =
-                await this.requestQueue.addRequestsBatched(requests);
+            const { waitForAllRequestsToBeAdded } = await this.requestQueue.addRequestsBatched(requests);
 
             void waitForAllRequestsToBeAdded.then(async () => {
-                await this.keyValueStore.setValue(
-                    REQUEST_QUEUE_INIT_FLAG_KEY,
-                    '1',
-                );
+                await this.keyValueStore.setValue(REQUEST_QUEUE_INIT_FLAG_KEY, '1');
             });
         }
 
@@ -232,26 +190,20 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             failedRequestHandler: this._failedRequestHandler.bind(this),
             respectRobotsTxtFile: this.input.respectRobotsTxtFile,
             maxRequestRetries: this.input.maxRequestRetries,
-            maxRequestsPerCrawl:
-                this.input.maxPagesPerCrawl === 0
-                    ? undefined
-                    : this.input.maxPagesPerCrawl,
+            maxRequestsPerCrawl: this.input.maxPagesPerCrawl === 0 ? undefined : this.input.maxPagesPerCrawl,
             additionalMimeTypes: this.input.additionalMimeTypes,
             autoscaledPoolOptions: {
                 maxConcurrency: this.input.maxConcurrency,
                 systemStatusOptions: {
                     // JSDOM does a lot of sync operations, so we need to
                     // give it some time to do its job.
-                    maxEventLoopOverloadedRatio:
-                        MAX_EVENT_LOOP_OVERLOADED_RATIO,
+                    maxEventLoopOverloadedRatio: MAX_EVENT_LOOP_OVERLOADED_RATIO,
                 },
             },
             useSessionPool: true,
             persistCookiesPerSession: true,
             sessionPoolOptions: {
-                persistStateKeyValueStoreId: this.input.sessionPoolName
-                    ? SESSION_STORE_NAME
-                    : undefined,
+                persistStateKeyValueStoreId: this.input.sessionPoolName ? SESSION_STORE_NAME : undefined,
                 persistStateKey: this.input.sessionPoolName,
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
@@ -270,11 +222,9 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         if (this.input.suggestResponseEncoding) {
             if (this.input.forceResponseEncoding) {
-                options.forceResponseEncoding =
-                    this.input.suggestResponseEncoding;
+                options.forceResponseEncoding = this.input.suggestResponseEncoding;
             } else {
-                options.suggestResponseEncoding =
-                    this.input.suggestResponseEncoding;
+                options.suggestResponseEncoding = this.input.suggestResponseEncoding;
             }
         }
 
@@ -286,22 +236,15 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     private _createNavigationHooks(options: JSDOMCrawlerOptions) {
         options.preNavigationHooks!.push(async ({ request, session }) => {
             // Normalize headers
-            request.headers = Object.entries(request.headers ?? {}).reduce(
-                (newHeaders, [key, value]) => {
-                    newHeaders[key.toLowerCase()] = value;
-                    return newHeaders;
-                },
-                {} as Dictionary<string>,
-            );
+            request.headers = Object.entries(request.headers ?? {}).reduce((newHeaders, [key, value]) => {
+                newHeaders[key.toLowerCase()] = value;
+                return newHeaders;
+            }, {} as Dictionary<string>);
 
             // Add initial cookies, if any.
             if (this.input.initialCookies && this.input.initialCookies.length) {
                 const cookiesToSet = session
-                    ? tools.getMissingCookiesFromSession(
-                          session,
-                          this.input.initialCookies,
-                          request.url,
-                      )
+                    ? tools.getMissingCookiesFromSession(session, this.input.initialCookies, request.url)
                     : this.input.initialCookies;
                 if (cookiesToSet?.length) {
                     // setting initial cookies that are not already in the session and page
@@ -310,17 +253,11 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             }
         });
 
-        options.preNavigationHooks!.push(
-            ...this._runHookWithEnhancedContext(this.evaledPreNavigationHooks),
-        );
-        options.postNavigationHooks!.push(
-            ...this._runHookWithEnhancedContext(this.evaledPostNavigationHooks),
-        );
+        options.preNavigationHooks!.push(...this._runHookWithEnhancedContext(this.evaledPreNavigationHooks));
+        options.postNavigationHooks!.push(...this._runHookWithEnhancedContext(this.evaledPostNavigationHooks));
     }
 
-    private _runHookWithEnhancedContext(
-        hooks: ((...args: unknown[]) => Awaitable<void>)[],
-    ) {
+    private _runHookWithEnhancedContext(hooks: ((...args: unknown[]) => Awaitable<void>)[]) {
         return hooks.map((hook) => (ctx: Dictionary, ...args: unknown[]) => {
             const { customData } = this.input;
             return hook({ ...ctx, Apify: Actor, Actor, customData }, ...args);
@@ -328,8 +265,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     }
 
     private async _failedRequestHandler({ request }: JSDOMCrawlingContext) {
-        const lastError =
-            request.errorMessages[request.errorMessages.length - 1];
+        const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(
             `Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`,
@@ -357,10 +293,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             props[key].configurable = true;
         });
         Object.defineProperties(pageFunctionArguments, props);
-        Object.defineProperties(
-            this,
-            Object.getOwnPropertyDescriptors(pageFunctionArguments),
-        );
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(pageFunctionArguments));
 
         /**
          * PRE-PROCESSING
@@ -370,9 +303,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         tools.ensureMetaData(request);
 
         // Abort the crawler if the maximum number of results was reached.
-        const aborted = await this._handleMaxResultsPerCrawl(
-            crawler.autoscaledPool,
-        );
+        const aborted = await this._handleMaxResultsPerCrawl(crawler.autoscaledPool);
         if (aborted) return;
 
         // Setup and create Context.
@@ -400,45 +331,26 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // Enqueue more links if Pseudo URLs, a link selector and JSDOM window instance are available,
         // unless the user invoked the `skipLinks()` context function
         // or maxCrawlingDepth would be exceeded.
-        if (!state.skipLinks && !!window)
-            await this._handleLinks(crawlingContext);
+        if (!state.skipLinks && !!window) await this._handleLinks(crawlingContext);
 
         // Save the `pageFunction`s result to the default dataset.
-        await this._handleResult(
-            request,
-            response,
-            pageFunctionResult as Dictionary,
-        );
+        await this._handleResult(request, response, pageFunctionResult as Dictionary);
     }
 
     private async _handleMaxResultsPerCrawl(autoscaledPool?: AutoscaledPool) {
-        if (
-            !this.input.maxResultsPerCrawl ||
-            this.pagesOutputted < this.input.maxResultsPerCrawl
-        )
-            return false;
+        if (!this.input.maxResultsPerCrawl || this.pagesOutputted < this.input.maxResultsPerCrawl) return false;
         if (!autoscaledPool) return false;
-        log.info(
-            `User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`,
-        );
+        log.info(`User set limit of ${this.input.maxResultsPerCrawl} results was reached. Finishing the crawl.`);
         await autoscaledPool.abort();
         return true;
     }
 
-    private async _handleLinks({
-        request,
-        enqueueLinks,
-    }: JSDOMCrawlingContext) {
+    private async _handleLinks({ request, enqueueLinks }: JSDOMCrawlingContext) {
         if (!(this.input.linkSelector && this.requestQueue)) return;
-        const currentDepth = (request.userData![META_KEY] as RequestMetadata)
-            .depth;
-        const hasReachedMaxDepth =
-            this.input.maxCrawlingDepth &&
-            currentDepth >= this.input.maxCrawlingDepth;
+        const currentDepth = (request.userData![META_KEY] as RequestMetadata).depth;
+        const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth >= this.input.maxCrawlingDepth;
         if (hasReachedMaxDepth) {
-            log.debug(
-                `Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`,
-            );
+            log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return;
         }
 
@@ -467,12 +379,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         pageFunctionResult?: Dictionary,
         isError?: boolean,
     ) {
-        const payload = tools.createDatasetPayload(
-            request,
-            response,
-            pageFunctionResult,
-            isError,
-        );
+        const payload = tools.createDatasetPayload(request, response, pageFunctionResult, isError);
         await this.dataset.pushData(payload);
         this.pagesOutputted++;
     }

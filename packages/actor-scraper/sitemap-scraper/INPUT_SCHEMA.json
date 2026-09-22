@@ -15,6 +15,13 @@
             ],
             "editor": "requestListSources"
         },
+        "checkPageStatus": {
+            "title": "Check page status",
+            "type": "boolean",
+            "description": "When enabled (the default), the Actor sends a HEAD request to every page found in the sitemaps and outputs its HTTP status code. Disable this option to skip those requests entirely and simply output the list of page URLs (with <code>lastmod</code>) discovered in the sitemaps. This is much faster and lighter, but the output will not contain the <code>status</code> field, and <code>lastmod</code> falls back to the sitemap only (no <code>Last-Modified</code> header), so it will be <code>null</code> more often.",
+            "default": true,
+            "editor": "checkbox"
+        },
         "proxyConfiguration": {
             "sectionCaption": "Proxy and HTTP configuration",
             "title": "Proxy configuration",

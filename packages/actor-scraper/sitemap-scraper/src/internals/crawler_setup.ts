@@ -13,24 +13,13 @@ import type {
     Request,
     RequestOptions,
 } from '@crawlee/http';
-import {
-    createHttpRouter,
-    Dataset,
-    HttpCrawler,
-    KeyValueStore,
-    log,
-    RequestList,
-    RequestQueueV2,
-} from '@crawlee/http';
+import { createHttpRouter, Dataset, HttpCrawler, KeyValueStore, log, RequestList, RequestQueueV2 } from '@crawlee/http';
 import { Browser, ImpitHttpClient } from '@crawlee/impit-client';
 import { discoverValidSitemaps, parseSitemap, sleep } from '@crawlee/utils';
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 
-import {
-    constants as scraperToolsConstants,
-    tools,
-} from '@apify/scraper-tools';
+import { constants as scraperToolsConstants, tools } from '@apify/scraper-tools';
 
 import type { Input } from './consts.js';
 import { ProxyRotation } from './consts.js';
@@ -39,12 +28,16 @@ const { META_KEY } = scraperToolsConstants;
 type RequestMetadata = {
     parentRequestId?: string;
     depth: number;
+    sitemapLastmod?: string;
+};
+
+type SitemapPageEntry = {
+    url: string;
+    lastmod?: string;
 };
 
 const { SESSION_MAX_USAGE_COUNTS } = scraperToolsConstants;
-const SCHEMA = JSON.parse(
-    await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'),
-);
+const SCHEMA = JSON.parse(await readFile(new URL('../../INPUT_SCHEMA.json', import.meta.url), 'utf8'));
 
 const REQUESTS_BATCH_SIZE = 25;
 const SITEMAP_DISCOVERY_TIMEOUT_MILLIS = 30_000;
@@ -72,14 +65,10 @@ const NOOP_COOKIE_JAR = {
     },
 };
 
-function createStatelessImpitHttpClient(
-    ...args: ConstructorParameters<typeof ImpitHttpClient>
-) {
+function createStatelessImpitHttpClient(...args: ConstructorParameters<typeof ImpitHttpClient>) {
     const client = new ImpitHttpClient(...args);
     const originalSendRequest = client.sendRequest.bind(client);
-    client.sendRequest = async (
-        ...sendRequestArgs: Parameters<ImpitHttpClient['sendRequest']>
-    ) => {
+    client.sendRequest = async (...sendRequestArgs: Parameters<ImpitHttpClient['sendRequest']>) => {
         const [request, options] = sendRequestArgs;
         return originalSendRequest(request, {
             ...(options ?? {}),
@@ -132,8 +121,7 @@ export class CrawlerSetup {
         this.env = Actor.getEnv();
 
         // solving proxy rotation settings
-        this.maxSessionUsageCount =
-            SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
+        this.maxSessionUsageCount = SESSION_MAX_USAGE_COUNTS[this.input.proxyRotation];
 
         // Initialize async operations.
         this.crawler = null!;
@@ -153,9 +141,7 @@ export class CrawlerSetup {
         return router;
     }
 
-    private _wrapProxyConfiguration(
-        proxyConfiguration?: ProxyConfiguration,
-    ): ProxyConfiguration | undefined {
+    private _wrapProxyConfiguration(proxyConfiguration?: ProxyConfiguration): ProxyConfiguration | undefined {
         if (!proxyConfiguration) {
             return proxyConfiguration;
         }
@@ -163,15 +149,8 @@ export class CrawlerSetup {
         const anyProxy = proxyConfiguration as any;
         if (typeof anyProxy.newProxyInfo === 'function') {
             const originalNewProxyInfo = anyProxy.newProxyInfo.bind(anyProxy);
-            anyProxy.newProxyInfo = (
-                sessionIdOrOptions?: any,
-                options?: any,
-            ) => {
-                if (
-                    sessionIdOrOptions &&
-                    typeof sessionIdOrOptions === 'object' &&
-                    options === undefined
-                ) {
+            anyProxy.newProxyInfo = (sessionIdOrOptions?: any, options?: any) => {
+                if (sessionIdOrOptions && typeof sessionIdOrOptions === 'object' && options === undefined) {
                     return originalNewProxyInfo(undefined, sessionIdOrOptions);
                 }
                 return originalNewProxyInfo(sessionIdOrOptions, options);
@@ -180,11 +159,7 @@ export class CrawlerSetup {
         if (typeof anyProxy.newUrl === 'function') {
             const originalNewUrl = anyProxy.newUrl.bind(anyProxy);
             anyProxy.newUrl = (sessionIdOrOptions?: any, options?: any) => {
-                if (
-                    sessionIdOrOptions &&
-                    typeof sessionIdOrOptions === 'object' &&
-                    options === undefined
-                ) {
+                if (sessionIdOrOptions && typeof sessionIdOrOptions === 'object' && options === undefined) {
                     return originalNewUrl(undefined, sessionIdOrOptions);
                 }
                 return originalNewUrl(sessionIdOrOptions, options);
@@ -194,9 +169,7 @@ export class CrawlerSetup {
     }
 
     private _getStartUrls() {
-        return this.input.startUrls
-            .map((request) => request.url)
-            .filter((url): url is string => url !== undefined);
+        return this.input.startUrls.map((request) => request.url).filter((url): url is string => url !== undefined);
     }
 
     private async _discoverSitemapsWithTimeout(
@@ -221,20 +194,13 @@ export class CrawlerSetup {
         }
     }
 
-    private async _discoverSitemaps(
-        startUrls: string[],
-    ): Promise<SitemapDiscoveryResult> {
+    private async _discoverSitemaps(startUrls: string[]): Promise<SitemapDiscoveryResult> {
         const discoveryProxyUrl = await this.proxyConfiguration?.newUrl();
-        const proxyAttempt = await this._discoverSitemapsWithTimeout(
-            startUrls,
-            discoveryProxyUrl,
-        );
+        const proxyAttempt = await this._discoverSitemapsWithTimeout(startUrls, discoveryProxyUrl);
 
         const proxyDiscoveryFailed =
             discoveryProxyUrl &&
-            (proxyAttempt.error ||
-                !proxyAttempt.discovered ||
-                proxyAttempt.discovered.length === 0);
+            (proxyAttempt.error || !proxyAttempt.discovered || proxyAttempt.discovered.length === 0);
 
         if (!proxyDiscoveryFailed) {
             return {
@@ -243,73 +209,49 @@ export class CrawlerSetup {
             };
         }
 
-        log.warning(
-            'Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.',
-        );
+        log.warning('Sitemap discovery through proxy failed or returned no sitemaps. Retrying once without proxy.');
 
-        const noProxyAttempt =
-            await this._discoverSitemapsWithTimeout(startUrls);
+        const noProxyAttempt = await this._discoverSitemapsWithTimeout(startUrls);
         return {
             ...noProxyAttempt,
-            disableProxyForRun: Boolean(
-                noProxyAttempt.discovered &&
-                noProxyAttempt.discovered.length > 0,
-            ),
+            disableProxyForRun: Boolean(noProxyAttempt.discovered && noProxyAttempt.discovered.length > 0),
         };
     }
 
     private async _initializeAsync() {
         // Proxy configuration
-        const proxyConfiguration = (await Actor.createProxyConfiguration(
-            this.input.proxyConfiguration as any,
-        )) as ProxyConfiguration | undefined;
-        this.proxyConfiguration =
-            this._wrapProxyConfiguration(proxyConfiguration);
+        const proxyConfiguration = (await Actor.createProxyConfiguration(this.input.proxyConfiguration as any)) as
+            | ProxyConfiguration
+            | undefined;
+        this.proxyConfiguration = this._wrapProxyConfiguration(proxyConfiguration);
 
         const startUrls = this._getStartUrls();
-        const {
-            discovered,
-            error: discoveryError,
-            disableProxyForRun,
-        } = await this._discoverSitemaps(startUrls);
+        const { discovered, error: discoveryError, disableProxyForRun } = await this._discoverSitemaps(startUrls);
 
         if (disableProxyForRun) {
-            log.warning(
-                'Sitemap discovery succeeded only without proxy. Disabling proxy for the rest of this run.',
-            );
+            log.warning('Sitemap discovery succeeded only without proxy. Disabling proxy for the rest of this run.');
             this.proxyConfiguration = undefined;
         }
 
         if (!discovered && !discoveryError) {
-            log.warning(
-                `Sitemap discovery timed out after ${Math.round(
-                    SITEMAP_DISCOVERY_TIMEOUT_MILLIS / 1000,
-                )}s.`,
-            );
+            log.warning(`Sitemap discovery timed out after ${Math.round(SITEMAP_DISCOVERY_TIMEOUT_MILLIS / 1000)}s.`);
         }
 
         if (discoveryError) {
             throw discoveryError;
         }
 
-        const discoveredSitemaps =
-            discovered && discovered.length > 0
-                ? new Set(discovered)
-                : new Set<string>();
+        const discoveredSitemaps = discovered && discovered.length > 0 ? new Set(discovered) : new Set<string>();
         if (discoveredSitemaps.size === 0) {
-            throw await Actor.fail(
-                'No valid sitemaps were discovered from the provided startUrls.',
-            );
+            throw await Actor.fail('No valid sitemaps were discovered from the provided startUrls.');
         }
 
         // RequestList
-        const startRequest: RequestOptions[] = [...discoveredSitemaps].map(
-            (sitemapUrl) => ({
-                url: sitemapUrl,
-                useExtendedUniqueKey: true,
-                keepUrlFragment: this.input.keepUrlFragments,
-            }),
-        );
+        const startRequest: RequestOptions[] = [...discoveredSitemaps].map((sitemapUrl) => ({
+            url: sitemapUrl,
+            useExtendedUniqueKey: true,
+            keepUrlFragment: this.input.keepUrlFragments,
+        }));
 
         // KeyValueStore
         this.keyValueStore = await KeyValueStore.open();
@@ -317,27 +259,16 @@ export class CrawlerSetup {
         // RequestQueue
         this.requestQueue = await RequestQueueV2.open();
 
-        if (
-            !(await this.keyValueStore.recordExists(
-                REQUEST_QUEUE_INIT_FLAG_KEY,
-            ))
-        ) {
+        if (!(await this.keyValueStore.recordExists(REQUEST_QUEUE_INIT_FLAG_KEY))) {
             const requests: Request[] = [];
-            for await (const request of await RequestList.open(
-                null,
-                startRequest,
-            )) {
+            for await (const request of await RequestList.open(null, startRequest)) {
                 requests.push(request);
             }
 
-            const { waitForAllRequestsToBeAdded } =
-                await this.requestQueue.addRequestsBatched(requests);
+            const { waitForAllRequestsToBeAdded } = await this.requestQueue.addRequestsBatched(requests);
 
             void waitForAllRequestsToBeAdded.then(async () => {
-                await this.keyValueStore.setValue(
-                    REQUEST_QUEUE_INIT_FLAG_KEY,
-                    '1',
-                );
+                await this.keyValueStore.setValue(REQUEST_QUEUE_INIT_FLAG_KEY, '1');
             });
         }
 
@@ -372,18 +303,14 @@ export class CrawlerSetup {
             maxRequestRetries: this.input.maxRequestRetries,
             autoscaledPoolOptions: {
                 systemStatusOptions: {
-                    maxEventLoopOverloadedRatio:
-                        MAX_EVENT_LOOP_OVERLOADED_RATIO,
+                    maxEventLoopOverloadedRatio: MAX_EVENT_LOOP_OVERLOADED_RATIO,
                 },
             },
             // this scraper just outputs the returned status code, so we don't treat any as an error
-            ignoreHttpErrorStatusCodes: Array.from(
-                { length: 100 },
-                (_, i) => 500 + i,
-            ),
-            blockedStatusCodes: [],
+            ignoreHttpErrorStatusCodes: Array.from({ length: 100 }, (_, i) => 500 + i),
             persistCookiesPerSession: false,
             sessionPoolOptions: {
+                blockedStatusCodes: [],
                 sessionOptions: {
                     maxUsageCount: this.maxSessionUsageCount,
                 },
@@ -405,35 +332,28 @@ export class CrawlerSetup {
     }
 
     private _createNavigationHooks(options: HttpCrawlerOptions) {
-        options.preNavigationHooks!.push(
-            async (context: any, ...hookArgs: any[]) => {
-                const { request } = context;
-                // Normalize headers
-                const normalizedHeaders: Dictionary<string> = {};
-                for (const [key, value] of Object.entries(
-                    request.headers ?? {},
-                )) {
-                    normalizedHeaders[key.toLowerCase()] = String(value);
-                }
-                request.headers = normalizedHeaders;
+        options.preNavigationHooks!.push(async (context: any, ...hookArgs: any[]) => {
+            const { request } = context;
+            // Normalize headers
+            const normalizedHeaders: Dictionary<string> = {};
+            for (const [key, value] of Object.entries(request.headers ?? {})) {
+                normalizedHeaders[key.toLowerCase()] = String(value);
+            }
+            request.headers = normalizedHeaders;
 
-                // Ensure requests stay stateless even if a cookie header appears upstream.
-                delete request.headers.cookie;
+            // Ensure requests stay stateless even if a cookie header appears upstream.
+            delete request.headers.cookie;
 
-                // Ensure HttpCrawler uses a no-op jar on the main navigation path too.
-                const gotOptions = hookArgs[0] as any;
-                if (gotOptions) {
-                    gotOptions.cookieJar = NOOP_COOKIE_JAR as any;
-                }
-            },
-        );
+            // Ensure HttpCrawler uses a no-op jar on the main navigation path too.
+            const gotOptions = hookArgs[0] as any;
+            if (gotOptions) {
+                gotOptions.cookieJar = NOOP_COOKIE_JAR as any;
+            }
+        });
     }
 
-    private async _failedRequestHandler({
-        request,
-    }: CrawlingContext<Dictionary> | HttpCrawlingContext) {
-        const lastError =
-            request.errorMessages[request.errorMessages.length - 1];
+    private async _failedRequestHandler({ request }: CrawlingContext<Dictionary> | HttpCrawlingContext) {
+        const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(
             `Request ${request.url} failed and will not be retried anymore. Marking as failed.\nLast Error Message: ${errorMessage}`,
@@ -445,9 +365,7 @@ export class CrawlerSetup {
      * Parses the sitemap if it's one and enqueues HEAD requests. Otherwise pushes
      * the response data to the dataset.
      */
-    protected async _handleSitemapRequest(
-        crawlingContext: HttpCrawlingContext,
-    ) {
+    protected async _handleSitemapRequest(crawlingContext: HttpCrawlingContext) {
         const { request, body, contentType } = crawlingContext;
 
         // Make sure that an object containing internal metadata
@@ -455,11 +373,7 @@ export class CrawlerSetup {
         tools.ensureMetaData(request as any);
 
         log.info('Processing sitemap', { url: request.url });
-        const sitemapContent = await this.getSitemapContent(
-            request.url,
-            body,
-            contentType.type,
-        );
+        const sitemapContent = await this.getSitemapContent(request.url, body, contentType.type);
         const parsed = parseSitemap(
             [{ type: 'raw', content: sitemapContent }],
             await this.proxyConfiguration?.newUrl(),
@@ -470,14 +384,18 @@ export class CrawlerSetup {
             },
         );
         const nestedSitemaps: string[] = [];
-        const urls: string[] = [];
+        const pages: SitemapPageEntry[] = [];
         let scrapedAnyPageUrls = false;
         let scrapedAnySitemapUrls = false;
 
         const flushUrls = async () => {
-            if (urls.length === 0) return;
-            await this._enqueuePageRequests(urls, crawlingContext);
-            urls.length = 0;
+            if (pages.length === 0) return;
+            if (this.input.checkPageStatus) {
+                await this._enqueuePageRequests(pages, crawlingContext);
+            } else {
+                await this._outputSitemapPages(pages);
+            }
+            pages.length = 0;
         };
 
         const flushSitemaps = async () => {
@@ -499,7 +417,7 @@ export class CrawlerSetup {
                     url: item.loc,
                 });
 
-                urls.push(item.loc);
+                pages.push({ url: item.loc, lastmod: this._normalizeToIsoString(item.lastmod) ?? undefined });
                 scrapedAnyPageUrls = true;
             }
 
@@ -507,7 +425,7 @@ export class CrawlerSetup {
                 await flushSitemaps();
             }
 
-            if (urls.length >= REQUESTS_BATCH_SIZE) {
+            if (pages.length >= REQUESTS_BATCH_SIZE) {
                 await flushUrls();
             }
         }
@@ -515,13 +433,8 @@ export class CrawlerSetup {
         await flushSitemaps();
         await flushUrls();
 
-        const { hasReachedMaxDepth, currentDepth } =
-            this._hasSitemapReachedMaxDepth(request);
-        if (
-            hasReachedMaxDepth &&
-            !scrapedAnyPageUrls &&
-            scrapedAnySitemapUrls
-        ) {
+        const { hasReachedMaxDepth, currentDepth } = this._hasSitemapReachedMaxDepth(request);
+        if (hasReachedMaxDepth && !scrapedAnyPageUrls && scrapedAnySitemapUrls) {
             log.warning(
                 "Reached max depth limit at a sitemap containing only sitemaps. Increase your `maxCrawlingDepth` if this wasn't intended",
                 {
@@ -539,35 +452,60 @@ export class CrawlerSetup {
         // is present on every request.
         tools.ensureMetaData(request as any);
 
-        const status =
-            (response as any)?.status ?? (response as any)?.statusCode;
+        const status = (response as any)?.status ?? (response as any)?.statusCode;
+
+        const sitemapLastmod = (request.userData?.[META_KEY] as RequestMetadata | undefined)?.sitemapLastmod ?? null;
+        const lastModifiedHeader = this._getLastModifiedHeader(response);
+
         const result = {
             url: request.url,
             status,
+            lastmod: sitemapLastmod ?? this._normalizeToIsoString(lastModifiedHeader),
         };
 
         // Save the `pageFunction`s result to the default dataset.
         await this._handleResult(request, response as any, result);
     }
 
-    private async _handleResult(
-        request: Request,
-        response?: any,
-        pageFunctionResult?: Dictionary,
-        isError?: boolean,
-    ) {
-        const payload = tools.createDatasetPayload(
-            request as any,
-            response as any,
-            pageFunctionResult as any,
-            isError,
-        );
+    private _getLastModifiedHeader(response: any): string | null {
+        const headers = response?.headers;
+        if (!headers) {
+            return null;
+        }
+
+        if (typeof headers.get === 'function') {
+            const headerValue = headers.get('last-modified');
+            return typeof headerValue === 'string' ? headerValue : null;
+        }
+
+        if (typeof headers !== 'object') {
+            return null;
+        }
+
+        for (const [key, value] of Object.entries(headers)) {
+            if (key.toLowerCase() !== 'last-modified') continue;
+            const headerValue = Array.isArray(value) ? value[0] : value;
+            return typeof headerValue === 'string' ? headerValue : null;
+        }
+
+        return null;
+    }
+
+    private _normalizeToIsoString(value: Date | string | null | undefined): string | null {
+        if (!value) {
+            return null;
+        }
+
+        const date = value instanceof Date ? value : new Date(value);
+        return Number.isNaN(date.getTime()) ? null : date.toISOString();
+    }
+
+    private async _handleResult(request: Request, response?: any, pageFunctionResult?: Dictionary, isError?: boolean) {
+        const payload = tools.createDatasetPayload(request as any, response as any, pageFunctionResult as any, isError);
         await this.dataset.pushData(payload);
 
         if (this.pagesOutputted > 0 && this.pagesOutputted % 100 === 0) {
-            log.info(
-                `Pushed ${this.pagesOutputted} items to the dataset so far.`,
-            );
+            log.info(`Pushed ${this.pagesOutputted} items to the dataset so far.`);
         }
         this.pagesOutputted++;
     }
@@ -579,11 +517,8 @@ export class CrawlerSetup {
         /**
          * The depth of the parent sitemap
          */
-        const currentDepth = (request.userData[META_KEY] as RequestMetadata)
-            .depth;
-        const hasReachedMaxDepth =
-            this.input.maxCrawlingDepth &&
-            currentDepth + 1 >= this.input.maxCrawlingDepth;
+        const currentDepth = (request.userData[META_KEY] as RequestMetadata).depth;
+        const hasReachedMaxDepth = this.input.maxCrawlingDepth && currentDepth + 1 >= this.input.maxCrawlingDepth;
         return {
             hasReachedMaxDepth: Boolean(hasReachedMaxDepth),
             currentDepth,
@@ -596,12 +531,9 @@ export class CrawlerSetup {
     ): Promise<{
         reachedMaxDepth: boolean;
     }> {
-        const { hasReachedMaxDepth, currentDepth } =
-            this._hasSitemapReachedMaxDepth(request);
+        const { hasReachedMaxDepth, currentDepth } = this._hasSitemapReachedMaxDepth(request);
         if (hasReachedMaxDepth) {
-            log.debug(
-                `Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`,
-            );
+            log.debug(`Request ${request.url} reached the maximum crawling depth of ${currentDepth}.`);
             return {
                 reachedMaxDepth: true,
             };
@@ -627,11 +559,7 @@ export class CrawlerSetup {
         };
     }
 
-    private async getSitemapContent(
-        requestUrl: string,
-        body: string | Buffer,
-        contentType: string,
-    ): Promise<string> {
+    private async getSitemapContent(requestUrl: string, body: string | Buffer, contentType: string): Promise<string> {
         if (typeof body === 'string') {
             return body;
         }
@@ -648,23 +576,13 @@ export class CrawlerSetup {
             }
             return decompressed.toString('utf8');
         } catch (error) {
-            throw new Error(
-                `Failed to decompress gzipped sitemap ${requestUrl}: ${String(error)}`,
-            );
+            throw new Error(`Failed to decompress gzipped sitemap ${requestUrl}: ${String(error)}`);
         }
     }
 
-    private isGzippedSitemapContent(
-        requestUrl: string,
-        body: Buffer,
-        contentType: string,
-    ): boolean {
+    private isGzippedSitemapContent(requestUrl: string, body: Buffer, contentType: string): boolean {
         const normalizedContentType = this.normalizeContentType(contentType);
-        return (
-            GZIP_MIME_TYPES.has(normalizedContentType) ||
-            requestUrl.endsWith('.gz') ||
-            this.hasGzipMagicBytes(body)
-        );
+        return GZIP_MIME_TYPES.has(normalizedContentType) || requestUrl.endsWith('.gz') || this.hasGzipMagicBytes(body);
     }
 
     private normalizeContentType(contentType: string): string {
@@ -675,24 +593,52 @@ export class CrawlerSetup {
         return body.length >= 2 && body[0] === 0x1f && body[1] === 0x8b;
     }
 
-    private async _enqueuePageRequests(
-        urls: string[],
-        { request, enqueueLinks }: HttpCrawlingContext,
-    ) {
-        const currentDepth = (request.userData![META_KEY] as RequestMetadata)
-            .depth;
+    /**
+     * When `checkPageStatus` is disabled, page URLs discovered in a sitemap are
+     * pushed directly to the dataset without sending a HEAD request per page.
+     */
+    private async _outputSitemapPages(pages: SitemapPageEntry[]) {
+        const items = pages.map((page) => ({
+            url: page.url,
+            lastmod: page.lastmod ?? null,
+        }));
+
+        await this.dataset.pushData(items);
+
+        for (let i = 0; i < items.length; i++) {
+            if (this.pagesOutputted > 0 && this.pagesOutputted % 100 === 0) {
+                log.info(`Pushed ${this.pagesOutputted} items to the dataset so far.`);
+            }
+            this.pagesOutputted++;
+        }
+    }
+
+    private async _enqueuePageRequests(pages: SitemapPageEntry[], { request, enqueueLinks }: HttpCrawlingContext) {
+        const currentDepth = (request.userData![META_KEY] as RequestMetadata).depth;
 
         // NOTE: depth check when enqueueing pages is not needed, since the one
         // for sitemaps will do the job
 
+        // Key by `new URL(url).href` — the normalized form enqueueLinks passes to our transform.
+        const lastmodByUrl = new Map<string, string>();
+        for (const { url, lastmod } of pages) {
+            if (!lastmod) continue;
+            try {
+                lastmodByUrl.set(new URL(url).href, lastmod);
+            } catch {
+                // ignore invalid URLs (enqueueLinks drops them too)
+            }
+        }
+
         await enqueueLinks({
-            urls,
+            urls: pages.map((page) => page.url),
             label: this.PAGE_LABEL,
             transformRequestFunction: (requestOptions) => {
                 requestOptions.userData ??= {};
                 requestOptions.userData[META_KEY] = {
                     parentRequestId: request.id || request.uniqueKey,
                     depth: currentDepth + 1,
+                    sitemapLastmod: lastmodByUrl.get(requestOptions.url),
                 };
 
                 requestOptions.useExtendedUniqueKey = true;

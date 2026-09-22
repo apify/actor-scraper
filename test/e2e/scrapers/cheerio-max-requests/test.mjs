@@ -1,12 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    skipTest,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, skipTest, validateDataset } from '../../tools.mjs';
 
 void skipTest('broken test');
 
@@ -32,9 +24,7 @@ await run(testDir, 'cheerio-scraper', {
             case 'DETAIL':
                 return handleDetail(context);
             default:
-                throw new Error(
-                    `Unrecognized request label: ${context.request.userData.label}`,
-                );
+                throw new Error(`Unrecognized request label: ${context.request.userData.label}`);
         }
 
         async function handleStart({ enqueueRequest, $ }) {
@@ -58,12 +48,8 @@ await run(testDir, 'cheerio-scraper', {
             const uniqueIdentifier = url.split('/').slice(-2).join('/');
             const title = $('header h1').text();
             const description = $('div.Section-body > div > p').text();
-            const modifiedDate = $(
-                'div:nth-of-type(2) > ul > li:nth-of-type(2)',
-            ).text();
-            const runCount = $(
-                'div:nth-of-type(2) > ul > li:nth-of-type(1)',
-            ).text();
+            const modifiedDate = $('div:nth-of-type(2) > ul > li:nth-of-type(2)').text();
+            const runCount = $('div:nth-of-type(2) > ul > li:nth-of-type(1)').text();
 
             return {
                 url,
@@ -88,10 +74,7 @@ const stats = await getStats(testDir);
 await expect(stats.requestsFinished >= 10, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
-await expect(
-    datasetItems.length > 5 && datasetItems.length < 15,
-    'Number of dataset items',
-);
+await expect(datasetItems.length > 5 && datasetItems.length < 15, 'Number of dataset items');
 await expect(
     validateDataset(datasetItems, [
         'url',

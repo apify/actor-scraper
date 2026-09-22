@@ -5,28 +5,27 @@
     "description": "Crawl web pages using HTTP requests and Cheerio",
     "type": "module",
     "dependencies": {
-        "@apify/scraper-tools": "^1.1.4",
-        "@crawlee/cheerio": "^3.16.0",
-        "apify": "^3.2.6"
+        "@apify/scraper-tools": "workspace:^",
+        "@crawlee/cheerio": "^3.18.0",
+        "apify": "^3.7.2"
     },
     "devDependencies": {
-        "@apify/tsconfig": "^0.1.0",
-        "@types/node": "^24.0.0",
-        "tsx": "^4.19.1",
-        "typescript": "~5.9.0"
+        "@apify/tsconfig": "^0.2.0",
+        "@types/node": "^24.13.3",
+        "tsx": "^4.23.5",
+        "typescript": "~6.0.3"
     },
     "peerDependencies": {
         "cheerio": "^1.0.0-rc.12"
     },
     "scripts": {
-        "start": "npm run start:dev",
-        "start:prod": "node dist/main.js",
+        "start": "pnpm start:dev",
         "start:dev": "tsx src/main.ts",
         "build": "tsc"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/apify/apify-sdk-js"
+        "url": "https://github.com/apify/actor-scraper"
     },
     "author": {
         "name": "Apify Technologies",
@@ -38,5 +37,5 @@
         "Ondra Urban <ondra@apify.com>"
     ],
     "license": "Apache-2.0",
-    "homepage": "https://github.com/apify/apify-sdk-js"
+    "homepage": "https://github.com/apify/actor-scraper"
 }

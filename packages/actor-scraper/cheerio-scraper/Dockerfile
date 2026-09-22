@@ -1,32 +1,37 @@
-FROM apify/actor-node:22 AS builder
+# Build context is the monorepo root (set via dockerContextDir in .actor/actor.json),
+# so the build can use the pnpm workspace lockfile for a deterministic install.
+FROM apify/actor-node:24 AS builder
 
-COPY package*.json ./
+WORKDIR /app
 
-RUN npm install --include=dev --audit=false
+RUN corepack enable
 
+# Browser packages can appear transitively through workspace/dev tooling, but this actor does not
+# use them. Keep the deterministic install without downloading browser binaries into the build cache.
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
+    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+# Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
 
-RUN npm run build
+# Deterministic install (frozen lockfile, honors minimumReleaseAge) of the actor + its workspace deps.
+RUN pnpm install --frozen-lockfile --filter actor-cheerio-scraper...
 
-FROM apify/actor-node:22
+# Build the actor and its workspace dependency @apify/scraper-tools.
+RUN pnpm --filter actor-cheerio-scraper... build
 
-COPY --from=builder /usr/src/app/dist ./dist
+# Self-contained production bundle. inject-workspace-packages copies the built
+# @apify/scraper-tools (a runtime workspace dep) into node_modules instead of symlinking it.
+RUN pnpm --config.inject-workspace-packages=true --filter actor-cheerio-scraper deploy --prod /deploy
 
-COPY package*.json ./
+FROM apify/actor-node:24
 
-RUN rm -rf node_modules \
-    && npm --quiet set progress=false \
-    && npm install --omit=dev --omit=optional \
-    && echo "Installed NPM packages:" \
-    && (npm list --omit=dev --all || true) \
-    && echo "Node.js version:" \
-    && node --version \
-    && echo "NPM version:" \
-    && npm --version \
-    && rm -r ~/.npm
+WORKDIR /usr/src/app
 
-COPY . ./
+# Replace the base image's template with only the lean production bundle.
+RUN find /usr/src/app -mindepth 1 -delete
+COPY --from=builder /deploy ./
 
 ENV APIFY_DISABLE_OUTDATED_WARNING=1
 
-CMD npm run start:prod --silent
+CMD ["node", "dist/main.js"]

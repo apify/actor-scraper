@@ -53,9 +53,7 @@ async function run() {
 
             if (match) {
                 const c = match[1] === 'passed' ? colors.green : colors.red;
-                log.info(
-                    `${colors.yellow(`[${dir.name}] `)}${match[2]}: ${c(match[1])}`,
-                );
+                log.info(`${colors.yellow(`[${dir.name}] `)}${match[2]}: ${c(match[1])}`);
             }
         });
         // eslint-disable-next-line no-loop-func -- we actually want to closure the reference to `failure`

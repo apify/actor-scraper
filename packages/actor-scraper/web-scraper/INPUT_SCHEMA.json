@@ -122,9 +122,9 @@
             "title": "Initial cookies",
             "type": "array",
             "description": "A JSON array with cookies that will be set to every Chrome browser tab opened before loading the page, in the format accepted by Puppeteer's <a href='https://pptr.dev/api/puppeteer.cookie' target='_blank' rel='noopener'><code>Page.setCookie()</code></a> function. This option is useful for transferring a logged-in session from an external web browser.",
-            "default": [],
             "prefill": [],
-            "editor": "json"
+            "editor": "json",
+            "isSecret": true
         },
         "useChrome": {
             "title": "Use Chrome",
@@ -297,19 +297,25 @@
             "title": "Dataset name",
             "type": "string",
             "description": "Name or ID of the dataset that will be used for storing results. If left empty, the default dataset of the run will be used.",
-            "editor": "textfield"
+            "editor": "textfield",
+            "resourceType": "dataset",
+            "resourcePermissions": ["READ", "WRITE"]
         },
         "keyValueStoreName": {
             "title": "Key-value store name",
             "type": "string",
             "description": "Name or ID of the key-value store that will be used for storing records. If left empty, the default key-value store of the run will be used.",
-            "editor": "textfield"
+            "editor": "textfield",
+            "resourceType": "keyValueStore",
+            "resourcePermissions": ["READ", "WRITE"]
         },
         "requestQueueName": {
             "title": "Request queue name",
             "type": "string",
             "description": "Name of the request queue that will be used for storing requests. If left empty, the default request queue of the run will be used.",
-            "editor": "textfield"
+            "editor": "textfield",
+            "resourceType": "requestQueue",
+            "resourcePermissions": ["READ", "WRITE"]
         }
     },
     "required": ["startUrls", "pageFunction", "proxyConfiguration"]

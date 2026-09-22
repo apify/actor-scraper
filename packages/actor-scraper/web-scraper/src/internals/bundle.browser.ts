@@ -12,11 +12,7 @@ import type {
 import type { ApifyEnv } from 'apify';
 
 import type { Log } from '@apify/log';
-import type {
-    constants,
-    CrawlerSetupOptions,
-    RequestMetadata,
-} from '@apify/scraper-tools';
+import type { constants, CrawlerSetupOptions, RequestMetadata } from '@apify/scraper-tools';
 
 import type { Input } from './consts.ts';
 import type { GlobalStore } from './global_store.ts';
@@ -27,13 +23,7 @@ interface PoolOptions {
 }
 
 interface InternalState {
-    browserHandles: Dictionary<
-        | string
-        | Record<
-              string,
-              { value: unknown; type: 'METHOD' | 'VALUE' | 'GETTER' }
-          >
-    >;
+    browserHandles: Dictionary<string | Record<string, { value: unknown; type: 'METHOD' | 'VALUE' | 'GETTER' }>>;
     requestQueue: RequestQueue | null;
     keyValueStore: KeyValueStore | null;
 }
@@ -77,9 +67,7 @@ export function createBundle(apifyNamespace: string) {
                 }>,
             ) {
                 if (!config || typeof config !== 'object') {
-                    throw new Error(
-                        'NodeProxy: Parameter config of type Object must be provided.',
-                    );
+                    throw new Error('NodeProxy: Parameter config of type Object must be provided.');
                 }
 
                 Object.entries(config).forEach(([key, { value, type }]) => {
@@ -97,9 +85,7 @@ export function createBundle(apifyNamespace: string) {
                         // @ts-expect-error
                         this[key] = value;
                     } else {
-                        throw new Error(
-                            `Unsupported function type: ${type} for function: ${key}.`,
-                        );
+                        throw new Error(`Unsupported function type: ${type} for function: ${key}.`);
                     }
                 });
             }
@@ -144,8 +130,7 @@ export function createBundle(apifyNamespace: string) {
             jQuery: any;
 
             constructor(options: ContextOptions) {
-                const { crawlerSetup, browserHandles, pageFunctionArguments } =
-                    options;
+                const { crawlerSetup, browserHandles, pageFunctionArguments } = options;
 
                 const createProxy = global[namespace].createNodeProxy;
 
@@ -153,29 +138,22 @@ export function createBundle(apifyNamespace: string) {
                 this[setup] = crawlerSetup;
                 this[internalState] = {
                     browserHandles,
-                    requestQueue: browserHandles.requestQueue
-                        ? createProxy(browserHandles.requestQueue)
-                        : null,
-                    keyValueStore: browserHandles.keyValueStore
-                        ? createProxy(browserHandles.keyValueStore)
-                        : null,
+                    requestQueue: browserHandles.requestQueue ? createProxy(browserHandles.requestQueue) : null,
+                    keyValueStore: browserHandles.keyValueStore ? createProxy(browserHandles.keyValueStore) : null,
                 };
 
                 // Copies of Node objects
                 this.input = JSON.parse(crawlerSetup.rawInput);
                 this.env = { ...crawlerSetup.env };
                 this.customData = crawlerSetup.customData;
-                this.response =
-                    pageFunctionArguments.response as ProvidedResponse;
+                this.response = pageFunctionArguments.response as ProvidedResponse;
                 this.request = pageFunctionArguments.request as Request;
                 // Functions are not converted so we need to add them this way
                 // to not be enumerable and thus not polluting the object.
                 Reflect.defineProperty(this.request, 'pushErrorMessage', {
                     value(this: Request, errorOrMessage: Error) {
                         // It's a simplified fake of the original function.
-                        const msg =
-                            (errorOrMessage && errorOrMessage.message) ||
-                            `${errorOrMessage}`;
+                        const msg = (errorOrMessage && errorOrMessage.message) || `${errorOrMessage}`;
                         this.errorMessages.push(msg);
                     },
                     enumerable: false,
@@ -186,8 +164,7 @@ export function createBundle(apifyNamespace: string) {
                 this.log = createProxy(browserHandles.log);
 
                 // Browser side libraries
-                if (this[setup].injectJQuery)
-                    this.jQuery = global.jQuery.noConflict(true);
+                if (this[setup].injectJQuery) this.jQuery = global.jQuery.noConflict(true);
 
                 // Bind this to allow destructuring off context in pageFunction.
                 this.getValue = this.getValue.bind(this);
@@ -199,30 +176,22 @@ export function createBundle(apifyNamespace: string) {
             }
 
             async getValue<T>(...args: Parameters<KeyValueStore['getValue']>) {
-                return this[internalState].keyValueStore!.getValue(
-                    ...args,
-                ) as Promise<T>;
+                return this[internalState].keyValueStore!.getValue(...args) as Promise<T>;
             }
 
             async setValue<T>(...args: Parameters<KeyValueStore['setValue']>) {
                 return this[internalState].keyValueStore!.setValue(
-                    ...(args as [
-                        key: string,
-                        value: T | null,
-                        options?: RecordOptions,
-                    ]),
+                    ...(args as [key: string, value: T | null, options?: RecordOptions]),
                 );
             }
 
             async saveSnapshot() {
-                const handle = this[internalState].browserHandles
-                    .saveSnapshot as string;
+                const handle = this[internalState].browserHandles.saveSnapshot as string;
                 return global[handle]();
             }
 
             async skipLinks() {
-                const handle = this[internalState].browserHandles
-                    .skipLinks as string;
+                const handle = this[internalState].browserHandles.skipLinks as string;
                 return global[handle]();
             }
 
@@ -240,11 +209,8 @@ export function createBundle(apifyNamespace: string) {
                 const metaKey = this[setup].META_KEY;
                 const defaultUserData = {
                     [metaKey]: {
-                        parentRequestId:
-                            this.request.id || this.request.uniqueKey,
-                        depth:
-                            (this.request.userData![metaKey] as RequestMetadata)
-                                .depth + 1,
+                        parentRequestId: this.request.id || this.request.uniqueKey,
+                        depth: (this.request.userData![metaKey] as RequestMetadata).depth + 1,
                     },
                 };
 
@@ -253,44 +219,28 @@ export function createBundle(apifyNamespace: string) {
                     ...requestOpts.userData,
                 };
 
-                return this[internalState].requestQueue!.addRequest(
-                    newRequest,
-                    options,
-                );
+                return this[internalState].requestQueue!.addRequest(newRequest, options);
             }
 
             async waitFor(
-                selectorOrNumberOrFunction:
-                    | string
-                    | number
-                    | ((...args: unknown[]) => boolean),
+                selectorOrNumberOrFunction: string | number | ((...args: unknown[]) => boolean),
                 options = {},
             ) {
-                if (!options || typeof options !== 'object')
-                    throw new Error('Parameter options must be an Object');
+                if (!options || typeof options !== 'object') throw new Error('Parameter options must be an Object');
                 const type = typeof selectorOrNumberOrFunction;
                 if (type === 'string') {
-                    return this._waitForSelector(
-                        selectorOrNumberOrFunction as string,
-                        options,
-                    );
+                    return this._waitForSelector(selectorOrNumberOrFunction as string, options);
                 }
                 if (type === 'number') {
-                    return this._waitForMillis(
-                        selectorOrNumberOrFunction as number,
-                    );
+                    return this._waitForMillis(selectorOrNumberOrFunction as number);
                 }
                 if (type === 'function') {
                     return this._waitForFunction(
-                        selectorOrNumberOrFunction as (
-                            ...args: unknown[]
-                        ) => boolean,
+                        selectorOrNumberOrFunction as (...args: unknown[]) => boolean,
                         options,
                     );
                 }
-                throw new Error(
-                    'Parameter selectorOrNumberOrFunction must be one of the said types.',
-                );
+                throw new Error('Parameter selectorOrNumberOrFunction must be one of the said types.');
             }
 
             async _waitForSelector(selector: string, options = {}) {
@@ -301,9 +251,7 @@ export function createBundle(apifyNamespace: string) {
                 } catch (err) {
                     const casted = err as Error;
                     if (/timeout of \d+ms exceeded/.test(casted.message)) {
-                        throw new Error(
-                            `Timeout Error: waiting for selector failed: ${casted.message}`,
-                        );
+                        throw new Error(`Timeout Error: waiting for selector failed: ${casted.message}`);
                     }
                     throw err;
                 }
@@ -315,26 +263,20 @@ export function createBundle(apifyNamespace: string) {
                 });
             }
 
-            async _waitForFunction(
-                predicate: () => boolean,
-                options: PoolOptions = {},
-            ) {
+            async _waitForFunction(predicate: () => boolean, options: PoolOptions = {}) {
                 try {
                     await this._poll(predicate, options);
                 } catch (err) {
                     const casted = err as Error;
                     if (/timeout of \d+ms exceeded/.test(casted.message)) {
-                        throw new Error(
-                            `Timeout Error: waiting for function failed: ${casted.message}`,
-                        );
+                        throw new Error(`Timeout Error: waiting for function failed: ${casted.message}`);
                     }
                     throw err;
                 }
             }
 
             async _poll(predicate: () => boolean, options: PoolOptions = {}) {
-                const { pollingIntervalMillis = 50, timeoutMillis = 20000 } =
-                    options;
+                const { pollingIntervalMillis = 50, timeoutMillis = 20000 } = options;
                 return new Promise<void>((resolve, reject) => {
                     const handler = (): void => {
                         if (predicate()) {
@@ -343,17 +285,10 @@ export function createBundle(apifyNamespace: string) {
                             setTimeout(handler);
                         }
                     };
-                    const pollTimeout = setTimeout(
-                        handler,
-                        pollingIntervalMillis,
-                    );
+                    const pollTimeout = setTimeout(handler, pollingIntervalMillis);
                     setTimeout(() => {
                         clearTimeout(pollTimeout);
-                        return reject(
-                            new Error(
-                                `timeout of ${timeoutMillis}ms exceeded.`,
-                            ),
-                        );
+                        return reject(new Error(`timeout of ${timeoutMillis}ms exceeded.`));
                     }, timeoutMillis);
                 });
             }

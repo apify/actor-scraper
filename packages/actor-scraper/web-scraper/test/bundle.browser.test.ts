@@ -43,15 +43,10 @@ describe('Bundle', () => {
 
         beforeEach(async () => {
             await page.goto('about:chrome');
-            await page.waitForFunction(
-                (namespace: string) => !!window[namespace],
-                {},
-                NAMESPACE,
-            );
+            await page.waitForFunction((namespace: string) => !!window[namespace], {}, NAMESPACE);
             await page.evaluate(
                 (namespace: string, contextOptions) => {
-                    window.contextInstance =
-                        window[namespace].createContext(contextOptions);
+                    window.contextInstance = window[namespace].createContext(contextOptions);
                 },
                 NAMESPACE,
                 CONTEXT_OPTIONS,

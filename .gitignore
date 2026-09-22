@@ -17,6 +17,7 @@ pids
 .idea
 .vscode
 yarn.lock
+.yarn
 tmp
 jsconfig.json
 types
@@ -25,7 +26,7 @@ docs/typedefs
 docs/changelog.md
 .history
 .docusaurus
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 apify_storage
 crawlee_storage
 storage

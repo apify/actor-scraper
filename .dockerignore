@@ -1,0 +1,14 @@
+# Actor images build from the monorepo root (dockerContextDir in .actor/actor.json).
+# Keep the context lean: ship sources + manifests + the pnpm lockfile only.
+node_modules
+**/node_modules
+.git
+.turbo
+**/dist
+**/storage
+apify_storage
+crawlee_storage
+*.log
+.DS_Store
+.idea
+.vscode

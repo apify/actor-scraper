@@ -3,11 +3,15 @@
     "name": "cheerio-scraper",
     "version": "0.1",
     "buildTag": "latest",
+    "output": "./output_schema.json",
+    "dockerContextDir": "../../../..",
+    "dockerfile": "../Dockerfile",
     "storages": {
         "dataset": {
             "actorSpecification": 1,
             "fields": {},
             "views": {}
         }
-    }
+    },
+    "minMemoryMbytes": 256
 }

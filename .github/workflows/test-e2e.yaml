@@ -10,10 +10,10 @@ on:
         - cron: '0 2 * * *'
 
 jobs:
-    # NPM install is done in a separate job and cached to speed up the following jobs.
     build_and_test:
         name: Build & Test
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
+        timeout-minutes: 60
 
         steps:
             - name: Cancel Workflow Action
@@ -22,31 +22,39 @@ jobs:
                   access_token: ${{ github.token }}
 
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v7
 
             - name: Use Node.js 24
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v7
               with:
                   node-version: 24
-                  cache: 'npm'
-                  cache-dependency-path: 'package-lock.json'
 
             - name: Turbo cache
               id: turbo-cache
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: .turbo
                   key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
                   restore-keys: |
                       turbo-${{ github.job }}-${{ github.ref_name }}-
 
-            - name: Install Dependencies
-              run: npm ci
+            - name: Install pnpm and dependencies
+              uses: apify/actions/pnpm-install@v1.5.0
+
+            - name: Install browsers
+              run: |
+                  pnpm exec puppeteer browsers install chrome
+                  pnpm exec playwright install chromium
 
             - name: Build
-              run: npm run ci:build
+              run: pnpm ci:build
+
+            # ubuntu-24.04 restricts unprivileged user namespaces via AppArmor, which breaks
+            # Chrome's sandbox and fails the browser-launch tests. Re-enable it for the runner.
+            - name: Enable unprivileged user namespaces (Chrome sandbox)
+              run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
             - name: Test
-              run: npm run test:e2e
+              run: pnpm test:e2e
               env:
                   APIFY_TOKEN: ${{ secrets.APIFY_SCRAPER_TESTS_API_TOKEN }}

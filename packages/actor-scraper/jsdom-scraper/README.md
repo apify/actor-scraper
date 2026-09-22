@@ -150,7 +150,7 @@ async function pageFunction(context) {
 }
 ```
 
-The code runs in [Node.js 16](https://nodejs.org/) and the function accepts a single argument, the `context` object, whose properties are listed below.
+The code runs in [Node.js 22](https://nodejs.org/) and the function accepts a single argument, the `context` object, whose properties are listed below.
 
 The return value of the page function is an object (or an array of objects) representing the data extracted from the web page. The return value must be stringify-able to JSON, i.e. it can only contain basic types and no circular references. If you prefer not to extract any data from the page and skip it in the clean results, simply return `null` or `undefined`.
 

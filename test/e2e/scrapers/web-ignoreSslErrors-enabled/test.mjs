@@ -1,11 +1,4 @@
-import {
-    expect,
-    getDatasetItems,
-    getStats,
-    getTestDir,
-    run,
-    validateDataset,
-} from '../../tools.mjs';
+import { expect, getDatasetItems, getStats, getTestDir, run, validateDataset } from '../../tools.mjs';
 
 const testDir = getTestDir(import.meta.url);
 
@@ -77,9 +70,6 @@ await expect(stats.requestsFinished >= 20, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
 await expect(datasetItems.length >= 20, 'Minimum number of dataset items');
-await expect(
-    validateDataset(datasetItems, ['url', 'title']),
-    'Dataset items validation',
-);
+await expect(validateDataset(datasetItems, ['url', 'title']), 'Dataset items validation');
 
 process.exit(0);

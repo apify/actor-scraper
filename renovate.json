@@ -1,17 +1,15 @@
 {
-    "extends": ["config:base", ":semanticCommitTypeAll(chore)"],
-    "pinVersions": false,
+    "extends": ["config:recommended", ":semanticCommitTypeAll(chore)"],
     "separateMajorMinor": false,
     "dependencyDashboard": false,
     "semanticCommits": "enabled",
+    "minimumReleaseAge": "1 day",
+    "internalChecksFilter": "strict",
     "lockFileMaintenance": {
         "enabled": true,
         "schedule": ["before 2am"],
         "automerge": true,
         "automergeType": "branch"
-    },
-    "constraints": {
-        "npm": "^10.0.0"
     },
     "packageRules": [
         {
@@ -21,6 +19,79 @@
             "groupSlug": "all-non-major",
             "automerge": true,
             "automergeType": "branch"
+        },
+        {
+            "matchPackageNames": [
+                "@apify/*",
+                "@crawlee/*",
+                "apify-client",
+                "apify",
+                "crawlee",
+                "got-scraping"
+            ],
+            "minimumReleaseAge": "0 days"
+        },
+        {
+            "description": "Update the Sitemap Extractor Apify/Crawlee v4 beta stack together",
+            "matchManagers": ["npm", "pnpm"],
+            "matchFileNames": ["packages/actor-scraper/sitemap-scraper/package.json", "pnpm-workspace.yaml"],
+            "matchPackageNames": ["apify", "@crawlee/*"],
+            "groupName": "sitemap Crawlee v4 beta stack"
+        },
+        {
+            "description": "Update the Camoufox image and its JS drivers as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "packages/actor-scraper/camoufox-scraper/Dockerfile",
+                "packages/actor-scraper/camoufox-scraper/package.json"
+            ],
+            "matchPackageNames": [
+                "apify/actor-node-playwright-camoufox",
+                "camoufox-js",
+                "playwright",
+                "playwright-core"
+            ],
+            "groupName": "camoufox browser stack"
+        },
+        {
+            "description": "Update the Playwright image and driver as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "package.json",
+                "packages/actor-scraper/playwright-scraper/Dockerfile",
+                "packages/actor-scraper/playwright-scraper/package.json"
+            ],
+            "matchPackageNames": ["apify/actor-node-playwright", "playwright", "@playwright/browser-chromium"],
+            "groupName": "playwright browser stack"
+        },
+        {
+            "description": "Update the Chrome image and Puppeteer drivers as one tested stack",
+            "matchManagers": ["dockerfile", "npm"],
+            "matchFileNames": [
+                "package.json",
+                "packages/actor-scraper/puppeteer-scraper/Dockerfile",
+                "packages/actor-scraper/puppeteer-scraper/package.json",
+                "packages/actor-scraper/web-scraper/Dockerfile",
+                "packages/actor-scraper/web-scraper/package.json"
+            ],
+            "matchPackageNames": ["apify/actor-node-puppeteer-chrome", "puppeteer"],
+            "groupName": "puppeteer browser stack"
+        },
+        {
+            "description": "HELD at 1.61.x: playwright 1.62.0 stopped disabling Chromium's RenderDocument (microsoft/playwright#41303), which makes page.close() hang and leaks the page in Crawlee's browser pool (microsoft/playwright#42068, apify/crawlee#1829). Lift once upstream ships the fix or the pool survives a close that never settles.",
+            "matchManagers": ["npm"],
+            "matchFileNames": ["package.json", "packages/actor-scraper/playwright-scraper/package.json"],
+            "matchPackageNames": ["playwright", "@playwright/browser-chromium"],
+            "allowedVersions": "<1.62.0",
+            "automerge": false
+        },
+        {
+            "description": "HELD at 1.61.x: keep the Playwright base image on the line matching the driver pin, see the rule above. Digest updates within the tag still flow.",
+            "matchManagers": ["dockerfile"],
+            "matchFileNames": ["packages/actor-scraper/playwright-scraper/Dockerfile"],
+            "matchPackageNames": ["apify/actor-node-playwright"],
+            "allowedVersions": "/^24-1\\.61\\./",
+            "automerge": false
         }
     ],
     "schedule": ["every weekday"]
