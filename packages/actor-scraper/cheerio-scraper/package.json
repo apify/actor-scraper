@@ -13,7 +13,7 @@
         "@apify/tsconfig": "^0.2.0",
         "@types/node": "^24.13.3",
         "tsx": "^4.23.5",
-        "typescript": "~6.0.3"
+        "typescript": "~7.0.0"
     },
     "peerDependencies": {
         "cheerio": "^1.0.0-rc.12"
