@@ -322,6 +322,8 @@ jobs:
     push-to-apify:
         name: Build ${{ matrix.actor }}
         needs: [resolve-matrix, commit-changelogs]
+        # success() is transitive, a skipped prepare-changelog would skip this job too
+        if: ${{ !cancelled() && needs.commit-changelogs.result == 'success' }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false

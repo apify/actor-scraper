@@ -68,10 +68,6 @@ async function predictBuildNumber({ apifyActor, version, buildTag }) {
 
 const channel = requiredEnv('BUILD_CHANNEL');
 
-if (!CHANNELS.has(channel)) {
-    throw new Error(`Unknown build channel "${channel}"`);
-}
-
 const customVersion = process.env.CUSTOM_VERSION?.trim();
 const customBuildTag = process.env.CUSTOM_BUILD_TAG?.trim();
 

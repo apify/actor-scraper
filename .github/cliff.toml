@@ -72,14 +72,6 @@ trim = true
 # postprocessors
 postprocessors = []
 
-[bump]
-# Version used for repositories with no existing tags. The "v" prefix keeps it
-# matching tag_pattern, so setting up a brand-new repo works out of the box.
-initial_tag = "v0.1.0"
-# With 0.x.y version, breaking commits should only increase the minor version and feature commits should only increase the patch version
-breaking_always_bump_major = false
-features_always_bump_minor = false
-
 [git]
 # parse the commits based on https://www.conventionalcommits.org
 conventional_commits = true
