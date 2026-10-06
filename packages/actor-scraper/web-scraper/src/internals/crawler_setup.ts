@@ -24,7 +24,7 @@ import {
 import type { ApifyEnv } from 'apify';
 import { Actor } from 'apify';
 import type { HTTPResponse, Page } from 'puppeteer';
-import contentType from 'content-type';
+import { parse as parseContentType } from 'content-type';
 // @ts-expect-error no typings
 import DevToolsServer from 'devtools-server';
 import { getInjectableScript } from 'idcac-playwright';
@@ -660,7 +660,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
 
         const cTypeHeader = response.headers()['content-type'];
         try {
-            const { type } = contentType.parse(cTypeHeader);
+            const { type } = parseContentType(cTypeHeader);
             if (!/^(text|application)\/xml$|\+xml$/.test(type)) return;
         } catch {
             // Invalid type is not XML.
