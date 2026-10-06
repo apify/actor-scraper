@@ -1,6 +1,6 @@
 # git-cliff configuration for the generic scrapers.
 #
-# Derived from apify/actions/git-cliff-release/cliff.toml with three deliberate deltas:
+# Derived from apify/actions/git-cliff-release/cliff.toml with four deliberate deltas:
 #
 #   1. `chore(deps)` commits are grouped under "Dependencies" instead of being skipped.
 #      For these Actors the dependency stack (Crawlee, the SDK, Puppeteer/Playwright, Node)
@@ -15,6 +15,11 @@
 #      only the fallback for running git-cliff by hand.
 #
 #   3. `filter_commits` is on, making the parsers below an allowlist. See the comment on it.
+#
+#   4. The grouping parsers only accept commits scoped to this Actor or to work shared by every
+#      Actor, so each changelog lists the changes of its own Actor. See the comment on them.
+#      Upstream's body-based "Security" parser is dropped: git-cliff applies a parser when any of
+#      its fields matches, so it cannot be limited to a scope and would let any commit through.
 #
 
 [changelog]
@@ -83,22 +88,22 @@ split_commits = false
 commit_preprocessors = []
 # regex for parsing and grouping commits
 commit_parsers = [
-    # A commit scoped to another Actor's directory is that Actor's business. The release workflow
-    # replaces the placeholder with the other six directory names before each run; left unsubstituted it
-    # is a literal that matches nothing, so a broken run is noisier rather than wrong. Commits with no
-    # scope, or a scope that is not an Actor directory, still reach every changelog - most work here
-    # spans several Actors at once and dropping it would leave real releases undocumented.
-    { message = "^\\w+\\((OTHER_ACTOR_SCOPES)\\)", skip = true },
-    { message = "^feat|^patch", group = "<!-- 0 -->🚀 Features" },
-    { message = "^fix|^bug", group = "<!-- 1 -->🐛 Bug Fixes" },
-    { message = "^docs(\\(.+\\))?!:", group = "<!-- 3 -->📚 Documentation" },
+    # Only commits scoped to this Actor or to work shared by every Actor are documented. The release
+    # workflow replaces the placeholder with both before each run: the Actor's directory and aliases
+    # from .github/release-actors.json, plus `generic`, `deps` and `scraper-tools`. Anything else -
+    # another Actor's scope, `ci`, `docker`, or no scope at all - matches none of the grouping parsers
+    # and is dropped by `filter_commits`. Left unsubstituted, the placeholder matches nothing and every
+    # commit is dropped, which the workflow checks for.
+    { message = "^(feat|patch)\\((ALLOWED_SCOPES)\\)", group = "<!-- 0 -->🚀 Features" },
+    { message = "^(fix|bug)\\((ALLOWED_SCOPES)\\)", group = "<!-- 1 -->🐛 Bug Fixes" },
+    { message = "^docs\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 3 -->📚 Documentation" },
     { message = "^docs", skip = true },
-    { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
-    { message = "^refactor(\\(.+\\))?!:", group = "<!-- 2 -->🚜 Refactor" },
+    { message = "^perf\\((ALLOWED_SCOPES)\\)", group = "<!-- 4 -->⚡ Performance" },
+    { message = "^refactor\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 2 -->🚜 Refactor" },
     { message = "^refactor", skip = true },
-    { message = "^style(\\(.+\\))?!:", group = "<!-- 5 -->🎨 Styling" },
+    { message = "^style\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 5 -->🎨 Styling" },
     { message = "^style", skip = true },
-    { message = "^test(\\(.+\\))?!:", group = "<!-- 6 -->🧪 Testing" },
+    { message = "^test\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 6 -->🧪 Testing" },
     { message = "^test", skip = true },
     { message = "^chore\\(release\\): prepare for", skip = true },
     # Bumps of the repo's own tooling say nothing about the Actor a Store user runs.
@@ -106,25 +111,25 @@ commit_parsers = [
     { message = "^chore\\(deps.*\\)", group = "<!-- 10 -->⬆️ Dependencies" },
     { message = "^chore\\(pr\\)", skip = true },
     { message = "^chore\\(pull\\)", skip = true },
-    { message = "^(chore|ci)(\\(.+\\))?!:", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+    { message = "^(chore|ci)\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
     { message = "^chore|^ci", skip = true },
-    { message = "^build(\\(.+\\))?!:", group = "<!-- 7 -->🏗️ Build" },
+    { message = "^build\\((ALLOWED_SCOPES)\\)!:", group = "<!-- 7 -->🏗️ Build" },
     { message = "^build", skip = true },
-    { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
-    { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+    { message = "^revert\\((ALLOWED_SCOPES)\\)", group = "<!-- 9 -->◀️ Revert" },
 ]
 # protect breaking changes from being skipped due to matching a skipping commit_parser
-# Off, because the protection outranks the sibling-scope rule above: a breaking change in another
-# Actor would reach every changelog, and ungrouped at that - it lands in a bare "Feat" section instead
-# of under Features. Every skipping parser above is preceded by a rule that groups the `!:` form of the
-# same type, so a breaking change still reaches the changelog of the Actor it belongs to.
+# Off, because the protection would get past the scope allowlist above: a breaking `docs`, `refactor`,
+# `style`, `test`, `chore`, `ci` or `build` commit of another Actor matches the skipping parser of its
+# type, is protected from it, and lands in every changelog, ungrouped at that - in a bare "Docs"
+# section, say. Every skipping parser above is preceded by a rule that groups the `!:` form of the same
+# type, so a breaking change still reaches the changelog of the Actor it belongs to.
 protect_breaking_commits = false
 # filter out the commits that are not matched by commit parsers
 # Upstream keeps these, which is fine for a repo whose history is conventional throughout. Ours goes
 # back to 2017 and contains types like `Docs:` and `Readme:`; the parsers below are case-sensitive, so
-# those fall through every rule and end up as their own sections on the Actor's Store page. The PR
-# title check enforces the eleven conventional types and every one of them is handled below, so
-# nothing that can be merged today is lost by dropping the rest.
+# those fall through every rule and end up as their own sections on the Actor's Store page. It is also
+# what drops a `feat`, `fix`, `perf` or `revert` commit outside the scope allowlist: no parser accepts
+# it, so it ends up here.
 filter_commits = true
 # regex for matching git tags
 tag_pattern = "-v[0-9]+\\."

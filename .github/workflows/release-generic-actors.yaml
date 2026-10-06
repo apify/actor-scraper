@@ -152,23 +152,29 @@ jobs:
                   set -euo pipefail
 
                   # Every Actor keeps its own release history under its own tag namespace, so the
-                  # changelog covers the commits since *this* Actor was last released, and commits
-                  # scoped to one of the other Actors are left out of it.
-                  others=$(jq -r --arg a "$ACTOR" '[.[].actor | select(. != $a)] | join("|")' .github/release-actors.json)
+                  # changelog covers the commits since *this* Actor was last released. Of those, only
+                  # the commits scoped to this Actor - its directory or one of its aliases - or to
+                  # work shared by every Actor are documented.
+                  own=$(jq -r --arg a "$ACTOR" '.[] | select(.actor == $a) | [.actor] + .aliases | join("|")' .github/release-actors.json)
 
-                  if [ -z "$others" ]; then
-                      echo "::error title=Empty scope list::Could not read the other Actors from .github/release-actors.json"
+                  if [ -z "$own" ]; then
+                      echo "::error title=Empty scope list::Could not read the scopes of $ACTOR from .github/release-actors.json"
                       exit 1
                   fi
+
+                  # Shared by every Actor: cross-Actor work, Renovate bumps, and the library they
+                  # all build on.
+                  scopes="$own|generic|deps|scraper-tools"
 
                   # "#" as the delimiter: the scope list is a regex alternation full of "|".
                   sed -E \
                       -e "s#^tag_pattern = .*#tag_pattern = \"^${ACTOR}-v\"#" \
-                      -e "s#OTHER_ACTOR_SCOPES#${others}#" \
+                      -e "s#ALLOWED_SCOPES#${scopes}#g" \
                       .github/cliff.toml > "$RUNNER_TEMP/cliff.toml"
 
                   # A substitution that stops matching leaves git-cliff working, just on the wrong
-                  # range or without the scope filter, and reports nothing - so assert both landed.
+                  # range or with every commit filtered out, and reports nothing - so assert both
+                  # landed.
                   if ! grep -q "^tag_pattern = \"\\^${ACTOR}-v\"$" "$RUNNER_TEMP/cliff.toml"; then
                       echo "::error title=Config not scoped::tag_pattern was not rewritten for $ACTOR"
                       exit 1
@@ -176,12 +182,12 @@ jobs:
 
                   # Asserting the list is present also covers a placeholder that was never there,
                   # which a check for the leftover placeholder alone would pass.
-                  if ! grep -qF "$others" "$RUNNER_TEMP/cliff.toml"; then
-                      echo "::error title=Config not scoped::the sibling scope list is missing - check the OTHER_ACTOR_SCOPES placeholder in .github/cliff.toml"
+                  if grep -q 'ALLOWED_SCOPES' "$RUNNER_TEMP/cliff.toml" || ! grep -qF "($scopes)" "$RUNNER_TEMP/cliff.toml"; then
+                      echo "::error title=Config not scoped::the scope list is missing - check the ALLOWED_SCOPES placeholder in .github/cliff.toml"
                       exit 1
                   fi
 
-                  grep -F -e 'tag_pattern = ' -e "$others" "$RUNNER_TEMP/cliff.toml"
+                  grep -F -e 'tag_pattern = ' -e "($scopes)" "$RUNNER_TEMP/cliff.toml"
 
             - name: Prepare release metadata
               id: metadata
