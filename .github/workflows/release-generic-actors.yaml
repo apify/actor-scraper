@@ -125,21 +125,26 @@ jobs:
                   set -euo pipefail
 
                   # Without a tag to start from, git-cliff walks back to the first commit in the repo
-                  # and the "release" would document years of unrelated history.
-                  if [ "$(gh api "repos/${{ github.repository }}/git/matching-refs/tags/$ACTOR-v" --jq 'length')" = '0' ]; then
+                  # and the "release" would document years of unrelated history. The count goes through
+                  # a plain assignment, so a failed API call stops the step instead of passing the test.
+                  seeds=$(gh api "repos/${{ github.repository }}/git/matching-refs/tags/$ACTOR-v" --jq 'length')
+
+                  if [ "$seeds" = '0' ]; then
                       echo "::error title=Missing seed tag::No $ACTOR-v* tag exists. Tag the commit $ACTOR was last released from as $ACTOR-v<its build number> before releasing it through this workflow."
                       exit 1
                   fi
 
-                  # Both halves matter after a partly failed release: the tag covers a re-run of this
-                  # very run, the changelog covers a fresh run over a commit that already landed.
-                  # Without them a second entry for the same build number would be prepended.
+                  # The tag marks a finished release, so a re-run of this very run leaves the changelog
+                  # alone. A heading without its tag means the run that wrote the entry stopped before
+                  # tagging it. Skipping would leave the next release counting from the previous tag and
+                  # documenting this entry again; writing it would prepend a second entry for the same
+                  # build number. Neither can be fixed from here, so stop and say what is missing.
                   if gh api "repos/${{ github.repository }}/git/ref/tags/$TAG" --silent 2> /dev/null; then
                       echo "::notice title=Already released::$TAG exists, leaving the changelog alone"
                       echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
                   elif grep -q "^## $BUILD_NUMBER (" "$CHANGELOG"; then
-                      echo "::notice title=Changelog already written::$CHANGELOG documents $BUILD_NUMBER already"
-                      echo 'skip=true' | tee -a "$GITHUB_OUTPUT"
+                      echo "::error title=Untagged changelog entry::$CHANGELOG documents $BUILD_NUMBER, but $TAG does not exist (or could not be read). Create the GitHub release $TAG on the commit that added the entry - git log -1 --format=%H -S'## $BUILD_NUMBER (' -- $CHANGELOG - and run the release again."
+                      exit 1
                   else
                       echo 'skip=false' | tee -a "$GITHUB_OUTPUT"
                   fi
