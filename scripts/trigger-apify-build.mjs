@@ -77,10 +77,12 @@ console.log(`Build ${build.id} SUCCEEDED`);
 
 // The changelog heading is a prediction: it is committed before the build is triggered. Runs of the
 // release workflow are serialised by its concurrency group, but a build started outside it - from the
-// Console, the API or the CLI - can still consume the number and leave the heading wrong.
+// Console, the API or the CLI - can still consume the number and leave the heading wrong. So can a
+// re-run of this job after a failed build, which keeps the number predicted before that build.
 if (expectedBuildNumber && build.buildNumber !== expectedBuildNumber) {
     throw new Error(
         `Build ${build.id} was published as ${build.buildNumber}, but the changelog of ${actorId} ` +
-            `documents ${expectedBuildNumber}. Fix the heading in the Actor's CHANGELOG.md.`,
+            `documents ${expectedBuildNumber}. Fix the heading in the Actor's CHANGELOG.md, its Git tag ` +
+            'and its GitHub release.',
     );
 }

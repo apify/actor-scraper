@@ -92,6 +92,7 @@ jobs:
             - name: Resolve the Actors to release
               id: matrix
               env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_ACTOR_BUILD_TOKEN }}
                   BUILD_CHANNEL: ${{ github.event.inputs.build-channel }}
                   CUSTOM_VERSION: ${{ github.event.inputs.version }}
                   CUSTOM_BUILD_TAG: ${{ github.event.inputs.build-tag }}
@@ -232,8 +233,8 @@ jobs:
                   retention-days: 7
 
     # Runs on every channel, doing nothing when there is no changelog to write, so that the build job
-    # can depend on it plainly. That keeps `always()` away from a job whose matrix comes from
-    # `fromJSON`, where an unresolved output would be evaluated as an empty string.
+    # can gate on this job's result alone. Its success also implies a successful resolve-matrix, so the
+    # build job never expands its `fromJSON` matrix from an unresolved output (an empty string).
     commit-changelogs:
         name: Commit changelogs
         needs: [resolve-matrix, prepare-changelog]

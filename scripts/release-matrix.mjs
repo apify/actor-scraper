@@ -7,14 +7,12 @@
  * the Actor list in one place instead of duplicating it per job.
  *
  * For the `stable` channel it also predicts the build number Apify will assign - the platform bumps
- * the patch of the build currently under the build tag. The changelog heading has to be written
- * before the build is triggered (the Actors build from the Git source, so Apify reads whatever is on
- * master at that moment), which means the number has to be known up front.
+ * the patch of the latest build of the version, whether that build succeeded or not. The changelog
+ * heading has to be written before the build is triggered (the Actors build from the Git source, so
+ * Apify reads whatever is on master at that moment), which means the number has to be known up front.
  */
 
 import { appendFile, readFile } from 'node:fs/promises';
-
-const CHANNELS = new Set(['stable', 'development', 'custom']);
 
 function requiredEnv(name) {
     const value = process.env[name];
@@ -26,44 +24,52 @@ function requiredEnv(name) {
     return value;
 }
 
-function nextBuildNumber(current, version) {
+async function readApify(path) {
+    const response = await fetch(`https://api.apify.com/v2${path}`, {
+        headers: { Authorization: `Bearer ${requiredEnv('APIFY_TOKEN')}` },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Cannot read ${path} from the Apify API: ${response.status} ${response.statusText}`);
+    }
+
+    const { data } = await response.json();
+
+    return data;
+}
+
+async function predictBuildNumber({ apifyActor, version, buildTag }) {
+    const actorPath = `/acts/${apifyActor.replace('/', '~')}`;
     const prefix = `${version}.`;
 
-    if (!current.startsWith(prefix)) {
+    // The build under the tag shows which version the tag serves on Apify. Comparing it with the
+    // configured version stops a stale .github/release-actors.json before anything is published.
+    const tagged = (await readApify(actorPath)).taggedBuilds?.[buildTag]?.buildNumber;
+
+    if (tagged && !tagged.startsWith(prefix)) {
         throw new Error(
-            `Build number "${current}" does not belong to version "${version}". ` +
+            `"${apifyActor}" serves build ${tagged} under tag "${buildTag}", not version "${version}". ` +
                 'Align .github/release-actors.json with the Actor version configuration on Apify.',
         );
     }
 
-    const patch = Number(current.slice(prefix.length));
+    // The number itself does not come from the tag: the tag only moves when a build succeeds, while a
+    // failed build consumes its number all the same, so after one the prediction would fall a number
+    // behind. Listing the builds needs a token even for a public Actor.
+    const { items } = await readApify(`${actorPath}/builds?desc=1&limit=1000`);
+    const patches = items
+        .map(({ buildNumber }) => buildNumber)
+        .filter((buildNumber) => buildNumber?.startsWith(prefix))
+        .map((buildNumber) => Number(buildNumber.slice(prefix.length)));
 
-    if (!Number.isInteger(patch)) {
-        throw new Error(`Cannot parse the patch part of build number "${current}"`);
+    if (patches.length === 0 || !patches.every(Number.isInteger)) {
+        throw new Error(
+            `Cannot read the builds of version "${version}" of "${apifyActor}". ` +
+                'Align .github/release-actors.json with the Actor version configuration on Apify.',
+        );
     }
 
-    return `${prefix}${patch + 1}`;
-}
-
-async function predictBuildNumber({ apifyActor, version, buildTag }) {
-    // Every generic scraper is public, so this read needs no token - and sending one would add a 401
-    // to a step that has nothing to authenticate. A private Actor would fail here with a 404.
-    const response = await fetch(`https://api.apify.com/v2/acts/${apifyActor.replace('/', '~')}`);
-
-    if (!response.ok) {
-        throw new Error(`Cannot read "${apifyActor}" from the Apify API: ${response.status} ${response.statusText}`);
-    }
-
-    const { data } = await response.json();
-    const current = data?.taggedBuilds?.[buildTag]?.buildNumber;
-
-    if (!current) {
-        console.log(`::warning::"${apifyActor}" has no build under tag "${buildTag}" yet, starting at ${version}.0`);
-
-        return `${version}.0`;
-    }
-
-    return nextBuildNumber(current, version);
+    return `${prefix}${Math.max(...patches) + 1}`;
 }
 
 const channel = requiredEnv('BUILD_CHANNEL');
