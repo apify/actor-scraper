@@ -162,8 +162,8 @@ jobs:
                       exit 1
                   fi
 
-                  # Shared by every Actor: cross-Actor work, Renovate bumps, and the library they
-                  # all build on.
+                  # Shared by every Actor: cross-Actor work, dependency fixes, and the library they
+                  # all build on. Plain `chore(deps)` bumps are skipped regardless of scope.
                   scopes="$own|generic|deps|scraper-tools"
 
                   # "#" as the delimiter: the scope list is a regex alternation full of "|".
