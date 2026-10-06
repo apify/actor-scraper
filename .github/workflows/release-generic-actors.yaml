@@ -169,7 +169,7 @@ jobs:
 
                   # Shared by every Actor: cross-Actor work, dependency fixes, and the library they
                   # all build on. Plain `chore(deps)` bumps are skipped regardless of scope.
-                  scopes="$own|generic|deps|scraper-tools"
+                  scopes="$own|generic|scrapers|actors|deps|scraper-tools"
 
                   # "#" as the delimiter: the scope list is a regex alternation full of "|".
                   sed -E \
