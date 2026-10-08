@@ -1,4 +1,6 @@
-# Change Log
+# Changelog
+
+All notable changes to this project will be documented in this file.
 
 ## 3.0.12 (2024-10-25)
 
