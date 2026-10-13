@@ -54,7 +54,7 @@
         ]
     },
     "devDependencies": {
-        "@apify/consts": "^2.57.0",
+        "@apify/consts": "^3.0.0",
         "@apify/input_secrets": "^1.2.54",
         "@apify/log": "^2.5.48",
         "@apify/oxlint-config": "^0.3.0",
