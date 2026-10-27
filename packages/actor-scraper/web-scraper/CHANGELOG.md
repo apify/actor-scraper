@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 3.0.26 (2026-10-27)
+
+### 🚀 Features
+
+- **web-scraper:** Support limited permissions for named storage inputs (#318)
+
+### 🐛 Bug Fixes
+
+- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (#393)
+- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
+- **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
+- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
+
+
 ## 3.0.18 (2024-10-25)
 
 - Updated Crawlee version to v3.11.5 and SDK v3.2.6

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## 1.0.23 (2026-10-27)
+
+### 🐛 Bug Fixes
+
+- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (#393)
+- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
+- **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
+- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
+- **playwright-scraper:** Hold playwright at 1.61.1 (#363)
+
+
 ## 1.0.15 (2024-10-25)
 
 - Updated Crawlee version to v3.11.5 and SDK v3.2.6
