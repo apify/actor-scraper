@@ -2,17 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
-
 ## 3.0.23 (2026-10-27)
+
+_Maintenance build: dependency updates, no user-facing changes._
+
+## 3.0.22 (2026-09-03)
 
 ### 🐛 Bug Fixes
 
-- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (#393)
-- **cheerio:** Enforce min memory to 256
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
-- **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
 - **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
 
+## 3.0.19 (2026-07-01)
+
+### 🐛 Bug Fixes
+
+- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
+
+## 3.0.18 (2026-05-18)
+
+### 🐛 Bug Fixes
+
+- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (apify-sdk-js#393)
+- **cheerio:** Enforce min memory to 256
 
 ## 3.0.15 (2024-10-25)
 

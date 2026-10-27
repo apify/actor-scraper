@@ -2,17 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-
 ## 1.0.23 (2026-10-27)
+
+### ⚙️ Miscellaneous Tasks
+
+- **generic:** Run Actors on patched Node 24.22.1 (#376)
+
+## 1.0.22 (2026-09-08)
 
 ### 🐛 Bug Fixes
 
-- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (#393)
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
-- **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
-- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
 - **playwright-scraper:** Hold playwright at 1.61.1 (#363)
 
+## 1.0.21 (2026-09-03)
+
+### 🐛 Bug Fixes
+
+- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
+
+## 1.0.18 (2026-07-01)
+
+### 🐛 Bug Fixes
+
+- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (apify-sdk-js#393)
+- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
 
 ## 1.0.15 (2024-10-25)
 

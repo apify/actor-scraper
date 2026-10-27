@@ -2,13 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
-
 ## 0.1.31 (2026-10-27)
+
+_Maintenance build: dependency updates, no user-facing changes._
+
+## 0.1.30 (2026-09-03)
+
+### 🐛 Bug Fixes
+
+- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
+
+## 0.1.28 (2026-07-21)
+
+### 🚀 Features
+
+- **sitemap-scraper:** Add option to list sitemap URLs only (#332)
+
+## Before 0.1.28 (2026-01-20 – 2026-07-09)
+
+_The builds before 0.1.28 are no longer on the Apify platform, so these changes are not split by build._
 
 ### 🚀 Features
 
 - **sitemap:** Add lastmod to extracted page output (#301)
-- **sitemap-scraper:** Add option to list sitemap URLs only (#332)
 
 ### 🐛 Bug Fixes
 
@@ -21,8 +37,3 @@ All notable changes to this project will be documented in this file.
 - **sitemap-scraper:** Support gzipped sitemap bodies without refetching
 - **sitemap-extractor:** Retry discovery once without proxy
 - **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
-- **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
-- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
-
-
-Releases made before this changelog was introduced are not documented.
