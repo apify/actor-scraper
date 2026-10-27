@@ -159,18 +159,11 @@ jobs:
                   # Every Actor keeps its own release history under its own tag namespace, so the
                   # changelog covers the commits since *this* Actor was last released. Of those, only
                   # the commits scoped to this Actor - its directory or one of its aliases - or to
-                  # work shared by every Actor are documented, and only if they touch the Actor's
-                  # directory or scraper-tools.
+                  # work shared by every Actor are documented.
                   own=$(jq -r --arg a "$ACTOR" '.[] | select(.actor == $a) | [.actor] + .aliases | join("|")' .github/release-actors.json)
-                  path=$(jq -r --arg a "$ACTOR" '.[] | select(.actor == $a) | .path // empty' .github/release-actors.json)
 
                   if [ -z "$own" ]; then
                       echo "::error title=Empty scope list::Could not read the scopes of $ACTOR from .github/release-actors.json"
-                      exit 1
-                  fi
-
-                  if [ -z "$path" ]; then
-                      echo "::error title=Empty path::Could not read the path of $ACTOR from .github/release-actors.json"
                       exit 1
                   fi
 
@@ -182,7 +175,6 @@ jobs:
                   sed -E \
                       -e "s#^tag_pattern = .*#tag_pattern = \"^${ACTOR}-v\"#" \
                       -e "s#ALLOWED_SCOPES#${scopes}#g" \
-                      -e "s#ACTOR_PATH#${path}#g" \
                       .github/cliff.toml > "$RUNNER_TEMP/cliff.toml"
 
                   # A substitution that stops matching leaves git-cliff working, just on the wrong
@@ -200,14 +192,7 @@ jobs:
                       exit 1
                   fi
 
-                  # Without the path filter every shared-scope commit would reach this changelog again,
-                  # whichever Actor it changed.
-                  if grep -q 'ACTOR_PATH' "$RUNNER_TEMP/cliff.toml" || ! grep -qF "include_paths = [\"$path/**\"" "$RUNNER_TEMP/cliff.toml"; then
-                      echo "::error title=Config not scoped::the path filter is missing - check the ACTOR_PATH placeholder in .github/cliff.toml"
-                      exit 1
-                  fi
-
-                  grep -F -e 'tag_pattern = ' -e "($scopes)" -e 'include_paths = ' "$RUNNER_TEMP/cliff.toml"
+                  grep -F -e 'tag_pattern = ' -e "($scopes)" "$RUNNER_TEMP/cliff.toml"
 
             - name: Prepare release metadata
               id: metadata

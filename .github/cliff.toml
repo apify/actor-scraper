@@ -1,6 +1,6 @@
 # git-cliff configuration for the generic scrapers.
 #
-# Derived from apify/actions/git-cliff-release/cliff.toml with four deliberate deltas:
+# Derived from apify/actions/git-cliff-release/cliff.toml with three deliberate deltas:
 #
 #   1. `tag_pattern` matches the per-Actor tag namespace (`<actor>-v<build number>`).
 #      Every Actor has its own version line and is released on its own, so the release
@@ -13,11 +13,6 @@
 #      Actor, so each changelog lists the changes of its own Actor. See the comment on them.
 #      Upstream's body-based "Security" parser is dropped: git-cliff applies a parser when any of
 #      its fields matches, so it cannot be limited to a scope and would let any commit through.
-#
-#   4. `include_paths` limits each changelog to the commits that touch the Actor's directory or
-#      packages/scraper-tools. A shared scope says nothing about which Actors a commit changed, so
-#      without it a `fix(deps)` for one Actor would land in the changelog of every other Actor too.
-#      The release workflow replaces ACTOR_PATH before each run, the same way as ALLOWED_SCOPES.
 #
 
 [changelog]
@@ -82,8 +77,6 @@ conventional_commits = true
 filter_unconventional = true
 # process each line of a commit as an individual commit
 split_commits = false
-# only process the commits that touch these paths - see delta 4 at the top
-include_paths = ["ACTOR_PATH/**", "packages/scraper-tools/**"]
 # regex for preprocessing the commit messages
 commit_preprocessors = []
 # regex for parsing and grouping commits
