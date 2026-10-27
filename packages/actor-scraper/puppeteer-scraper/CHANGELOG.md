@@ -19,7 +19,6 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (apify-sdk-js#393)
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
 - **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
 
 ## 3.0.12 (2024-10-25)

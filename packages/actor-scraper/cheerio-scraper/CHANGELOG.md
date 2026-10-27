@@ -12,12 +12,6 @@ _Maintenance build: dependency updates, no user-facing changes._
 
 - **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
 
-## 3.0.19 (2026-07-01)
-
-### 🐛 Bug Fixes
-
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
-
 ## 3.0.18 (2026-05-18)
 
 ### 🐛 Bug Fixes

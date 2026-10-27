@@ -25,7 +25,6 @@ All notable changes to this project will be documented in this file.
 ### 🐛 Bug Fixes
 
 - **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (apify-sdk-js#393)
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
 
 ## 1.0.15 (2024-10-25)
 
