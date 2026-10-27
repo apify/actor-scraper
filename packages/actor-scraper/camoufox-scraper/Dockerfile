@@ -38,6 +38,9 @@ RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper
 
 FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88
 
+# Apify no longer rebuilds 24-1.59.1; take node from the official image until the base moves on.
+COPY --from=node:24.22.1-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea /usr/local/bin/node /usr/local/bin/node
+
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean
 # production bundle (which carries the matching playwright + camoufox-js); the binary stays in the base.

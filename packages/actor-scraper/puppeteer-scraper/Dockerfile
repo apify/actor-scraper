@@ -2,9 +2,9 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Chrome + OS deps). The actor pins puppeteer to the version
-# this base ships (24-25.4.0 -> puppeteer 25.4.0) and bundles it, so the bundled driver matches the
+# this base ships (24-25.16.0 -> puppeteer 25.16.0) and bundles it, so the bundled driver matches the
 # Chrome binary it drives. Renovate bumps the base digest and the puppeteer pin together.
-FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62 AS builder
+FROM apify/actor-node-puppeteer-chrome:24-25.16.0@sha256:bf68062b5632b43fa6119c78a35c6627786c9733930c95af2164259d2138297b AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -29,7 +29,7 @@ RUN pnpm --filter actor-puppeteer-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-puppeteer-scraper deploy --prod /deploy
 
-FROM apify/actor-node-puppeteer-chrome:24-25.4.0@sha256:b8efd3ada1cb332815db68a6228c00c8fb19f66e8a8305225360c99c4b853e62
+FROM apify/actor-node-puppeteer-chrome:24-25.16.0@sha256:bf68062b5632b43fa6119c78a35c6627786c9733930c95af2164259d2138297b
 
 # Base WORKDIR is /home/myuser and ships Chrome plus the Xvfb entrypoint. Replace only the template
 # node_modules with the lean production bundle (which carries the matching puppeteer); Chrome itself
