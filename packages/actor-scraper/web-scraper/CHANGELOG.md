@@ -2,20 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-
 ## 3.0.26 (2026-10-27)
+
+### ⚙️ Miscellaneous Tasks
+
+- **generic:** Run Actors on patched Node 24.22.1 (#376)
+
+## 3.0.24 (2026-09-03)
+
+### 🐛 Bug Fixes
+
+- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
+
+## 3.0.22 (2026-07-09)
 
 ### 🚀 Features
 
 - **web-scraper:** Support limited permissions for named storage inputs (#318)
 
+## 3.0.21 (2026-07-01)
+
 ### 🐛 Bug Fixes
 
-- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (#393)
-- **actors:** Deterministic monorepo builds + browser stack from digest-pinned bases
+- **scrapers:** Use RequestQueue directly to avoid excessive RQ writes on runs with large startUrls list (apify-sdk-js#393)
 - **deps:** Dedupe puppeteer to a single 25.2.0, revert type workarounds
-- **scraper-tools:** Restore saveSnapshot() under content-type v2 (#361)
-
 
 ## 3.0.18 (2024-10-25)
 
