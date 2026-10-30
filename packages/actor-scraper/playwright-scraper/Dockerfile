@@ -39,7 +39,7 @@ RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scrap
 FROM apify/actor-node-playwright:24-1.61.1@sha256:6c3eb549db429971f9d251cda1f72ca6a64cc2d54adb7969102d8c2ad319720a
 
 # Apify no longer rebuilds 24-1.61.1; take node from the official image until the hold is lifted.
-COPY --from=node:24.22.1-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea /usr/local/bin/node /usr/bin/node
+COPY --from=node:24.22.1-trixie-slim@sha256:89c5244bc22a9bc3287d89ebc7e49b9cb5bb84cd40e6175ac3421d5a9f68b95a /usr/local/bin/node /usr/bin/node
 
 # Base WORKDIR is /home/myuser and ships the browser plus the Xvfb entrypoint. Replace only the
 # template node_modules with the lean production bundle (which carries the matching playwright); the
