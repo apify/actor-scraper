@@ -11,7 +11,7 @@
 # disabled. Crawlee then leaks the page and its BrowserController never recovers (apify/crawlee#1829).
 # Do not move past 1.61.1 until microsoft/playwright#42068 ships (milestone v1.64) or crawlee's
 # browser pool survives a close that never settles.
-FROM apify/actor-node-playwright:24-1.61.1@sha256:6c3eb549db429971f9d251cda1f72ca6a64cc2d54adb7969102d8c2ad319720a AS builder
+FROM apify/actor-node-playwright:24-1.61.1@sha256:2da42c60d3378bde991482efa0520db341d1bdf67c6d69d6d7e0baff655bf2a4 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -36,7 +36,7 @@ RUN pnpm --filter actor-playwright-scraper... build
 # into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-playwright-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright:24-1.61.1@sha256:6c3eb549db429971f9d251cda1f72ca6a64cc2d54adb7969102d8c2ad319720a
+FROM apify/actor-node-playwright:24-1.61.1@sha256:2da42c60d3378bde991482efa0520db341d1bdf67c6d69d6d7e0baff655bf2a4
 
 # Apify no longer rebuilds 24-1.61.1; take node from the official image until the hold is lifted.
 COPY --from=node:24.22.1-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea /usr/local/bin/node /usr/bin/node
