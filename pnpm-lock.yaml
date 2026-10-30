@@ -217,8 +217,8 @@ importers:
   .:
     devDependencies:
       '@apify/consts':
-        specifier: ^2.57.0
-        version: 2.58.0
+        specifier: ^3.0.0
+        version: 3.0.1
       '@apify/input_secrets':
         specifier: ^1.2.54
         version: 1.2.59
