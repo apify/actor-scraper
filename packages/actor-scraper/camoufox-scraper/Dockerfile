@@ -10,7 +10,7 @@
 #
 # camoufox-js stays on 0.11.2: 0.12.0 requires better-sqlite3 ^13, which dropped prebuilt binaries and
 # so needs a C++ toolchain that the Apify base images do not carry.
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88 AS builder
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:64749b2459cd2299978d3a5ad517d23a0472b8f82116cca2e0308745eb19ab80 AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -36,7 +36,7 @@ RUN pnpm --filter actor-camoufox-scraper... build
 # compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:24-1.59.1@sha256:02cf108662749342538908f9409ffc270b741af1253e96d0c563b12de36f3b88
+FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:64749b2459cd2299978d3a5ad517d23a0472b8f82116cca2e0308745eb19ab80
 
 # Apify no longer rebuilds 24-1.59.1; take node from the official image until the base moves on.
 COPY --from=node:24.22.1-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea /usr/local/bin/node /usr/local/bin/node
