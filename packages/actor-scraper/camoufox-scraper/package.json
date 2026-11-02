@@ -12,8 +12,8 @@
         "apify": "^3.7.2",
         "camoufox-js": "0.13.0",
         "idcac-playwright": "^0.2.0",
-        "playwright": "1.64.1",
-        "playwright-core": "1.64.1"
+        "playwright": "1.62.1",
+        "playwright-core": "1.62.1"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",

@@ -18,7 +18,10 @@ minimumReleaseAgeExclude:
 allowBuilds:
   "@playwright/browser-chromium": true
   "@swc/core": true
-  better-sqlite3: true
+  # better-sqlite3 13 ships prebuilt N-API bindings inside its npm tarball (so the lockfile integrity
+  # hash covers them) and sets "gypfile": false. pnpm ignores that flag and would run `node-gyp
+  # rebuild`, which fails in the Apify base images (no Python or compiler), so its build is skipped.
+  better-sqlite3: false
   camoufox-js: true
   esbuild: true
   nx: true

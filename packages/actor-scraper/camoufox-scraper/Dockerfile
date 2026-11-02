@@ -1,16 +1,15 @@
 # Build context is the monorepo root (dockerContextDir in .actor/actor.json), so the build uses the
 # root pnpm-lock.yaml for a deterministic install.
 #
-# The base is pinned by digest (reproducible Camoufox binary + OS deps). The actor pins playwright to
-# the version this base ships (24-1.59.1 -> playwright 1.59.1) and bundles it, so the bundled driver
-# matches the Camoufox binary it drives, which is why this actor deliberately trails the playwright
-# version the rest of the workspace uses. The binary itself lives in ~/.cache/camoufox (outside
-# node_modules) and stays in the base. Tag 1.59.1 is the newest Camoufox base that survives page JS
-# errors (1.60.0 crashes the process on them).
-#
-# camoufox-js stays on 0.11.2: 0.12.0 requires better-sqlite3 ^13, which dropped prebuilt binaries and
-# so needs a C++ toolchain that the Apify base images do not carry.
-FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:64749b2459cd2299978d3a5ad517d23a0472b8f82116cca2e0308745eb19ab80 AS builder
+# The base is pinned by digest (reproducible Camoufox binary + OS deps). The actor pins playwright and
+# camoufox-js to the versions this base ships (26-1.62.1 -> playwright 1.62.1, camoufox-js 0.13.0) and
+# bundles them, so the bundled driver matches the Camoufox binary it drives, which is why this actor's
+# playwright differs from the version the rest of the workspace uses. The binary itself lives in
+# ~/.cache/camoufox (outside node_modules) and stays in the base. Move the tag and the pins together,
+# and check a new tag by launching Camoufox in it on a page that throws: the 1.60.0 base crashed the
+# process on page JS errors. playwright-scraper's 1.61.1 hold (Chromium RenderDocument) does not apply
+# to Camoufox, which is Firefox.
+FROM apify/actor-node-playwright-camoufox:26-1.62.1@sha256:63c25bfff97ef8aa0cc0b3791d09b1b3edefe2226972070fc39dc33e8a9af29c AS builder
 
 # The browser base runs as `myuser`; the build stage needs root for corepack + a writable workdir.
 USER root
@@ -33,13 +32,11 @@ RUN pnpm --filter actor-camoufox-scraper... build
 
 # Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
 # into node_modules instead of symlinking it. The native better-sqlite3 binding (a camoufox-js dep) is
-# compiled here against the base's Node 24, and the runtime stage uses that same base, so it matches.
+# not compiled here: it ships prebuilt for N-API inside its npm tarball (see allowBuilds in
+# pnpm-workspace.yaml), so it does not depend on the Node version.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
-FROM apify/actor-node-playwright-camoufox:26-1.59.1@sha256:64749b2459cd2299978d3a5ad517d23a0472b8f82116cca2e0308745eb19ab80
-
-# Apify no longer rebuilds 24-1.59.1; take node from the official image until the base moves on.
-COPY --from=node:24.22.1-trixie-slim@sha256:43b9ba1142b8dcf33fa8f922ca1be85714adc444e0586c7cf7726daaeabc1bea /usr/local/bin/node /usr/local/bin/node
+FROM apify/actor-node-playwright-camoufox:26-1.62.1@sha256:63c25bfff97ef8aa0cc0b3791d09b1b3edefe2226972070fc39dc33e8a9af29c
 
 # Base WORKDIR is /home/myuser and ships the Xvfb entrypoint plus the Camoufox binary in
 # ~/.cache/camoufox (outside node_modules). Replace only the template node_modules with the lean
