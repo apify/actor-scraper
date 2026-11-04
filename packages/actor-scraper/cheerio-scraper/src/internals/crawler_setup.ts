@@ -242,6 +242,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
                 'Try the UNBLOCKER proxy group: set "proxyConfiguration" to ' +
                 '{"useApifyProxy": true, "apifyProxyGroups": ["UNBLOCKER"]} and "ignoreSslErrors" to true. ' +
                 'See https://docs.apify.com/proxy/unblocker',
+            { alert: 'unblocker-tip' },
         );
     }
 
