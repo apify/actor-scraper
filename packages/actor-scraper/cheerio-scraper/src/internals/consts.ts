@@ -1,12 +1,5 @@
-import type {
-    Dictionary,
-    GlobInput,
-    ProxyConfigurationOptions,
-    PseudoUrlInput,
-    RegExpInput,
-    RequestOptions,
-    Session,
-} from '@crawlee/cheerio';
+import type { Dictionary, GlobInput, PseudoUrlInput, RegExpInput, RequestOptions, Session } from '@crawlee/cheerio';
+import type { ProxyConfigurationOptions } from 'apify';
 
 export const enum ProxyRotation {
     Recommended = 'RECOMMENDED',

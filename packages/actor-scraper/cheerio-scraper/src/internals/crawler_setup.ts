@@ -58,6 +58,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
     dataset!: Dataset;
     pagesOutputted!: number;
     proxyConfiguration?: ProxyConfiguration;
+    private blockedRequestsCount = 0;
     private initPromise: Promise<void>;
 
     constructor(input: Input) {
@@ -232,6 +233,18 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         return this.crawler;
     }
 
+    logTips() {
+        const usesUnblocker = this.input.proxyConfiguration?.apifyProxyGroups?.includes('UNBLOCKER');
+        if (!this.blockedRequestsCount || usesUnblocker) return;
+
+        log.warning(
+            `The target website blocked ${this.blockedRequestsCount} page(s) with HTTP 403. ` +
+                'Try the UNBLOCKER proxy group: set "proxyConfiguration" to ' +
+                '{"useApifyProxy": true, "apifyProxyGroups": ["UNBLOCKER"]} and "ignoreSslErrors" to true. ' +
+                'See https://docs.apify.com/proxy/unblocker',
+        );
+    }
+
     private _createNavigationHooks(options: CheerioCrawlerOptions) {
         options.preNavigationHooks!.push(async ({ request, session }) => {
             // Normalize headers
@@ -263,7 +276,8 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         });
     }
 
-    private async _failedRequestHandler({ request }: CheerioCrawlingContext) {
+    private async _failedRequestHandler({ request, response }: CheerioCrawlingContext) {
+        if (response?.statusCode === 403) this.blockedRequestsCount++;
         const lastError = request.errorMessages[request.errorMessages.length - 1];
         const errorMessage = lastError ? lastError.split('\n')[0] : 'no error';
         log.error(
