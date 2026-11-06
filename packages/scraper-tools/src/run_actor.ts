@@ -9,6 +9,7 @@ export interface CommonCrawler {
 export interface CrawlerSetup {
     name: string;
     createCrawler: () => Promise<CommonCrawler>;
+    logTips?: () => void;
 }
 
 export type CrawlerSetupConstructor = new (input: any) => CrawlerSetup;
@@ -27,5 +28,6 @@ export function runActor(CrawlerSetup: CrawlerSetupConstructor) {
         log.info('Configuration completed. Starting the scrape.');
         await crawler.run();
         log.info(`${setup.name} finished.`);
+        setup.logTips?.();
     });
 }
