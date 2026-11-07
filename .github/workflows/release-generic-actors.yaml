@@ -197,7 +197,7 @@ jobs:
             - name: Prepare release metadata
               id: metadata
               if: steps.guard.outputs.skip == 'false'
-              uses: apify/actions/git-cliff-release@v1.4.1
+              uses: apify/actions/git-cliff-release@v1.6.2
               with:
                   release_type: custom
                   custom_version: ${{ matrix.buildNumber }}
@@ -306,7 +306,7 @@ jobs:
             - name: Commit the changelogs
               id: commit
               if: steps.apply.outputs.applied != '' && steps.apply.outputs.applied != '0'
-              uses: apify/actions/signed-commit@v1.4.1
+              uses: apify/actions/signed-commit@v1.6.2
               with:
                   message: 'chore(release): update Actor changelogs [skip ci]'
                   github-token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
@@ -352,7 +352,7 @@ jobs:
                   node-version: 24
 
             - name: Install pnpm and dependencies
-              uses: apify/actions/pnpm-install@v1.5.0
+              uses: apify/actions/pnpm-install@v1.6.2
 
             - name: Build ${{ matrix.actor }} on Apify (Git source)
               env:
