@@ -4257,8 +4257,8 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  postcss-selector-parser@7.1.4:
-    resolution: {integrity: sha512-HeP7D2wyhkR+XaK6v4W8oRF62Dsz4flyuczALJp61GckGm42u1saSSJ/0auvcBqxs3jMRFEcPK34At/0JBKdOg==}
+  postcss-selector-parser@7.1.7:
+    resolution: {integrity: sha512-wWBro/7hJ40ye6TPiXkUQoXKCw23xSsjriUvqd7Uls9Sso3oLiON1flc18cCdnjgCRXw4fBVqUJJeOdDTh3P3g==}
     engines: {node: '>=4'}
 
   postcss@8.5.25:
@@ -6236,7 +6236,7 @@ snapshots:
 
   '@npmcli/query@5.0.0':
     dependencies:
-      postcss-selector-parser: 7.1.4
+      postcss-selector-parser: 7.1.7
 
   '@npmcli/redact@5.0.0': {}
 
@@ -9215,7 +9215,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
-  postcss-selector-parser@7.1.4:
+  postcss-selector-parser@7.1.7:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
