@@ -7,18 +7,18 @@
     "type": "module",
     "dependencies": {
         "@apify/scraper-tools": "workspace:^",
-        "@crawlee/puppeteer": "^3.18.0",
+        "@crawlee/puppeteer": "^3.18.2",
         "apify": "^3.7.2",
-        "content-type": "^2.0.0",
+        "content-type": "^2.1.0",
         "devtools-server": "^0.0.2",
         "idcac-playwright": "^0.2.0",
         "puppeteer": "25.16.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
-        "@types/node": "^24.13.3",
-        "tsx": "^4.23.5",
-        "typescript": "~7.0.0"
+        "@types/node": "^24.19.2",
+        "tsx": "^4.23.15",
+        "typescript": "~7.0.2"
     },
     "scripts": {
         "start": "pnpm start:dev",

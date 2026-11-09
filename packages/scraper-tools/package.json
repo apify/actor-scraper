@@ -36,16 +36,16 @@
         "access": "public"
     },
     "dependencies": {
-        "@apify/log": "^3.0.0",
+        "@apify/log": "^3.0.1",
         "ajv": "^8.20.0",
-        "content-type": "^2.0.0",
-        "tslib": "^2.8.1"
+        "content-type": "^2.1.0",
+        "tslib": "^2.9.1"
     },
     "devDependencies": {
-        "@crawlee/browser-pool": "^3.18.0",
-        "@crawlee/core": "^3.18.0",
-        "@crawlee/types": "^3.18.0",
-        "@crawlee/utils": "^3.18.0",
+        "@crawlee/browser-pool": "^3.18.2",
+        "@crawlee/core": "^3.18.2",
+        "@crawlee/types": "^3.18.2",
+        "@crawlee/utils": "^3.18.2",
         "apify": "^3.7.2"
     },
     "peerDependencies": {
