@@ -491,8 +491,8 @@ importers:
         specifier: ^3.7.2
         version: 3.7.2(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
       content-type:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^3.0.0
+        version: 3.1.1
       devtools-server:
         specifier: ^0.0.2
         version: 0.0.2(debug@4.4.3(supports-color@7.2.0))
@@ -525,8 +525,8 @@ importers:
         specifier: ^8.20.0
         version: 8.20.0
       content-type:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^3.0.0
+        version: 3.1.1
       tslib:
         specifier: ^2.9.1
         version: 2.9.1
