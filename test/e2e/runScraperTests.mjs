@@ -6,7 +6,7 @@ import { isMainThread, Worker, workerData } from 'node:worker_threads';
 
 import log from '@apify/log';
 
-import { clearStorage, colors, SKIPPED_TEST_CLOSE_CODE } from './tools.mjs';
+import { clearStorage, colors } from './tools.mjs';
 
 const basePath = join(dirname(fileURLToPath(import.meta.url)), 'scrapers');
 
@@ -33,6 +33,7 @@ async function run() {
         });
         /** @type Map<string, string[]> */
         const allLogs = new Map();
+        let passedAssertions = 0;
         worker.stderr.on('data', (data) => {
             const str = data.toString();
             const taskLogs = allLogs.get(dir.name) ?? [];
@@ -45,43 +46,35 @@ async function run() {
             allLogs.set(dir.name, taskLogs);
             taskLogs.push(str);
 
-            if (str.startsWith('[test skipped]')) {
-                return;
-            }
-
             const match = str.match(/\[assertion] (passed|failed): (.*)/);
 
             if (match) {
+                if (match[1] === 'passed') passedAssertions++;
                 const c = match[1] === 'passed' ? colors.green : colors.red;
                 log.info(`${colors.yellow(`[${dir.name}] `)}${match[2]}: ${c(match[1])}`);
             }
         });
-        // eslint-disable-next-line no-loop-func -- we actually want to closure the reference to `failure`
-        worker.on('exit', async (code) => {
-            if (code === SKIPPED_TEST_CLOSE_CODE) {
-                log.info(`Test ${colors.yellow(`[${dir.name}]`)} was skipped`);
-                return;
-            }
+        const [code] = await once(worker, 'exit');
 
-            const took = (Date.now() - now) / 1000;
-            const status = code === 0 ? 'success' : 'failure';
-            const color = code === 0 ? 'green' : 'red';
-            log.info(
-                `${colors.yellow(`[${dir.name}] `)}${colors[color](`Test finished with status: ${status} `)}${colors.grey(`[took ${took}s]`)}`,
-            );
+        const took = (Date.now() - now) / 1000;
+        // A worker can exit with 0 without reaching the test's assertions.
+        const passed = code === 0 && passedAssertions > 0;
+        const status = passed ? 'success' : 'failure';
+        const color = passed ? 'green' : 'red';
+        log.info(
+            `${colors.yellow(`[${dir.name}] `)}${colors[color](`Test finished with status: ${status} `)}${colors.grey(`[took ${took}s]`)}`,
+        );
 
-            await clearStorage(`${basePath}/${dir.name}`);
-            const taskLogs = allLogs.get(dir.name);
+        await clearStorage(`${basePath}/${dir.name}`);
+        const taskLogs = allLogs.get(dir.name);
 
-            if (code !== 0 && taskLogs?.length > 0) {
-                // Each log line already end with '\n',
-                // So we join them with an empty string.
-                log.info(taskLogs.join(''));
-            }
+        if (!passed && taskLogs?.length > 0) {
+            // Each log line already end with '\n',
+            // So we join them with an empty string.
+            log.info(taskLogs.join(''));
+        }
 
-            if (status === 'failure') failure = true;
-        });
-        await once(worker, 'exit');
+        if (!passed) failure = true;
     }
 }
 

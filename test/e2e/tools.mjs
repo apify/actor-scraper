@@ -10,8 +10,6 @@ import { Configuration, KeyValueStore, log } from 'apify';
 import { sleep, URL_NO_COMMAS_REGEX } from 'crawlee';
 import fs from 'fs-extra';
 
-export const SKIPPED_TEST_CLOSE_CODE = 404;
-
 /** @type {Record<string, (text: string) => string>} */
 export const colors = {
     red: (text) => `\x1B[31m${text}\x1B[39m`,
@@ -157,14 +155,6 @@ export async function expect(bool, message) {
         await setTimeout(10);
         process.exit(1);
     }
-}
-
-/**
- * @param {string} reason
- */
-export async function skipTest(reason) {
-    log.warning(`[test skipped] ${reason}`);
-    process.exit(SKIPPED_TEST_CLOSE_CODE);
 }
 
 /**
