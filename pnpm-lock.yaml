@@ -193,9 +193,6 @@ importers:
       '@isaacs/brace-expansion':
         specifier: ^5.0.1
         version: 5.0.1
-      '@playwright/browser-chromium':
-        specifier: ~1.61.1
-        version: 1.61.1
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4
@@ -1757,10 +1754,6 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
-
-  '@playwright/browser-chromium@1.61.1':
-    resolution: {integrity: sha512-t3/zE0i9gik5R/NpRs7G2Xo/6NPeABW6ReplGdtkeWeAkaV764CgFgoKjJo21D2xgjnvDvRYubqBUu4xl0VCqA==}
-    engines: {node: '>=18'}
 
   '@puppeteer/browsers@3.2.6':
     resolution: {integrity: sha512-MJP29gVoHznmqmwhH1tlZqzfeQ3aylTpSSa6WKZXtkwYUH02i9imBmWGTyZrbnAou5paX78SE4jMAUqnEPf8ug==}
@@ -6440,10 +6433,6 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.91.0':
     optional: true
-
-  '@playwright/browser-chromium@1.61.1':
-    dependencies:
-      playwright-core: 1.61.1
 
   '@puppeteer/browsers@3.2.6':
     dependencies:

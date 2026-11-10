@@ -17,10 +17,6 @@ WORKDIR /app
 
 RUN corepack enable
 
-# Browsers ship with the base image; never let an npm postinstall download them.
-ENV PUPPETEER_SKIP_DOWNLOAD=true \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
 # Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
 
@@ -31,9 +27,7 @@ RUN pnpm install --frozen-lockfile --filter actor-camoufox-scraper...
 RUN pnpm --filter actor-camoufox-scraper... build
 
 # Self-contained production bundle; inject-workspace-packages copies the built @apify/scraper-tools
-# into node_modules instead of symlinking it. The native better-sqlite3 binding (a camoufox-js dep) is
-# not compiled here: it ships prebuilt for N-API inside its npm tarball (see allowBuilds in
-# pnpm-workspace.yaml), so it does not depend on the Node version.
+# into node_modules instead of symlinking it.
 RUN pnpm --config.inject-workspace-packages=true --filter actor-camoufox-scraper deploy --prod /deploy
 
 FROM apify/actor-node-playwright-camoufox:26-1.62.1@sha256:63c25bfff97ef8aa0cc0b3791d09b1b3edefe2226972070fc39dc33e8a9af29c

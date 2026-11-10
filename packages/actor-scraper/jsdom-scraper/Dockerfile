@@ -6,11 +6,6 @@ WORKDIR /app
 
 RUN corepack enable
 
-# Browser packages can appear transitively through workspace/dev tooling, but this actor does not
-# use them. Keep the deterministic install without downloading browser binaries into the build cache.
-ENV PUPPETEER_SKIP_DOWNLOAD=true \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
 # Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
 

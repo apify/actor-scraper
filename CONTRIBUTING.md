@@ -18,11 +18,14 @@ Before you submit your pull request, consider the following guidelines:
 
 - Fork the project and install dependencies with pnpm.
 
-- Run tests before you start working, to be sure they all pass and your setup is working correctly:
+- Run tests before you start working, to be sure they all pass and your setup is working correctly. The browser tests need Chrome, which `pnpm install` does not download:
 
     ```sh
+    pnpm exec puppeteer browsers install chrome
     pnpm test
     ```
+
+    Running Playwright Scraper locally or the e2e tests also needs `pnpm exec playwright install chromium`.
 
 - Be sure to **include appropriate test cases**. Tests help make it clear what the PR is fixing and also make sure the changes won't break over time.
 - Commit your changes using a descriptive commit message that follows defined [commit message conventions](https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#heading=h.uyo6cb12dt6w). Adherence to these conventions is necessary because release notes are automatically generated from these messages.
