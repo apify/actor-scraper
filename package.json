@@ -77,7 +77,7 @@
         "husky": "^9.1.7",
         "lerna": "^10.1.1",
         "lint-staged": "^17.6.0",
-        "oxfmt": "0.72.0",
+        "oxfmt": "0.78.0",
         "oxlint": "1.91.0",
         "oxlint-tsgolint": "7.0.2006",
         "playwright": "~1.61.1",
