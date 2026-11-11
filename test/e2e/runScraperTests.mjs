@@ -57,7 +57,7 @@ async function run() {
         const [code] = await once(worker, 'exit');
 
         const took = (Date.now() - now) / 1000;
-        // A worker can exit with 0 without reaching the test's assertions.
+        // A test that exits with 0 before calling expect() is not a pass.
         const passed = code === 0 && passedAssertions > 0;
         const status = passed ? 'success' : 'failure';
         const color = passed ? 'green' : 'red';
