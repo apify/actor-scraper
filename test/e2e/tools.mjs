@@ -66,7 +66,8 @@ export async function run(url, scraper, input) {
         process.exit = resolve;
     });
     await import(`../../packages/actor-scraper/${scraper}/dist/main.js`);
-    await Promise.race([actorExited, setTimeout(120e3)]);
+    // The limit only catches an Actor that never exits; the badssl.com suites can take over two minutes.
+    await Promise.race([actorExited, setTimeout(300e3)]);
 }
 
 /**
