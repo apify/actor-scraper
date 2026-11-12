@@ -2,7 +2,7 @@
 # root pnpm-lock.yaml for a deterministic install.
 #
 # The base is pinned by digest (reproducible Chrome + OS deps). The actor pins puppeteer to the version
-# this base ships (24-25.16.0 -> puppeteer 25.16.0) and bundles it, so the bundled driver matches the
+# this base ships (26-25.16.0 -> puppeteer 25.16.0) and bundles it, so the bundled driver matches the
 # Chrome binary it drives. Renovate bumps the base digest and the puppeteer pin together.
 FROM apify/actor-node-puppeteer-chrome:26-25.16.0@sha256:66b8d97f24e3706a70417465845b0169e9fed4522a4b86070ee71344e23f2885 AS builder
 
@@ -11,10 +11,6 @@ USER root
 WORKDIR /app
 
 RUN corepack enable
-
-# Browsers ship with the base image; never let an npm postinstall download them.
-ENV PUPPETEER_SKIP_DOWNLOAD=true \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./

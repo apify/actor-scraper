@@ -61,7 +61,7 @@
                 "packages/actor-scraper/playwright-scraper/Dockerfile",
                 "packages/actor-scraper/playwright-scraper/package.json"
             ],
-            "matchPackageNames": ["apify/actor-node-playwright", "playwright", "@playwright/browser-chromium"],
+            "matchPackageNames": ["apify/actor-node-playwright", "playwright"],
             "groupName": "playwright browser stack"
         },
         {
@@ -81,7 +81,7 @@
             "description": "HELD at 1.61.x: playwright 1.62.0 stopped disabling Chromium's RenderDocument (microsoft/playwright#41303), which makes page.close() hang and leaks the page in Crawlee's browser pool (microsoft/playwright#42068, apify/crawlee#1829). Lift once upstream ships the fix or the pool survives a close that never settles.",
             "matchManagers": ["npm"],
             "matchFileNames": ["package.json", "packages/actor-scraper/playwright-scraper/package.json"],
-            "matchPackageNames": ["playwright", "@playwright/browser-chromium"],
+            "matchPackageNames": ["playwright"],
             "allowedVersions": "<1.62.0",
             "automerge": false
         },

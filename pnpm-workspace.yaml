@@ -16,17 +16,11 @@ minimumReleaseAgeExclude:
 # pnpm 11 replaced the onlyBuiltDependencies allowlist with this boolean map. Every package here
 # runs install scripts; anything omitted is an ERR_PNPM_IGNORED_BUILDS failure rather than a warning.
 allowBuilds:
-  "@playwright/browser-chromium": true
-  "@swc/core": true
-  # better-sqlite3 13 ships prebuilt N-API bindings inside its npm tarball (so the lockfile integrity
-  # hash covers them) and sets "gypfile": false. pnpm ignores that flag and would run `node-gyp
-  # rebuild`, which fails in the Apify base images (no Python or compiler), so its build is skipped.
-  better-sqlite3: false
-  camoufox-js: true
   esbuild: true
   nx: true
-  playwright: true
-  puppeteer: true
+  # Its postinstall only downloads browsers: images take them from their base, CI and
+  # CONTRIBUTING.md install Chrome explicitly.
+  puppeteer: false
 
 nodeLinker: hoisted
 linkWorkspacePackages: true

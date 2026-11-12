@@ -19,10 +19,6 @@ WORKDIR /app
 
 RUN corepack enable
 
-# Browsers ship with the base image; never let an npm postinstall download them.
-ENV PUPPETEER_SKIP_DOWNLOAD=true \
-    PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
 # Whole workspace (root .dockerignore keeps node_modules/.git/dist out of the context).
 COPY . ./
 
