@@ -62,7 +62,7 @@
         "@commitlint/config-conventional": "^21.2.4",
         "@isaacs/brace-expansion": "^5.0.1",
         "@types/fs-extra": "^11.0.4",
-        "@types/node": "^24.19.2",
+        "@types/node": "^26.0.0",
         "@types/semver": "^7.8.0",
         "@types/tough-cookie": "^4.0.5",
         "@types/ws": "^8.18.2",
