@@ -87,7 +87,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: 24
+                  node-version: 26
 
             - name: Resolve the Actors to release
               id: matrix
@@ -349,7 +349,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v7
               with:
-                  node-version: 24
+                  node-version: 26
 
             - name: Install pnpm and dependencies
               uses: apify/actions/pnpm-install@v1.6.2
