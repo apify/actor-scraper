@@ -1,6 +1,4 @@
-import { expect, getDatasetItems, getStats, getTestDir, run, skipTest, validateDataset } from '../../tools.mjs';
-
-void skipTest('broken test');
+import { expect, getDatasetItems, getStats, getTestDir, run, validateDataset } from '../../tools.mjs';
 
 const testDir = getTestDir(import.meta.url);
 
@@ -10,7 +8,7 @@ process.exit = () => {};
 await run(testDir, 'cheerio-scraper', {
     startUrls: [
         {
-            url: 'https://apify.com/apify',
+            url: 'https://crawlee.dev/js/docs/guides/request-storage',
             method: 'GET',
             userData: { label: 'START' },
         },
@@ -28,11 +26,11 @@ await run(testDir, 'cheerio-scraper', {
         }
 
         async function handleStart({ enqueueRequest, $ }) {
-            const links = $('[data-test="actorCard"] > a')
+            const links = $('a[href^="/js/docs/guides/"]')
                 .toArray()
                 .map((item) => $(item).attr('href'));
             for (const link of links) {
-                const actorDetailUrl = `https://apify.com${link}`;
+                const actorDetailUrl = `https://crawlee.dev${link}`;
                 await enqueueRequest({
                     url: actorDetailUrl,
                     userData: { label: 'DETAIL' },
@@ -46,18 +44,14 @@ await run(testDir, 'cheerio-scraper', {
             await skipLinks();
 
             const uniqueIdentifier = url.split('/').slice(-2).join('/');
-            const title = $('header h1').text();
-            const description = $('div.Section-body > div > p').text();
-            const modifiedDate = $('div:nth-of-type(2) > ul > li:nth-of-type(2)').text();
-            const runCount = $('div:nth-of-type(2) > ul > li:nth-of-type(1)').text();
+            const title = $('h1').first().text();
+            const description = $('article p').first().text();
 
             return {
                 url,
                 uniqueIdentifier,
                 title,
                 description,
-                modifiedDate,
-                runCount,
             };
         }
     },
@@ -76,15 +70,7 @@ await expect(stats.requestsFinished >= 10, 'All requests finished');
 const datasetItems = await getDatasetItems(testDir);
 await expect(datasetItems.length > 5 && datasetItems.length < 15, 'Number of dataset items');
 await expect(
-    validateDataset(datasetItems, [
-        'url',
-        'title',
-        'uniqueIdentifier',
-        'description',
-        // Skip modifiedAt and runCount since they changed
-        // 'modifiedDate',
-        // 'runCount',
-    ]),
+    validateDataset(datasetItems, ['url', 'title', 'uniqueIdentifier', 'description']),
     'Dataset items validation',
 );
 

@@ -1,6 +1,4 @@
-import { expect, getDatasetItems, getStats, getTestDir, run, skipTest, validateDataset } from '../../tools.mjs';
-
-void skipTest('httpstat.us is very unstable');
+import { expect, getDatasetItems, getStats, getTestDir, run, validateDataset } from '../../tools.mjs';
 
 const testDir = getTestDir(import.meta.url);
 
@@ -11,14 +9,14 @@ await run(testDir, 'web-scraper', {
     runMode: 'DEVELOPMENT',
     startUrls: [
         {
-            url: 'http://httpstat.us/',
+            url: 'https://crawlee.dev/js/docs/guides/request-storage',
             method: 'GET',
             userData: { label: 'START' },
         },
     ],
     pseudoUrls: [
         {
-            purl: 'http://httpstat.us/[200|401|403|429|500]',
+            purl: 'https://crawlee.dev/js/docs/guides/[.+]',
             method: 'GET',
             userData: { label: 'DETAIL' },
         },

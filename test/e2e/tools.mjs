@@ -10,8 +10,6 @@ import { Configuration, KeyValueStore, log } from 'apify';
 import { sleep, URL_NO_COMMAS_REGEX } from 'crawlee';
 import fs from 'fs-extra';
 
-export const SKIPPED_TEST_CLOSE_CODE = 404;
-
 /** @type {Record<string, (text: string) => string>} */
 export const colors = {
     red: (text) => `\x1B[31m${text}\x1B[39m`,
@@ -63,25 +61,13 @@ export async function run(url, scraper, input) {
     const inputKey = Configuration.getGlobalConfig().get('inputKey');
     await KeyValueStore.setValue(inputKey, input);
 
+    // Actor.exit() calls process.exit() only after the run is fully closed, so that call ends the run.
+    const actorExited = new Promise((resolve) => {
+        process.exit = resolve;
+    });
     await import(`../../packages/actor-scraper/${scraper}/dist/main.js`);
-    // Some runs don't save the final stats, and stats.crawlerFinishedAt
-    // is always null, therefore waitForFinish never resolves.
-    // However, logs do say that actor finished with exit code 0,
-    // i.e. dataset items are there, etc. Honestly, no idea why -
-    // hanging test is always random. So adding Promise.race()
-    // to make sure all tests will run and finish.
-    await Promise.race([waitForFinish(url), setTimeout(120e3)]);
-}
-
-export async function waitForFinish(dir) {
-    while (!(await isFinished(dir))) {
-        await setTimeout(1e3);
-    }
-}
-
-async function isFinished(dir) {
-    const stats = await getStats(dir);
-    return !!stats.crawlerFinishedAt;
+    // The limit only catches an Actor that never exits; the badssl.com suites can take over two minutes.
+    await Promise.race([actorExited, setTimeout(300e3)]);
 }
 
 /**
@@ -160,14 +146,6 @@ export async function expect(bool, message) {
 }
 
 /**
- * @param {string} reason
- */
-export async function skipTest(reason) {
-    log.warning(`[test skipped] ${reason}`);
-    process.exit(SKIPPED_TEST_CLOSE_CODE);
-}
-
-/**
  * @param {Record<string, any>} item
  * @param {string} propName
  * @returns {boolean}
@@ -180,10 +158,6 @@ function checkDatasetItem(item, propName) {
     switch (propName) {
         case 'url':
             return item.url.match(URL_NO_COMMAS_REGEX);
-        case 'modifiedDate':
-            return !Number.isNaN(Date.parse(item.modifiedDate));
-        case 'runCount':
-            return Number.isInteger(item.runCount);
         default:
             return ['string', 'number', 'boolean'].includes(typeof item[propName]);
     }

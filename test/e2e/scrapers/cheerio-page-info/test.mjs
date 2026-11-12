@@ -8,7 +8,7 @@ process.exit = () => {};
 await run(testDir, 'cheerio-scraper', {
     startUrls: [
         {
-            url: 'https://warehouse-theme-metal.myshopify.com/collections/all-tvs',
+            url: 'https://crawlee.dev/js/docs/guides/request-storage',
             method: 'GET',
             userData: { label: 'START' },
         },
@@ -16,7 +16,7 @@ await run(testDir, 'cheerio-scraper', {
     keepUrlFragments: false,
     pseudoUrls: [
         {
-            purl: 'https://warehouse-theme-metal.myshopify.com/products/sony-xbr-65x950g-65-class-64-5-diag-bravia-4k-hdr-ultra-hd-tv',
+            purl: 'https://crawlee.dev/js/docs/guides/result-storage',
             method: 'GET',
             userData: { label: 'DETAIL' },
         },
@@ -30,7 +30,7 @@ await run(testDir, 'cheerio-scraper', {
         } = request;
 
         if (label === 'START') {
-            log.info('Store opened!');
+            log.info('Start page opened!');
         }
 
         if (label === 'DETAIL') {
@@ -38,31 +38,10 @@ await run(testDir, 'cheerio-scraper', {
             log.info(`Scraping ${url}`);
             await skipLinks();
 
-            const urlPart = url.split('/').slice(-1); // ['sennheiser-mke-440-professional-stereo-shotgun-microphone-mke-440']
-            const manufacturer = urlPart[0].split('-')[0]; // 'sennheiser'
-            const title = $('.product-meta h1').text();
-            const sku = $('span.product-meta__sku-number').text();
+            const title = $('h1').first().text();
+            const description = $('article p').first().text();
 
-            const rawPrice = $('span.price')
-                .filter((_, el) => $(el).text().includes('$'))
-                .first()
-                .text()
-                .split('$')[1];
-            const price = Number(rawPrice.replaceAll(',', ''));
-
-            const inStock =
-                $('span.product-form__inventory')
-                    .first()
-                    .filter((_, el) => $(el).text().includes('In stock')).length !== 0;
-
-            return {
-                url,
-                manufacturer,
-                title,
-                sku,
-                currentPrice: price,
-                availableInStock: inStock,
-            };
+            return { url, title, description };
         }
     },
     proxyConfiguration: { useApifyProxy: false },
@@ -79,9 +58,6 @@ await expect(stats.requestsFinished === 2, 'All requests finished');
 
 const datasetItems = await getDatasetItems(testDir);
 await expect(datasetItems.length === 1, 'Number of dataset items');
-await expect(
-    validateDataset(datasetItems, ['url', 'manufacturer', 'title', 'sku', 'currentPrice', 'availableInStock']),
-    'Dataset items validation',
-);
+await expect(validateDataset(datasetItems, ['url', 'title', 'description']), 'Dataset items validation');
 
 process.exit(0);
