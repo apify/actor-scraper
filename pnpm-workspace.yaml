@@ -36,7 +36,7 @@ preferWorkspacePackages: true
 #    resolves an older js-yaml line than lerna's, so keep forcing both onto the patched 5.x. Drop an
 #    entry once its owner has moved on.
 overrides:
-  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-beta.25"
+  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-rc.2"
+  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-rc.2"
+  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-rc.2"
   js-yaml: "^5.0.0"
