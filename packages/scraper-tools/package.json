@@ -36,7 +36,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@apify/log": "^3.0.1",
+        "@apify/log": "^3.0.2",
         "ajv": "^8.20.0",
         "content-type": "^2.1.0",
         "tslib": "^2.9.1"

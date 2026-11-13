@@ -26,17 +26,9 @@ nodeLinker: hoisted
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 
-# Two groups of overrides.
-#
-# 1. Sitemap Extractor is the only actor on Apify/Crawlee v4 beta. Other generic actors intentionally
-#    stay on Apify/Crawlee v3. apify@4 beta depends on @crawlee/* through broad beta ranges, so force
-#    its internal Crawlee packages to the same beta versions used directly by the sitemap actor.
-# 2. Security overrides for transitives whose owner still resolves an affected range. lerna 10 now
-#    pulls a patched tar on its own (dropped that override); cosmiconfig (via commitlint) still
-#    resolves an older js-yaml line than lerna's, so keep forcing both onto the patched 5.x. Drop an
-#    entry once its owner has moved on.
+# Security override for a transitive whose owner still resolves an affected range:
+# cosmiconfig@9.0.2 (via commitlint) declares js-yaml ^4.1.0 on its own and would resolve its own
+# nested copy back to a 4.x line without this; force it onto the same patched 5.x line lerna uses.
+# Drop once cosmiconfig bumps its own js-yaml dependency.
 overrides:
-  "apify@4.0.0-beta.12>@crawlee/core": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/types": "4.0.0-beta.25"
-  "apify@4.0.0-beta.12>@crawlee/utils": "4.0.0-beta.25"
   js-yaml: "^5.0.0"

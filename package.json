@@ -54,9 +54,9 @@
         ]
     },
     "devDependencies": {
-        "@apify/consts": "^3.0.1",
-        "@apify/input_secrets": "^2.0.8",
-        "@apify/log": "^3.0.1",
+        "@apify/consts": "^3.1.0",
+        "@apify/input_secrets": "^2.0.9",
+        "@apify/log": "^3.0.2",
         "@apify/oxlint-config": "^0.3.0",
         "@apify/tsconfig": "^0.2.0",
         "@commitlint/config-conventional": "^21.2.4",
@@ -67,7 +67,7 @@
         "@types/tough-cookie": "^4.0.5",
         "@types/ws": "^8.18.2",
         "apify": "^3.7.2",
-        "apify-client": "^2.25.0",
+        "apify-client": "^2.26.0",
         "commitlint": "^21.2.4",
         "crawlee": "^3.18.2",
         "fs-extra": "^11.4.1",
