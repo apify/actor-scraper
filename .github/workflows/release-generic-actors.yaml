@@ -80,12 +80,12 @@ jobs:
                   exit 1
 
             - name: Check out current SHA
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   persist-credentials: false
 
             - name: Set up Node.js
-              uses: actions/setup-node@v7
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
               with:
                   node-version: 24
 
@@ -109,7 +109,7 @@ jobs:
             matrix: ${{ fromJSON(needs.resolve-matrix.outputs.matrix) }}
         steps:
             - name: Check out current SHA
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   persist-credentials: false
 
@@ -236,7 +236,7 @@ jobs:
                       | tee "$RUNNER_TEMP/meta/meta.json"
 
             - name: Upload the release metadata
-              uses: actions/upload-artifact@v7
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
               with:
                   name: meta-${{ matrix.actor }}
                   path: ${{ runner.temp }}/meta
@@ -258,13 +258,13 @@ jobs:
         steps:
             - name: Check out ${{ github.ref_name }}
               if: env.CHANGELOG_ENABLED == 'true'
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   token: ${{ secrets.APIFY_SERVICE_ACCOUNT_GITHUB_TOKEN }}
 
             - name: Download the prepared changelogs
               if: env.CHANGELOG_ENABLED == 'true'
-              uses: actions/download-artifact@v8
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
               with:
                   path: ${{ runner.temp }}/release
 
@@ -342,12 +342,12 @@ jobs:
             matrix: ${{ fromJSON(needs.resolve-matrix.outputs.matrix) }}
         steps:
             - name: Check out current SHA
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
               with:
                   persist-credentials: false
 
             - name: Set up Node.js
-              uses: actions/setup-node@v7
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
               with:
                   node-version: 24
 

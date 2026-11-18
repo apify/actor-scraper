@@ -14,21 +14,21 @@ jobs:
 
         steps:
             - name: Cancel Workflow Action
-              uses: styfle/cancel-workflow-action@0.13.1
+              uses: styfle/cancel-workflow-action@d07a454dad7609a92316b57b23c9ccfd4f59af66 # 0.13.1
               with:
                   access_token: ${{ github.token }}
 
             - name: Checkout repository
-              uses: actions/checkout@v7
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
             - name: Use Node.js 24
-              uses: actions/setup-node@v7
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
               with:
                   node-version: 24
 
             - name: Turbo cache
               id: turbo-cache
-              uses: actions/cache@v6
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
               with:
                   path: .turbo
                   key: turbo-${{ github.job }}-${{ github.ref_name }}-${{ github.sha }}
