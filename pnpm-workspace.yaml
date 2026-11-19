@@ -2,7 +2,7 @@ packages:
   - packages/*
   - packages/actor-scraper/*
 
-minimumReleaseAge: 1440
+minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - "@apify/*"
   - "@crawlee/*"
