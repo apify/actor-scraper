@@ -102,8 +102,25 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         // Set log level early to prevent missed messages.
         if (input.debugLog) log.setLevel(log.LEVELS.DEBUG);
 
-        // Keep this as string to be immutable.
-        this.rawInput = JSON.stringify(input);
+        // Both are sent into the page, where the site's own scripts can read them, so secrets stay out.
+        // The input is kept as a string to be immutable.
+        this.rawInput = JSON.stringify({
+            ...input,
+            initialCookies: undefined,
+            proxyConfiguration: undefined,
+            // Hooks run only in Node and often set cookies.
+            preNavigationHooks: undefined,
+            postNavigationHooks: undefined,
+        });
+        this.env = Object.assign(Actor.getEnv(), {
+            token: null,
+            proxyPassword: null,
+            inputSecretsPrivateKeyFile: null,
+            inputSecretsPrivateKeyPassphrase: null,
+            // A development run serves DevTools there, with no authentication.
+            containerUrl: null,
+            webServerUrl: null,
+        });
 
         // Attempt to load page function from disk if not present on input.
         tools.maybeLoadPageFunctionFromDisk(input, dirname(fileURLToPath(import.meta.url)));
@@ -112,7 +129,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
         if (!Actor.isAtHome()) tools.checkInputOrThrow(input, SCHEMA);
 
         this.input = input;
-        this.env = Actor.getEnv();
 
         // Validations
         this.input.pseudoUrls.forEach((purl) => {
@@ -444,7 +460,7 @@ export class CrawlerSetup implements CrawlerSetupOptions {
      * the data returned from the `pageFunction`.
      */
     private async _requestHandler(crawlingContext: PuppeteerCrawlingContext) {
-        const { request, response, page, crawler, proxyInfo } = crawlingContext;
+        const { request, response, page, crawler } = crawlingContext;
         const start = process.hrtime();
         const pageContext = this.pageContexts.get(page)!;
 
@@ -471,7 +487,6 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             browserHandles: pageContext.browserHandles,
             pageFunctionArguments: {
                 request,
-                proxyInfo,
                 response: {
                     status: response && response.status(),
                     headers: response && response.headers(),
