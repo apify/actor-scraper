@@ -15,6 +15,7 @@ describe('createPageKeyValueStore', () => {
             'SDK_SESSION_POOL_STATE',
             'crawlee_state',
             'a.__metadata__',
+            '__metadata__',
         ]) {
             await expect(pageStore.getValue(key)).rejects.toThrow(`Key "${key}" is reserved`);
             await expect(pageStore.setValue(key, 'forged')).rejects.toThrow(`Key "${key}" is reserved`);
@@ -22,8 +23,10 @@ describe('createPageKeyValueStore', () => {
         expect(store.getValue).not.toHaveBeenCalled();
         expect(store.setValue).not.toHaveBeenCalled();
 
-        await pageStore.setValue('input-urls', { a: 1 });
-        expect(store.setValue).toHaveBeenCalledWith('input-urls', { a: 1 }, undefined);
-        await expect(pageStore.getValue('input-urls')).resolves.toBe('stored');
+        for (const key of ['input-urls', 'my__metadata__notes']) {
+            await pageStore.setValue(key, { a: 1 });
+            expect(store.setValue).toHaveBeenCalledWith(key, { a: 1 }, undefined);
+            await expect(pageStore.getValue(key)).resolves.toBe('stored');
+        }
     });
 });

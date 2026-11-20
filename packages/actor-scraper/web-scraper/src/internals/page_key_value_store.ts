@@ -1,6 +1,7 @@
 import type { KeyValueStore, RecordOptions } from '@crawlee/puppeteer';
 
 const RESERVED_KEY_PREFIXES = ['SDK_', 'CRAWLEE_'];
+const METADATA_SEGMENT = /(^|\.)__METADATA__(\.|$)/;
 
 /**
  * The key-value store as the page function gets it. The site's own scripts run in the same page, so the scraper's
@@ -11,7 +12,8 @@ export function createPageKeyValueStore(store: KeyValueStore, reservedKeys: stri
     const reserved = reservedKeys.map((key) => key.toUpperCase());
 
     // Local storage on disk maps more keys onto a record's file: `input` on a case-insensitive file system,
-    // `INPUT.json` through its extension, and a `*.__metadata__` file can point any record at any file.
+    // `INPUT.json` through its extension, and a key with a `__metadata__` segment lands in a metadata file,
+    // which can point any record at any file.
     const assertNotReserved = (key: string) => {
         const upperCaseKey = key.toUpperCase();
         if (
@@ -19,7 +21,7 @@ export function createPageKeyValueStore(store: KeyValueStore, reservedKeys: stri
                 (reservedKey) => upperCaseKey === reservedKey || upperCaseKey.startsWith(`${reservedKey}.`),
             ) ||
             RESERVED_KEY_PREFIXES.some((prefix) => upperCaseKey.startsWith(prefix)) ||
-            upperCaseKey.includes('__METADATA__')
+            METADATA_SEGMENT.test(upperCaseKey)
         ) {
             throw new Error(`Key "${key}" is reserved by the scraper and cannot be used from the page function.`);
         }
