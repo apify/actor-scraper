@@ -80,7 +80,7 @@
         "oxlint": "1.93.0",
         "oxlint-tsgolint": "7.0.2007",
         "playwright": "~1.61.1",
-        "puppeteer": "25.16.0",
+        "puppeteer": "25.17.0",
         "rimraf": "^6.1.4",
         "tsx": "^4.23.15",
         "turbo": "2.11.11",
