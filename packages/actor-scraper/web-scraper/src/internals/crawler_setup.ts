@@ -36,6 +36,7 @@ import { createBundle } from './bundle.browser.js';
 import type { Input } from './consts.js';
 import { BreakpointLocation, CHROME_DEBUGGER_PORT, ProxyRotation, RunMode } from './consts.js';
 import { GlobalStore } from './global_store.js';
+import { createPageKeyValueStore } from './page_key_value_store.js';
 
 const SESSION_STORE_NAME = 'APIFY-WEB-SCRAPER-SESSION-STORE';
 const REQUEST_QUEUE_INIT_FLAG_KEY = 'REQUEST_QUEUE_INITIALIZED';
@@ -708,7 +709,16 @@ export class CrawlerSetup implements CrawlerSetupOptions {
             ? browserTools.createBrowserHandlesForObject(page, this.requestQueue, ['addRequest'])
             : null;
         const keyValueStoreP = this.keyValueStore
-            ? browserTools.createBrowserHandlesForObject(page, this.keyValueStore, ['getValue', 'setValue'])
+            ? browserTools.createBrowserHandlesForObject(
+                  page,
+                  createPageKeyValueStore(this.keyValueStore, [
+                      // After a metamorph the input has its own key, and the original INPUT stays in the store.
+                      'INPUT',
+                      Actor.config.get('inputKey'),
+                      REQUEST_QUEUE_INIT_FLAG_KEY,
+                  ]),
+                  ['getValue', 'setValue'],
+              )
             : null;
 
         const [saveSnapshot, skipLinks, globalStore, logHandle, requestQueue, keyValueStore] = await Promise.all([
