@@ -7,7 +7,7 @@
     "dependencies": {
         "@apify/scraper-tools": "workspace:^",
         "@crawlee/jsdom": "^3.18.2",
-        "apify": "^3.7.2"
+        "apify": "^3.8.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
