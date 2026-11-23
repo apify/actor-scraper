@@ -253,6 +253,7 @@ jobs:
             ${{ always() && needs.resolve-matrix.result == 'success'
             && needs.prepare-changelog.result != 'failure' && needs.prepare-changelog.result != 'cancelled' }}
         runs-on: ubuntu-latest
+        environment: automation
         env:
             CHANGELOG_ENABLED: ${{ needs.resolve-matrix.outputs.changelog-enabled }}
         steps:
