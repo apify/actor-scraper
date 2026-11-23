@@ -243,14 +243,13 @@ jobs:
                   if-no-files-found: error
                   retention-days: 7
 
-    # Runs on every channel, doing nothing when there is no changelog to write, so that the build job
-    # can gate on this job's result alone. Its success also implies a successful resolve-matrix, so the
-    # build job never expands its `fromJSON` matrix from an unresolved output (an empty string).
+    # Skipped when there is no changelog to write, so builds from other branches never touch the environment.
     commit-changelogs:
         name: Commit changelogs
         needs: [resolve-matrix, prepare-changelog]
         if: >-
             ${{ always() && needs.resolve-matrix.result == 'success'
+            && needs.resolve-matrix.outputs.changelog-enabled == 'true'
             && needs.prepare-changelog.result != 'failure' && needs.prepare-changelog.result != 'cancelled' }}
         runs-on: ubuntu-latest
         environment: automation
@@ -336,7 +335,10 @@ jobs:
         name: Build ${{ matrix.actor }}
         needs: [resolve-matrix, commit-changelogs]
         # success() is transitive, a skipped prepare-changelog would skip this job too
-        if: ${{ !cancelled() && needs.commit-changelogs.result == 'success' }}
+        if: >-
+            ${{ !cancelled() && needs.resolve-matrix.result == 'success'
+            && (needs.commit-changelogs.result == 'success'
+            || (needs.commit-changelogs.result == 'skipped' && needs.resolve-matrix.outputs.changelog-enabled != 'true')) }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
