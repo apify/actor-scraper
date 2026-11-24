@@ -252,7 +252,9 @@ jobs:
             && needs.resolve-matrix.outputs.changelog-enabled == 'true'
             && needs.prepare-changelog.result != 'failure' && needs.prepare-changelog.result != 'cancelled' }}
         runs-on: ubuntu-latest
-        environment: automation
+        environment:
+            name: automation
+            deployment: false
         env:
             CHANGELOG_ENABLED: ${{ needs.resolve-matrix.outputs.changelog-enabled }}
         steps:
