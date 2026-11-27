@@ -36,7 +36,7 @@
         "access": "public"
     },
     "dependencies": {
-        "@apify/log": "^3.0.1",
+        "@apify/log": "^3.0.2",
         "ajv": "^8.20.0",
         "content-type": "^2.1.0",
         "tslib": "^2.9.1"
@@ -46,7 +46,7 @@
         "@crawlee/core": "^3.18.2",
         "@crawlee/types": "^3.18.2",
         "@crawlee/utils": "^3.18.2",
-        "apify": "^3.7.2"
+        "apify": "^3.8.0"
     },
     "peerDependencies": {
         "@crawlee/browser-pool": "^3.8.2 || ^4.0.0-beta.0",

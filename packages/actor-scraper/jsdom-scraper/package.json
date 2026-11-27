@@ -7,11 +7,11 @@
     "dependencies": {
         "@apify/scraper-tools": "workspace:^",
         "@crawlee/jsdom": "^3.18.2",
-        "apify": "^3.7.2"
+        "apify": "^3.8.0"
     },
     "devDependencies": {
         "@apify/tsconfig": "^0.2.0",
-        "@types/node": "^24.19.2",
+        "@types/node": "^24.19.4",
         "tsx": "^4.23.15",
         "typescript": "~7.0.2"
     },
